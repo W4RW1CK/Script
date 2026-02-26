@@ -1,8 +1,9 @@
 # BACKEND_STRUCTURE.md — Arquitectura de Backend y Base de Datos
 ## Script — Compañero Digital para Adultos con TEA Nivel 1
 
-**Versión:** 1.0  
-**Última actualización:** 2026-02-25
+**Versión:** 1.2  
+**Última actualización:** 2026-02-26  
+**Cambios v1.2:** RAADS-R domain counts corregidos (64→80 items). RLS con WITH CHECK en todas las tablas. RLS agregado para emotional_dictionary, script_executions, therapist_patients. sync-privy-user documentado en §4. Referencia de pantalla S07→S11.
 
 ---
 
@@ -63,8 +64,9 @@ CREATE TABLE profiles (
   catq_subscores      JSONB,   -- {"assimilation": 9-63, "compensation": 12-84, "masking": 4-28}
   catq_completed_at   TIMESTAMPTZ,
   -- RAADS-R (80 preguntas, score 0-240, 4 dominios)
+  -- Dominios: social_relatedness 39 items, language 7, circumscribed_interests 14, sensory_motor 20 → total 80 ✓
   raads_total_score   INTEGER CHECK (raads_total_score BETWEEN 0 AND 240),
-  raads_domain_scores JSONB,   -- {"social_relatedness": 0-81, "language": 0-21, "circumscribed_interests": 0-42, "sensory_motor": 0-48}
+  raads_domain_scores JSONB,   -- {"social_relatedness": 0-117, "language": 0-21, "circumscribed_interests": 0-42, "sensory_motor": 0-60}
   raads_completed_at  TIMESTAMPTZ,
   -- Cuestionario personal
   interests           TEXT[],                -- ["música", "programación", "anime"]
@@ -262,23 +264,28 @@ CREATE TABLE therapist_patients (
 ## 3. Row Level Security (RLS)
 
 ```sql
--- REGLA MAESTRA: cada usuario solo ve sus propios datos
+-- REGLA MAESTRA: cada usuario solo ve y modifica sus propios datos
+-- ⚠️ CRÍTICO: WITH CHECK es obligatorio para que INSERT funcione en Supabase.
+--    Sin WITH CHECK, los INSERT fallan silenciosamente aunque el USING pase.
 
 -- users
 ALTER TABLE users ENABLE ROW LEVEL SECURITY;
 CREATE POLICY "users_own_data" ON users
-  FOR ALL USING (auth.uid() = id);
+  FOR ALL USING (auth.uid() = id)
+  WITH CHECK (auth.uid() = id);
 
 -- profiles
 ALTER TABLE profiles ENABLE ROW LEVEL SECURITY;
 CREATE POLICY "profiles_own_data" ON profiles
-  FOR ALL USING (auth.uid() = user_id);
+  FOR ALL USING (auth.uid() = user_id)
+  WITH CHECK (auth.uid() = user_id);
 
 -- checkins
 ALTER TABLE checkins ENABLE ROW LEVEL SECURITY;
 CREATE POLICY "checkins_own_data" ON checkins
-  FOR ALL USING (auth.uid() = user_id);
--- Excepción: terapeuta puede ver checkins si tiene permiso
+  FOR ALL USING (auth.uid() = user_id)
+  WITH CHECK (auth.uid() = user_id);
+-- Excepción: terapeuta puede ver checkins si tiene permiso activo
 CREATE POLICY "checkins_therapist_view" ON checkins
   FOR SELECT USING (
     EXISTS (
@@ -291,30 +298,87 @@ CREATE POLICY "checkins_therapist_view" ON checkins
     )
   );
 
--- scripts: predefinidos son públicos (lectura), personalizados son privados
+-- emotional_dictionary: solo el usuario
+ALTER TABLE emotional_dictionary ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "dictionary_own_data" ON emotional_dictionary
+  FOR ALL USING (auth.uid() = user_id)
+  WITH CHECK (auth.uid() = user_id);
+
+-- scripts: predefinidos son públicos (solo lectura), personalizados son privados
 ALTER TABLE scripts ENABLE ROW LEVEL SECURITY;
 CREATE POLICY "scripts_predefined_read" ON scripts
   FOR SELECT USING (is_predefined = TRUE);
 CREATE POLICY "scripts_own_data" ON scripts
-  FOR ALL USING (auth.uid() = owner_user_id);
+  FOR ALL USING (auth.uid() = owner_user_id)
+  WITH CHECK (auth.uid() = owner_user_id);
+-- Excepción: terapeuta puede ver scripts de su paciente si tiene permiso
+CREATE POLICY "scripts_therapist_view" ON scripts
+  FOR SELECT USING (
+    EXISTS (
+      SELECT 1 FROM therapist_patients
+      WHERE therapist_id = auth.uid()
+      AND patient_id = scripts.owner_user_id
+      AND can_see_scripts = TRUE
+      AND status = 'active'
+      AND (share_data_until IS NULL OR share_data_until > NOW())
+    )
+  );
 
--- crisis_events: solo el usuario
-ALTER TABLE crisis_events ENABLE ROW LEVEL SECURITY;
-CREATE POLICY "crisis_own_data" ON crisis_events
-  FOR ALL USING (auth.uid() = user_id);
+-- script_executions: solo el usuario
+ALTER TABLE script_executions ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "executions_own_data" ON script_executions
+  FOR ALL USING (auth.uid() = user_id)
+  WITH CHECK (auth.uid() = user_id);
 
 -- trusted_contacts: solo el usuario
 ALTER TABLE trusted_contacts ENABLE ROW LEVEL SECURITY;
 CREATE POLICY "contacts_own_data" ON trusted_contacts
-  FOR ALL USING (auth.uid() = user_id);
+  FOR ALL USING (auth.uid() = user_id)
+  WITH CHECK (auth.uid() = user_id);
+
+-- crisis_events: solo el usuario
+ALTER TABLE crisis_events ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "crisis_own_data" ON crisis_events
+  FOR ALL USING (auth.uid() = user_id)
+  WITH CHECK (auth.uid() = user_id);
+
+-- therapist_patients: terapeuta y paciente pueden ver la relación; solo el paciente controla permisos
+ALTER TABLE therapist_patients ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "tp_therapist_view" ON therapist_patients
+  FOR SELECT USING (auth.uid() = therapist_id OR auth.uid() = patient_id);
+CREATE POLICY "tp_patient_manage" ON therapist_patients
+  FOR ALL USING (auth.uid() = patient_id)
+  WITH CHECK (auth.uid() = patient_id);
 ```
 
 ---
 
 ## 4. Edge Functions (Supabase)
 
+### `sync-privy-user`
+**Trigger:** POST desde el cliente inmediatamente después de que Privy completa el login  
+**Input:**
+```typescript
+{
+  privy_user_id: string,
+  email?: string,
+  wallet_address?: string
+}
+```
+**Proceso:** Busca o crea usuario en tabla `users`. Si es nuevo, crea registro vacío en `profiles`. Genera y retorna Supabase session token.  
+**Output:**
+```typescript
+{
+  supabase_token: string,
+  user_id: string,
+  is_new_user: boolean  // true = redirigir a onboarding
+}
+```
+
+---
+
 ### `interpret-checkin`
-**Trigger:** POST desde el cliente al completar S07 (texto libre)  
+**Trigger:** POST desde el cliente al completar S11 (texto libre)  
 **Input:**
 ```typescript
 {

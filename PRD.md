@@ -456,10 +456,10 @@ const ZONE_LABELS: Record<BodyZone, string> = {
 
 | Dominio | # ítems | Score máx | Qué mide |
 |---|---|---|---|
-| Relaciones sociales | 27 | 81 | Dificultades de reciprocidad social |
+| Relaciones sociales | 39 | 117 | Dificultades de reciprocidad social |
 | Lenguaje | 7 | 21 | Uso y comprensión del lenguaje |
 | Intereses circunscritos | 14 | 42 | Intereses intensos y repetitivos |
-| Motor sensorial | 16 | 48 | Procesamiento sensorial y control motor |
+| Motor sensorial | 20 | 60 | Procesamiento sensorial y control motor |
 
 **Score total:** 0–240
 - Umbral orientativo TEA: ≥65
@@ -484,10 +484,10 @@ Con 80 preguntas, el test debe poder pausarse y retomarse:
 {
   "raads_total_score": 134,
   "raads_domain_scores": {
-    "social_relatedness": 58,
+    "social_relatedness": 72,
     "language": 14,
     "circumscribed_interests": 32,
-    "sensory_motor": 30
+    "sensory_motor": 16
   }
 }
 ```
