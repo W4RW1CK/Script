@@ -276,9 +276,9 @@ Paso 3: Crear Supabase Edge Function: send-crisis-notification
 
 ---
 
-### FASE 1.8 — Auth Básico (Cierre de Semana 1)
+### FASE 1.8 — Auth Básico + Onboarding Completo
 
-**Referencias:** TECH_STACK.md § Autenticación, BACKEND_STRUCTURE.md §8
+**Referencias:** TECH_STACK.md § Autenticación, BACKEND_STRUCTURE.md §8, PRD.md §3.1 + Apéndices A-E, APP_FLOW.md § FLUJO 1
 
 ```
 Paso 1: Instalar @privy-io/expo y configurar PrivyProvider en app/_layout.tsx
@@ -294,12 +294,64 @@ Paso 4: Configurar redirect post-auth:
         - Si onboarding_complete = false → /onboarding
         - Si onboarding_complete = true → /home
 Paso 5: Crear app/(onboarding)/index.tsx (S01 Welcome):
-        - Pantalla con logo/nombre
+        - Pantalla con logo/nombre "Script"
+        - Tagline: "Un manual para quienes sienten que son el único actor que no conoce el guión"
         - Botón "Comenzar mi camino" → /onboarding/aq10
         - Botón "Necesito ayuda ahora" → /rescue/assess
+
+Paso 6: Crear app/(onboarding)/aq10.tsx (S02):
+        - 10 preguntas del PRD Apéndice A, UNA por pantalla
+        - Escala: 4 opciones (Totalmente de acuerdo / Ligeramente de acuerdo /
+          Ligeramente en desacuerdo / Totalmente en desacuerdo)
+        - Barra de progreso: "Pregunta X de 10"
+        - Sin botón "atrás" entre preguntas (para evitar over-thinking)
+        - Al terminar: calcular score y navegar a /onboarding/aq10-result
+
+Paso 7: Crear app/(onboarding)/aq10-result.tsx (S03):
+        - Mostrar score + mensaje de PRD Apéndice A (sin usar palabras "positivo/negativo")
+        - Si score ≥6: mostrar tarjeta recomendando AQ Completo
+        - Si score <6: mostrar tarjeta recomendando CAT-Q
+        - Siempre mostrar opción de RAADS-R como tercer test
+        - Botón por test: "Hacer ahora" / "Más tarde"
+        - Botón: "Saltar tests adicionales → Continuar" → /onboarding/profile
+
+Paso 8: Crear componente reutilizable TestScreen con:
+        - Props: questions[], scale, title, onComplete(scores)
+        - Navegación pregunta por pregunta
+        - Botón "Pausar y continuar después" (guarda progreso en SecureStore)
+        - Progreso visible: "Pregunta X de Y"
+
+Paso 9: Crear app/(onboarding)/aq-full.tsx (S04 — AQ 50 preguntas):
+        - Usar componente TestScreen
+        - 50 preguntas del PRD Apéndice C
+        - Mismo formato escala que AQ-10
+        - Al completar: guardar aq_full_score + aq_full_domain_scores en profiles
+        - Botón "Omitir" siempre visible → /onboarding/catq
+
+Paso 10: Crear app/(onboarding)/catq.tsx (S05 — 25 preguntas):
+        - Usar componente TestScreen
+        - 25 preguntas del PRD Apéndice D
+        - Escala 1-7 (7 opciones)
+        - Al completar: calcular catq_total_score + catq_subscores, guardar en profiles
+        - Botón "Omitir" siempre visible → /onboarding/raads
+
+Paso 11: Crear app/(onboarding)/raads.tsx (S06 — 80 preguntas):
+        - Usar componente TestScreen con soporte de pausa
+        - 80 preguntas del PRD Apéndice E
+        - Escala 0-3 (4 opciones)
+        - Al completar: calcular raads scores por dominio, guardar en profiles
+        - Botón "Omitir" siempre visible → /onboarding/profile
+
+Paso 12: Crear función lib/profile-seed.ts:
+        - INPUT: scores de todos los tests completados
+        - OUTPUT: perfil semilla con:
+          - scripts_priority: string[] (qué scripts mostrar primero)
+          - sensory_defaults: { light, sound, touch, crowds }
+          - emphasis: 'social' | 'sensory' | 'masking' | 'general'
+        - Esta función alimenta la primera experiencia personalizada del usuario
 ```
 
-**Verificación:** Login con email funciona. Usuario creado en Supabase. Redirect correcto.
+**Verificación:** Login con email funciona. Onboarding completo. Perfil con scores en Supabase. Función profile-seed retorna datos coherentes con los scores.
 
 ---
 
