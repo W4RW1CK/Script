@@ -1,8 +1,9 @@
 # IMPLEMENTATION_PLAN.md — Plan de Implementación
 ## Script — Compañero Digital para Adultos con TEA Nivel 1
 
-**Versión:** 1.3  
+**Versión:** 1.4  
 **Última actualización:** 2026-02-26  
+**Cambios v1.4:** §1.7 audio filename corregido calm-tone.mp3→tone-ambient.mp3 (consistente con BACKEND_STRUCTURE §5). §1.8 Paso 5 tagline corregido (texto completo). §1.8 Paso 12 profile-seed aclarado como runtime/Zustand (no persiste en Supabase).  
 **Cambios v1.3:** FASE 1.1 — agregado expo-symbols al install; corregido @supabase/supabase-js de npx expo install → npm install@2.97.0 (versión pinneada, consistente con TECH_STACK.md).  
 **Cambios v1.2:** Screen IDs actualizados (S06-S14 → S10-S18). expo-av→expo-audio. react-native-worklets, @privy-io/expo y expo-device agregados al install. Pasos 13-14 agregados en Fase 1.8 (profile.tsx, contacts.tsx). Semana 2 Step 2.1 corregido. Directorio de tests en Fase 1.1.
 **Duración total:** 5 semanas  
@@ -259,7 +260,8 @@ Paso 2: Crear app/(app)/rescue/protocol.tsx (S18)
            - Componente con círculo SVG animado (ver FRONTEND_GUIDELINES.md §6)
            - Integrar expo-haptics: vibración sutil al ritmo
            - Integrar expo-audio (NO expo-av): cargar y reproducir audio (si usuario lo activó)
-             Ejemplo: const player = useAudioPlayer(require('../../assets/audio/calm-tone.mp3'))
+             Ejemplo: const player = useAudioPlayer(require('../../assets/audio/tone-ambient.mp3'))
+             // Archivos bundleados: tone-inhale.mp3, tone-exhale.mp3, tone-ambient.mp3 (ver BACKEND_STRUCTURE.md §5)
            - 3 ciclos mínimo (inhalar 4s + pausa 2s + exhalar 6s = 12s por ciclo)
            - Después de ciclos: mostrar opciones finales
         
@@ -308,7 +310,7 @@ Paso 4: Configurar redirect post-auth:
         - Si onboarding_complete = true → /home
 Paso 5: Crear app/(onboarding)/index.tsx (S01 Welcome):
         - Pantalla con logo/nombre "Script"
-        - Tagline: "Un manual para quienes sienten que son el único actor que no conoce el guión"
+        - Tagline: "Un manual para quienes sienten que son el único actor en la obra el cual no conoce el guión"
         - Botón "Comenzar mi camino" → /onboarding/aq10
         - Botón "Necesito ayuda ahora" → /rescue/assess
 
@@ -361,6 +363,9 @@ Paso 12: Crear función lib/profile-seed.ts:
           - scripts_priority: string[] (qué scripts mostrar primero)
           - sensory_defaults: { light, sound, touch, crowds }
           - emphasis: 'social' | 'sensory' | 'masking' | 'general'
+        - ⚠️ RUNTIME: estos valores NO se persisten en la tabla `profiles` de Supabase
+          (no existen esas columnas). Se guardan en el Zustand store al iniciar sesión
+          y se re-calculan desde los scores guardados. Opcional: cachear en SecureStore.
         - Esta función alimenta la primera experiencia personalizada del usuario
 
 Paso 13: Crear app/(onboarding)/profile.tsx (S07 — Cuestionario Personal):

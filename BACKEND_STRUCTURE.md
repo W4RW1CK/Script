@@ -3,6 +3,7 @@
 
 **Versión:** 1.2  
 **Última actualización:** 2026-02-26  
+**Cambios v1.3:** §4 interpret-checkin trigger corregido S11→S12 (la edge function se llama desde reflect.tsx). §4 send-crisis-notification corregido "nivel 2-3" → "nivel 3 únicamente" (consistente con PRD/APP_FLOW/IMPLEMENTATION_PLAN). §5 Storage: nota de audio bundleado en assets para offline; nombres de archivo estandarizados.  
 **Cambios v1.2:** RAADS-R domain counts corregidos (64→80 items). RLS con WITH CHECK en todas las tablas. RLS agregado para emotional_dictionary, script_executions, therapist_patients. sync-privy-user documentado en §4. Referencia de pantalla S07→S11.
 
 ---
@@ -378,7 +379,7 @@ CREATE POLICY "tp_patient_manage" ON therapist_patients
 ---
 
 ### `interpret-checkin`
-**Trigger:** POST desde el cliente al completar S11 (texto libre)  
+**Trigger:** POST desde el cliente al cargar S12 (checkin/reflect.tsx — el usuario completó S11 y navegó a la pantalla de interpretación)  
 **Input:**
 ```typescript
 {
@@ -402,7 +403,7 @@ CREATE POLICY "tp_patient_manage" ON therapist_patients
 ```
 
 ### `send-crisis-notification`
-**Trigger:** POST desde el cliente al activar protocolo nivel 2-3  
+**Trigger:** POST desde el cliente al activar protocolo **nivel 3 únicamente** (nivel 1 y 2 no notifican — ver PRD §3.4)  
 **Input:**
 ```typescript
 {
@@ -429,6 +430,11 @@ CREATE POLICY "tp_patient_manage" ON therapist_patients
 - Acceso: **público** (archivos de audio no son sensitivos)
 - Contenido: archivos `.mp3` de tonos de guía de respiración
 - Naming: `tone-inhale.mp3`, `tone-exhale.mp3`, `tone-ambient.mp3`
+
+> ⚠️ **MVP — Audio offline-first:** El protocolo de respiración (S18) debe funcionar sin internet. Para Semana 1, los archivos de audio deben estar **bundleados en el app** en `assets/audio/` con los mismos nombres (`tone-inhale.mp3`, `tone-exhale.mp3`, `tone-ambient.mp3`). Este bucket de Supabase Storage es para contenido extendido en Semana 3+. Usar siempre `require()` local en la implementación del BreathingGuide:
+> ```typescript
+> const player = useAudioPlayer(require('../../assets/audio/tone-ambient.mp3'))
+> ```
 
 ### Bucket: `user-avatars`
 - Acceso: **privado** (solo el usuario puede ver su avatar)
