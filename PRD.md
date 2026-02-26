@@ -64,7 +64,7 @@ El onboarding tiene dos fases: **rápida** (obligatoria, ~3 min) y **profunda** 
 #### Fase Profunda — Opcional (disponible post AQ-10)
 Tests adicionales que **alimentan el perfil semilla** con mayor precisión. El usuario puede:
 - Hacerlos todos durante el onboarding (flujo S04 → S05 → S06)
-- Retomarlos en cualquier momento desde Configuración → "Completar mi perfil" (S21) — **disponible desde Semana 1** (Phase 1.8)
+- Retomarlos en cualquier momento desde Configuración → "Completar mi perfil" (S21) — **disponible desde Semana 2** (Fase 2.1 — las pantallas S04–S06 existen desde Semana 1, el entry point en Settings se construye en Semana 2)
 - Saltarlos completamente (sin penalización)
 
 **Test 2: AQ Completo (Autism Quotient — 50 preguntas)**

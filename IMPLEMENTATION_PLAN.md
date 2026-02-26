@@ -1,8 +1,9 @@
 # IMPLEMENTATION_PLAN.md — Plan de Implementación
 ## Script — Compañero Digital para Adultos con TEA Nivel 1
 
-**Versión:** 1.2  
+**Versión:** 1.3  
 **Última actualización:** 2026-02-26  
+**Cambios v1.3:** FASE 1.1 — agregado expo-symbols al install; corregido @supabase/supabase-js de npx expo install → npm install@2.97.0 (versión pinneada, consistente con TECH_STACK.md).  
 **Cambios v1.2:** Screen IDs actualizados (S06-S14 → S10-S18). expo-av→expo-audio. react-native-worklets, @privy-io/expo y expo-device agregados al install. Pasos 13-14 agregados en Fase 1.8 (profile.tsx, contacts.tsx). Semana 2 Step 2.1 corregido. Directorio de tests en Fase 1.1.
 **Duración total:** 5 semanas  
 **Entrega intermedia:** Semana 1 (lunes)
@@ -37,7 +38,8 @@ npx expo install expo-audio expo-haptics expo-notifications expo-device
 npx expo install expo-location expo-sms
 npx expo install expo-secure-store @react-native-async-storage/async-storage
 npx expo install expo-font @expo-google-fonts/inter
-npx expo install @supabase/supabase-js
+npx expo install expo-symbols
+npm install @supabase/supabase-js@2.97.0
 npm install @privy-io/expo@0.63.6
 npm install openai@6.25.0
 npm install zustand@5.0.11 @tanstack/react-query@5.90.21
