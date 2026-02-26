@@ -1,9 +1,10 @@
 # PRD.md — Product Requirements Document
 ## Script — Compañero Digital para Adultos con TEA Nivel 1
 
-**Versión:** 1.1  
+**Versión:** 1.2  
 **Última actualización:** 2026-02-26  
-**Cambios v1.1:** Agregadas preguntas AQ-10 en Apéndice A, guidance de body map SVG en Apéndice B.
+**Cambios v1.1:** Agregadas preguntas AQ-10 en Apéndice A, guidance de body map SVG en Apéndice B.  
+**Cambios v1.2:** RAADS-R domain counts corregidos (Apéndice E). §3.4 notificaciones acotadas a nivel 3. §4 Semana 2 auth redundante eliminada. §6 Principio 6 alineado con APP_FLOW.md (1 tap, no 2).
 **Owner:** W4RW1CK  
 **Estado:** MVP en desarrollo
 
@@ -162,13 +163,13 @@ Cada bloque tiene 2–3 opciones de lenguaje. El usuario elige en el momento, no
    - 1 = Incómodo / 2 = Difícil / 3 = No puedo
 3. Según nivel, inicia protocolo:
    - **Nivel 1:** Técnica de grounding 5-4-3-2-1 con guía visual
-   - **Nivel 2:** Respiración guiada (visual + audio + háptico)
-   - **Nivel 3:** Respiración + notificación automática a red de confianza
+   - **Nivel 2:** Respiración guiada (visual + audio + háptico) — sin notificación
+   - **Nivel 3:** Respiración guiada + notificación automática a red de confianza
 4. **Secuencia de calma multimodal:**
    - Visual: círculo que expande/contrae al ritmo de respiración
    - Audio: tono suave al ritmo (activable/desactivable)
    - Háptico: vibración sutil al ritmo (si dispositivo lo permite)
-5. **Notificación a red de confianza (nivel 2–3):**
+5. **Notificación a red de confianza (nivel 3 únicamente):**
    - Si online: push notification nativa con ubicación + contexto breve
    - Si offline: SMS nativo pre-formateado como fallback
    - Mensajes a todos los contactos en paralelo
@@ -183,10 +184,10 @@ Cada bloque tiene 2–3 opciones de lenguaje. El usuario elige en el momento, no
 ## 4. Features — Post-MVP (Semanas 2–5)
 
 ### Semana 2
-- Autenticación completa (Privy: email/social + wallet)
-- Historial de check-ins con visualización de patrones básicos
-- Diccionario emocional personal (vocabulario que crece con uso)
-- Personalización: modo claro/oscuro, paleta de colores, animaciones on/off
+- Tests opcionales de screening accesibles desde Configuración (S04 AQ Full, S05 CAT-Q, S06 RAADS-R)
+- Historial de check-ins con visualización de patrones básicos (S19)
+- Diccionario emocional personal (vocabulario que crece con uso) (S20)
+- Personalización: modo claro/oscuro, paleta de colores, animaciones on/off (S21)
 
 ### Semana 3
 - Red de confianza completa (agregar contactos, configurar qué ven, comunicación bilateral)
@@ -230,7 +231,7 @@ Cada bloque tiene 2–3 opciones de lenguaje. El usuario elige en el momento, no
 3. **Sin juicio:** La app nunca evalúa, corrige ni califica las emociones del usuario
 4. **Lenguaje de exploración:** La IA propone, el usuario confirma. Nunca "tú sientes X"
 5. **Offline-ready:** Las funciones core funcionan sin internet
-6. **Acceso de emergencia:** El botón de rescate es alcanzable en máximo 2 taps desde cualquier pantalla
+6. **Acceso de emergencia:** El botón de rescate (→ S17) es alcanzable en **máximo 1 tap** desde cualquier pantalla de la app (FAB siempre visible)
 
 ---
 
