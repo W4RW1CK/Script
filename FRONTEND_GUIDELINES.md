@@ -1,8 +1,9 @@
 # FRONTEND_GUIDELINES.md — Sistema de Diseño
 ## Script — Compañero Digital para Adultos con TEA Nivel 1
 
-**Versión:** 1.0  
-**Última actualización:** 2026-02-25
+**Versión:** 1.1  
+**Última actualización:** 2026-02-26  
+**Cambios v1.1:** Agregada tabla de mapeo NativeWind (§1.3); corregido template de pantalla con dark mode; agregado `expo-symbols` a §8.
 
 > **Principio rector:** Ningún elemento de la UI puede ser un detonante sensorial. Cada decisión de diseño debe reducir la carga cognitiva y sensorial, no aumentarla.
 
@@ -47,6 +48,34 @@
 | `color-crisis-bg` | `#221E1E` | Fondo pantalla de rescate |
 | `color-crisis-soft` | `#6A3E3E` | Elementos de crisis |
 | `color-border` | `#3A3A44` | Bordes |
+
+### 1.3 Referencia de Tokens → Clases NativeWind
+
+Los tokens semánticos de arriba se mapean a las clases de `tailwind.config.js` así. **Usar siempre la clase NativeWind, nunca el hex directo.**
+
+| Token Semántico | Clase NativeWind (fondo) | Clase NativeWind (texto) | Clase NativeWind (borde) |
+|---|---|---|---|
+| `color-bg-primary` | `bg-script-bg` | — | — |
+| `color-bg-secondary` | `bg-script-bg-secondary` | — | — |
+| `color-bg-elevated` | `bg-script-bg-elevated` | — | — |
+| `color-text-primary` | — | `text-script-text` | — |
+| `color-text-secondary` | — | `text-script-text-secondary` | — |
+| `color-accent-blue` | `bg-script-blue` | `text-script-blue` | `border-script-blue` |
+| `color-accent-green` | `bg-script-green` | `text-script-green` | — |
+| `color-accent-peach` | `bg-script-peach` | `text-script-peach` | — |
+| `color-accent-lavender` | `bg-script-lavender` | `text-script-lavender` | — |
+| `color-crisis-bg` | `bg-script-crisis` | — | — |
+| `color-crisis-soft` | `bg-script-crisis-soft` | — | — |
+| `color-border` | — | — | `border-script-border` |
+| `color-bg-primary` (dark) | `dark:bg-script-dark-bg` | — | — |
+| `color-bg-secondary` (dark) | `dark:bg-script-dark-secondary` | — | — |
+| `color-accent-blue` (dark) | `dark:bg-script-dark-blue` | `dark:text-script-dark-blue` | — |
+| `color-crisis-bg` (dark) | `dark:bg-script-dark-crisis` | — | — |
+
+> ✅ Ejemplo de uso correcto: `className="bg-script-bg dark:bg-script-dark-bg text-script-text"`  
+> ❌ Nunca: `className="bg-[#F8F6F2]"` (hardcoded, rompe dark mode)
+
+---
 
 ### Modo Crisis (se activa al entrar al protocolo de rescate)
 
@@ -261,7 +290,12 @@ const reducedMotion = useReducedMotion()
 
 ## 8. Iconografía
 
-**Librería:** Expo Symbols (SF Symbols en iOS, equivalentes en Android)
+**Librería:** `expo-symbols` (SF Symbols en iOS, equivalentes en Android)
+
+**Instalación** (agregar al paso 2 de TECH_STACK.md):
+```bash
+npx expo install expo-symbols
+```
 
 | Uso | Ícono |
 |---|---|
@@ -295,7 +329,7 @@ const reducedMotion = useReducedMotion()
 
 ```typescript
 // Template de pantalla estándar
-<SafeAreaView className="flex-1 bg-[#F8F6F2]">
+<SafeAreaView className="flex-1 bg-script-bg dark:bg-script-dark-bg">
   <ScrollView 
     className="flex-1 px-5"
     showsVerticalScrollIndicator={false}

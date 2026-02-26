@@ -1,9 +1,11 @@
 # PRD.md — Product Requirements Document
 ## Script — Compañero Digital para Adultos con TEA Nivel 1
 
-**Versión:** 1.1  
+**Versión:** 1.3  
 **Última actualización:** 2026-02-26  
-**Cambios v1.1:** Agregadas preguntas AQ-10 en Apéndice A, guidance de body map SVG en Apéndice B.
+**Cambios v1.1:** Agregadas preguntas AQ-10 en Apéndice A, guidance de body map SVG en Apéndice B.  
+**Cambios v1.2:** RAADS-R domain counts corregidos (Apéndice E). §3.4 notificaciones acotadas a nivel 3. §4 Semana 2 auth redundante eliminada. §6 Principio 6 alineado con APP_FLOW.md (1 tap, no 2).  
+**Cambios v1.3:** §3.1 Fase Profunda — aclarado que Settings access es Semana 1 (Phase 1.8). §4 Semana 2 — tests de screening removidos (son Semana 1). §4 Semana 5 — "offline completo" acotado para no confundir con offline-first base de Semana 1.
 **Owner:** W4RW1CK  
 **Estado:** MVP en desarrollo
 
@@ -61,8 +63,8 @@ El onboarding tiene dos fases: **rápida** (obligatoria, ~3 min) y **profunda** 
 
 #### Fase Profunda — Opcional (disponible post AQ-10)
 Tests adicionales que **alimentan el perfil semilla** con mayor precisión. El usuario puede:
-- Hacerlos todos durante el onboarding
-- Hacerlos en cualquier momento desde Configuración
+- Hacerlos todos durante el onboarding (flujo S04 → S05 → S06)
+- Retomarlos en cualquier momento desde Configuración → "Completar mi perfil" (S21) — **disponible desde Semana 2** (Fase 2.1 — las pantallas S04–S06 existen desde Semana 1, el entry point en Settings se construye en Semana 2)
 - Saltarlos completamente (sin penalización)
 
 **Test 2: AQ Completo (Autism Quotient — 50 preguntas)**
@@ -162,13 +164,13 @@ Cada bloque tiene 2–3 opciones de lenguaje. El usuario elige en el momento, no
    - 1 = Incómodo / 2 = Difícil / 3 = No puedo
 3. Según nivel, inicia protocolo:
    - **Nivel 1:** Técnica de grounding 5-4-3-2-1 con guía visual
-   - **Nivel 2:** Respiración guiada (visual + audio + háptico)
-   - **Nivel 3:** Respiración + notificación automática a red de confianza
+   - **Nivel 2:** Respiración guiada (visual + audio + háptico) — sin notificación
+   - **Nivel 3:** Respiración guiada + notificación automática a red de confianza
 4. **Secuencia de calma multimodal:**
    - Visual: círculo que expande/contrae al ritmo de respiración
    - Audio: tono suave al ritmo (activable/desactivable)
    - Háptico: vibración sutil al ritmo (si dispositivo lo permite)
-5. **Notificación a red de confianza (nivel 2–3):**
+5. **Notificación a red de confianza (nivel 3 únicamente):**
    - Si online: push notification nativa con ubicación + contexto breve
    - Si offline: SMS nativo pre-formateado como fallback
    - Mensajes a todos los contactos en paralelo
@@ -183,10 +185,11 @@ Cada bloque tiene 2–3 opciones de lenguaje. El usuario elige en el momento, no
 ## 4. Features — Post-MVP (Semanas 2–5)
 
 ### Semana 2
-- Autenticación completa (Privy: email/social + wallet)
-- Historial de check-ins con visualización de patrones básicos
-- Diccionario emocional personal (vocabulario que crece con uso)
-- Personalización: modo claro/oscuro, paleta de colores, animaciones on/off
+- Historial de check-ins con visualización de patrones básicos (S19)
+- Diccionario emocional personal (vocabulario que crece con uso) (S20)
+- Personalización: modo claro/oscuro, paleta de colores, animaciones on/off (S21)
+
+> ℹ️ **Nota:** Los tests AQ Full (S04), CAT-Q (S05) y RAADS-R (S06) están implementados desde **Semana 1** (Phase 1.8) y son accesibles desde el onboarding y desde Configuración → "Completar mi perfil".
 
 ### Semana 3
 - Red de confianza completa (agregar contactos, configurar qué ven, comunicación bilateral)
@@ -202,7 +205,7 @@ Cada bloque tiene 2–3 opciones de lenguaje. El usuario elige en el momento, no
 
 ### Semana 5
 - Control de acceso on-chain (EVM L2 — TBD)
-- Modo offline completo con sincronización inteligente
+- Sincronización inteligente avanzada (resolución de conflictos, queue de pendientes, background sync) — las funciones core ya son offline-first desde Semana 1
 - Reducción sensorial automática en crisis (contraste, animaciones)
 - Build APK para Android
 - Polish sensorial y accesibilidad completa
@@ -230,7 +233,7 @@ Cada bloque tiene 2–3 opciones de lenguaje. El usuario elige en el momento, no
 3. **Sin juicio:** La app nunca evalúa, corrige ni califica las emociones del usuario
 4. **Lenguaje de exploración:** La IA propone, el usuario confirma. Nunca "tú sientes X"
 5. **Offline-ready:** Las funciones core funcionan sin internet
-6. **Acceso de emergencia:** El botón de rescate es alcanzable en máximo 2 taps desde cualquier pantalla
+6. **Acceso de emergencia:** El botón de rescate (→ S17) es alcanzable en **máximo 1 tap** desde cualquier pantalla de la app (FAB siempre visible)
 
 ---
 
@@ -456,10 +459,10 @@ const ZONE_LABELS: Record<BodyZone, string> = {
 
 | Dominio | # ítems | Score máx | Qué mide |
 |---|---|---|---|
-| Relaciones sociales | 27 | 81 | Dificultades de reciprocidad social |
+| Relaciones sociales | 39 | 117 | Dificultades de reciprocidad social |
 | Lenguaje | 7 | 21 | Uso y comprensión del lenguaje |
 | Intereses circunscritos | 14 | 42 | Intereses intensos y repetitivos |
-| Motor sensorial | 16 | 48 | Procesamiento sensorial y control motor |
+| Motor sensorial | 20 | 60 | Procesamiento sensorial y control motor |
 
 **Score total:** 0–240
 - Umbral orientativo TEA: ≥65
@@ -484,10 +487,10 @@ Con 80 preguntas, el test debe poder pausarse y retomarse:
 {
   "raads_total_score": 134,
   "raads_domain_scores": {
-    "social_relatedness": 58,
+    "social_relatedness": 72,
     "language": 14,
     "circumscribed_interests": 32,
-    "sensory_motor": 30
+    "sensory_motor": 16
   }
 }
 ```

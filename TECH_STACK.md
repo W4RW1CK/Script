@@ -1,8 +1,9 @@
 # TECH_STACK.md — Stack Tecnológico
 ## Script — Compañero Digital para Adultos con TEA Nivel 1
 
-**Versión:** 1.1  
+**Versión:** 1.2  
 **Última actualización:** 2026-02-26  
+**Cambios v1.2:** Agregado `expo-symbols` a Estilos y UI y al comando de instalación (requerido por FRONTEND_GUIDELINES §8).  
 **Cambios v1.1:** Versiones verificadas contra npm registry. Expo 52→55, React 18→19, Reanimated 3→4, openai 4→6, zod 3→4, expo-av→expo-audio, todas las versiones de paquetes expo actualizadas.
 
 > ⚠️ **Regla de oro:** No instales ningún paquete que no esté en este documento sin actualizar este archivo primero. La consistencia de versiones previene el 80% de los bugs de setup.
@@ -34,32 +35,36 @@
 app/
 ├── (onboarding)/
 │   ├── index.tsx          → S01 Welcome
-│   ├── aq10.tsx           → S02 AQ-10 Test
-│   ├── profile.tsx        → S03 Cuestionario Personal
-│   └── contacts.tsx       → S04 Setup Contactos
+│   ├── aq10.tsx           → S02 AQ-10 Test (10 preguntas)
+│   ├── aq10-result.tsx    → S03 AQ-10 Resultado + decisión de continuar
+│   ├── aq-full.tsx        → S04 AQ Completo (50 preguntas, opcional)
+│   ├── catq.tsx           → S05 CAT-Q (25 preguntas, opcional)
+│   ├── raads.tsx          → S06 RAADS-R (80 preguntas, opcional)
+│   ├── profile.tsx        → S07 Cuestionario Personal
+│   └── contacts.tsx       → S08 Setup Contactos de Confianza
 ├── (app)/
-│   ├── _layout.tsx        → Layout con bottom navigation
-│   ├── home.tsx           → S05 Home
+│   ├── _layout.tsx        → Layout con bottom navigation (5 tabs)
+│   ├── home.tsx           → S09 Home
 │   ├── checkin/
-│   │   ├── body.tsx       → S06 Mapa Corporal
-│   │   ├── notes.tsx      → S07 Texto Libre
-│   │   ├── reflect.tsx    → S08 Interpretación IA
-│   │   └── result.tsx     → S09 Resultado
+│   │   ├── body.tsx       → S10 Mapa Corporal
+│   │   ├── notes.tsx      → S11 Texto Libre
+│   │   ├── reflect.tsx    → S12 Interpretación IA
+│   │   └── result.tsx     → S13 Resultado Check-in
 │   ├── scripts/
-│   │   ├── index.tsx      → S10 Biblioteca
-│   │   ├── [id].tsx       → S11 Script Detalle
-│   │   └── [id]/execute.tsx → S12 Script Ejecución
+│   │   ├── index.tsx      → S14 Biblioteca de Scripts
+│   │   ├── [id].tsx       → S15 Script Detalle
+│   │   └── [id]/execute.tsx → S16 Script Ejecución
 │   ├── rescue/
-│   │   ├── assess.tsx     → S13 Evaluación
-│   │   └── protocol.tsx   → S14 Protocolo
-│   ├── history.tsx        → S15 Historial
-│   ├── dictionary.tsx     → S16 Diccionario Emocional
+│   │   ├── assess.tsx     → S17 Evaluación de Crisis
+│   │   └── protocol.tsx   → S18 Protocolo de Rescate
+│   ├── history.tsx        → S19 Historial
+│   ├── dictionary.tsx     → S20 Diccionario Emocional
 │   └── settings/
-│       ├── index.tsx      → S17 Configuración
-│       └── contacts.tsx   → S18 Gestión Contactos
+│       ├── index.tsx      → S21 Configuración
+│       └── contacts.tsx   → S22 Gestión Contactos
 ├── therapist/
-│   └── index.tsx          → S19 Vista Terapeuta
-└── auth.tsx               → S20 Login/Auth
+│   └── index.tsx          → S23 Vista Terapeuta
+└── auth.tsx               → S24 Login / Auth
 ```
 
 ---
@@ -75,6 +80,7 @@ app/
 | **react-native-worklets** | **0.7.4** | ⚠️ NUEVO — Peer dependency requerida por Reanimated 4 |
 | **@expo-google-fonts/inter** | **latest** | Fuente Inter |
 | **expo-font** | **13.x** | Carga de fuentes custom |
+| **expo-symbols** | **55.x** | Íconos nativos (SF Symbols iOS / Material equivalentes Android) |
 
 > ⚠️ **Cambio importante — Reanimated 4:** La versión 4.x usa una nueva arquitectura de worklets. El API de `useAnimatedStyle`, `withTiming`, etc. se mantiene, pero ahora requiere `react-native-worklets` instalado. Sin esta dependencia la app crashea en runtime.
 
@@ -354,6 +360,7 @@ npx expo install expo-audio expo-haptics expo-location expo-sms
 npx expo install expo-notifications expo-device
 npx expo install expo-secure-store @react-native-async-storage/async-storage
 npx expo install expo-font @expo-google-fonts/inter
+npx expo install expo-symbols
 
 # 3. Paquetes npm (versiones fijas)
 npm install @supabase/supabase-js@2.97.0

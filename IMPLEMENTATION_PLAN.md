@@ -1,8 +1,11 @@
 # IMPLEMENTATION_PLAN.md — Plan de Implementación
 ## Script — Compañero Digital para Adultos con TEA Nivel 1
 
-**Versión:** 1.0  
-**Última actualización:** 2026-02-25  
+**Versión:** 1.4  
+**Última actualización:** 2026-02-26  
+**Cambios v1.4:** §1.7 audio filename corregido calm-tone.mp3→tone-ambient.mp3 (consistente con BACKEND_STRUCTURE §5). §1.8 Paso 5 tagline corregido (texto completo). §1.8 Paso 12 profile-seed aclarado como runtime/Zustand (no persiste en Supabase).  
+**Cambios v1.3:** FASE 1.1 — agregado expo-symbols al install; corregido @supabase/supabase-js de npx expo install → npm install@2.97.0 (versión pinneada, consistente con TECH_STACK.md).  
+**Cambios v1.2:** Screen IDs actualizados (S06-S14 → S10-S18). expo-av→expo-audio. react-native-worklets, @privy-io/expo y expo-device agregados al install. Pasos 13-14 agregados en Fase 1.8 (profile.tsx, contacts.tsx). Semana 2 Step 2.1 corregido. Directorio de tests en Fase 1.1.
 **Duración total:** 5 semanas  
 **Entrega intermedia:** Semana 1 (lunes)
 
@@ -28,14 +31,22 @@ cd script-app
 #         components/ThemedText.tsx, components/ThemedView.tsx
 
 # Paso 3: Instalar dependencias (exactamente en este orden)
-npx expo install expo-router react-native-svg react-native-reanimated
-npx expo install expo-notifications expo-haptics expo-av expo-location expo-sms
+# ⚠️ react-native-worklets DEBE ir antes que react-native-reanimated
+npx expo install expo-router
+npx expo install react-native-svg
+npx expo install react-native-worklets react-native-reanimated
+npx expo install expo-audio expo-haptics expo-notifications expo-device
+npx expo install expo-location expo-sms
 npx expo install expo-secure-store @react-native-async-storage/async-storage
-npx expo install @supabase/supabase-js
-npm install zustand @tanstack/react-query
-npm install date-fns zod react-hook-form @hookform/resolvers
-npm install nativewind tailwindcss
-npm install @expo-google-fonts/inter expo-font
+npx expo install expo-font @expo-google-fonts/inter
+npx expo install expo-symbols
+npm install @supabase/supabase-js@2.97.0
+npm install @privy-io/expo@0.63.6
+npm install openai@6.25.0
+npm install zustand@5.0.11 @tanstack/react-query@5.90.21
+npm install date-fns@4.1.0 zod@4.3.6
+npm install react-hook-form@7.55.0 @hookform/resolvers@5.2.2
+npm install nativewind@4.2.2 tailwindcss@3.4.0
 npm install --save-dev @types/react @types/react-native
 
 # Paso 4: Configurar NativeWind
@@ -43,9 +54,11 @@ npm install --save-dev @types/react @types/react-native
 # Agregar NativeWind plugin a babel.config.js
 
 # Paso 5: Configurar estructura de carpetas
-mkdir -p app/(onboarding) app/(app)/checkin app/(app)/scripts app/(app)/rescue
-mkdir -p app/(app)/settings components/ui components/body-map components/scripts
-mkdir -p lib hooks stores types constants
+mkdir -p app/\(onboarding\) app/\(app\)/checkin app/\(app\)/scripts app/\(app\)/rescue
+mkdir -p app/\(app\)/settings app/therapist
+mkdir -p components/ui components/body-map components/scripts components/rescue
+mkdir -p lib hooks stores types constants supabase/functions/interpret-checkin
+mkdir -p supabase/functions/send-crisis-notification supabase/functions/sync-privy-user
 ```
 
 **Verificación:** `npx expo start` corre sin errores. Expo Go conecta.
@@ -137,7 +150,7 @@ Paso 1: Crear componente components/body-map/BodyMap.tsx
         - Soporte multi-selección
         - Emite evento: onZonesChange(zones: string[])
 
-Paso 2: Crear app/(app)/checkin/body.tsx (S06)
+Paso 2: Crear app/(app)/checkin/body.tsx (S10)
         - Render BodyMap
         - Header: "¿Qué siente tu cuerpo?"
         - Instrucción: "Toca las zonas donde sientes algo"
@@ -145,14 +158,14 @@ Paso 2: Crear app/(app)/checkin/body.tsx (S06)
         - Botón "Describir lo que siento" (deshabilitado si 0 zonas)
         - Guarda zonas seleccionadas en estado local
 
-Paso 3: Crear app/(app)/checkin/notes.tsx (S07)
+Paso 3: Crear app/(app)/checkin/notes.tsx (S11)
         - Muestra zonas seleccionadas como chips (read-only)
         - TextInput multiline: "¿Qué percibes ahí?"
         - Placeholder: "Cualquier palabra vale. Presión, calor, nada, mariposas..."
         - Botón "Listo" → navega a /checkin/reflect
         - Guarda texto en estado
 
-Paso 4: Crear app/(app)/checkin/reflect.tsx (S08)
+Paso 4: Crear app/(app)/checkin/reflect.tsx (S12)
         - Loader animado: "Conectando los puntos..."
         - Llamar a Supabase Edge Function interpret-checkin
           (Si edge function no está lista: usar mock con 5 opciones hardcodeadas)
@@ -160,11 +173,11 @@ Paso 4: Crear app/(app)/checkin/reflect.tsx (S08)
         - Botón "Ninguna de estas" → TextInput para escribir propia
         - Botón "Continuar" → /checkin/result
 
-Paso 5: Crear app/(app)/checkin/result.tsx (S09)
+Paso 5: Crear app/(app)/checkin/result.tsx (S13)
         - Mostrar emoción confirmada con ícono visual
         - Texto: "Gracias por explorar esto."
         - Si hay script sugerido: mostrar tarjeta con botón "Ver script"
-        - Botón "Guardar" → inserta en tabla checkins → Home
+        - Botón "Guardar" → inserta en tabla checkins → S09 Home
         - Botón "🚩 Esto no se siente bien" → marca flagged_for_review = true
 
 Paso 6: Crear Supabase Edge Function: interpret-checkin
@@ -192,13 +205,13 @@ Paso 6: Crear Supabase Edge Function: interpret-checkin
 **Referencias:** APP_FLOW.md § FLUJO 3, BACKEND_STRUCTURE.md §6
 
 ```
-Paso 1: Crear app/(app)/scripts/index.tsx (S10)
+Paso 1: Crear app/(app)/scripts/index.tsx (S14)
         - Fetch de scripts (predefinidos + personalizados del usuario)
         - Agrupar por categoría
         - Tarjeta por script: título + ícono de categoría + duración estimada
         - Sin búsqueda en MVP (lista simple)
 
-Paso 2: Crear app/(app)/scripts/[id].tsx (S11 — Modo Preparación)
+Paso 2: Crear app/(app)/scripts/[id].tsx (S15 — Modo Preparación)
         - Título y descripción del script
         - Renderizar cada bloque:
           - type "apertura" / "accion" / "salida": mostrar opciones como chips seleccionables
@@ -206,7 +219,7 @@ Paso 2: Crear app/(app)/scripts/[id].tsx (S11 — Modo Preparación)
         - Botón "Modo Ejecución" → /scripts/[id]/execute
         - Botón "← Volver" → /scripts
 
-Paso 3: Crear app/(app)/scripts/[id]/execute.tsx (S12 — Modo Ejecución)
+Paso 3: Crear app/(app)/scripts/[id]/execute.tsx (S16 — Modo Ejecución)
         - Estado: bloque actual (índice)
         - Un bloque visible a la vez (pantalla limpia)
         - Para bloques con opciones: tarjetas táctiles grandes
@@ -214,7 +227,7 @@ Paso 3: Crear app/(app)/scripts/[id]/execute.tsx (S12 — Modo Ejecución)
         - Botón "→ Siguiente" / "← Atrás"
         - Indicador de progreso: "Paso 2 de 4"
         - Último bloque: botón "✓ Completado"
-        - Pantalla de cierre: escala 1-3 + guardar en script_executions
+        - Pantalla de cierre: escala 1-3 + guardar en script_executions → S09 Home
 ```
 
 **Verificación:** Usuario puede navegar y ejecutar los 5 scripts predefinidos.
@@ -226,7 +239,7 @@ Paso 3: Crear app/(app)/scripts/[id]/execute.tsx (S12 — Modo Ejecución)
 **Referencias:** APP_FLOW.md § FLUJO 4, FRONTEND_GUIDELINES.md §11, BACKEND_STRUCTURE.md §2 (crisis_events)
 
 ```
-Paso 1: Crear app/(app)/rescue/assess.tsx (S13)
+Paso 1: Crear app/(app)/rescue/assess.tsx (S17)
         - APLICAR TODAS las reglas de FRONTEND_GUIDELINES.md §11
         - Texto: "¿Qué tan intenso se siente esto?"
         - 3 botones grandes (mínimo 64px alto):
@@ -235,7 +248,7 @@ Paso 1: Crear app/(app)/rescue/assess.tsx (S13)
         - → /rescue/protocol (pasar nivel como parámetro)
         - Botón "← Salir" (arriba izquierda, siempre visible)
 
-Paso 2: Crear app/(app)/rescue/protocol.tsx (S14)
+Paso 2: Crear app/(app)/rescue/protocol.tsx (S18)
         - APLICAR TODAS las reglas de FRONTEND_GUIDELINES.md §11
         
         A) Si nivel === 1: Renderizar GroundingSequence
@@ -246,7 +259,9 @@ Paso 2: Crear app/(app)/rescue/protocol.tsx (S14)
         B) Si nivel === 2 o 3: Renderizar BreathingGuide
            - Componente con círculo SVG animado (ver FRONTEND_GUIDELINES.md §6)
            - Integrar expo-haptics: vibración sutil al ritmo
-           - Integrar expo-av: cargar y reproducir audio (si usuario lo activó)
+           - Integrar expo-audio (NO expo-av): cargar y reproducir audio (si usuario lo activó)
+             Ejemplo: const player = useAudioPlayer(require('../../assets/audio/tone-ambient.mp3'))
+             // Archivos bundleados: tone-inhale.mp3, tone-exhale.mp3, tone-ambient.mp3 (ver BACKEND_STRUCTURE.md §5)
            - 3 ciclos mínimo (inhalar 4s + pausa 2s + exhalar 6s = 12s por ciclo)
            - Después de ciclos: mostrar opciones finales
         
@@ -256,9 +271,9 @@ Paso 2: Crear app/(app)/rescue/protocol.tsx (S14)
            - Mostrar confirmación suave: "Avisando a tus contactos..."
         
         D) Opciones finales (todos los niveles):
-           - "Me siento mejor" → Home
+           - "Me siento mejor" → S09 Home
            - "Necesito más ayuda" → mostrar botón de llamada directa al contacto #1
-           - "Registrar" → mini form (1 campo: ¿cómo resultó?) → crisis_events
+           - "Registrar" → mini form (1 campo: ¿cómo resultó?) → crisis_events → S09 Home
 
 Paso 3: Crear Supabase Edge Function: send-crisis-notification
         - Buscar trusted_contacts del usuario
@@ -295,7 +310,7 @@ Paso 4: Configurar redirect post-auth:
         - Si onboarding_complete = true → /home
 Paso 5: Crear app/(onboarding)/index.tsx (S01 Welcome):
         - Pantalla con logo/nombre "Script"
-        - Tagline: "Un manual para quienes sienten que son el único actor que no conoce el guión"
+        - Tagline: "Un manual para quienes sienten que son el único actor en la obra el cual no conoce el guión"
         - Botón "Comenzar mi camino" → /onboarding/aq10
         - Botón "Necesito ayuda ahora" → /rescue/assess
 
@@ -348,20 +363,41 @@ Paso 12: Crear función lib/profile-seed.ts:
           - scripts_priority: string[] (qué scripts mostrar primero)
           - sensory_defaults: { light, sound, touch, crowds }
           - emphasis: 'social' | 'sensory' | 'masking' | 'general'
+        - ⚠️ RUNTIME: estos valores NO se persisten en la tabla `profiles` de Supabase
+          (no existen esas columnas). Se guardan en el Zustand store al iniciar sesión
+          y se re-calculan desde los scores guardados. Opcional: cachear en SecureStore.
         - Esta función alimenta la primera experiencia personalizada del usuario
+
+Paso 13: Crear app/(onboarding)/profile.tsx (S07 — Cuestionario Personal):
+        - Formulario con react-hook-form + zod
+        - Campos: nombre (text), edad (number), intereses (multiselect chips),
+          sensibilidades (checkboxes: luz / sonido / texturas / multitudes),
+          herramientas que ya usa (multiselect: journaling / terapia / meditación / ninguna)
+        - Guardar en tabla profiles (interests, sensitivities, existing_tools)
+        - Botón "Continuar" → /onboarding/contacts
+
+Paso 14: Crear app/(onboarding)/contacts.tsx (S08 — Setup Contactos):
+        - Formulario: nombre + teléfono + relación (selector)
+        - Botón "Agregar contacto" → guarda en trusted_contacts
+        - Lista de contactos ya agregados (chips eliminables)
+        - Botón "Omitir por ahora" → S24 Auth
+        - Botón "Listo (X contactos)" → S24 Auth
+        - Al llegar a auth: marcar onboarding_complete = true en profiles
 ```
 
-**Verificación:** Login con email funciona. Onboarding completo. Perfil con scores en Supabase. Función profile-seed retorna datos coherentes con los scores.
+**Verificación:** Flujo completo: S01 → S02 → S03 → S07 → S08 → S24 → S09. Login con email funciona. Perfil con datos básicos en Supabase. Función profile-seed retorna datos coherentes con scores.
 
 ---
 
 ## SEMANA 2 — Historial, Diccionario y Personalización
 
 ```
-2.1 Completar onboarding (AQ-10 + cuestionario personal)
-    - app/(onboarding)/aq10.tsx: 10 preguntas, calcular score, guardar en profiles
-    - app/(onboarding)/profile.tsx: intereses, sensibilidades, herramientas
-    - app/(onboarding)/contacts.tsx: agregar primer contacto de confianza (omitible)
+2.1 Tests opcionales de screening accesibles desde Configuración
+    - Completar los pasos que el usuario omitió durante onboarding (S04, S05, S06)
+    - app/(app)/settings/index.tsx: agregar sección "Completar mi perfil"
+    - Mostrar tests pendientes con indicador de progreso
+    - Tests disponibles desde Settings sin necesidad de repetir onboarding
+    - Nota: AQ-10, cuestionario y contactos ya implementados en Semana 1 Fase 1.8
 
 2.2 Historial de check-ins
     - app/(app)/history.tsx: lista de check-ins con fecha, emoción, zonas
@@ -491,17 +527,18 @@ Paso 12: Crear función lib/profile-seed.ts:
 
 ### Semana 1 (Lunes) ✅
 - [ ] App corre en Expo Go en dispositivo físico
-- [ ] Check-in completo de inicio a fin (S06 → S07 → S08 → S09)
-- [ ] 5 scripts navegables en modo preparación y ejecución
-- [ ] Botón de rescate funciona (nivel 1, 2, y 3)
-- [ ] Datos se guardan en Supabase
-- [ ] Auth básico con email
+- [ ] Onboarding funciona: S01 → S02 → S03 → S07 → S08 → S24 → S09
+- [ ] Check-in completo de inicio a fin: S10 → S11 → S12 → S13
+- [ ] 5 scripts navegables en modo preparación (S15) y ejecución (S16)
+- [ ] Botón de rescate funciona (nivel 1, 2, y 3): S17 → S18
+- [ ] Datos se guardan en Supabase (profiles + checkins + crisis_events)
+- [ ] Auth básico con email (Privy + sync-privy-user)
 
 ### Semana 2 ✅
-- [ ] Onboarding completo (AQ-10 + cuestionario + contactos)
-- [ ] Historial de check-ins visible
-- [ ] Diccionario emocional se construye
-- [ ] Tema claro/oscuro funcional
+- [ ] Tests opcionales accesibles desde Configuración (S04, S05, S06)
+- [ ] Historial de check-ins visible (S19)
+- [ ] Diccionario emocional se construye (S20)
+- [ ] Tema claro/oscuro funcional (S21)
 
 ### Semana 3 ✅
 - [ ] Contactos de confianza completamente configurables
