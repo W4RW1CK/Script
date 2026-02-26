@@ -51,9 +51,21 @@ Perfil sensorial y personal del usuario principal.
 CREATE TABLE profiles (
   id                  UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   user_id             UUID REFERENCES users(id) ON DELETE CASCADE,
-  -- AQ-10
+  -- Tests de screening (ver PRD §3.1 y Apéndices A-E)
   aq10_score          INTEGER CHECK (aq10_score BETWEEN 0 AND 10),
   aq10_completed_at   TIMESTAMPTZ,
+  -- AQ Completo (50 preguntas, score 0-50, umbral clínico ≥32)
+  aq_full_score       INTEGER CHECK (aq_full_score BETWEEN 0 AND 50),
+  aq_full_domain_scores JSONB,  -- {"social": 0-10, "attention_switching": 0-10, "attention_detail": 0-10, "communication": 0-10, "imagination": 0-10}
+  aq_full_completed_at TIMESTAMPTZ,
+  -- CAT-Q (25 preguntas, score 25-175, 3 subescalas)
+  catq_total_score    INTEGER CHECK (catq_total_score BETWEEN 25 AND 175),
+  catq_subscores      JSONB,   -- {"assimilation": 9-63, "compensation": 12-84, "masking": 4-28}
+  catq_completed_at   TIMESTAMPTZ,
+  -- RAADS-R (80 preguntas, score 0-240, 4 dominios)
+  raads_total_score   INTEGER CHECK (raads_total_score BETWEEN 0 AND 240),
+  raads_domain_scores JSONB,   -- {"social_relatedness": 0-81, "language": 0-21, "circumscribed_interests": 0-42, "sensory_motor": 0-48}
+  raads_completed_at  TIMESTAMPTZ,
   -- Cuestionario personal
   interests           TEXT[],                -- ["música", "programación", "anime"]
   sensitivities       JSONB DEFAULT '{}',    -- {"luz": true, "sonido": true, "texturas": false, "multitudes": true}

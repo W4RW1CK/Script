@@ -12,9 +12,13 @@
 |---|---|---|---|
 | S01 | Splash / Welcome | `/` | Primera pantalla, dos opciones |
 | S02 | AQ-10 Test | `/onboarding/aq10` | 10 preguntas orientativas |
-| S03 | Cuestionario Personal | `/onboarding/profile` | Intereses, preferencias sensoriales |
-| S04 | Setup Contactos | `/onboarding/contacts` | Agregar personas de confianza (omitible) |
-| S05 | Home | `/home` | Dashboard principal |
+| S03 | Resultado AQ-10 + Next Steps | `/onboarding/aq10-result` | Score + tests recomendados |
+| S04 | AQ Completo (50 preguntas) | `/onboarding/aq-full` | Solo si AQ-10 ≥6, omitible |
+| S05 | CAT-Q (25 preguntas) | `/onboarding/catq` | Mide enmascaramiento, omitible |
+| S06 | RAADS-R (80 preguntas) | `/onboarding/raads` | Presentación subcrítica, omitible |
+| S07 | Cuestionario Personal | `/onboarding/profile` | Intereses, preferencias sensoriales |
+| S08 | Setup Contactos | `/onboarding/contacts` | Agregar personas de confianza (omitible) |
+| S09 | Home | `/home` | Dashboard principal |
 | S06 | Check-in — Mapa Corporal | `/checkin/body` | Silueta interactiva |
 | S07 | Check-in — Texto Libre | `/checkin/notes` | Input de sensaciones |
 | S08 | Check-in — Interpretación IA | `/checkin/reflect` | Opciones de emoción |
@@ -44,24 +48,43 @@
 ```
 S01 Welcome
 ├── [Botón: "Comenzar mi camino"] → S02 AQ-10
-│   ├── Usuario responde 10 preguntas (escala Likert)
-│   ├── Resultado calculado (≤6: orientativo bajo / ≥7: perfil TEA probable)
-│   ├── Pantalla de resultado con mensaje NO diagnóstico
-│   │   ├── Score bajo: "Esto no es un diagnóstico. Script es para cualquiera que necesite apoyo."
-│   │   └── Score alto: "Muchas personas con TEA se identifican con esto. Considera hablar con un especialista."
-│   └── [Botón: "Continuar"] → S03 Cuestionario Personal
-│       ├── Preguntas: nombre, edad, intereses (multiselect), 
-│         sensibilidades (luz / sonido / texturas / multitudes),
-│         herramientas que ya usas (ninguna / journaling / terapia / meditación)
-│       └── [Botón: "Continuar"] → S04 Setup Contactos
-│           ├── [Botón: "Agregar contacto de confianza"] → Form: nombre + teléfono + relación
-│           ├── [Botón: "Omitir por ahora"] → S20 Auth
-│           └── [Botón: "Listo"] → S20 Auth
-│               └── Auth completado → S05 Home
+│   ├── Usuario responde 10 preguntas (escala Likert, ver PRD Apéndice A)
+│   ├── Resultado calculado (≤5: score bajo / ≥6: score alto)
+│   └── → S03 Resultado AQ-10 + Next Steps
+│       ├── Muestra score + mensaje NO diagnóstico
+│       ├── Score ≥6:
+│       │   ├── Recomendación: "Siguiente paso: AQ Completo (50 preguntas)"
+│       │   └── [Botón: "Hacer AQ completo ahora"] → S04 AQ Completo
+│       │       └── Completado o [Omitir] → S05 CAT-Q (opcional)
+│       │           └── Completado o [Omitir] → S06 RAADS-R (opcional)
+│       │               └── Completado o [Omitir] → S07 Cuestionario Personal
+│       ├── Score <6:
+│       │   ├── Recomendación: "Siguiente paso: CAT-Q (mide enmascaramiento)"
+│       │   └── [Botón: "Hacer CAT-Q ahora"] → S05 CAT-Q
+│       │       └── Completado o [Omitir] → S06 RAADS-R (opcional)
+│       │           └── Completado o [Omitir] → S07 Cuestionario Personal
+│       └── [Botón: "Saltar tests adicionales"] → S07 Cuestionario Personal
 │
-└── [Botón: "Necesito ayuda ahora"] → S13 Rescate (bypass de onboarding)
+│   S07 Cuestionario Personal
+│   ├── Preguntas: nombre, edad, intereses (multiselect),
+│   │   sensibilidades (luz / sonido / texturas / multitudes),
+│   │   herramientas que ya usas (ninguna / journaling / terapia / meditación)
+│   └── [Botón: "Continuar"] → S08 Setup Contactos
+│       ├── [Botón: "Agregar contacto de confianza"] → Form: nombre + teléfono + relación
+│       ├── [Botón: "Omitir por ahora"] → Auth
+│       └── [Botón: "Listo"] → Auth
+│           └── Auth completado → S09 Home
+│
+└── [Botón: "Necesito ayuda ahora"] → Rescate (bypass de onboarding)
     └── Al finalizar protocolo → S01 Welcome (opción de completar onboarding)
 ```
+
+**Reglas de los tests opcionales (S04, S05, S06):**
+- Cada test tiene un botón "Omitir por ahora" siempre visible
+- Si se omite, aparece disponible en Configuración → "Completar mi perfil"
+- Los resultados de cada test se guardan inmediatamente al terminar (no se pierden si cierran la app)
+- La barra de progreso del test es visible pero sin presión: "Pregunta 12 de 25"
+- Tests largos (RAADS-R, 80 preguntas) se pueden pausar y continuar
 
 **Errores:**
 - AQ-10 sin completar todas las preguntas: mostrar indicador de preguntas pendientes, no bloquear

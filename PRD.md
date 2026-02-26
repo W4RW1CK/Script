@@ -48,14 +48,55 @@ Script es una aplicación móvil (Android-first, web-compatible) que actúa como
 ## 3. Features — MVP (Semana 1, entrega lunes)
 
 ### 3.1 Onboarding
-- **Pantalla de bienvenida** con opción "Modo Calma" (bypass directo a crisis si se necesita)
-- **Test AQ-10** (Autism Quotient-10): 10 preguntas, resultado orientativo (no diagnóstico)
-  - Resultado bajo: app disponible, mensaje alentando diagnóstico formal
-  - Resultado alto: perfil semilla pre-configurado con patrones TEA comunes
-- **Cuestionario personal:** nombre, intereses, actividades, preferencias sensoriales (5–8 preguntas)
-- **Configuración de personas de confianza** (opcional, omitible, siempre editable)
 
-**Criterio de éxito:** Usuario completa onboarding en menos de 5 minutos.
+El onboarding tiene dos fases: **rápida** (obligatoria, ~3 min) y **profunda** (opcional, ~15-30 min).
+
+#### Fase Rápida — Obligatoria
+- **Pantalla de bienvenida** con opción "Modo Calma" (bypass directo a crisis si se necesita)
+- **Test AQ-10** (Autism Quotient-10): 10 preguntas, resultado orientativo, no diagnóstico
+  - Score ≥6: perfil semilla pre-configurado + recomienda AQ completo
+  - Score <6: perfil semilla base + recomienda CAT-Q (detecta enmascaramiento)
+- **Cuestionario personal:** nombre, intereses, sensibilidades, herramientas que ya usa (5–8 preguntas)
+- **Configuración de personas de confianza** (opcional, omitible)
+
+#### Fase Profunda — Opcional (disponible post AQ-10)
+Tests adicionales que **alimentan el perfil semilla** con mayor precisión. El usuario puede:
+- Hacerlos todos durante el onboarding
+- Hacerlos en cualquier momento desde Configuración
+- Saltarlos completamente (sin penalización)
+
+**Test 2: AQ Completo (Autism Quotient — 50 preguntas)**
+- Solo recomendado si AQ-10 score ≥6
+- Mismo formato que AQ-10 (Totalmente de acuerdo → Totalmente en desacuerdo)
+- 5 dominios: Habilidades sociales, Cambio de atención, Atención al detalle, Comunicación, Imaginación
+- Score ≥32/50 → perfil semilla con mayor sensibilidad a patrones TEA
+- Fuente: Baron-Cohen et al. (2001). Ver Apéndice C para las 50 preguntas.
+
+**Test 3: CAT-Q (Camouflaging Autistic Traits Questionnaire — 25 preguntas)**
+- Especialmente recomendado si AQ-10 score <6 (detecta autistas que "pasan desapercibidos")
+- Mide 3 dimensiones: Asimilación, Compensación, Enmascaramiento
+- Escala 1–7 (Totalmente en desacuerdo → Totalmente de acuerdo)
+- Score alto en Enmascaramiento → app enfatiza herramientas de expresión auténtica y reduce presión social
+- Fuente: Hull et al. (2019). Ver Apéndice D para las 25 preguntas.
+
+**Test 4: RAADS–R (Ritvo Autism Asperger Diagnostic Scale-Revised — 80 preguntas)**
+- Diseñado específicamente para adultos que "escapan el diagnóstico" por presentación subcrítica
+- 4 dominios: Relaciones sociales, Lenguaje, Intereses circunscritos, Motor sensorial
+- Escala 0–3 por ítem
+- Los scores por dominio alimentan el perfil sensorial del usuario en la app
+- Fuente: Ritvo et al. (2011). Ver Apéndice E para estructura y preguntas.
+
+**Impacto de los tests en el perfil semilla:**
+
+| Test | Qué cambia en la app |
+|---|---|
+| AQ-10 alto | Scripts de socialización aparecen primero; más énfasis en zona "cabeza/mandíbula" en check-in |
+| CAT-Q alto en Enmascaramiento | App refuerza mensajes de autenticidad; recordatorio sutil de "no tienes que actuar aquí" |
+| CAT-Q alto en Compensación | Más scripts de "estrategias de navegación social" |
+| RAADS-R alto en Motor sensorial | Perfil sensorial pre-populado con sensibilidades auditivas/táctiles |
+| RAADS-R alto en Relaciones sociales | Scripts de interacción social marcados como prioritarios |
+
+**Criterio de éxito:** Usuario completa fase rápida en menos de 5 minutos. Fase profunda es voluntaria y no bloquea el uso de la app.
 
 ---
 
@@ -299,5 +340,154 @@ const ZONE_LABELS: Record<BodyZone, string> = {
   abdomen: 'Estómago / Abdomen',
   arms: 'Manos / Brazos',
   legs: 'Piernas / Pies',
+}
+```
+
+---
+
+## Apéndice C — AQ Completo (Autism Quotient — 50 preguntas)
+
+> ⚠️ **Instrucción para AI agents:** Las 50 preguntas deben obtenerse de la fuente oficial:
+> Baron-Cohen, S., Wheelwright, S., Skinner, R., Martin, J., & Clubley, E. (2001).
+> El cuestionario completo está disponible públicamente en: https://www.autismresearchcentre.com/arc_tests
+> No generar preguntas de memoria — usar la fuente.
+
+**Estructura:** 50 preguntas, misma escala que AQ-10 (4 opciones)
+
+**5 dominios (10 preguntas cada uno):**
+
+| Dominio | Qué mide | Score máx |
+|---|---|---|
+| Habilidades sociales | Dificultad en interacción social | 10 |
+| Cambio de atención | Rigidez / dificultad para cambiar de foco | 10 |
+| Atención al detalle | Preferencia por detalles locales sobre globales | 10 |
+| Comunicación | Dificultades pragmáticas del lenguaje | 10 |
+| Imaginación | Dificultad con ficción, perspectivas ajenas | 10 |
+
+**Scoring:**
+- Score total: 0–50
+- Umbral orientativo: ≥32 (no diagnóstico, solo indicativo)
+- Score por dominio: guardado en `aq_full_domain_scores` (JSONB)
+
+**Qué guarda la app:**
+```json
+{
+  "aq_full_score": 38,
+  "aq_full_domain_scores": {
+    "social": 8,
+    "attention_switching": 7,
+    "attention_detail": 9,
+    "communication": 7,
+    "imagination": 7
+  }
+}
+```
+
+---
+
+## Apéndice D — CAT-Q (Camouflaging Autistic Traits Questionnaire — 25 preguntas)
+
+> ⚠️ **Instrucción para AI agents:** Las 25 preguntas deben obtenerse de:
+> Hull, L., Mandy, W., Lai, M. C., Baron-Cohen, S., Allison, C., Smith, P., & Petrides, K. V. (2019).
+> Development and validation of the Camouflaging Autistic Traits Questionnaire (CAT-Q).
+> Journal of Autism and Developmental Disorders, 49(3), 819-833.
+> El cuestionario completo está disponible en el supplementary material del paper.
+> DOI: 10.1007/s10803-018-3792-6
+
+**Estructura:** 25 preguntas, escala Likert 1–7
+
+| Valor | Etiqueta |
+|---|---|
+| 1 | Totalmente en desacuerdo |
+| 2 | Bastante en desacuerdo |
+| 3 | Ligeramente en desacuerdo |
+| 4 | Ni de acuerdo ni en desacuerdo |
+| 5 | Ligeramente de acuerdo |
+| 6 | Bastante de acuerdo |
+| 7 | Totalmente de acuerdo |
+
+**3 subescalas:**
+
+| Subescala | # ítems | Score | Qué mide |
+|---|---|---|---|
+| Asimilación | 9 | 9–63 | Aprender y copiar comportamientos de otros para encajar |
+| Compensación | 12 | 12–84 | Estrategias activas para ocultar dificultades sociales |
+| Enmascaramiento | 4 | 4–28 | Suprimir características autistas, presentar persona "normal" |
+
+**Score total:** 25–175 (suma de todos los ítems)
+
+**Impacto en el perfil de Script:**
+- Enmascaramiento alto (≥20): app refuerza mensajes de autenticidad, reduce presión social
+- Compensación alta (≥60): más scripts de estrategias de navegación social
+- Asimilación alta (≥45): scripts con observación e imitación explícitas
+
+**Qué guarda la app:**
+```json
+{
+  "catq_total_score": 142,
+  "catq_subscores": {
+    "assimilation": 52,
+    "compensation": 68,
+    "masking": 22
+  }
+}
+```
+
+---
+
+## Apéndice E — RAADS–R (Ritvo Autism Asperger Diagnostic Scale-Revised — 80 preguntas)
+
+> ⚠️ **Instrucción para AI agents:** Las 80 preguntas deben obtenerse de:
+> Ritvo, R. A., Ritvo, E. R., Guthrie, D., Ritvo, M. J., Hufnagel, D. H., McMahon, W., ... & Eloff, J. (2011).
+> The Ritvo Autism Asperger Diagnostic Scale-Revised (RAADS-R).
+> Journal of Autism and Developmental Disorders, 41(8), 1076-1089.
+> DOI: 10.1007/s10803-010-1133-5
+
+**Estructura:** 80 preguntas, escala 0–3
+
+| Valor | Etiqueta |
+|---|---|
+| 0 | Nunca es verdad |
+| 1 | Verdad solo cuando era joven (hasta los 16 años), no ahora |
+| 2 | Verdad solo ahora, no cuando era joven |
+| 3 | Verdad ahora y cuando era joven |
+
+**4 dominios:**
+
+| Dominio | # ítems | Score máx | Qué mide |
+|---|---|---|---|
+| Relaciones sociales | 27 | 81 | Dificultades de reciprocidad social |
+| Lenguaje | 7 | 21 | Uso y comprensión del lenguaje |
+| Intereses circunscritos | 14 | 42 | Intereses intensos y repetitivos |
+| Motor sensorial | 16 | 48 | Procesamiento sensorial y control motor |
+
+**Score total:** 0–240
+- Umbral orientativo TEA: ≥65
+
+**Soporte de pausa — OBLIGATORIO:**
+Con 80 preguntas, el test debe poder pausarse y retomarse:
+- Guardar progreso en `expo-secure-store` después de cada respuesta
+- Al abrir de nuevo: preguntar "¿Continuar donde lo dejaste?"
+- Mostrar: "Completaste 34 de 80 preguntas"
+
+**Impacto en el perfil de Script:**
+
+| Score alto en... | Impacto en la app |
+|---|---|
+| Relaciones sociales | Scripts de interacción social marcados como prioritarios |
+| Lenguaje | Scripts incluyen más opciones de frase literal/directa |
+| Intereses circunscritos | Check-in incluye nota sobre actividades de interés especial |
+| Motor sensorial | Perfil sensorial pre-populado con sensibilidades auditivas/táctiles/propioceptivas |
+
+**Qué guarda la app:**
+```json
+{
+  "raads_total_score": 134,
+  "raads_domain_scores": {
+    "social_relatedness": 58,
+    "language": 14,
+    "circumscribed_interests": 32,
+    "sensory_motor": 30
+  }
 }
 ```
