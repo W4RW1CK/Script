@@ -1,10 +1,11 @@
 # PRD.md — Product Requirements Document
 ## Script — Compañero Digital para Adultos con TEA Nivel 1
 
-**Versión:** 1.2  
+**Versión:** 1.3  
 **Última actualización:** 2026-02-26  
 **Cambios v1.1:** Agregadas preguntas AQ-10 en Apéndice A, guidance de body map SVG en Apéndice B.  
-**Cambios v1.2:** RAADS-R domain counts corregidos (Apéndice E). §3.4 notificaciones acotadas a nivel 3. §4 Semana 2 auth redundante eliminada. §6 Principio 6 alineado con APP_FLOW.md (1 tap, no 2).
+**Cambios v1.2:** RAADS-R domain counts corregidos (Apéndice E). §3.4 notificaciones acotadas a nivel 3. §4 Semana 2 auth redundante eliminada. §6 Principio 6 alineado con APP_FLOW.md (1 tap, no 2).  
+**Cambios v1.3:** §3.1 Fase Profunda — aclarado que Settings access es Semana 1 (Phase 1.8). §4 Semana 2 — tests de screening removidos (son Semana 1). §4 Semana 5 — "offline completo" acotado para no confundir con offline-first base de Semana 1.
 **Owner:** W4RW1CK  
 **Estado:** MVP en desarrollo
 
@@ -62,8 +63,8 @@ El onboarding tiene dos fases: **rápida** (obligatoria, ~3 min) y **profunda** 
 
 #### Fase Profunda — Opcional (disponible post AQ-10)
 Tests adicionales que **alimentan el perfil semilla** con mayor precisión. El usuario puede:
-- Hacerlos todos durante el onboarding
-- Hacerlos en cualquier momento desde Configuración
+- Hacerlos todos durante el onboarding (flujo S04 → S05 → S06)
+- Retomarlos en cualquier momento desde Configuración → "Completar mi perfil" (S21) — **disponible desde Semana 1** (Phase 1.8)
 - Saltarlos completamente (sin penalización)
 
 **Test 2: AQ Completo (Autism Quotient — 50 preguntas)**
@@ -184,10 +185,11 @@ Cada bloque tiene 2–3 opciones de lenguaje. El usuario elige en el momento, no
 ## 4. Features — Post-MVP (Semanas 2–5)
 
 ### Semana 2
-- Tests opcionales de screening accesibles desde Configuración (S04 AQ Full, S05 CAT-Q, S06 RAADS-R)
 - Historial de check-ins con visualización de patrones básicos (S19)
 - Diccionario emocional personal (vocabulario que crece con uso) (S20)
 - Personalización: modo claro/oscuro, paleta de colores, animaciones on/off (S21)
+
+> ℹ️ **Nota:** Los tests AQ Full (S04), CAT-Q (S05) y RAADS-R (S06) están implementados desde **Semana 1** (Phase 1.8) y son accesibles desde el onboarding y desde Configuración → "Completar mi perfil".
 
 ### Semana 3
 - Red de confianza completa (agregar contactos, configurar qué ven, comunicación bilateral)
@@ -203,7 +205,7 @@ Cada bloque tiene 2–3 opciones de lenguaje. El usuario elige en el momento, no
 
 ### Semana 5
 - Control de acceso on-chain (EVM L2 — TBD)
-- Modo offline completo con sincronización inteligente
+- Sincronización inteligente avanzada (resolución de conflictos, queue de pendientes, background sync) — las funciones core ya son offline-first desde Semana 1
 - Reducción sensorial automática en crisis (contraste, animaciones)
 - Build APK para Android
 - Polish sensorial y accesibilidad completa
