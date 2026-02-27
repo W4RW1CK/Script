@@ -1,7 +1,7 @@
 # IMPLEMENTATION_PLAN.md — Plan de Implementación
 ## Script — Compañero Digital para Adultos con TEA Nivel 1
 
-**Versión:** 1.5  
+**Versión:** 1.6  
 **Última actualización:** 2026-02-27  
 **Cambios v1.5:** §1.7 Paso 2A — Grounding nivel 1 actualizado a MULTIMODAL (visual + audio/voz guiada + háptico); agrega tone-grounding-voice.mp3 a assets requeridos. Decisión confirmada en sesión de planning 2026-02-27.  
 **Cambios v1.4:** §1.7 audio filename corregido calm-tone.mp3→tone-ambient.mp3 (consistente con BACKEND_STRUCTURE §5). §1.8 Paso 5 tagline corregido (texto completo). §1.8 Paso 12 profile-seed aclarado como runtime/Zustand (no persiste en Supabase).  
@@ -255,7 +255,7 @@ Paso 2: Crear app/(app)/rescue/protocol.tsx (S18)
         A) Si nivel === 1: Renderizar GroundingSequence (MULTIMODAL — decisión planning 2026-02-27)
            - Componente que muestra pasos 5-4-3-2-1
            - Un paso a la vez, fuente grande
-           - Auto-avanza en 12s o tap para avanzar
+           - Auto-avanza en 10s o tap para avanzar
            - Integrar expo-haptics: vibración sutil al cambiar de paso
            - Integrar expo-audio: voz guiada + tono ambient de fondo
              Archivos: tone-grounding-voice.mp3 (voz), tone-ambient.mp3 (fondo)

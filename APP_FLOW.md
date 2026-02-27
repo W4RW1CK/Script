@@ -1,8 +1,8 @@
 # APP_FLOW.md — Flujos de Navegación
 ## Script — Compañero Digital para Adultos con TEA Nivel 1
 
-**Versión:** 1.2  
-**Última actualización:** 2026-02-26  
+**Versión:** 1.3  
+**Última actualización:** 2026-02-27  
 **Cambios v1.2:** IDs de pantallas re-numerados para eliminar duplicados. Referencias cruzadas corregidas. Nuevas pantallas S03-S06 (tests de screening).
 
 ---
@@ -214,10 +214,12 @@ S17 Evaluación (pantalla neutra, contraste reducido)
     S18 Protocolo de Calma
     │
     ├── NIVEL 1 — Grounding 5-4-3-2-1
-    │   ├── Secuencia guiada visual:
+    │   ├── Secuencia multimodal (visual + voz guiada + háptico):
     │   │   5 cosas que puedes VER / 4 que puedes TOCAR /
     │   │   3 que puedes OÍR / 2 que puedes OLER / 1 que puedes SABOREAR
     │   ├── Una instrucción a la vez, fuente grande, fondo neutro
+    │   ├── Audio: tone-grounding-voice.mp3 (voz) + tone-ambient.mp3 (fondo)
+    │   ├── Háptico: vibración sutil al cambiar de paso (si disponible)
     │   └── [Botón: "Siguiente"] avanza / auto-avanza en 10s
     │
     ├── NIVEL 2 — Respiración Guiada
