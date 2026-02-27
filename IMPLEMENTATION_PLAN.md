@@ -1,8 +1,9 @@
 # IMPLEMENTATION_PLAN.md — Plan de Implementación
 ## Script — Compañero Digital para Adultos con TEA Nivel 1
 
-**Versión:** 1.4  
-**Última actualización:** 2026-02-26  
+**Versión:** 1.5  
+**Última actualización:** 2026-02-27  
+**Cambios v1.5:** §1.7 Paso 2A — Grounding nivel 1 actualizado a MULTIMODAL (visual + audio/voz guiada + háptico); agrega tone-grounding-voice.mp3 a assets requeridos. Decisión confirmada en sesión de planning 2026-02-27.  
 **Cambios v1.4:** §1.7 audio filename corregido calm-tone.mp3→tone-ambient.mp3 (consistente con BACKEND_STRUCTURE §5). §1.8 Paso 5 tagline corregido (texto completo). §1.8 Paso 12 profile-seed aclarado como runtime/Zustand (no persiste en Supabase).  
 **Cambios v1.3:** FASE 1.1 — agregado expo-symbols al install; corregido @supabase/supabase-js de npx expo install → npm install@2.97.0 (versión pinneada, consistente con TECH_STACK.md).  
 **Cambios v1.2:** Screen IDs actualizados (S06-S14 → S10-S18). expo-av→expo-audio. react-native-worklets, @privy-io/expo y expo-device agregados al install. Pasos 13-14 agregados en Fase 1.8 (profile.tsx, contacts.tsx). Semana 2 Step 2.1 corregido. Directorio de tests en Fase 1.1.
@@ -251,10 +252,17 @@ Paso 1: Crear app/(app)/rescue/assess.tsx (S17)
 Paso 2: Crear app/(app)/rescue/protocol.tsx (S18)
         - APLICAR TODAS las reglas de FRONTEND_GUIDELINES.md §11
         
-        A) Si nivel === 1: Renderizar GroundingSequence
+        A) Si nivel === 1: Renderizar GroundingSequence (MULTIMODAL — decisión planning 2026-02-27)
            - Componente que muestra pasos 5-4-3-2-1
            - Un paso a la vez, fuente grande
            - Auto-avanza en 12s o tap para avanzar
+           - Integrar expo-haptics: vibración sutil al cambiar de paso
+           - Integrar expo-audio: voz guiada + tono ambient de fondo
+             Archivos: tone-grounding-voice.mp3 (voz), tone-ambient.mp3 (fondo)
+             const voice = useAudioPlayer(require('../../assets/audio/tone-grounding-voice.mp3'))
+             const ambient = useAudioPlayer(require('../../assets/audio/tone-ambient.mp3'))
+           - Si audio desactivado: solo visual + háptico
+           - Si háptico no disponible: solo visual + audio
         
         B) Si nivel === 2 o 3: Renderizar BreathingGuide
            - Componente con círculo SVG animado (ver FRONTEND_GUIDELINES.md §6)
