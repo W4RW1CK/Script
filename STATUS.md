@@ -4,9 +4,39 @@
 > **Cómo leer este archivo:**
 > ✅ Completado | 🔄 En progreso | ⏳ Pendiente | ❌ Bloqueado
 
-**Última actualización:** 2026-02-26  
+**Última actualización:** 2026-02-27  
 **Semana actual:** 1  
 **Entrega próxima:** Lunes (MVP)
+
+---
+
+## 👥 Equipo
+
+| Rol | Quién | Responsabilidades |
+|---|---|---|
+| Product Owner / Ejecutor | w4rw1ck | Corre comandos, prueba en dispositivo, valida producto, aprende |
+| Tech Lead / PMO | Aibus Dumbleclaw | Genera código Fases 1.1-1.3, 1.8 · Trackea progreso |
+| Arquitectura / Features Core | Ana Banana 🍌 | Genera código Fases 1.4-1.7 · Revisa PRs · Guarda docs canónicos |
+
+**Flujo de trabajo:**
+```
+Agente genera código → w4rw1ck ejecuta → otro agente revisa output
+Algo falla → ambas atacan el bug → w4rw1ck confirma fix
+```
+
+---
+
+## 🚧 Bloqueadores — Resolver ANTES de codear
+
+| # | Pendiente | Quién | Bloquea | Estado |
+|---|---|---|---|---|
+| 1 | Crear proyecto nuevo en Supabase | w4rw1ck | Fase 1.2 | ⏳ |
+| 2 | Crear App ID nuevo en Privy | w4rw1ck | Fase 1.8 | ⏳ |
+| 3 | Referencias UI sensory-safe (3-5 opciones) | Ana + Aibus | Fase 1.3 | ⏳ |
+| 4 | Validar/ajustar paleta de colores TEA | Ana + Aibus | Fase 1.3 | ⏳ |
+| 5 | Traducciones en español: AQ Full (50q) + CAT-Q (25q) + RAADS-R (80q) | Ana + Aibus | Fase 1.8 | ⏳ |
+| 6 | Audio: voz guiada + tono ambient (para grounding y respiración) | Ana + Aibus | Fase 1.7 | ⏳ |
+| 7 | Revisar/completar contenido de 5 scripts sociales | Ana + Aibus | Fase 1.6 | ⏳ |
 
 ---
 
@@ -27,12 +57,12 @@
 
 | Doc | Versión | Estado | Cambios clave |
 |---|---|---|---|
-| `PRD.md` | v1.3 | ✅ | Tests movidos a Semana 1; offline clarificado; Settings timing corregido |
-| `APP_FLOW.md` | v1.2 | ✅ | Screen IDs re-numerados S01–S24; Flujo 5 ("Completar mi perfil") agregado |
+| `PRD.md` | v1.4 | ✅ | Tests movidos a Semana 1; offline clarificado; Settings timing corregido; tagline restaurada |
+| `APP_FLOW.md` | v1.3 | ✅ | Screen IDs S01–S24; Flujo 5 agregado; Nivel 1 crisis = multimodal (visual+voz+háptico) |
 | `TECH_STACK.md` | v1.2 | ✅ | expo-symbols agregado; rutas actualizadas a S01–S24 |
 | `FRONTEND_GUIDELINES.md` | v1.1 | ✅ | Tabla NativeWind tokens §1.3; template dark mode corregido |
-| `BACKEND_STRUCTURE.md` | v1.2 | ✅ | RAADS-R domain counts corregidos; RLS policies completadas |
-| `IMPLEMENTATION_PLAN.md` | v1.3 | ✅ | expo-symbols en install; supabase-js versión pinneada |
+| `BACKEND_STRUCTURE.md` | v1.3 | ✅ | RAADS-R domain counts corregidos; RLS policies completadas; tone-grounding-voice.mp3 agregado |
+| `IMPLEMENTATION_PLAN.md` | v1.6 | ✅ | expo-symbols en install; supabase-js pinneada; Fase 1.8 expandida; timer 10s canónico |
 
 ---
 
@@ -167,13 +197,26 @@ _Ninguno reportado aún._
 | 2026-02-26 | SMS nativo como fallback offline en crisis | Funciona sin internet ni app del contacto |
 | 2026-02-26 | Screen IDs S01–S24 (re-numerados) | Onboarding expandido con tests opcionales AQ/CAT-Q/RAADS-R |
 | 2026-02-26 | Settings entry para tests en Semana 2 (no 1) | settings/index.tsx se construye en Fase 2.4 |
+| 2026-02-27 | Grounding nivel 1 = multimodal (visual + voz + háptico) | Misma filosofía que niveles 2-3; ningún canal es indispensable |
+| 2026-02-27 | Timer de auto-avance en Grounding = 10s (canónico) | APP_FLOW.md es fuente de verdad; IMPLEMENTATION_PLAN corregido de 12s |
+| 2026-02-27 | w4rw1ck = ejecutor y aprendiz | Quiere aprender, no solo ejecutar — todo se explica |
+| 2026-02-27 | Audio grounding: voz guiada + tono ambient | Confirmado por w4rw1ck en sesión de planning |
+| 2026-02-27 | npm (no bun) como package manager | EAS Build requiere npm/yarn; bun es experimental en Expo |
 
 ---
 
 ## 📝 Notas del Sprint
 
 ### Semana 1
-_Agregar notas, blockers o decisiones aquí durante la semana._
+
+**2026-02-27 — Sesión de planning completada**
+- Equipo formado: w4rw1ck + Ana Banana + Aibus Dumbleclaw
+- Branch `dev` creado ✅
+- Branches `feat/fase-1-4` a `feat/fase-1-7` creados ✅ (Ana)
+- godin-001 aceptó invitación como colaboradora ✅
+- 7 bloqueadores identificados antes de arrancar (ver tabla arriba)
+- Node.js v22 compatible con Expo 55 ✅
+- Dispositivo de prueba: Android físico + amigo con TEA Nivel 1 diagnosticado
 
 ---
 

@@ -1,11 +1,12 @@
 # PRD.md — Product Requirements Document
 ## Script — Compañero Digital para Adultos con TEA Nivel 1
 
-**Versión:** 1.3  
-**Última actualización:** 2026-02-26  
-**Cambios v1.1:** Agregadas preguntas AQ-10 en Apéndice A, guidance de body map SVG en Apéndice B.  
+**Versión:** 1.4  
+**Última actualización:** 2026-02-27  
+**Cambios v1.4:** §3.4 Nivel 1 (grounding 5-4-3-2-1) actualizado a multimodal (visual + audio/voz + háptico) — decisión confirmada en sesión de planning 2026-02-27.  
+**Cambios v1.3:** §3.1 Fase Profunda — aclarado que Settings access es Semana 1 (Phase 1.8). §4 Semana 2 — tests de screening removidos (son Semana 1). §4 Semana 5 — "offline completo" acotado para no confundir con offline-first base de Semana 1.  
 **Cambios v1.2:** RAADS-R domain counts corregidos (Apéndice E). §3.4 notificaciones acotadas a nivel 3. §4 Semana 2 auth redundante eliminada. §6 Principio 6 alineado con APP_FLOW.md (1 tap, no 2).  
-**Cambios v1.3:** §3.1 Fase Profunda — aclarado que Settings access es Semana 1 (Phase 1.8). §4 Semana 2 — tests de screening removidos (son Semana 1). §4 Semana 5 — "offline completo" acotado para no confundir con offline-first base de Semana 1.
+**Cambios v1.1:** Agregadas preguntas AQ-10 en Apéndice A, guidance de body map SVG en Apéndice B.
 **Owner:** W4RW1CK  
 **Estado:** MVP en desarrollo
 
@@ -163,7 +164,7 @@ Cada bloque tiene 2–3 opciones de lenguaje. El usuario elige en el momento, no
 2. Evaluación rápida (1 pregunta, escala 1–3): "¿Qué tan intenso se siente esto?"
    - 1 = Incómodo / 2 = Difícil / 3 = No puedo
 3. Según nivel, inicia protocolo:
-   - **Nivel 1:** Técnica de grounding 5-4-3-2-1 con guía visual
+   - **Nivel 1:** Técnica de grounding 5-4-3-2-1 con guía **multimodal (visual + audio + háptico)** — misma filosofía que niveles 2 y 3; ningún canal es indispensable
    - **Nivel 2:** Respiración guiada (visual + audio + háptico) — sin notificación
    - **Nivel 3:** Respiración guiada + notificación automática a red de confianza
 4. **Secuencia de calma multimodal:**
