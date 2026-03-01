@@ -28,9 +28,10 @@ import { useColorScheme } from "react-native";
 // Re-exporta el ErrorBoundary de Expo Router para capturar errores en pantallas
 export { ErrorBoundary } from "expo-router";
 
-// La pantalla inicial siempre es (tabs) — Home de la app
+// La pantalla inicial es (app) — zona autenticada con Tab Navigator
+// En Fase 1.8 se agregará lógica de auth: usuarios no autenticados → (onboarding)
 export const unstable_settings = {
-  initialRouteName: "(tabs)",
+  initialRouteName: "(app)",
 };
 
 // Mantiene el splash screen hasta que las fuentes terminen de cargar
@@ -75,8 +76,10 @@ function RootLayoutNav() {
   return (
     <ThemeProvider value={colorScheme === "dark" ? DarkTheme : DefaultTheme}>
       <Stack>
-        {/* La pantalla (tabs) gestiona el Bottom Tab Navigator de la app */}
-        <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+        {/* (app) contiene el Tab Navigator principal (Home, Check-in, Scripts, etc.) */}
+        <Stack.Screen name="(app)" options={{ headerShown: false }} />
+        {/* (onboarding) se activará en Fase 1.8 cuando se integre Privy auth */}
+        <Stack.Screen name="(onboarding)" options={{ headerShown: false }} />
       </Stack>
     </ThemeProvider>
   );
