@@ -24,6 +24,7 @@ import * as SplashScreen from "expo-splash-screen";
 import { useEffect } from "react";
 import "react-native-reanimated";
 import { useColorScheme } from "react-native";
+import { SafeAreaProvider } from "react-native-safe-area-context";
 
 // Re-exporta el ErrorBoundary de Expo Router para capturar errores en pantallas
 export { ErrorBoundary } from "expo-router";
@@ -74,13 +75,17 @@ function RootLayoutNav() {
   const colorScheme = useColorScheme();
 
   return (
-    <ThemeProvider value={colorScheme === "dark" ? DarkTheme : DefaultTheme}>
-      <Stack>
-        {/* (app) contiene el Tab Navigator principal (Home, Check-in, Scripts, etc.) */}
-        <Stack.Screen name="(app)" options={{ headerShown: false }} />
-        {/* (onboarding) se activará en Fase 1.8 cuando se integre Privy auth */}
-        <Stack.Screen name="(onboarding)" options={{ headerShown: false }} />
-      </Stack>
-    </ThemeProvider>
+    // SafeAreaProvider requerido por react-native-safe-area-context
+    // Todos los SafeAreaView (en SafeScreen) dependen de este contexto
+    <SafeAreaProvider>
+      <ThemeProvider value={colorScheme === "dark" ? DarkTheme : DefaultTheme}>
+        <Stack>
+          {/* (app) contiene el Tab Navigator principal (Home, Check-in, Scripts, etc.) */}
+          <Stack.Screen name="(app)" options={{ headerShown: false }} />
+          {/* (onboarding) se activa en Fase 1.8 — Privy auth */}
+          {/* <Stack.Screen name="(onboarding)" options={{ headerShown: false }} /> */}
+        </Stack>
+      </ThemeProvider>
+    </SafeAreaProvider>
   );
 }
