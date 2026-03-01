@@ -4,7 +4,7 @@
 > **Cómo leer este archivo:**
 > ✅ Completado | 🔄 En progreso | ⏳ Pendiente | ❌ Bloqueado
 
-**Última actualización:** 2026-02-28  
+**Última actualización:** 2026-03-01  
 **Semana actual:** 1  
 **Entrega próxima:** Lunes (MVP)
 
@@ -30,7 +30,7 @@ Algo falla → ambas atacan el bug → w4rw1ck confirma fix
 
 | # | Pendiente | Quién | Bloquea | Estado |
 |---|---|---|---|---|
-| 1 | Crear proyecto nuevo en Supabase | w4rw1ck | Fase 1.2 | ⏳ |
+| 1 | Crear proyecto nuevo en Supabase | w4rw1ck | Fase 1.2 | ✅ |
 | 2 | Crear App ID nuevo en Privy | w4rw1ck | Fase 1.8 | ⏳ |
 | 3 | Referencias UI sensory-safe (3-5 opciones) | Ana + Aibus | Fase 1.3 | ⏳ |
 | 4 | Validar/ajustar paleta de colores TEA | Ana + Aibus | Fase 1.3 | ⏳ |
@@ -45,7 +45,7 @@ Algo falla → ambas atacan el bug → w4rw1ck confirma fix
 | Semana | Descripción | Estado | Completado |
 |---|---|---|---|
 | Pre-implementación | Documentación + audit de los 6 docs canónicos | ✅ | PR #3 listo para merge |
-| Semana 1 | MVP: Setup + Check-in + Scripts + Rescate + Auth | 🔄 | 1 / 8 fases (1.1 ✅) |
+| Semana 1 | MVP: Setup + Check-in + Scripts + Rescate + Auth | 🔄 | 2 / 8 fases (1.1 ✅ 1.2 ✅) |
 | Semana 2 | Historial + Diccionario + Personalización | ⏳ | — |
 | Semana 3 | Red de Confianza + Notificaciones | ⏳ | — |
 | Semana 4 | IA + Vista Terapeuta | ⏳ | — |
@@ -78,16 +78,16 @@ Algo falla → ambas atacan el bug → w4rw1ck confirma fix
 | 1.1.5 | Configurar estructura de carpetas | ✅ | |
 | **Verificación** | `npx expo start` sin errores, Expo Go conecta | ✅ | Confirmado en dispositivo físico Android 2026-02-28 |
 
-### Fase 1.2 — Configuración de Variables y Supabase
+### Fase 1.2 — Configuración de Variables y Supabase ✅ COMPLETA
 | Paso | Descripción | Estado | Notas |
 |---|---|---|---|
-| 1.2.1 | Crear .env.local con variables | ⏳ | |
-| 1.2.2 | Crear lib/supabase.ts | ⏳ | |
-| 1.2.3 | Ejecutar SQL en Supabase (9 tablas) | ⏳ | |
-| 1.2.4 | Activar auth por email en Supabase | ⏳ | |
-| 1.2.5 | Ejecutar RLS policies | ⏳ | |
-| 1.2.6 | Seed de 5 scripts predefinidos | ⏳ | |
-| **Verificación** | `supabase.from('scripts').select('*')` retorna 5 scripts | ⏳ | |
+| 1.2.1 | Crear .env.local con variables | ✅ | |
+| 1.2.2 | Crear lib/supabase.ts | ✅ | |
+| 1.2.3 | Ejecutar SQL en Supabase (9 tablas) | ✅ | Bug: ERROR 42P17 en columnas GENERATED — ver tabla de bugs |
+| 1.2.4 | Activar auth por email en Supabase | ✅ | Ya habilitado por defecto en proyecto nuevo |
+| 1.2.5 | Ejecutar RLS policies | ✅ | |
+| 1.2.6 | Seed de 5 scripts predefinidos | ✅ | |
+| **Verificación** | 9 tablas visibles en Table Editor + 5 scripts en tabla `scripts` | ✅ | Confirmado en Supabase Dashboard 2026-03-01 |
 
 ### Fase 1.3 — Sistema de Temas y Componentes Base
 | Paso | Descripción | Estado | Notas |
@@ -177,11 +177,11 @@ Algo falla → ambas atacan el bug → w4rw1ck confirma fix
 
 ## 🐛 Bugs Conocidos
 
-_Ninguno reportado aún._
-
 | ID | Descripción | Severidad | Fase | Estado |
 |---|---|---|---|---|
-| — | — | — | — | — |
+| B-01 | `ERROR 42P17: generation expression is not immutable` al ejecutar schema.sql — `EXTRACT()` sobre `TIMESTAMPTZ` no es inmutable en PostgreSQL, prohibido en columnas `GENERATED ALWAYS AS` | 🔴 Alta | 1.2.3 | ✅ Resuelto |
+
+**B-01 — Fix aplicado:** Se eliminaron las columnas `hour_of_day` y `day_of_week` de la tabla `checkins`. El campo `checkin_at` (TIMESTAMPTZ) ya almacena el timestamp completo; `EXTRACT(HOUR/DOW FROM checkin_at)` puede usarse directamente en queries de analytics sin necesidad de columnas generadas. Commit: `864e435`.
 
 ---
 
@@ -202,6 +202,8 @@ _Ninguno reportado aún._
 | 2026-02-27 | w4rw1ck = ejecutor y aprendiz | Quiere aprender, no solo ejecutar — todo se explica |
 | 2026-02-27 | Audio grounding: voz guiada + tono ambient | Confirmado por w4rw1ck en sesión de planning |
 | 2026-02-27 | npm (no bun) como package manager | EAS Build requiere npm/yarn; bun es experimental en Expo |
+| 2026-03-01 | No usar columnas GENERATED con TIMESTAMPTZ en PostgreSQL | EXTRACT() sobre TIMESTAMPTZ no es inmutable; usar queries en su lugar |
+| 2026-03-01 | `hour_of_day` y `day_of_week` eliminados de tabla `checkins` | Calculables con EXTRACT en queries; no necesitan persistirse (B-01) |
 
 ---
 
