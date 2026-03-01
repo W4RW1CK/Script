@@ -1,3 +1,18 @@
+/**
+ * Botón base de Script.
+ *
+ * Variantes:
+ *  - primary:   fondo azul (acción principal)
+ *  - secondary: borde azul, fondo transparente (acción secundaria)
+ *  - danger:    fondo suave de crisis (acciones destructivas o de alerta)
+ *  - ghost:     sin fondo ni borde (acciones terciarias o de navegación)
+ *
+ * Accesibilidad:
+ *  - Tap target mínimo 44px (WCAG 2.1 AA)
+ *  - accessibilityRole="button" siempre presente
+ *  - Opacidad reduce al presionar como feedback visual
+ *  - Opacidad 50% cuando disabled
+ */
 import { Pressable, Text } from "react-native";
 
 type ButtonVariant = "primary" | "secondary" | "danger" | "ghost";
@@ -7,9 +22,11 @@ interface ButtonProps {
   onPress: () => void;
   variant?: ButtonVariant;
   disabled?: boolean;
+  /** Texto adicional que los lectores de pantalla leen después del label */
   accessibilityHint?: string;
 }
 
+/** Clases NativeWind por variante — contenedor y texto separados */
 const variantStyles: Record<ButtonVariant, { container: string; text: string }> =
   {
     primary: {
@@ -30,10 +47,6 @@ const variantStyles: Record<ButtonVariant, { container: string; text: string }> 
     },
   };
 
-/**
- * Botón base de Script.
- * Tap target mínimo 44px (WCAG). Feedback: opacidad al presionar.
- */
 export function Button({
   title,
   onPress,
@@ -53,6 +66,7 @@ export function Button({
       className={`w-full items-center justify-center rounded-2xl py-4 px-6 ${styles.container} ${
         disabled ? "opacity-50" : ""
       }`}
+      // Feedback visual al presionar: reducir opacidad levemente
       style={({ pressed }) => ({ opacity: pressed && !disabled ? 0.85 : 1 })}
     >
       <Text className={`font-semibold text-base ${styles.text}`}>{title}</Text>
