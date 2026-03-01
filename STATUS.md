@@ -32,8 +32,8 @@ Algo falla → ambas atacan el bug → w4rw1ck confirma fix
 |---|---|---|---|---|
 | 1 | Crear proyecto nuevo en Supabase | w4rw1ck | Fase 1.2 | ✅ |
 | 2 | Crear App ID nuevo en Privy | w4rw1ck | Fase 1.8 | ⏳ |
-| 3 | Referencias UI sensory-safe (3-5 opciones) | Ana + Aibus | Fase 1.3 | ⏳ |
-| 4 | Validar/ajustar paleta de colores TEA | Ana + Aibus | Fase 1.3 | ⏳ |
+| 3 | Referencias UI sensory-safe (3-5 opciones) | Ana + Aibus | Fase 1.3 | ✅ |
+| 4 | Validar/ajustar paleta de colores TEA | Ana + Aibus | Fase 1.3 | ✅ |
 | 5 | Traducciones en español: AQ Full (50q) + CAT-Q (25q) + RAADS-R (80q) | Ana + Aibus | Fase 1.8 | ⏳ |
 | 6 | Audio: voz guiada + tono ambient (para grounding y respiración) | Ana + Aibus | Fase 1.7 | ⏳ |
 | 7 | Revisar/completar contenido de 5 scripts sociales | Ana + Aibus | Fase 1.6 | ⏳ |
@@ -45,7 +45,7 @@ Algo falla → ambas atacan el bug → w4rw1ck confirma fix
 | Semana | Descripción | Estado | Completado |
 |---|---|---|---|
 | Pre-implementación | Documentación + audit de los 6 docs canónicos | ✅ | PR #3 listo para merge |
-| Semana 1 | MVP: Setup + Check-in + Scripts + Rescate + Auth | 🔄 | 2 / 8 fases (1.1 ✅ 1.2 ✅) |
+| Semana 1 | MVP: Setup + Check-in + Scripts + Rescate + Auth | 🔄 | 3 / 8 fases (1.1 ✅ 1.2 ✅ 1.3 ✅) |
 | Semana 2 | Historial + Diccionario + Personalización | ⏳ | — |
 | Semana 3 | Red de Confianza + Notificaciones | ⏳ | — |
 | Semana 4 | IA + Vista Terapeuta | ⏳ | — |
@@ -89,20 +89,21 @@ Algo falla → ambas atacan el bug → w4rw1ck confirma fix
 | 1.2.6 | Seed de 5 scripts predefinidos | ✅ | |
 | **Verificación** | 9 tablas visibles en Table Editor + 5 scripts en tabla `scripts` | ✅ | Confirmado en Supabase Dashboard 2026-03-01 |
 
-### Fase 1.3 — Sistema de Temas y Componentes Base
+### Fase 1.3 — Sistema de Temas y Componentes Base ✅ COMPLETA
 | Paso | Descripción | Estado | Notas |
 |---|---|---|---|
-| 1.3.1 | constants/colors.ts (tokens light + dark) | ⏳ | Ver FRONTEND_GUIDELINES §1 + §1.3 |
-| 1.3.2 | constants/typography.ts | ⏳ | |
-| 1.3.3 | constants/spacing.ts | ⏳ | |
-| 1.3.4 | hooks/useTheme.ts | ⏳ | |
-| 1.3.5a | components/ui/Button.tsx | ⏳ | |
-| 1.3.5b | components/ui/Card.tsx | ⏳ | |
-| 1.3.5c | components/ui/TextInput.tsx | ⏳ | |
-| 1.3.5d | components/ui/Chip.tsx | ⏳ | |
-| 1.3.5e | components/ui/Typography.tsx | ⏳ | |
-| 1.3.6 | components/ui/SafeScreen.tsx | ⏳ | |
-| **Verificación** | Componentes renderizados en claro y oscuro | ⏳ | |
+| 1.3.1 | constants/colors.ts (tokens light + dark) | ✅ | |
+| 1.3.2 | constants/typography.ts | ✅ | |
+| 1.3.3 | constants/spacing.ts | ✅ | |
+| 1.3.4 | hooks/useTheme.ts | ✅ | |
+| 1.3.5a | components/ui/Button.tsx | ✅ | |
+| 1.3.5b | components/ui/Card.tsx | ✅ | |
+| 1.3.5c | components/ui/TextInput.tsx | ✅ | Bugs B-02 y B-03 corregidos en audit (Ana) |
+| 1.3.5d | components/ui/Chip.tsx | ✅ | |
+| 1.3.5e | components/ui/Typography.tsx | ✅ | |
+| 1.3.6 | components/ui/SafeScreen.tsx | ✅ | |
+| **+Extra** | components/ui/index.ts (barrel export) | ✅ | Agregado en audit |
+| **Verificación** | Componentes renderizados en claro y oscuro | ✅ | Pendiente confirmar en dispositivo — fuentes Inter cargando |
 
 ### Fase 1.4 — Bottom Navigation y Layout
 | Paso | Descripción | Estado | Notas |
@@ -180,8 +181,14 @@ Algo falla → ambas atacan el bug → w4rw1ck confirma fix
 | ID | Descripción | Severidad | Fase | Estado |
 |---|---|---|---|---|
 | B-01 | `ERROR 42P17: generation expression is not immutable` al ejecutar schema.sql — `EXTRACT()` sobre `TIMESTAMPTZ` no es inmutable en PostgreSQL, prohibido en columnas `GENERATED ALWAYS AS` | 🔴 Alta | 1.2.3 | ✅ Resuelto |
+| B-02 | Inter fonts instaladas pero NO cargadas en `_layout.tsx` — `useFonts` solo tenía SpaceMono; Typography constants con `Inter_*Bold/SemiBold/Regular` fallaban silenciosamente | 🟡 Media | 1.3 | ✅ Resuelto |
+| B-03 | `text-top` en `TextInput.tsx` no es clase NativeWind válida — `textAlignVertical:'top'` se ignoraba en multiline inputs | 🟡 Media | 1.3.5c | ✅ Resuelto |
 
-**B-01 — Fix aplicado:** Se eliminaron las columnas `hour_of_day` y `day_of_week` de la tabla `checkins`. El campo `checkin_at` (TIMESTAMPTZ) ya almacena el timestamp completo; `EXTRACT(HOUR/DOW FROM checkin_at)` puede usarse directamente en queries de analytics sin necesidad de columnas generadas. Commit: `864e435`.
+**B-01 — Fix:** Se eliminaron las columnas `hour_of_day` y `day_of_week` de `checkins`. `EXTRACT()` usable en queries. Commit: `864e435`.
+
+**B-02 — Fix:** `_layout.tsx` ahora importa y registra `Inter_400Regular`, `Inter_600SemiBold`, `Inter_700Bold` via `@expo-google-fonts/inter`. Commit: `1edc8c6`.
+
+**B-03 — Fix:** Reemplazado `text-top` por `style={{ textAlignVertical: 'top' }}` como prop nativo. También eliminado `dark:border-[#3A3A44]` hardcodeado → token `dark:border-script-dark-border`. Commit: `1edc8c6`.
 
 ---
 
