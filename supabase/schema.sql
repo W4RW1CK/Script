@@ -76,8 +76,6 @@ CREATE TABLE checkins (
   ai_interpretation TEXT,
   flagged_for_review BOOLEAN DEFAULT FALSE,
   checkin_at        TIMESTAMPTZ DEFAULT NOW(),
-  hour_of_day       INTEGER GENERATED ALWAYS AS (EXTRACT(HOUR FROM checkin_at)) STORED,
-  day_of_week       INTEGER GENERATED ALWAYS AS (EXTRACT(DOW FROM checkin_at)) STORED,
   synced            BOOLEAN DEFAULT TRUE,
   created_offline_at TIMESTAMPTZ,
   suggested_script_id UUID REFERENCES scripts(id)
