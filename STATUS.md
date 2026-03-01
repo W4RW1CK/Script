@@ -4,7 +4,7 @@
 > **Cómo leer este archivo:**
 > ✅ Completado | 🔄 En progreso | ⏳ Pendiente | ❌ Bloqueado
 
-**Última actualización:** 2026-02-27  
+**Última actualización:** 2026-02-28  
 **Semana actual:** 1  
 **Entrega próxima:** Lunes (MVP)
 
@@ -20,7 +20,7 @@
 
 **Flujo de trabajo:**
 ```
-Agente genera código → w4rw1ck ejecuta → otro agente revisa output
+Agente genera y pushea código → w4rw1ck revisa en GitHub / prueba en Expo Go
 Algo falla → ambas atacan el bug → w4rw1ck confirma fix
 ```
 
@@ -45,7 +45,7 @@ Algo falla → ambas atacan el bug → w4rw1ck confirma fix
 | Semana | Descripción | Estado | Completado |
 |---|---|---|---|
 | Pre-implementación | Documentación + audit de los 6 docs canónicos | ✅ | PR #3 listo para merge |
-| Semana 1 | MVP: Setup + Check-in + Scripts + Rescate + Auth | ⏳ | 0 / 8 fases |
+| Semana 1 | MVP: Setup + Check-in + Scripts + Rescate + Auth | 🔄 | 1 / 8 fases (1.1 ✅) |
 | Semana 2 | Historial + Diccionario + Personalización | ⏳ | — |
 | Semana 3 | Red de Confianza + Notificaciones | ⏳ | — |
 | Semana 4 | IA + Vista Terapeuta | ⏳ | — |
@@ -68,15 +68,15 @@ Algo falla → ambas atacan el bug → w4rw1ck confirma fix
 
 ## 🗓️ Semana 1 — MVP
 
-### Fase 1.1 — Setup del Proyecto
+### Fase 1.1 — Setup del Proyecto ✅ COMPLETA
 | Paso | Descripción | Estado | Notas |
 |---|---|---|---|
-| 1.1.1 | Crear proyecto Expo 55 con template | ⏳ | |
-| 1.1.2 | Limpiar template innecesario | ⏳ | |
-| 1.1.3 | Instalar todas las dependencias (incl. expo-symbols) | ⏳ | |
-| 1.1.4 | Configurar NativeWind (tailwind.config.js + babel.config.js) | ⏳ | |
-| 1.1.5 | Configurar estructura de carpetas | ⏳ | |
-| **Verificación** | `npx expo start` sin errores, Expo Go conecta | ⏳ | |
+| 1.1.1 | Crear proyecto Expo 55 con template | ✅ | |
+| 1.1.2 | Limpiar template innecesario | ✅ | Bug fix: imports de componentes borrados reparados (Ana) |
+| 1.1.3 | Instalar todas las dependencias (incl. expo-symbols) | ✅ | |
+| 1.1.4 | Configurar NativeWind (tailwind.config.js + babel.config.js) | ✅ | |
+| 1.1.5 | Configurar estructura de carpetas | ✅ | |
+| **Verificación** | `npx expo start` sin errores, Expo Go conecta | ✅ | Confirmado en dispositivo físico Android 2026-02-28 |
 
 ### Fase 1.2 — Configuración de Variables y Supabase
 | Paso | Descripción | Estado | Notas |
