@@ -40,11 +40,12 @@ export function TextInput({
         onFocus={() => setFocused(true)}
         onBlur={() => setFocused(false)}
         accessibilityLabel={accessibilityLabel ?? label}
+        style={multiline ? { textAlignVertical: "top" } : undefined}
         className={`rounded-2xl bg-script-bg dark:bg-script-dark-bg p-4 text-base text-script-text dark:text-white border-[1.5px] ${
           focused
             ? "border-script-blue dark:border-script-dark-blue"
-            : "border-script-border dark:border-[#3A3A44]"
-        } ${multiline ? "min-h-[120px] text-top" : "min-h-[44px]"}`}
+            : "border-script-border dark:border-script-dark-border"
+        } ${multiline ? "min-h-[120px]" : "min-h-[44px]"}`}
       />
     </View>
   );

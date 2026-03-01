@@ -24,8 +24,12 @@ module.exports = {
         // Dark mode
         'script-dark-bg': '#1C1C22',
         'script-dark-secondary': '#26262E',
+        'script-dark-elevated': '#2F2F38',
+        'script-dark-text': '#E8E8E8',
+        'script-dark-text-secondary': '#9A9AA5',
         'script-dark-blue': '#5A7E92',
         'script-dark-crisis': '#221E1E',
+        'script-dark-border': '#3A3A44',
       },
     },
   },
