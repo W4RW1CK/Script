@@ -1,11 +1,34 @@
 # FRONTEND_GUIDELINES.md — Sistema de Diseño
 ## Script — Compañero Digital para Adultos con TEA Nivel 1
 
-**Versión:** 1.1  
-**Última actualización:** 2026-02-26  
+**Versión:** 1.2  
+**Última actualización:** 2026-03-01  
+**Cambios v1.2:** Agregada §0 — Inspiración y Decisiones de Diseño por Pantalla (incl. deferimiento Compañero/Planta a Semana 3).  
 **Cambios v1.1:** Agregada tabla de mapeo NativeWind (§1.3); corregido template de pantalla con dark mode; agregado `expo-symbols` a §8.
 
 > **Principio rector:** Ningún elemento de la UI puede ser un detonante sensorial. Cada decisión de diseño debe reducir la carga cognitiva y sensorial, no aumentarla.
+
+---
+
+## 0. Inspiración y Decisiones de Diseño por Pantalla
+
+Esta tabla define el lenguaje UX de cada pantalla principal. Es la referencia canónica antes de diseñar cualquier layout nuevo.
+
+| # | Pantalla | Inspiración | Decisión de diseño |
+|---|---|---|---|
+| 1 | **Home** | Finch | Espacio cálido, saludo personalizado + datos de continuidad ("tu última emoción fue…"). Nunca vacío. |
+| 2 | **Check-in** | Daylio | Máximo 3 taps. Body map táctil interactivo. Tiles de emoción con color como señal primaria. |
+| 3 | **Scripts** | Daylio + Finch | Grid visual de tiles (no lista). Copy cálido al momento de ejecutar el script. |
+| 4 | **Historial** | Daylio | Cuadrícula mensual donde cada día es un color según la emoción registrada. Sin texto denso. |
+| 5 | **Crisis / Rescate** | — (diseño propio) | Ultra minimal: una instrucción a la vez, 28px mínimo, paleta propia (`color-crisis-*`). Cero decoración. |
+| 6 | **Compañero / Planta** | — | **Diferido a Semana 3.** MVP usa únicamente datos de continuidad (última emoción, racha de check-ins). No hay elemento visual tipo mascota/planta en v1. |
+
+### Notas de decisión
+
+- **Compañero / Planta — sí, pero a partir de Semana 3.** La idea de un compañero visual (inspirado en Finch/Tamagotchi) está aprobada como feature de Semana 3. En el MVP (Semana 1–2) la pantalla Home muestra únicamente datos de continuidad textual/numérica; no hay avatar ni planta.
+- **Historial como cuadrícula de colores** (Daylio): cada celda del calendario = color del estado emocional dominante de ese día. Pantalla S19. Implementar en Fase 1.5+.
+- **Check-in: tiles de emoción** tienen fondo de color correspondiente al estado (verde calma, azul tristeza, naranja ansiedad, etc.) y se componen con el body map. Implementar en Fase 1.5.
+- **Crisis: diseño 100% propio** — ninguna referencia externa aplica. Ver §11 de este documento para las reglas que sobrescriben todo.
 
 ---
 
