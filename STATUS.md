@@ -45,7 +45,7 @@ Algo falla → ambas atacan el bug → w4rw1ck confirma fix
 | Semana | Descripción | Estado | Completado |
 |---|---|---|---|
 | Pre-implementación | Documentación + audit de los 6 docs canónicos | ✅ | PR #3 listo para merge |
-| Semana 1 | MVP: Setup + Check-in + Scripts + Rescate + Auth | 🔄 | 3 / 8 fases (1.1 ✅ 1.2 ✅ 1.3 ✅) |
+| Semana 1 | MVP: Setup + Check-in + Scripts + Rescate + Auth | 🔄 | 4 / 8 fases (1.1 ✅ 1.2 ✅ 1.3 ✅ 1.4 ✅) |
 | Semana 2 | Historial + Diccionario + Personalización | ⏳ | — |
 | Semana 3 | Red de Confianza + Notificaciones | ⏳ | — |
 | Semana 4 | IA + Vista Terapeuta | ⏳ | — |
@@ -105,14 +105,14 @@ Algo falla → ambas atacan el bug → w4rw1ck confirma fix
 | **+Extra** | components/ui/index.ts (barrel export) | ✅ | Agregado en audit |
 | **Verificación** | Componentes renderizados en claro y oscuro | ✅ | Pendiente confirmar en dispositivo — fuentes Inter cargando |
 
-### Fase 1.4 — Bottom Navigation y Layout
+### Fase 1.4 — Bottom Navigation y Layout ✅ COMPLETA
 | Paso | Descripción | Estado | Notas |
 |---|---|---|---|
-| 1.4.1 | app/(app)/_layout.tsx con Tab Navigator | ⏳ | |
-| 1.4.2 | 5 tabs con íconos (expo-symbols) | ⏳ | |
-| 1.4.3 | Botón de Rescate flotante (FAB) → /rescue/assess | ⏳ | |
-| 1.4.4 | app/(app)/home.tsx (S09) básico | ⏳ | |
-| **Verificación** | Navegación entre tabs + FAB navega a /rescue/assess | ⏳ | |
+| 1.4.1 | app/(app)/_layout.tsx con Tab Navigator | ✅ | expo-symbols, colores tokens, height 64px |
+| 1.4.2 | 5 tabs con íconos (expo-symbols) | ✅ | Placeholders con SafeScreen/Typography; (tabs) eliminado |
+| 1.4.3 | Botón de Rescate flotante (FAB) → /rescue/assess | ✅ | RescueFAB circular 56px, color crisis-soft, bottom:84px |
+| 1.4.4 | app/(app)/home.tsx (S09) básico | ✅ | CTA check-in, accesos rápidos, estado vacío último check-in |
+| **Verificación** | Navegación entre tabs + FAB navega a /rescue/assess | ⏳ | Pendiente confirmar en dispositivo (w4rw1ck) |
 
 ### Fase 1.5 — Check-in Corporal (Feature Core #1)
 | Paso | Descripción | Estado | Notas |
