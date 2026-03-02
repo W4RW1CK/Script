@@ -1,8 +1,9 @@
 # FRONTEND_GUIDELINES.md — Sistema de Diseño
 ## Script — Compañero Digital para Adultos con TEA Nivel 1
 
-**Versión:** 1.2  
-**Última actualización:** 2026-03-01  
+**Versión:** 1.3  
+**Última actualización:** 2026-03-02  
+**Cambios v1.3:** §8 Iconografía actualizada — `expo-symbols` → `Ionicons` de `@expo/vector-icons` (B-07: SF Symbols no funciona en Android).  
 **Cambios v1.2:** Agregada §0 — Inspiración y Decisiones de Diseño por Pantalla (incl. deferimiento Compañero/Planta a Semana 3).  
 **Cambios v1.1:** Agregada tabla de mapeo NativeWind (§1.3); corregido template de pantalla con dark mode; agregado `expo-symbols` a §8.
 
@@ -313,25 +314,37 @@ const reducedMotion = useReducedMotion()
 
 ## 8. Iconografía
 
-**Librería:** `expo-symbols` (SF Symbols en iOS, equivalentes en Android)
+> ⚠️ **REGLA OBLIGATORIA (B-07):** NUNCA usar `expo-symbols` en Script.  
+> `expo-symbols` usa SF Symbols de Apple — solo funciona en iOS y web.  
+> En Android Expo Go no renderiza absolutamente nada.  
+> **Siempre usar `Ionicons` de `@expo/vector-icons`.**
 
-**Instalación** (agregar al paso 2 de TECH_STACK.md):
-```bash
-npx expo install expo-symbols
+**Librería:** `Ionicons` de `@expo/vector-icons` — multiplataforma iOS / Android / web
+
+**Import:**
+```tsx
+import { Ionicons } from "@expo/vector-icons";
+
+// Uso:
+<Ionicons name="heart" size={24} color="#A8C5DA" />
 ```
 
-| Uso | Ícono |
+**`@expo/vector-icons` ya viene incluido con Expo** — no requiere instalación adicional.
+
+| Uso | Ícono Ionicons |
 |---|---|
-| Home | `house.fill` |
-| Check-in | `hand.raised.fill` |
-| Scripts | `doc.text.fill` |
-| Historial | `chart.bar.fill` |
-| Settings | `gearshape.fill` |
-| Rescate | `heart.fill` |
-| Agregar | `plus.circle.fill` |
-| Eliminar | `trash.fill` |
+| Home | `home` |
+| Check-in | `body` |
+| Scripts | `chatbubbles` |
+| Historial | `bar-chart` |
+| Settings | `settings` |
+| Rescate (FAB) | `heart` |
+| Agregar | `add-circle` |
+| Eliminar | `trash` |
 | Editar | `pencil` |
-| Compartir | `square.and.arrow.up` |
+| Compartir | `share-social` |
+| Volver | `arrow-back` |
+| Cerrar | `close` |
 | Crisis flag | `flag.fill` |
 | Persona confianza | `person.2.fill` |
 | Terapeuta | `stethoscope` |

@@ -3,6 +3,7 @@
 
 **Versión:** 1.2  
 **Última actualización:** 2026-02-26  
+**Cambios v1.3:** Eliminado `expo-symbols` (SF Symbols solo funciona en iOS/web — B-07); estándar de íconos actualizado a `@expo/vector-icons` (Ionicons), que ya viene incluido con Expo.  
 **Cambios v1.2:** Agregado `expo-symbols` a Estilos y UI y al comando de instalación (requerido por FRONTEND_GUIDELINES §8).  
 **Cambios v1.1:** Versiones verificadas contra npm registry. Expo 52→55, React 18→19, Reanimated 3→4, openai 4→6, zod 3→4, expo-av→expo-audio, todas las versiones de paquetes expo actualizadas.
 
@@ -80,7 +81,7 @@ app/
 | **react-native-worklets** | **0.7.4** | ⚠️ NUEVO — Peer dependency requerida por Reanimated 4 |
 | **@expo-google-fonts/inter** | **latest** | Fuente Inter |
 | **expo-font** | **13.x** | Carga de fuentes custom |
-| **expo-symbols** | **55.x** | Íconos nativos (SF Symbols iOS / Material equivalentes Android) |
+| **@expo/vector-icons** (Ionicons) | incluido con Expo | Íconos multiplataforma iOS/Android/web — estándar del proyecto. ⚠️ NUNCA usar `expo-symbols` (solo iOS/web) |
 
 > ⚠️ **Cambio importante — Reanimated 4:** La versión 4.x usa una nueva arquitectura de worklets. El API de `useAnimatedStyle`, `withTiming`, etc. se mantiene, pero ahora requiere `react-native-worklets` instalado. Sin esta dependencia la app crashea en runtime.
 
@@ -360,7 +361,8 @@ npx expo install expo-audio expo-haptics expo-location expo-sms
 npx expo install expo-notifications expo-device
 npx expo install expo-secure-store @react-native-async-storage/async-storage
 npx expo install expo-font @expo-google-fonts/inter
-npx expo install expo-symbols
+# @expo/vector-icons ya viene incluido con Expo — no requiere instalación adicional
+# expo-symbols fue eliminado (B-07): SF Symbols solo funciona en iOS/web
 
 # 3. Paquetes npm (versiones fijas)
 npm install @supabase/supabase-js@2.97.0

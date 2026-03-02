@@ -186,6 +186,7 @@ Algo falla → ambas atacan el bug → w4rw1ck confirma fix
 | B-04 | NativeWind no aplicaba ningún estilo — todos los `className` se ignoraban; la UI se veía como HTML sin CSS | 🔴 Alta | 1.4 | ✅ Resuelto |
 | B-05 | RescueFAB invisible en Android físico (Expo Go) — visible en devtools/web pero no en dispositivo nativo | 🔴 Alta | 1.4.3 | ✅ Resuelto |
 | B-06 | Tab "rescue" aparecía en la barra de navegación — Expo Router auto-descubre todas las carpetas en `(app)/` incluyendo `rescue/` | 🟡 Media | 1.4.1 | ✅ Resuelto |
+| B-07 | `expo-symbols` usa SF Symbols de Apple — solo funciona en iOS/web, en Android Expo Go no renderiza nada. Root cause real de: íconos invisibles en tab bar + FAB invisible | 🔴 Alta | 1.4 | ✅ Resuelto |
 
 **B-01 — Fix:** Se eliminaron las columnas `hour_of_day` y `day_of_week` de `checkins`. `EXTRACT()` usable en queries. Commit: `864e435`.
 
@@ -199,6 +200,8 @@ Algo falla → ambas atacan el bug → w4rw1ck confirma fix
 **B-05 — Fix v2 (definitivo):** `RescueFAB` movido de `app/(app)/_layout.tsx` a `app/_layout.tsx` (raíz). Renderizarlo dentro del Tab Navigator causa que Android lo oculte bajo su propia capa de UI independientemente del `zIndex`. Al estar en la raíz del árbol — fuera de Stack y Tab Navigator — ninguna capa de navegación puede taparlo. Commit: `6562449`.
 
 **B-06 — Fix:** Agregado `<Tabs.Screen name="rescue" options={{ href: null }} />` en `app/(app)/_layout.tsx`. Expo Router auto-descubre todas las carpetas en `(app)/`; sin este Screen con `href: null`, la carpeta `rescue/` aparecía como un 6to tab en la barra de navegación. Commit: `7ccfd0f`.
+
+**B-07 — Fix:** Reemplazado `expo-symbols` → `Ionicons` de `@expo/vector-icons` en todos los archivos del proyecto. SF Symbols es una tecnología exclusiva de Apple que no funciona en Android. Adicionalmente: FAB rediseñado con `View` overlay (`StyleSheet.absoluteFillObject` + `pointerEvents="box-none"` + flexbox) y círculo visual separado como `View` con `borderRadius` (en Android, `Pressable` no renderiza `borderRadius+backgroundColor` correctamente). Commits: `485284c`, `0698ac2`, `cdff16c`, `3d9801e`, `7b9d9a2`.
 
 ---
 
@@ -224,6 +227,9 @@ Algo falla → ambas atacan el bug → w4rw1ck confirma fix
 | 2026-03-02 | `metro.config.js` con `withNativeWind` es obligatorio para NativeWind v4 | Sin él, el procesamiento de CSS no ocurre y todos los className se ignoran (B-04) |
 | 2026-03-02 | Ningún agente inicia una fase sin instrucción explícita de w4rw1ck | Orden y control del sprint en manos del PO |
 | 2026-03-02 | FABs globales deben renderizarse en el root `_layout.tsx`, fuera de cualquier navegador | `zIndex` solo no es suficiente en Android nativo — el Tab Navigator crea su propia capa de UI que tapa elementos hijos (B-05 v2) |
+| 2026-03-02 | **NUNCA usar `expo-symbols` en Script** — siempre `Ionicons` de `@expo/vector-icons` | SF Symbols es exclusivo de Apple (iOS/macOS). En Android Expo Go no renderiza nada (B-07) |
+| 2026-03-02 | FAB overlay: `StyleSheet.absoluteFillObject` + `pointerEvents="box-none"` + flexbox | `position:absolute` con `bottom/right` no funciona correctamente en Android dentro de flex containers (B-07) |
+| 2026-03-02 | Círculo FAB: usar `View` wrapper, NO `Pressable` para `borderRadius+backgroundColor` | En Android, `Pressable` no renderiza `borderRadius+backgroundColor` correctamente — separar visual (`View`) de interacción (`Pressable`) (B-07) |
 | 2026-03-02 | Rutas ocultas requieren `Tabs.Screen href:null` en Expo Router | Expo Router auto-descubre todas las carpetas — rescue/ debe ocultarse explícitamente (B-06) |
 
 ---
@@ -236,7 +242,8 @@ Algo falla → ambas atacan el bug → w4rw1ck confirma fix
 - 1.4.1–1.4.4 implementadas por Aibus + Ana — tabs, FAB, Home real
 - Bug B-04 detectado: NativeWind sin estilos por falta de metro.config.js — fix en `30fec72`
 - Estilos confirmados funcionando en dispositivo físico Android (w4rw1ck)
-- Bug B-05: FAB invisible en Android físico — fix v1 `b7e9b6e` (zIndex insuficiente) → fix v2 `6562449` (FAB movido a root _layout.tsx)
+- Bug B-05: FAB invisible en Android físico — fix v1 `b7e9b6e` (zIndex) → fix v2 `6562449` (root layout) → root cause real: B-07
+- Bug B-07 (root cause): `expo-symbols` no funciona en Android — reemplazado por `Ionicons` (@expo/vector-icons) en 5 commits por Aibus. FAB rediseñado con overlay + View circular. Verified en dispositivo físico Android ✅
 - Bug B-06: Tab "rescue" aparecía en barra (faltaba href:null) — fix en `7ccfd0f`
 - FRONTEND_GUIDELINES v1.2: tabla de inspiraciones por pantalla + decisión Planta→S3
 - Regla establecida: ningún agente inicia una fase sin instrucción explícita del PO
