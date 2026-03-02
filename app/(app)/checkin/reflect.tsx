@@ -27,6 +27,7 @@ import {
   View,
   ScrollView,
   ActivityIndicator,
+  useColorScheme,
 } from "react-native";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { SafeScreen, Typography, Card, Button, TextInput } from "@/components/ui";
@@ -90,6 +91,9 @@ function getMockOptions(zones: ZoneId[], notes: string): EmotionOption[] {
 // ── Componente ─────────────────────────────────────────────────────────────
 export default function CheckinReflectScreen() {
   const router = useRouter();
+  // Color del spinner según el tema activo (light/dark)
+  const isDark = useColorScheme() === "dark";
+  const spinnerColor = isDark ? "#5A7E92" : "#A8C5DA"; // script-dark-blue / script-blue
 
   // Params recibidos desde S11
   const { zones: zonesParam, notes: notesParam } = useLocalSearchParams<{
@@ -144,8 +148,7 @@ export default function CheckinReflectScreen() {
         <View className="flex-1 items-center justify-center gap-6 px-5">
           <ActivityIndicator
             size="large"
-            // Color del spinner según tema
-            color="#A8C5DA"
+            color={spinnerColor}  // script-blue (light) / script-dark-blue (dark)
           />
           <Typography
             variant="body"
