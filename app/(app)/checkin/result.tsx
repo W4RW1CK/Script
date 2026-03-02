@@ -56,10 +56,10 @@ export default function CheckinResultScreen() {
 
     try {
       const { error } = await supabase.from("checkins").insert({
-        body_zones: zones,                           // string[] de ZoneId
-        raw_text:   notes ?? "",                     // descripción libre del usuario
-        confirmed_emotion: emotion ?? "",            // emoción elegida en S12
-        flagged_for_review: flagged,                 // marca para terapeuta
+        body_zones:        zones,          // TEXT[] — ZoneIds seleccionados (schema: body_zones)
+        free_text:         notes ?? "",    // TEXT   — descripción libre (schema: free_text)
+        emotion_confirmed: emotion ?? "",  // VARCHAR(100) — emoción elegida (schema: emotion_confirmed)
+        flagged_for_review: flagged,       // BOOLEAN — marca para terapeuta
         // user_id se agrega automáticamente por RLS con auth.uid() en Fase 1.8
       });
 

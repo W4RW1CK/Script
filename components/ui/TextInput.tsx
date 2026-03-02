@@ -6,6 +6,7 @@
  *  - Soporte multiline: altura mínima 120px, texto alineado arriba
  *  - Single-line: altura mínima 44px (tap target WCAG)
  *  - Label opcional encima del input
+ *  - numberOfLines: controla cuántas líneas se muestran en modo multiline
  *
  * Nota: placeholderTextColor no es configurable por NativeWind —
  * se pasa como prop nativa directamente (#ABABAB = script-text disabled).
@@ -21,8 +22,16 @@ interface TextInputProps {
   label?: string;
   /** Si true, el input es multilínea con altura mínima 120px */
   multiline?: boolean;
+  /**
+   * Número de líneas visibles en modo multiline.
+   * Controla la altura inicial del TextInput.
+   * Solo tiene efecto cuando multiline=true.
+   */
+  numberOfLines?: number;
   /** Label para lectores de pantalla (default: usa label si existe) */
   accessibilityLabel?: string;
+  /** Texto adicional que TalkBack/VoiceOver lee después del label */
+  accessibilityHint?: string;
 }
 
 export function TextInput({
@@ -31,7 +40,9 @@ export function TextInput({
   placeholder,
   label,
   multiline = false,
+  numberOfLines,
   accessibilityLabel,
+  accessibilityHint,
 }: TextInputProps) {
   // Controla el estado de foco para cambiar el borde
   const [focused, setFocused] = useState(false);
@@ -51,9 +62,12 @@ export function TextInput({
         // placeholderTextColor no es clase NativeWind — se pasa como prop nativa
         placeholderTextColor="#ABABAB"
         multiline={multiline}
+        // numberOfLines: solo en multiline — define altura inicial visible
+        numberOfLines={multiline ? numberOfLines : undefined}
         onFocus={() => setFocused(true)}
         onBlur={() => setFocused(false)}
         accessibilityLabel={accessibilityLabel ?? label}
+        accessibilityHint={accessibilityHint}
         // textAlignVertical no es clase NativeWind válida — requiere style prop nativo
         style={multiline ? { textAlignVertical: "top" } : undefined}
         className={`rounded-2xl bg-script-bg dark:bg-script-dark-bg p-4 text-base text-script-text dark:text-white border-[1.5px] ${
