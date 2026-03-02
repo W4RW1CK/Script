@@ -188,6 +188,8 @@ Algo falla → ambas atacan el bug → w4rw1ck confirma fix
 | B-06 | Tab "rescue" aparecía en la barra de navegación — Expo Router auto-descubre todas las carpetas en `(app)/` incluyendo `rescue/` | 🟡 Media | 1.4.1 | ✅ Resuelto |
 | B-07 | `expo-symbols` usa SF Symbols de Apple — solo funciona en iOS/web, en Android Expo Go no renderiza nada. Root cause real de: íconos invisibles en tab bar + FAB invisible | 🔴 Alta | 1.4 | ✅ Resuelto |
 | B-08 | `Card` no tenía `variant` ni `onPress` — en S12 (reflect.tsx) las opciones de emoción no eran tocables ni mostraban estado "seleccionada". Flujo de check-in bloqueado | 🔴 Alta | 1.5 | ✅ Resuelto |
+| B-09 | result.tsx usaba `raw_text` y `confirmed_emotion` en el INSERT de Supabase, pero el schema real tiene `free_text` y `emotion_confirmed` — los check-ins no se habrían guardado correctamente | 🔴 Alta | 1.5 | ✅ Resuelto |
+| B-10 | `TextInput` no aceptaba `numberOfLines` ni `accessibilityHint` — `numberOfLines={6}` en notes.tsx se ignoraba silenciosamente; la altura del input quedaba fija en 120px mínimo | 🟡 Media | 1.5 | ✅ Resuelto |
 
 **B-01 — Fix:** Se eliminaron las columnas `hour_of_day` y `day_of_week` de `checkins`. `EXTRACT()` usable en queries. Commit: `864e435`.
 
@@ -201,6 +203,10 @@ Algo falla → ambas atacan el bug → w4rw1ck confirma fix
 **B-05 — Fix v2 (definitivo):** `RescueFAB` movido de `app/(app)/_layout.tsx` a `app/_layout.tsx` (raíz). Renderizarlo dentro del Tab Navigator causa que Android lo oculte bajo su propia capa de UI independientemente del `zIndex`. Al estar en la raíz del árbol — fuera de Stack y Tab Navigator — ninguna capa de navegación puede taparlo. Commit: `6562449`.
 
 **B-06 — Fix:** Agregado `<Tabs.Screen name="rescue" options={{ href: null }} />` en `app/(app)/_layout.tsx`. Expo Router auto-descubre todas las carpetas en `(app)/`; sin este Screen con `href: null`, la carpeta `rescue/` aparecía como un 6to tab en la barra de navegación. Commit: `7ccfd0f`.
+
+**B-10 — Fix:** `TextInput.tsx` — agregados `numberOfLines?: number` y `accessibilityHint?: string` a la interface; ambos forwardeados a `RNTextInput`. `numberOfLines` solo aplica cuando `multiline=true`. Commit: `a1f5aab`.
+
+**B-09 — Fix:** `result.tsx` — corregidos nombres de campo en INSERT de Supabase: `raw_text→free_text`, `confirmed_emotion→emotion_confirmed`. Verificados contra `supabase/schema.sql`. Commit: `a1f5aab`.
 
 **B-08 — Fix:** `Card.tsx` actualizado con props `variant` ("default"|"elevated") y `onPress` (Pressable con `opacity:0.85`). Variante "elevated" usa `bg-elevated + shadow-md + border script-blue`. Retrocompatible. `reflect.tsx` corregido: `ActivityIndicator` usa `useColorScheme()` para el color (#A8C5DA light / #5A7E92 dark). Commit: `c157bdb`. Encontrado por Aibus en auditoría.
 
