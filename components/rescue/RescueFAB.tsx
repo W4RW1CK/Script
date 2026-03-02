@@ -6,7 +6,7 @@
  *
  * Diseño intencional (FRONTEND_GUIDELINES §4 + PRD §2.3):
  *  - Color: script-crisis-soft (suave, NO rojo alarmante — reduce ansiedad)
- *  - Posición: bottom-right, encima del tab bar (bottom: 80px)
+ *  - Posición: bottom-right, encima del tab bar (bottom: 84px)
  *  - Ícono: heart.fill (expo-symbols) — presencia, no emergencia
  *  - Tamaño: 56px × 56px (tap target holgado)
  *  - Sombra visible pero no exagerada
@@ -64,8 +64,12 @@ const styles = StyleSheet.create({
     borderRadius: 28,   // Perfectamente circular
     alignItems: "center",
     justifyContent: "center",
+    // zIndex necesario en Android nativo: sin él, el FAB queda debajo
+    // de la capa del Tab Navigator aunque sea position:absolute.
+    // elevation también ayuda al z-ordering en Android (B-05).
+    zIndex: 999,
     // Sombra visible pero discreta
-    elevation: 6,       // Android
+    elevation: 10,      // Android — valor alto garantiza renderizado sobre tabs
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 3 },
     shadowOpacity: 0.15,
