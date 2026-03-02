@@ -4,7 +4,7 @@
 > **Cómo leer este archivo:**
 > ✅ Completado | 🔄 En progreso | ⏳ Pendiente | ❌ Bloqueado
 
-**Última actualización:** 2026-03-01  
+**Última actualización:** 2026-03-02  
 **Semana actual:** 1  
 **Entrega próxima:** Lunes (MVP)
 
@@ -60,7 +60,7 @@ Algo falla → ambas atacan el bug → w4rw1ck confirma fix
 | `PRD.md` | v1.4 | ✅ | Tests movidos a Semana 1; offline clarificado; Settings timing corregido; tagline restaurada |
 | `APP_FLOW.md` | v1.3 | ✅ | Screen IDs S01–S24; Flujo 5 agregado; Nivel 1 crisis = multimodal (visual+voz+háptico) |
 | `TECH_STACK.md` | v1.2 | ✅ | expo-symbols agregado; rutas actualizadas a S01–S24 |
-| `FRONTEND_GUIDELINES.md` | v1.1 | ✅ | Tabla NativeWind tokens §1.3; template dark mode corregido |
+| `FRONTEND_GUIDELINES.md` | v1.2 | ✅ | §0 agregada: tabla de inspiración por pantalla (Finch/Daylio); Compañero/Planta diferido a S3 |
 | `BACKEND_STRUCTURE.md` | v1.3 | ✅ | RAADS-R domain counts corregidos; RLS policies completadas; tone-grounding-voice.mp3 agregado |
 | `IMPLEMENTATION_PLAN.md` | v1.6 | ✅ | expo-symbols en install; supabase-js pinneada; Fase 1.8 expandida; timer 10s canónico |
 
@@ -112,7 +112,7 @@ Algo falla → ambas atacan el bug → w4rw1ck confirma fix
 | 1.4.2 | 5 tabs con íconos (expo-symbols) | ✅ | Placeholders con SafeScreen/Typography; (tabs) eliminado |
 | 1.4.3 | Botón de Rescate flotante (FAB) → /rescue/assess | ✅ | RescueFAB circular 56px, color crisis-soft, bottom:84px |
 | 1.4.4 | app/(app)/home.tsx (S09) básico | ✅ | CTA check-in, accesos rápidos, estado vacío último check-in |
-| **Verificación** | Navegación entre tabs + FAB navega a /rescue/assess | ⏳ | Pendiente confirmar en dispositivo (w4rw1ck) |
+| **Verificación** | Navegación entre tabs + FAB navega a /rescue/assess | ✅ | Confirmado en dispositivo físico Android 2026-03-02 (post fix metro.config.js) |
 
 ### Fase 1.5 — Check-in Corporal (Feature Core #1)
 | Paso | Descripción | Estado | Notas |
@@ -183,12 +183,15 @@ Algo falla → ambas atacan el bug → w4rw1ck confirma fix
 | B-01 | `ERROR 42P17: generation expression is not immutable` al ejecutar schema.sql — `EXTRACT()` sobre `TIMESTAMPTZ` no es inmutable en PostgreSQL, prohibido en columnas `GENERATED ALWAYS AS` | 🔴 Alta | 1.2.3 | ✅ Resuelto |
 | B-02 | Inter fonts instaladas pero NO cargadas en `_layout.tsx` — `useFonts` solo tenía SpaceMono; Typography constants con `Inter_*Bold/SemiBold/Regular` fallaban silenciosamente | 🟡 Media | 1.3 | ✅ Resuelto |
 | B-03 | `text-top` en `TextInput.tsx` no es clase NativeWind válida — `textAlignVertical:'top'` se ignoraba en multiline inputs | 🟡 Media | 1.3.5c | ✅ Resuelto |
+| B-04 | NativeWind no aplicaba ningún estilo — todos los `className` se ignoraban; la UI se veía como HTML sin CSS | 🔴 Alta | 1.4 | ✅ Resuelto |
 
 **B-01 — Fix:** Se eliminaron las columnas `hour_of_day` y `day_of_week` de `checkins`. `EXTRACT()` usable en queries. Commit: `864e435`.
 
 **B-02 — Fix:** `_layout.tsx` ahora importa y registra `Inter_400Regular`, `Inter_600SemiBold`, `Inter_700Bold` via `@expo-google-fonts/inter`. Commit: `1edc8c6`.
 
 **B-03 — Fix:** Reemplazado `text-top` por `style={{ textAlignVertical: 'top' }}` como prop nativo. También eliminado `dark:border-[#3A3A44]` hardcodeado → token `dark:border-script-dark-border`. Commit: `1edc8c6`.
+
+**B-04 — Fix:** Creado `metro.config.js` con `withNativeWind(config, { input: './global.css' })`. NativeWind v4 requiere este archivo para procesar el CSS de Tailwind — `babel.config.js` solo hace el transform JSX; el procesamiento CSS es responsabilidad de Metro. Sin `metro.config.js`, todos los `className` se ignoran. Commit: `30fec72`.
 
 ---
 
@@ -211,12 +214,21 @@ Algo falla → ambas atacan el bug → w4rw1ck confirma fix
 | 2026-02-27 | npm (no bun) como package manager | EAS Build requiere npm/yarn; bun es experimental en Expo |
 | 2026-03-01 | No usar columnas GENERATED con TIMESTAMPTZ en PostgreSQL | EXTRACT() sobre TIMESTAMPTZ no es inmutable; usar queries en su lugar |
 | 2026-03-01 | `hour_of_day` y `day_of_week` eliminados de tabla `checkins` | Calculables con EXTRACT en queries; no necesitan persistirse (B-01) |
+| 2026-03-02 | `metro.config.js` con `withNativeWind` es obligatorio para NativeWind v4 | Sin él, el procesamiento de CSS no ocurre y todos los className se ignoran (B-04) |
+| 2026-03-02 | Ningún agente inicia una fase sin instrucción explícita de w4rw1ck | Orden y control del sprint en manos del PO |
 
 ---
 
 ## 📝 Notas del Sprint
 
 ### Semana 1
+
+**2026-03-02 — Fase 1.4 completada y verificada en dispositivo**
+- 1.4.1–1.4.4 implementadas por Aibus + Ana — tabs, FAB, Home real
+- Bug B-04 detectado: NativeWind sin estilos por falta de metro.config.js — fix en `30fec72`
+- Estilos confirmados funcionando en dispositivo físico Android (w4rw1ck)
+- FRONTEND_GUIDELINES v1.2: tabla de inspiraciones por pantalla + decisión Planta→S3
+- Regla establecida: ningún agente inicia una fase sin instrucción explícita del PO
 
 **2026-02-27 — Sesión de planning completada**
 - Equipo formado: w4rw1ck + Ana Banana + Aibus Dumbleclaw
