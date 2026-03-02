@@ -16,7 +16,7 @@
 import { View, Pressable } from "react-native";
 import { useRouter } from "expo-router";
 import { SafeScreen, Typography, Button, Card } from "@/components/ui";
-import { SymbolView } from "expo-symbols";
+import { Ionicons } from "@expo/vector-icons";
 import { useColorScheme } from "react-native";
 
 export default function HomeScreen() {
@@ -54,13 +54,8 @@ export default function HomeScreen() {
         className="w-full rounded-3xl bg-script-blue dark:bg-script-dark-blue p-6 items-center gap-2 mb-6"
         style={({ pressed }) => ({ opacity: pressed ? 0.85 : 1 })}
       >
-        {/* Ícono grande centrado */}
-        <SymbolView
-          name="hand.raised.fill"
-          tintColor="white"
-          type="hierarchical"
-          style={{ width: 40, height: 40 }}
-        />
+        {/* Ícono grande centrado — Ionicons multiplataforma (B-07) */}
+        <Ionicons name="body" size={40} color="white" />
         {/* Texto del CTA — fuente grande, blanca */}
         <Typography variant="headingM" className="text-white text-center">
           ¿Cómo estás hoy?
@@ -84,12 +79,7 @@ export default function HomeScreen() {
           className="flex-1 rounded-3xl bg-script-bg-secondary dark:bg-script-dark-secondary p-4 items-center gap-2"
           style={({ pressed }) => ({ opacity: pressed ? 0.8 : 1 })}
         >
-          <SymbolView
-            name="doc.text.fill"
-            tintColor={iconColor}
-            type="hierarchical"
-            style={{ width: 28, height: 28 }}
-          />
+          <Ionicons name="chatbubbles" size={28} color={iconColor} />
           <Typography variant="caption" className="text-center font-semibold">
             Scripts
           </Typography>
@@ -103,12 +93,7 @@ export default function HomeScreen() {
           className="flex-1 rounded-3xl bg-script-bg-secondary dark:bg-script-dark-secondary p-4 items-center gap-2"
           style={({ pressed }) => ({ opacity: pressed ? 0.8 : 1 })}
         >
-          <SymbolView
-            name="chart.bar.fill"
-            tintColor={iconColor}
-            type="hierarchical"
-            style={{ width: 28, height: 28 }}
-          />
+          <Ionicons name="bar-chart" size={28} color={iconColor} />
           <Typography variant="caption" className="text-center font-semibold">
             Historial
           </Typography>
