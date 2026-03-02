@@ -195,7 +195,8 @@ Algo falla → ambas atacan el bug → w4rw1ck confirma fix
 
 **B-04 — Fix:** Creado `metro.config.js` con `withNativeWind(config, { input: './global.css' })`. NativeWind v4 requiere este archivo para procesar el CSS de Tailwind — `babel.config.js` solo hace el transform JSX; el procesamiento CSS es responsabilidad de Metro. Sin `metro.config.js`, todos los `className` se ignoran. Commit: `30fec72`.
 
-**B-05 — Fix:** Agregado `zIndex: 999` y aumentado `elevation: 6→10` en el StyleSheet de `RescueFAB.tsx`. En Android nativo, `position: absolute` no garantiza z-ordering sobre la capa del Tab Navigator sin `zIndex` explícito. Commit: `b7e9b6e`.
+**B-05 — Fix v1 (insuficiente):** Agregado `zIndex: 999` y aumentado `elevation: 6→10` en el StyleSheet de `RescueFAB.tsx`. Commit: `b7e9b6e`.
+**B-05 — Fix v2 (definitivo):** `RescueFAB` movido de `app/(app)/_layout.tsx` a `app/_layout.tsx` (raíz). Renderizarlo dentro del Tab Navigator causa que Android lo oculte bajo su propia capa de UI independientemente del `zIndex`. Al estar en la raíz del árbol — fuera de Stack y Tab Navigator — ninguna capa de navegación puede taparlo. Commit: `6562449`.
 
 **B-06 — Fix:** Agregado `<Tabs.Screen name="rescue" options={{ href: null }} />` en `app/(app)/_layout.tsx`. Expo Router auto-descubre todas las carpetas en `(app)/`; sin este Screen con `href: null`, la carpeta `rescue/` aparecía como un 6to tab en la barra de navegación. Commit: `7ccfd0f`.
 
@@ -222,7 +223,7 @@ Algo falla → ambas atacan el bug → w4rw1ck confirma fix
 | 2026-03-01 | `hour_of_day` y `day_of_week` eliminados de tabla `checkins` | Calculables con EXTRACT en queries; no necesitan persistirse (B-01) |
 | 2026-03-02 | `metro.config.js` con `withNativeWind` es obligatorio para NativeWind v4 | Sin él, el procesamiento de CSS no ocurre y todos los className se ignoran (B-04) |
 | 2026-03-02 | Ningún agente inicia una fase sin instrucción explícita de w4rw1ck | Orden y control del sprint en manos del PO |
-| 2026-03-02 | `zIndex: 999` obligatorio en FAB sobre Tab Navigator en Android | Sin `zIndex` explícito, `position:absolute` no garantiza z-ordering en Android nativo (B-05) |
+| 2026-03-02 | FABs globales deben renderizarse en el root `_layout.tsx`, fuera de cualquier navegador | `zIndex` solo no es suficiente en Android nativo — el Tab Navigator crea su propia capa de UI que tapa elementos hijos (B-05 v2) |
 | 2026-03-02 | Rutas ocultas requieren `Tabs.Screen href:null` en Expo Router | Expo Router auto-descubre todas las carpetas — rescue/ debe ocultarse explícitamente (B-06) |
 
 ---
@@ -235,7 +236,7 @@ Algo falla → ambas atacan el bug → w4rw1ck confirma fix
 - 1.4.1–1.4.4 implementadas por Aibus + Ana — tabs, FAB, Home real
 - Bug B-04 detectado: NativeWind sin estilos por falta de metro.config.js — fix en `30fec72`
 - Estilos confirmados funcionando en dispositivo físico Android (w4rw1ck)
-- Bug B-05: FAB invisible en Android físico (faltaba zIndex:999) — fix en `b7e9b6e`
+- Bug B-05: FAB invisible en Android físico — fix v1 `b7e9b6e` (zIndex insuficiente) → fix v2 `6562449` (FAB movido a root _layout.tsx)
 - Bug B-06: Tab "rescue" aparecía en barra (faltaba href:null) — fix en `7ccfd0f`
 - FRONTEND_GUIDELINES v1.2: tabla de inspiraciones por pantalla + decisión Planta→S3
 - Regla establecida: ningún agente inicia una fase sin instrucción explícita del PO
