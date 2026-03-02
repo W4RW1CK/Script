@@ -123,7 +123,7 @@ Algo falla → ambas atacan el bug → w4rw1ck confirma fix
 | 1.5.4 | app/(app)/checkin/reflect.tsx **(S12)** | ✅ | Commit `2c5b198` — mock IA (TODO: reemplazar con edge fn real en 1.5.6) |
 | 1.5.5 | app/(app)/checkin/result.tsx **(S13)** | ✅ | Commit `7160977` — INSERT falla silenciosamente sin auth (esperado) |
 | 1.5.6 | Supabase Edge Function: interpret-checkin | ✅ | Commit `8657889` — GPT-4o-mini, OPENAI_API_KEY solo en Supabase env |
-| **Verificación** | Check-in completo S10→S11→S12→S13, dato guardado en Supabase | ⏳ | Pendiente confirmar en dispositivo (w4rw1ck). Sin auth: INSERT falla silenciosamente |
+| **Verificación** | Check-in completo S10→S11→S12→S13, dato guardado en Supabase | ✅ | Verificado en dispositivo físico Android (Expo Go) por w4rw1ck — 2026-03-02. Sin auth: INSERT falla silenciosamente (esperado). |
 
 ### Fase 1.6 — Scripts Sociales (Feature Core #2)
 | Paso | Descripción | Estado | Notas |
