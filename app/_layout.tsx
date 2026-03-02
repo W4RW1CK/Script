@@ -23,8 +23,9 @@ import { Stack } from "expo-router";
 import * as SplashScreen from "expo-splash-screen";
 import { useEffect } from "react";
 import "react-native-reanimated";
-import { useColorScheme } from "react-native";
+import { useColorScheme, View } from "react-native";
 import { SafeAreaProvider } from "react-native-safe-area-context";
+import { RescueFAB } from "@/components/rescue/RescueFAB";
 
 // Re-exporta el ErrorBoundary de Expo Router para capturar errores en pantallas
 export { ErrorBoundary } from "expo-router";
@@ -79,12 +80,30 @@ function RootLayoutNav() {
     // Todos los SafeAreaView (en SafeScreen) dependen de este contexto
     <SafeAreaProvider>
       <ThemeProvider value={colorScheme === "dark" ? DarkTheme : DefaultTheme}>
-        <Stack>
-          {/* (app) contiene el Tab Navigator principal (Home, Check-in, Scripts, etc.) */}
-          <Stack.Screen name="(app)" options={{ headerShown: false }} />
-          {/* (onboarding) se activa en Fase 1.8 — Privy auth */}
-          {/* <Stack.Screen name="(onboarding)" options={{ headerShown: false }} /> */}
-        </Stack>
+        {/*
+          View raíz: ocupa toda la pantalla y sirve como contenedor de
+          posicionamiento para el RescueFAB (position: absolute).
+          Renderizar el FAB aquí (fuera del Stack y del Tab Navigator)
+          garantiza que esté por encima de TODA la jerarquía de navegación
+          en Android nativo — solución a B-05.
+        */}
+        <View style={{ flex: 1 }}>
+          <Stack>
+            {/* (app) contiene el Tab Navigator principal (Home, Check-in, Scripts, etc.) */}
+            <Stack.Screen name="(app)" options={{ headerShown: false }} />
+            {/* (onboarding) se activa en Fase 1.8 — Privy auth */}
+            {/* <Stack.Screen name="(onboarding)" options={{ headerShown: false }} /> */}
+          </Stack>
+
+          {/*
+            RescueFAB aquí = siempre visible en TODAS las pantallas de (app).
+            Al estar fuera de los navegadores, ninguna capa de Tab/Stack
+            puede ocultarlo en Android nativo.
+            En pantallas de crisis (rescue/*) el FAB no se renderiza desde
+            aquí — se maneja en Fase 1.7 con lógica de ruta activa.
+          */}
+          <RescueFAB />
+        </View>
       </ThemeProvider>
     </SafeAreaProvider>
   );

@@ -8,14 +8,13 @@
  *   history       → S19 Historial de check-ins
  *   settings      → S21 Configuración
  *
- * El FAB de Rescate (S17) se inyecta encima de este navigator en Paso 1.4.3.
+ * El FAB de Rescate (S17) se renderiza en app/_layout.tsx (raíz) — encima de todo.
  * Íconos: expo-symbols (SF Symbols en iOS, equivalentes en Android).
  * Colores activo/inactivo: FRONTEND_GUIDELINES §4 + §1.3 tokens.
  */
 import { Tabs } from "expo-router";
 import { SymbolView } from "expo-symbols";
-import { useColorScheme, View } from "react-native";
-import { RescueFAB } from "@/components/rescue/RescueFAB";
+import { useColorScheme } from "react-native";
 
 export default function AppTabLayout() {
   const colorScheme = useColorScheme();
@@ -27,8 +26,6 @@ export default function AppTabLayout() {
   const bgColor      = isDark ? "#2F2F38" : "#FFFFFF";  // script-dark-elevated / script-bg-elevated
 
   return (
-    // View wrapper necesario para posicionar el FAB encima del Tab Navigator
-    <View style={{ flex: 1 }}>
     <Tabs
       screenOptions={{
         tabBarActiveTintColor:   activeColor,
@@ -150,9 +147,5 @@ export default function AppTabLayout() {
         }}
       />
     </Tabs>
-
-    {/* FAB de Rescate — flotante, visible en todas las tabs (FRONTEND_GUIDELINES §4) */}
-    <RescueFAB />
-    </View>
   );
 }
