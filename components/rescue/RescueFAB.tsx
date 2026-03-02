@@ -76,6 +76,9 @@ const styles = StyleSheet.create({
     width: 56,
     height: 56,
     borderRadius: 28,
+    alignItems: "center",           // Centra el Pressable horizontalmente
+    justifyContent: "center",       // Centra el Pressable verticalmente
+    overflow: "hidden",             // Recorta al círculo en Android
     elevation: 10,                  // Sombra Android
     // Sombra iOS
     shadowColor: "#000",
