@@ -45,7 +45,7 @@ Algo falla → ambas atacan el bug → w4rw1ck confirma fix
 | Semana | Descripción | Estado | Completado |
 |---|---|---|---|
 | Pre-implementación | Documentación + audit de los 6 docs canónicos | ✅ | PR #3 listo para merge |
-| Semana 1 | MVP: Setup + Check-in + Scripts + Rescate + Auth | 🔄 | 5 / 8 fases (1.1 ✅ 1.2 ✅ 1.3 ✅ 1.4 ✅ 1.5 ✅) |
+| Semana 1 | MVP: Setup + Check-in + Scripts + Rescate + Auth | 🔄 | 6 / 8 fases (1.1 ✅ 1.2 ✅ 1.3 ✅ 1.4 ✅ 1.5 ✅ 1.6 ✅) |
 | Semana 2 | Historial + Diccionario + Personalización | ⏳ | — |
 | Semana 3 | Red de Confianza + Notificaciones | ⏳ | — |
 | Semana 4 | IA + Vista Terapeuta | ⏳ | — |
@@ -125,13 +125,13 @@ Algo falla → ambas atacan el bug → w4rw1ck confirma fix
 | 1.5.6 | Supabase Edge Function: interpret-checkin | ✅ | Commit `8657889` — GPT-4o-mini, OPENAI_API_KEY solo en Supabase env |
 | **Verificación** | Check-in completo S10→S11→S12→S13, dato guardado en Supabase | ✅ | Verificado en dispositivo físico Android (Expo Go) por w4rw1ck — 2026-03-02. Sin auth: INSERT falla silenciosamente (esperado). |
 
-### Fase 1.6 — Scripts Sociales (Feature Core #2)
+### Fase 1.6 — Scripts Sociales (Feature Core #2) ✅ COMPLETA
 | Paso | Descripción | Estado | Notas |
 |---|---|---|---|
-| 1.6.1 | app/(app)/scripts/index.tsx **(S14)** | ⏳ | |
-| 1.6.2 | app/(app)/scripts/[id].tsx **(S15)** — Modo Preparación | ⏳ | |
-| 1.6.3 | app/(app)/scripts/[id]/execute.tsx **(S16)** — Modo Ejecución | ⏳ | |
-| **Verificación** | 5 scripts navegables y ejecutables | ⏳ | |
+| 1.6.1 | app/(app)/scripts/index.tsx **(S14)** | ✅ | Commit `583cf7d` — fetch Supabase, chips categoría, cards táctiles |
+| 1.6.2 | app/(app)/scripts/[id].tsx **(S15)** — Detalle | ✅ | Commit `46d88bf` — vista previa bloques, CTA ejecutar |
+| 1.6.3 | app/(app)/scripts/execute.tsx **(S16)** — Ejecución | ✅ | Commit `064a6fc` — paso a paso, barra progreso, opciones, celebración |
+| **Verificación** | 5 scripts navegables y ejecutables | ⏳ | Pendiente prueba en dispositivo (w4rw1ck) |
 
 ### Fase 1.7 — Botón de Rescate (Feature Core #3)
 | Paso | Descripción | Estado | Notas |
@@ -248,6 +248,13 @@ Algo falla → ambas atacan el bug → w4rw1ck confirma fix
 ## 📝 Notas del Sprint
 
 ### Semana 1
+
+**2026-03-02 — Fase 1.6 completa: Biblioteca de Scripts (S14→S15→S16)**
+- index.tsx (S14): fetch Supabase predefined scripts, 4 chips de categoría, 5 cards
+- [id].tsx (S15): detalle completo, vista previa de bloques tipo, CTA ejecutar
+- execute.tsx (S16): paso a paso, barra progreso dinámica, opciones seleccionables, bloque contexto, saltar opcional, pantalla de celebración
+- execute.tsx implementado como ruta estática (no [id]/execute) con id como query param
+- Pendiente verificación en dispositivo físico (w4rw1ck)
 
 **2026-03-02 — Fase 1.5 completa: Check-in Corporal (S10→S11→S12→S13)**
 - BodyMap.tsx: SVG 6 zonas táctiles, multi-selección, light/dark mode
