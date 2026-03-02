@@ -9,11 +9,12 @@
  *   settings      → S21 Configuración
  *
  * El FAB de Rescate (S17) se renderiza en app/_layout.tsx (raíz) — encima de todo.
- * Íconos: expo-symbols (SF Symbols en iOS, equivalentes en Android).
+ * Íconos: Ionicons (@expo/vector-icons) — multiplataforma iOS/Android/web.
+ * expo-symbols (SF Symbols) solo funciona en iOS/web, NO en Android (B-07).
  * Colores activo/inactivo: FRONTEND_GUIDELINES §4 + §1.3 tokens.
  */
 import { Tabs } from "expo-router";
-import { SymbolView } from "expo-symbols";
+import { Ionicons } from "@expo/vector-icons";
 import { useColorScheme } from "react-native";
 
 export default function AppTabLayout() {
@@ -54,12 +55,7 @@ export default function AppTabLayout() {
         options={{
           title: "Inicio",
           tabBarIcon: ({ color }) => (
-            <SymbolView
-              name="house.fill"
-              tintColor={color}
-              type="hierarchical"
-              style={{ width: 24, height: 24 }}
-            />
+            <Ionicons name="home" size={24} color={color} />
           ),
           tabBarAccessibilityLabel: "Pantalla de inicio",
         }}
@@ -71,12 +67,7 @@ export default function AppTabLayout() {
         options={{
           title: "Check-in",
           tabBarIcon: ({ color }) => (
-            <SymbolView
-              name="hand.raised.fill"
-              tintColor={color}
-              type="hierarchical"
-              style={{ width: 24, height: 24 }}
-            />
+            <Ionicons name="body" size={24} color={color} />
           ),
           tabBarAccessibilityLabel: "Hacer un check-in corporal",
         }}
@@ -88,12 +79,7 @@ export default function AppTabLayout() {
         options={{
           title: "Scripts",
           tabBarIcon: ({ color }) => (
-            <SymbolView
-              name="doc.text.fill"
-              tintColor={color}
-              type="hierarchical"
-              style={{ width: 24, height: 24 }}
-            />
+            <Ionicons name="chatbubbles" size={24} color={color} />
           ),
           tabBarAccessibilityLabel: "Scripts sociales",
         }}
@@ -105,12 +91,7 @@ export default function AppTabLayout() {
         options={{
           title: "Historial",
           tabBarIcon: ({ color }) => (
-            <SymbolView
-              name="chart.bar.fill"
-              tintColor={color}
-              type="hierarchical"
-              style={{ width: 24, height: 24 }}
-            />
+            <Ionicons name="bar-chart" size={24} color={color} />
           ),
           tabBarAccessibilityLabel: "Historial de check-ins",
         }}
@@ -122,12 +103,7 @@ export default function AppTabLayout() {
         options={{
           title: "Ajustes",
           tabBarIcon: ({ color }) => (
-            <SymbolView
-              name="gearshape.fill"
-              tintColor={color}
-              type="hierarchical"
-              style={{ width: 24, height: 24 }}
-            />
+            <Ionicons name="settings" size={24} color={color} />
           ),
           tabBarAccessibilityLabel: "Configuración",
         }}

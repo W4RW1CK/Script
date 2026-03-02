@@ -7,7 +7,7 @@
  * Diseño intencional (FRONTEND_GUIDELINES §4 + PRD §2.3):
  *  - Color: script-crisis-soft (suave, NO rojo alarmante — reduce ansiedad)
  *  - Posición: bottom-right, encima del tab bar (bottom: 84px)
- *  - Ícono: heart.fill (expo-symbols) — presencia, no emergencia
+ *  - Ícono: heart (Ionicons) — presencia, no emergencia
  *  - Tamaño: 56px × 56px (tap target holgado)
  *  - Sombra visible pero no exagerada
  *
@@ -20,7 +20,7 @@
  *  - accessibilityHint explica qué sucede al activarlo
  */
 import { Pressable, StyleSheet } from "react-native";
-import { SymbolView } from "expo-symbols";
+import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import { useColorScheme } from "react-native";
 
@@ -43,12 +43,8 @@ export function RescueFAB() {
         { backgroundColor: bgColor, opacity: pressed ? 0.85 : 1 },
       ]}
     >
-      <SymbolView
-        name="heart.fill"
-        tintColor={iconColor}
-        type="hierarchical"
-        style={{ width: 26, height: 26 }}
-      />
+      {/* Ionicons: multiplataforma iOS/Android/web — expo-symbols solo iOS/web (B-07) */}
+      <Ionicons name="heart" size={26} color={iconColor} />
     </Pressable>
   );
 }
