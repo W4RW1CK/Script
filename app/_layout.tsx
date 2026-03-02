@@ -87,7 +87,13 @@ function RootLayoutNav() {
           garantiza que esté por encima de TODA la jerarquía de navegación
           en Android nativo — solución a B-05.
         */}
-        <View style={{ flex: 1 }}>
+        {/*
+          View contenedor: flex:1 ocupa toda la pantalla.
+          position:'relative' es NECESARIO en Android para que los hijos
+          con position:'absolute' se posicionen relativo a este View
+          y no al viewport o a otro ancestro (B-07).
+        */}
+        <View style={{ flex: 1, position: "relative" }}>
           <Stack>
             {/* (app) contiene el Tab Navigator principal (Home, Check-in, Scripts, etc.) */}
             <Stack.Screen name="(app)" options={{ headerShown: false }} />
@@ -99,8 +105,6 @@ function RootLayoutNav() {
             RescueFAB aquí = siempre visible en TODAS las pantallas de (app).
             Al estar fuera de los navegadores, ninguna capa de Tab/Stack
             puede ocultarlo en Android nativo.
-            En pantallas de crisis (rescue/*) el FAB no se renderiza desde
-            aquí — se maneja en Fase 1.7 con lógica de ruta activa.
           */}
           <RescueFAB />
         </View>

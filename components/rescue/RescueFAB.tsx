@@ -51,21 +51,23 @@ export function RescueFAB() {
 
 const styles = StyleSheet.create({
   fab: {
-    // Posicionado sobre el tab bar (64px height + safe area estimado ~20px)
+    // Posición: esquina inferior derecha, encima del tab bar
+    // bottom=84: tab bar (64px) + margen (20px)
+    // right=20: separación del borde derecho
     position: "absolute",
     bottom: 84,
     right: 20,
+    // Tamaño y forma circular
     width: 56,
     height: 56,
-    borderRadius: 28,   // Perfectamente circular
+    borderRadius: 28,
     alignItems: "center",
     justifyContent: "center",
-    // zIndex necesario en Android nativo: sin él, el FAB queda debajo
-    // de la capa del Tab Navigator aunque sea position:absolute.
-    // elevation también ayuda al z-ordering en Android (B-05).
+    // Android z-ordering: elevation controla el orden visual en Android.
+    // zIndex es para iOS/web. Ambos son necesarios para multiplataforma.
     zIndex: 999,
-    // Sombra visible pero discreta
-    elevation: 10,      // Android — valor alto garantiza renderizado sobre tabs
+    elevation: 10,
+    // Sombra iOS (discreta)
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 3 },
     shadowOpacity: 0.15,
