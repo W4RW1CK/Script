@@ -45,7 +45,7 @@ Algo falla → ambas atacan el bug → w4rw1ck confirma fix
 | Semana | Descripción | Estado | Completado |
 |---|---|---|---|
 | Pre-implementación | Documentación + audit de los 6 docs canónicos | ✅ | PR #3 listo para merge |
-| Semana 1 | MVP: Setup + Check-in + Scripts + Rescate + Auth | 🔄 | 4 / 8 fases (1.1 ✅ 1.2 ✅ 1.3 ✅ 1.4 ✅) |
+| Semana 1 | MVP: Setup + Check-in + Scripts + Rescate + Auth | 🔄 | 5 / 8 fases (1.1 ✅ 1.2 ✅ 1.3 ✅ 1.4 ✅ 1.5 ✅) |
 | Semana 2 | Historial + Diccionario + Personalización | ⏳ | — |
 | Semana 3 | Red de Confianza + Notificaciones | ⏳ | — |
 | Semana 4 | IA + Vista Terapeuta | ⏳ | — |
@@ -114,16 +114,16 @@ Algo falla → ambas atacan el bug → w4rw1ck confirma fix
 | 1.4.4 | app/(app)/home.tsx (S09) básico | ✅ | CTA check-in, accesos rápidos, estado vacío último check-in |
 | **Verificación** | Navegación entre tabs + FAB navega a /rescue/assess | ✅ | Confirmado en dispositivo físico Android 2026-03-02 (post fix metro.config.js) |
 
-### Fase 1.5 — Check-in Corporal (Feature Core #1)
+### Fase 1.5 — Check-in Corporal (Feature Core #1) ✅ COMPLETA
 | Paso | Descripción | Estado | Notas |
 |---|---|---|---|
-| 1.5.1 | components/body-map/BodyMap.tsx (SVG 6 zonas) | ⏳ | Ver FRONTEND_GUIDELINES §5 |
-| 1.5.2 | app/(app)/checkin/body.tsx **(S10)** | ⏳ | |
-| 1.5.3 | app/(app)/checkin/notes.tsx **(S11)** | ⏳ | |
-| 1.5.4 | app/(app)/checkin/reflect.tsx **(S12)** | ⏳ | |
-| 1.5.5 | app/(app)/checkin/result.tsx **(S13)** | ⏳ | |
-| 1.5.6 | Supabase Edge Function: interpret-checkin | ⏳ | |
-| **Verificación** | Check-in completo S10→S11→S12→S13, dato guardado en Supabase | ⏳ | |
+| 1.5.1 | components/body-map/BodyMap.tsx (SVG 6 zonas) | ✅ | Commit `2b4059a` |
+| 1.5.2 | app/(app)/checkin/body.tsx **(S10)** | ✅ | Commit `b19603a` — index.tsx redirige aquí |
+| 1.5.3 | app/(app)/checkin/notes.tsx **(S11)** | ✅ | Commit `1d377a1` |
+| 1.5.4 | app/(app)/checkin/reflect.tsx **(S12)** | ✅ | Commit `2c5b198` — mock IA (TODO: reemplazar con edge fn real en 1.5.6) |
+| 1.5.5 | app/(app)/checkin/result.tsx **(S13)** | ✅ | Commit `7160977` — INSERT falla silenciosamente sin auth (esperado) |
+| 1.5.6 | Supabase Edge Function: interpret-checkin | ✅ | Commit `8657889` — GPT-4o-mini, OPENAI_API_KEY solo en Supabase env |
+| **Verificación** | Check-in completo S10→S11→S12→S13, dato guardado en Supabase | ⏳ | Pendiente confirmar en dispositivo (w4rw1ck). Sin auth: INSERT falla silenciosamente |
 
 ### Fase 1.6 — Scripts Sociales (Feature Core #2)
 | Paso | Descripción | Estado | Notas |
@@ -237,6 +237,15 @@ Algo falla → ambas atacan el bug → w4rw1ck confirma fix
 ## 📝 Notas del Sprint
 
 ### Semana 1
+
+**2026-03-02 — Fase 1.5 completa: Check-in Corporal (S10→S11→S12→S13)**
+- BodyMap.tsx: SVG 6 zonas táctiles, multi-selección, light/dark mode
+- body.tsx (S10): BodyMap + chips + CTA deshabilitado sin selección
+- notes.tsx (S11): TextInput libre, chips read-only, KeyboardAvoidingView
+- reflect.tsx (S12): loader + 5 opciones emoción (mock) + input personalizado
+- result.tsx (S13): muestra emoción, INSERT Supabase, flagged_for_review
+- interpret-checkin: Edge Function GPT-4o-mini con system prompt lenguaje tentativo
+- Pendiente verificación en dispositivo físico (w4rw1ck)
 
 **2026-03-02 — Fase 1.4 completada y verificada en dispositivo**
 - 1.4.1–1.4.4 implementadas por Aibus + Ana — tabs, FAB, Home real
