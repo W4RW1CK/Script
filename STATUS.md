@@ -187,6 +187,7 @@ Algo falla → ambas atacan el bug → w4rw1ck confirma fix
 | B-05 | RescueFAB invisible en Android físico (Expo Go) — visible en devtools/web pero no en dispositivo nativo | 🔴 Alta | 1.4.3 | ✅ Resuelto |
 | B-06 | Tab "rescue" aparecía en la barra de navegación — Expo Router auto-descubre todas las carpetas en `(app)/` incluyendo `rescue/` | 🟡 Media | 1.4.1 | ✅ Resuelto |
 | B-07 | `expo-symbols` usa SF Symbols de Apple — solo funciona en iOS/web, en Android Expo Go no renderiza nada. Root cause real de: íconos invisibles en tab bar + FAB invisible | 🔴 Alta | 1.4 | ✅ Resuelto |
+| B-08 | `Card` no tenía `variant` ni `onPress` — en S12 (reflect.tsx) las opciones de emoción no eran tocables ni mostraban estado "seleccionada". Flujo de check-in bloqueado | 🔴 Alta | 1.5 | ✅ Resuelto |
 
 **B-01 — Fix:** Se eliminaron las columnas `hour_of_day` y `day_of_week` de `checkins`. `EXTRACT()` usable en queries. Commit: `864e435`.
 
@@ -200,6 +201,8 @@ Algo falla → ambas atacan el bug → w4rw1ck confirma fix
 **B-05 — Fix v2 (definitivo):** `RescueFAB` movido de `app/(app)/_layout.tsx` a `app/_layout.tsx` (raíz). Renderizarlo dentro del Tab Navigator causa que Android lo oculte bajo su propia capa de UI independientemente del `zIndex`. Al estar en la raíz del árbol — fuera de Stack y Tab Navigator — ninguna capa de navegación puede taparlo. Commit: `6562449`.
 
 **B-06 — Fix:** Agregado `<Tabs.Screen name="rescue" options={{ href: null }} />` en `app/(app)/_layout.tsx`. Expo Router auto-descubre todas las carpetas en `(app)/`; sin este Screen con `href: null`, la carpeta `rescue/` aparecía como un 6to tab en la barra de navegación. Commit: `7ccfd0f`.
+
+**B-08 — Fix:** `Card.tsx` actualizado con props `variant` ("default"|"elevated") y `onPress` (Pressable con `opacity:0.85`). Variante "elevated" usa `bg-elevated + shadow-md + border script-blue`. Retrocompatible. `reflect.tsx` corregido: `ActivityIndicator` usa `useColorScheme()` para el color (#A8C5DA light / #5A7E92 dark). Commit: `c157bdb`. Encontrado por Aibus en auditoría.
 
 **B-07 — Fix:** Reemplazado `expo-symbols` → `Ionicons` de `@expo/vector-icons` en todos los archivos del proyecto. SF Symbols es una tecnología exclusiva de Apple que no funciona en Android. Adicionalmente: FAB rediseñado con `View` overlay (`StyleSheet.absoluteFillObject` + `pointerEvents="box-none"` + flexbox) y círculo visual separado como `View` con `borderRadius` (en Android, `Pressable` no renderiza `borderRadius+backgroundColor` correctamente). Commits: `485284c`, `0698ac2`, `cdff16c`, `3d9801e`, `7b9d9a2`.
 
@@ -231,6 +234,8 @@ Algo falla → ambas atacan el bug → w4rw1ck confirma fix
 | 2026-03-02 | FAB overlay: `StyleSheet.absoluteFillObject` + `pointerEvents="box-none"` + flexbox | `position:absolute` con `bottom/right` no funciona correctamente en Android dentro de flex containers (B-07) |
 | 2026-03-02 | Círculo FAB: usar `View` wrapper, NO `Pressable` para `borderRadius+backgroundColor` | En Android, `Pressable` no renderiza `borderRadius+backgroundColor` correctamente — separar visual (`View`) de interacción (`Pressable`) (B-07) |
 | 2026-03-02 | Rutas ocultas requieren `Tabs.Screen href:null` en Expo Router | Expo Router auto-descubre todas las carpetas — rescue/ debe ocultarse explícitamente (B-06) |
+| 2026-03-02 | `Card` con `onPress`: Pressable directo con `opacity:0.85` al presionar | No se usa `TouchableOpacity` (deprecado). Pressable permite `style` como función con `pressed` state |
+| 2026-03-02 | `Card` variant "elevated": borde `script-blue` como indicador visual de selección | Solo el borde de color es suficiente — mantiene tono calmado del app |
 
 ---
 
