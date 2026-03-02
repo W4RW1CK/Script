@@ -135,6 +135,20 @@ export default function AppTabLayout() {
           tabBarAccessibilityLabel: "Configuración",
         }}
       />
+
+      {/*
+        Rutas ocultas del tab bar — Expo Router auto-descubre TODAS las
+        carpetas en (app)/, incluida rescue/. Sin este Screen con href:null,
+        aparecería una tab "rescue" en la barra de navegación.
+        La pantalla rescue/assess se accede solo via RescueFAB o navegación programática.
+      */}
+      <Tabs.Screen
+        name="rescue"
+        options={{
+          href: null,          // Oculta del tab bar (B-06)
+          tabBarItemStyle: { display: "none" },
+        }}
+      />
     </Tabs>
 
     {/* FAB de Rescate — flotante, visible en todas las tabs (FRONTEND_GUIDELINES §4) */}
