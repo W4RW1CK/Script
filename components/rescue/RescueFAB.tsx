@@ -15,16 +15,13 @@
  * no como una alarma. El usuario lo activa cuando lo necesita.
  *
  * Arquitectura de posicionamiento (B-07):
- *  El Pressable con position:'absolute' no se posiciona correctamente
- *  en Android dentro de un flex container (se va a 0,0 ignorando bottom/right).
- *  Solución: View overlay con StyleSheet.absoluteFillObject + pointerEvents="box-none"
- *  que cubre toda la pantalla sin bloquear toques, y dentro el Pressable
- *  se posiciona con flexbox (justifyContent/alignItems) en vez de offsets.
+ *  View overlay con absoluteFillObject + pointerEvents="box-none"
+ *  + flexbox para posicionar bottom-right. Ver comentarios en styles.
  *
- * Accesibilidad:
- *  - accessibilityRole="button"
- *  - accessibilityLabel describe la acción sin generar alarma
- *  - accessibilityHint explica qué sucede al activarlo
+ * Círculo (B-07 v4):
+ *  En Android, Pressable no renderiza borderRadius+backgroundColor
+ *  correctamente. Solución: View circular contenedor con el fondo,
+ *  Pressable dentro solo maneja el toque.
  */
 import { Pressable, StyleSheet, View } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
@@ -40,54 +37,58 @@ export function RescueFAB() {
   const iconColor = isDark ? "#F0D0D0" : "#8B4C4C"; // Tono cálido visible sobre el fondo
 
   return (
-    // View overlay: cubre toda la pantalla pero NO intercepta toques
-    // (pointerEvents="box-none" = el View ignora toques, solo sus hijos los reciben)
+    // Overlay: cubre toda la pantalla, NO intercepta toques (box-none)
     <View style={styles.overlay} pointerEvents="box-none">
-      <Pressable
-        onPress={() => router.push("/(app)/rescue/assess")}
-        accessibilityRole="button"
-        accessibilityLabel="Necesito calmarme"
-        accessibilityHint="Abre el protocolo de calma y grounding"
-        style={({ pressed }) => [
-          styles.fab,
-          { backgroundColor: bgColor, opacity: pressed ? 0.85 : 1 },
-        ]}
-      >
-        {/* Ionicons: multiplataforma iOS/Android/web (B-07) */}
-        <Ionicons name="heart" size={26} color={iconColor} />
-      </Pressable>
+      {/* Círculo visual: View con borderRadius + backgroundColor
+          En Android, un View renderiza el borderRadius+bg mejor que Pressable */}
+      <View style={[styles.circle, { backgroundColor: bgColor }]}>
+        <Pressable
+          onPress={() => router.push("/(app)/rescue/assess")}
+          accessibilityRole="button"
+          accessibilityLabel="Necesito calmarme"
+          accessibilityHint="Abre el protocolo de calma y grounding"
+          style={({ pressed }) => [
+            styles.pressable,
+            { opacity: pressed ? 0.7 : 1 },
+          ]}
+        >
+          {/* Ionicons: multiplataforma iOS/Android/web (B-07) */}
+          <Ionicons name="heart" size={26} color={iconColor} />
+        </Pressable>
+      </View>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  // Overlay invisible que cubre toda la pantalla
+  // Overlay invisible: cubre toda la pantalla
   overlay: {
-    ...StyleSheet.absoluteFillObject,   // position:absolute + top/left/right/bottom = 0
-    justifyContent: "flex-end",         // Empuja contenido hacia abajo
-    alignItems: "flex-end",             // Empuja contenido hacia la derecha
-    // Padding para posicionar el FAB exactamente donde queremos:
-    // bottom: tab bar (64px) + margen (20px) = 84px
-    // right: 20px del borde
-    paddingBottom: 84,
-    paddingRight: 20,
-    // zIndex/elevation para estar encima de todo
+    ...StyleSheet.absoluteFillObject,
+    justifyContent: "flex-end",     // Empuja hacia abajo
+    alignItems: "flex-end",         // Empuja hacia la derecha
+    paddingBottom: 84,              // Encima del tab bar (64px + 20px margen)
+    paddingRight: 20,               // Separación del borde derecho
     zIndex: 999,
     elevation: 999,
   },
-  fab: {
-    // Tamaño y forma circular
+  // Círculo visual del FAB — View para que Android renderice bg+borderRadius
+  circle: {
+    width: 56,
+    height: 56,
+    borderRadius: 28,
+    elevation: 10,                  // Sombra Android
+    // Sombra iOS
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 3 },
+    shadowOpacity: 0.15,
+    shadowRadius: 6,
+  },
+  // Área tocable: ocupa todo el círculo
+  pressable: {
     width: 56,
     height: 56,
     borderRadius: 28,
     alignItems: "center",
     justifyContent: "center",
-    // Sombra Android
-    elevation: 10,
-    // Sombra iOS (discreta)
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 3 },
-    shadowOpacity: 0.15,
-    shadowRadius: 6,
   },
 });
