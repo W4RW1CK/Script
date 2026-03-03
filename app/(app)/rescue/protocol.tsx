@@ -1,0 +1,515 @@
+/**
+ * rescue/protocol.tsx — S18: Protocolo de Rescate
+ *
+ * Pantalla de protocolo según el nivel de crisis elegido en S17.
+ * Sigue FRONTEND_GUIDELINES §11 en todos los niveles.
+ *
+ * Flujo: S17 (assess) → S18 → Home (replace al completar)
+ *
+ * Recibe: `level` como query param ("1" | "2" | "3")
+ *
+ * Nivel 1 — Grounding 5-4-3-2-1:
+ *   5 pasos sensoriales mostrados de uno en uno.
+ *   Háptico en cada paso (ImpactFeedbackStyle.Light).
+ *   "Hecho →" avanza al siguiente paso → pantalla de cierre.
+ *
+ * Nivel 2 — Respiración guiada:
+ *   Círculo animado con Reanimated (expand=inhala, hold=pausa, contract=exhala).
+ *   4 ciclos (4s inhalar / 2s pausa / 6s exhalar = 12s por ciclo).
+ *   Etiqueta de fase (Inhala/Pausa/Exhala) actualizada con setInterval JS-side.
+ *   Audio: pendiente (ver assets/audio/README.md).
+ *
+ * Nivel 3 — Emergencia:
+ *   Teléfono de crisis SAPTEL (800 290-0024, México, 24h).
+ *   Botón "Respiración guiada" → redirige internamente a Level 2.
+ *   TODO (Fase 1.8+): mostrar contactos de confianza del usuario.
+ *
+ * Diseño §11: fondo crisis, texto 28px, botones 64px+, "← Salir" visible.
+ */
+import React, { useState, useEffect, useCallback, useRef } from "react";
+import { View, Pressable, Text, StyleSheet, Linking } from "react-native";
+import { useLocalSearchParams, useRouter } from "expo-router";
+import Animated, {
+  useSharedValue,
+  useAnimatedStyle,
+  withSequence,
+  withTiming,
+  withRepeat,
+  Easing,
+} from "react-native-reanimated";
+import * as Haptics from "expo-haptics";
+import { SafeScreen, Typography } from "@/components/ui";
+
+// ── Constantes de nivel ────────────────────────────────────────────────────
+type CrisisLevel = 1 | 2 | 3;
+
+// ── Grounding 5-4-3-2-1 (Nivel 1) ─────────────────────────────────────────
+// Máximo 5 palabras por instrucción (§11.4)
+const GROUNDING_STEPS = [
+  { count: 5, sense: "ve",    instruction: "Nombra 5 cosas que ves" },
+  { count: 4, sense: "toca",  instruction: "Toca 4 objetos cercanos" },
+  { count: 3, sense: "oye",   instruction: "Escucha 3 sonidos ahora" },
+  { count: 2, sense: "huele", instruction: "Huele 2 cosas cercanas" },
+  { count: 1, sense: "sabe",  instruction: "¿Qué sabor hay ahora?" },
+];
+
+// ── Respiración guiada (Nivel 2) ───────────────────────────────────────────
+const CIRCLE_MIN = 100; // diámetro mínimo al exhalar (px)
+const CIRCLE_MAX = 200; // diámetro máximo al inhalar (px)
+const INHALE_MS  = 4000;
+const PAUSE_MS   = 2000;
+const EXHALE_MS  = 6000;
+const CYCLE_MS   = INHALE_MS + PAUSE_MS + EXHALE_MS; // 12 000ms
+const CYCLE_COUNT = 4; // 4 ciclos completos (~48 segundos)
+
+// Color del círculo de respiración (no configurable por NativeWind en Animated.View)
+const CIRCLE_COLOR_LIGHT = "rgba(168,197,218,0.55)"; // script-blue 55%
+const CIRCLE_COLOR_DARK  = "rgba(90,126,146,0.55)";  // script-dark-blue 55%
+
+// ── Componente ─────────────────────────────────────────────────────────────
+export default function RescueProtocolScreen() {
+  const router = useRouter();
+  const { level: levelParam } = useLocalSearchParams<{ level: string }>();
+
+  // Parsear nivel (default 1 si el param es inválido)
+  const level = (parseInt(levelParam ?? "1", 10) as CrisisLevel) || 1;
+
+  // ── Estado de Nivel 1 (Grounding) ────────────────────────────────────────
+  const [groundingStep, setGroundingStep] = useState(0); // 0..4, luego 5 = completo
+  const [groundingComplete, setGroundingComplete] = useState(false);
+
+  // ── Estado de Nivel 2 (Breathing) ────────────────────────────────────────
+  const [phaseLabel, setPhaseLabel] = useState("Inhala");
+  const [breathingComplete, setBreathingComplete] = useState(false);
+  const [breathingStarted, setBreathingStarted] = useState(false);
+
+  // Reanimated: diámetro del círculo
+  const circleSize = useSharedValue(CIRCLE_MIN);
+
+  // Estilo animado del círculo — Reanimated aplica en el UI thread
+  const animatedCircleStyle = useAnimatedStyle(() => ({
+    width:  circleSize.value,
+    height: circleSize.value,
+    borderRadius: circleSize.value / 2,
+  }));
+
+  // Timer ref para limpiar en unmount
+  const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
+
+  /**
+   * startBreathing — inicia la animación de respiración.
+   *
+   * 1. Reanimated anima el círculo en el UI thread (withRepeat+withSequence).
+   * 2. setInterval en el JS thread actualiza el label (Inhala/Pausa/Exhala).
+   */
+  const startBreathing = useCallback(() => {
+    setBreathingStarted(true);
+
+    // ── Animación Reanimated (UI thread) ────────────────────────────────
+    circleSize.value = withRepeat(
+      withSequence(
+        // Inhalar: expandir a MAX en 4s
+        withTiming(CIRCLE_MAX, {
+          duration: INHALE_MS,
+          easing: Easing.inOut(Easing.ease),
+        }),
+        // Pausa: mantener en MAX por 2s
+        withTiming(CIRCLE_MAX, { duration: PAUSE_MS }),
+        // Exhalar: contraer a MIN en 6s
+        withTiming(CIRCLE_MIN, {
+          duration: EXHALE_MS,
+          easing: Easing.inOut(Easing.ease),
+        }),
+      ),
+      CYCLE_COUNT, // 4 repeticiones
+      false        // no revertir
+    );
+
+    // ── Tracking de fase en JS thread (para el label) ───────────────────
+    let elapsed = 0;
+    timerRef.current = setInterval(() => {
+      elapsed += 100;
+
+      // Calcular fase dentro del ciclo actual
+      const inCycle = elapsed % CYCLE_MS;
+      if      (inCycle < INHALE_MS)              setPhaseLabel("Inhala");
+      else if (inCycle < INHALE_MS + PAUSE_MS)   setPhaseLabel("Pausa");
+      else                                        setPhaseLabel("Exhala");
+
+      // Detectar fin de todos los ciclos
+      if (elapsed >= CYCLE_MS * CYCLE_COUNT) {
+        if (timerRef.current) clearInterval(timerRef.current);
+        setBreathingComplete(true);
+      }
+    }, 100);
+  }, [circleSize]);
+
+  // Limpiar timer al desmontar
+  useEffect(() => {
+    return () => {
+      if (timerRef.current) clearInterval(timerRef.current);
+    };
+  }, []);
+
+  // ── Háptico en pasos de grounding ────────────────────────────────────────
+  const handleGroundingNext = useCallback(async () => {
+    // Feedback háptico suave en cada paso
+    await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+
+    if (groundingStep < GROUNDING_STEPS.length - 1) {
+      setGroundingStep((prev) => prev + 1);
+    } else {
+      setGroundingComplete(true);
+    }
+  }, [groundingStep]);
+
+  // ── Salir del protocolo ───────────────────────────────────────────────────
+  const handleExit = useCallback(() => {
+    if (timerRef.current) clearInterval(timerRef.current);
+    router.back();
+  }, [router]);
+
+  // ── Pantallas de cierre ───────────────────────────────────────────────────
+  if (groundingComplete || breathingComplete) {
+    return (
+      <SafeScreen crisis scrollable={false}>
+        <View style={styles.container}>
+          <Pressable
+            onPress={() => router.replace("/(app)/home")}
+            style={({ pressed }) => [styles.exitBtn, pressed && styles.exitBtnPressed]}
+            accessibilityRole="button"
+            accessibilityLabel="Volver al inicio"
+          >
+            <Text style={styles.exitText}>← Inicio</Text>
+          </Pressable>
+          <View style={styles.centerContent}>
+            <Typography variant="crisis" className="text-center">
+              Bien hecho.
+            </Typography>
+            <View style={{ height: 24 }} />
+            <Text style={styles.closingText}>
+              Tomaste un momento para ti.{"\n"}Eso siempre vale.
+            </Text>
+            <View style={{ height: 40 }} />
+            <Pressable
+              onPress={() => router.replace("/(app)/home")}
+              style={({ pressed }) => [styles.primaryBtn, pressed && styles.primaryBtnPressed]}
+              accessibilityRole="button"
+            >
+              <Text style={styles.primaryBtnLabel}>Volver al inicio</Text>
+            </Pressable>
+          </View>
+        </View>
+      </SafeScreen>
+    );
+  }
+
+  // ── NIVEL 1 — Grounding 5-4-3-2-1 ───────────────────────────────────────
+  if (level === 1) {
+    const step = GROUNDING_STEPS[groundingStep];
+    return (
+      <SafeScreen crisis scrollable={false}>
+        <View style={styles.container}>
+
+          {/* ← Salir */}
+          <Pressable
+            onPress={handleExit}
+            style={({ pressed }) => [styles.exitBtn, pressed && styles.exitBtnPressed]}
+            accessibilityRole="button"
+            accessibilityLabel="Salir del protocolo"
+          >
+            <Text style={styles.exitText}>← Salir</Text>
+          </Pressable>
+
+          <View style={styles.centerContent}>
+            {/* Número grande — foco visual */}
+            <Text style={styles.groundingNumber}>{step.count}</Text>
+
+            {/* Instrucción — máx 5 palabras (§11.4) */}
+            <Typography variant="crisis" className="text-center mt-4">
+              {step.instruction}
+            </Typography>
+
+            {/* Indicador de progreso (puntos) */}
+            <View style={styles.dotsRow}>
+              {GROUNDING_STEPS.map((_, idx) => (
+                <View
+                  key={idx}
+                  style={[
+                    styles.dot,
+                    idx === groundingStep && styles.dotActive,
+                    idx < groundingStep  && styles.dotDone,
+                  ]}
+                />
+              ))}
+            </View>
+
+            <View style={{ height: 48 }} />
+
+            {/* "Hecho →" */}
+            <Pressable
+              onPress={handleGroundingNext}
+              style={({ pressed }) => [styles.primaryBtn, pressed && styles.primaryBtnPressed]}
+              accessibilityRole="button"
+              accessibilityLabel="Hecho, siguiente paso"
+            >
+              <Text style={styles.primaryBtnLabel}>Hecho →</Text>
+            </Pressable>
+          </View>
+        </View>
+      </SafeScreen>
+    );
+  }
+
+  // ── NIVEL 2 — Respiración guiada ─────────────────────────────────────────
+  if (level === 2) {
+    return (
+      <SafeScreen crisis scrollable={false}>
+        <View style={styles.container}>
+
+          {/* ← Salir */}
+          <Pressable
+            onPress={handleExit}
+            style={({ pressed }) => [styles.exitBtn, pressed && styles.exitBtnPressed]}
+            accessibilityRole="button"
+            accessibilityLabel="Salir del protocolo de respiración"
+          >
+            <Text style={styles.exitText}>← Salir</Text>
+          </Pressable>
+
+          <View style={styles.centerContent}>
+
+            {!breathingStarted ? (
+              /* Pantalla de inicio antes de empezar */
+              <>
+                <Typography variant="crisis" className="text-center">
+                  Respira conmigo.
+                </Typography>
+                <View style={{ height: 16 }} />
+                <Text style={styles.closingText}>
+                  4 segundos inhala.{"\n"}
+                  2 segundos pausa.{"\n"}
+                  6 segundos exhala.
+                </Text>
+                <View style={{ height: 48 }} />
+                <Pressable
+                  onPress={startBreathing}
+                  style={({ pressed }) => [styles.primaryBtn, pressed && styles.primaryBtnPressed]}
+                  accessibilityRole="button"
+                >
+                  <Text style={styles.primaryBtnLabel}>Comenzar →</Text>
+                </Pressable>
+              </>
+            ) : (
+              /* Animación activa */
+              <>
+                {/* Etiqueta de fase — 28px */}
+                <Typography variant="crisis" className="text-center">
+                  {phaseLabel}
+                </Typography>
+
+                <View style={{ height: 40 }} />
+
+                {/* Círculo animado — Reanimated */}
+                <View style={styles.circleContainer}>
+                  <Animated.View
+                    style={[styles.circle, animatedCircleStyle]}
+                  />
+                </View>
+
+                <View style={{ height: 40 }} />
+
+                {/* Instrucción de ciclos restantes */}
+                <Text style={styles.closingText}>
+                  {CYCLE_COUNT} ciclos · ~{CYCLE_COUNT * 12}s
+                </Text>
+
+                {/*
+                  Audio: pendiente de archivos en assets/audio/
+                  TODO: activar cuando tone-inhale.mp3 + tone-exhale.mp3 estén disponibles
+                  import { useAudioPlayer } from "expo-audio";
+                */}
+              </>
+            )}
+          </View>
+        </View>
+      </SafeScreen>
+    );
+  }
+
+  // ── NIVEL 3 — Emergencia ──────────────────────────────────────────────────
+  // level === 3
+  return (
+    <SafeScreen crisis scrollable={false}>
+      <View style={styles.container}>
+
+        {/* ← Salir */}
+        <Pressable
+          onPress={handleExit}
+          style={({ pressed }) => [styles.exitBtn, pressed && styles.exitBtnPressed]}
+          accessibilityRole="button"
+          accessibilityLabel="Salir del protocolo de emergencia"
+        >
+          <Text style={styles.exitText}>← Salir</Text>
+        </Pressable>
+
+        <View style={styles.centerContent}>
+          {/* Mensaje de apoyo */}
+          <Typography variant="crisis" className="text-center">
+            No estás solo/a.
+          </Typography>
+
+          <View style={{ height: 40 }} />
+
+          {/* Botón: llamar a SAPTEL (línea de crisis México 24h) */}
+          <Pressable
+            onPress={() => Linking.openURL("tel:8002900024")}
+            style={({ pressed }) => [styles.primaryBtn, pressed && styles.primaryBtnPressed]}
+            accessibilityRole="button"
+            accessibilityLabel="Llamar al 800 290-0024, línea de crisis SAPTEL"
+          >
+            <Text style={styles.primaryBtnLabel}>Llamar SAPTEL</Text>
+            <Text style={styles.emergencySubLabel}>800 290-0024 · 24h · gratis</Text>
+          </Pressable>
+
+          <View style={{ height: 16 }} />
+
+          {/* Botón: ir a respiración guiada (nivel 2) */}
+          <Pressable
+            onPress={() =>
+              router.replace({
+                pathname: "/(app)/rescue/protocol",
+                params: { level: "2" },
+              })
+            }
+            style={({ pressed }) => [styles.secondaryBtn, pressed && styles.secondaryBtnPressed]}
+            accessibilityRole="button"
+            accessibilityLabel="Iniciar respiración guiada"
+          >
+            <Text style={styles.secondaryBtnLabel}>Respiración guiada</Text>
+          </Pressable>
+
+          {/*
+            TODO (Fase 1.8+): mostrar contactos de confianza del usuario.
+            Requiere auth + tabla emergency_contacts en Supabase.
+            <EmergencyContactsList userId={uid} />
+          */}
+        </View>
+      </View>
+    </SafeScreen>
+  );
+}
+
+// ── Estilos (StyleSheet, no NativeWind) ───────────────────────────────────
+// Los valores de crisis son críticos — no se dejan a la compilación de NativeWind.
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    paddingHorizontal: 24,
+    paddingTop: 16,
+    paddingBottom: 32,
+  },
+  // ── Salir ──────────────────────────────────────────────────────────────
+  exitBtn: {
+    alignSelf: "flex-start",
+    paddingVertical: 12,
+    paddingHorizontal: 4,
+    minHeight: 44,
+  },
+  exitBtnPressed: { opacity: 0.6 },
+  exitText: {
+    fontSize: 18,
+    color: "#6B6B6B",
+  },
+  // ── Contenido centrado ─────────────────────────────────────────────────
+  centerContent: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  // ── Número grande de grounding ─────────────────────────────────────────
+  groundingNumber: {
+    fontSize: 96,
+    fontWeight: "bold",
+    color: "#2D2D2D",
+    lineHeight: 100,
+  },
+  // ── Puntos de progreso (grounding) ────────────────────────────────────
+  dotsRow: {
+    flexDirection: "row",
+    gap: 10,
+    marginTop: 32,
+  },
+  dot: {
+    width: 10,
+    height: 10,
+    borderRadius: 5,
+    backgroundColor: "#E0DDD8", // script-border
+  },
+  dotActive: {
+    backgroundColor: "#A8C5DA", // script-blue
+    transform: [{ scale: 1.3 }],
+  },
+  dotDone: {
+    backgroundColor: "#A8C5DA50", // script-blue 30%
+  },
+  // ── Texto de cierre / instrucción ─────────────────────────────────────
+  closingText: {
+    fontSize: 18,
+    color: "#6B6B6B",
+    textAlign: "center",
+    lineHeight: 28,
+  },
+  // ── Círculo de respiración ────────────────────────────────────────────
+  circleContainer: {
+    width: CIRCLE_MAX + 20,
+    height: CIRCLE_MAX + 20,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  circle: {
+    backgroundColor: CIRCLE_COLOR_LIGHT,
+  },
+  // ── Botón primario (64px+ §11.6) ──────────────────────────────────────
+  primaryBtn: {
+    backgroundColor: "#E8C4C4", // script-crisis-soft
+    borderRadius: 20,
+    paddingVertical: 18,
+    paddingHorizontal: 32,
+    minHeight: 72,
+    alignItems: "center",
+    justifyContent: "center",
+    width: "100%",
+    gap: 4,
+  },
+  primaryBtnPressed: { opacity: 0.8 },
+  primaryBtnLabel: {
+    fontSize: 22,
+    fontWeight: "600",
+    color: "#2D2D2D",
+    textAlign: "center",
+  },
+  emergencySubLabel: {
+    fontSize: 13,
+    color: "#6B6B6B",
+    textAlign: "center",
+  },
+  // ── Botón secundario ──────────────────────────────────────────────────
+  secondaryBtn: {
+    borderWidth: 1.5,
+    borderColor: "#E0DDD8",
+    borderRadius: 20,
+    paddingVertical: 16,
+    paddingHorizontal: 32,
+    minHeight: 64,
+    alignItems: "center",
+    justifyContent: "center",
+    width: "100%",
+  },
+  secondaryBtnPressed: { opacity: 0.7 },
+  secondaryBtnLabel: {
+    fontSize: 18,
+    color: "#6B6B6B",
+    textAlign: "center",
+  },
+});
