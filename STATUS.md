@@ -173,6 +173,7 @@ Algo falla → ambas atacan el bug → w4rw1ck confirma fix
 | 2.3 | app/(app)/dictionary.tsx **(S20)** | ⏳ | |
 | 2.4 | app/(app)/settings/index.tsx **(S21)** — tema + paleta | ⏳ | |
 | 2.5 | "Insights desbloqueados" (3, 7, 15 check-ins) | ⏳ | |
+| 2.6 | **Persistencia de progreso en script** (S16) | ⏳ | Si el usuario sale a mitad de un script y vuelve, actualmente reinicia desde el bloque 1. Opciones: (a) Zustand en memoria (persiste mientras la app no se cierra); (b) tabla `script_sessions` en Supabase para persistencia entre cierres. MVP usa (a) — decidir en sprint de Semana 2 |
 
 ---
 
