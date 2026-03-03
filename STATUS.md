@@ -45,7 +45,7 @@ Algo falla → ambas atacan el bug → w4rw1ck confirma fix
 | Semana | Descripción | Estado | Completado |
 |---|---|---|---|
 | Pre-implementación | Documentación + audit de los 6 docs canónicos | ✅ | PR #3 listo para merge |
-| Semana 1 | MVP: Setup + Check-in + Scripts + Rescate + Auth | 🔄 | 6 / 8 fases (1.1 ✅ 1.2 ✅ 1.3 ✅ 1.4 ✅ 1.5 ✅ 1.6 ✅) |
+| Semana 1 | MVP: Setup + Check-in + Scripts + Rescate + Auth | 🔄 | 7 / 8 fases (1.1 ✅ 1.2 ✅ 1.3 ✅ 1.4 ✅ 1.5 ✅ 1.6 ✅ 1.7 ✅) |
 | Semana 2 | Historial + Diccionario + Personalización | ⏳ | — |
 | Semana 3 | Red de Confianza + Notificaciones | ⏳ | — |
 | Semana 4 | IA + Vista Terapeuta | ⏳ | — |
@@ -133,15 +133,12 @@ Algo falla → ambas atacan el bug → w4rw1ck confirma fix
 | 1.6.3 | app/(app)/scripts/execute.tsx **(S16)** — Ejecución | ✅ | Commit `064a6fc` — paso a paso, barra progreso, opciones, celebración |
 | **Verificación** | 5 scripts navegables y ejecutables | ⏳ | Pendiente prueba en dispositivo (w4rw1ck) |
 
-### Fase 1.7 — Botón de Rescate (Feature Core #3)
+### Fase 1.7 — Botón de Rescate (Feature Core #3) ✅ COMPLETA
 | Paso | Descripción | Estado | Notas |
 |---|---|---|---|
-| 1.7.1 | app/(app)/rescue/assess.tsx **(S17)** | ⏳ | Aplicar FRONTEND_GUIDELINES §11 |
-| 1.7.2a | Protocolo Nivel 1: Grounding 5-4-3-2-1 | ⏳ | |
-| 1.7.2b | Protocolo Nivel 2-3: BreathingGuide **(S18)** (SVG + haptic + audio) | ⏳ | expo-audio, NO expo-av |
-| 1.7.2c | Nivel 3: Edge Function send-crisis-notification | ⏳ | |
-| 1.7.2d | Opciones finales de resolución | ⏳ | |
-| **Verificación** | Protocolo completo (1, 2, 3), notificación llega a dispositivo de prueba | ⏳ | |
+| 1.7.1 | app/(app)/rescue/assess.tsx **(S17)** | ✅ | Commit `3687e29` — §11 completo, 3 niveles, StyleSheet crítico |
+| 1.7.2 | app/(app)/rescue/protocol.tsx **(S18)** — niveles 1/2/3 | ✅ | Commit `ecea6f2` — grounding+háptico, círculo Reanimated, SAPTEL |
+| **Verificación** | Protocolo completo (1, 2, 3) | ⏳ | Pendiente prueba en dispositivo. Audio pendiente (assets/audio/) |
 
 ### Fase 1.8 — Auth Básico + Onboarding Completo
 | Paso | Descripción | Estado | Notas |
@@ -249,6 +246,14 @@ Algo falla → ambas atacan el bug → w4rw1ck confirma fix
 ## 📝 Notas del Sprint
 
 ### Semana 1
+
+**2026-03-02 — Fase 1.7 completa: Protocolo de Rescate (S17→S18)**
+- assess.tsx (S17): §11 estricto — fondo crisis, botones 72px, ← Salir, 3 niveles
+- protocol.tsx (S18): Nivel 1 grounding 5-4-3-2-1 + háptico; Nivel 2 círculo Reanimated (4s/2s/6s × 4 ciclos); Nivel 3 SAPTEL + respiración secundaria
+- StyleSheet en lugar de NativeWind en pantallas de crisis (valores críticos)
+- Audio pendiente: assets/audio/ README creado, esperando archivos MP3
+- SAPTEL: 800 290-0024, 24h, gratuito (México)
+- Pendiente verificación en dispositivo y contactos de confianza (Fase 1.8+)
 
 **2026-03-02 — Fase 1.6 completa: Biblioteca de Scripts (S14→S15→S16)**
 - index.tsx (S14): fetch Supabase predefined scripts, 4 chips de categoría, 5 cards
