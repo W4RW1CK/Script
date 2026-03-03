@@ -171,13 +171,27 @@ export default function ScriptsIndexScreen() {
           {!isLoading && (
             <View className="gap-3">
               {filteredScripts.length === 0 ? (
-                /* Sin resultados para el filtro actual */
-                <Typography
-                  variant="body"
-                  className="text-center text-script-text-secondary dark:text-script-dark-text-secondary py-8"
-                >
-                  No hay scripts en esta categoría.
-                </Typography>
+                /*
+                 * Dos estados vacíos:
+                 * - Sin scripts en toda la DB (seed no ejecutado o DB vacía)
+                 * - Sin scripts en la categoría seleccionada (filtro activo)
+                 */
+                <View className="items-center py-10 gap-2">
+                  <Typography
+                    variant="headingM"
+                    className="text-center"
+                  >
+                    {scripts.length === 0 ? "🌱" : "🔍"}
+                  </Typography>
+                  <Typography
+                    variant="body"
+                    className="text-center text-script-text-secondary dark:text-script-dark-text-secondary"
+                  >
+                    {scripts.length === 0
+                      ? "Aún no hay scripts disponibles. Vuelve pronto 🌱"
+                      : "No hay scripts en esta categoría."}
+                  </Typography>
+                </View>
               ) : (
                 filteredScripts.map((script) => {
                   const catMeta = getCategoryMeta(script.category);
