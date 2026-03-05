@@ -1,17 +1,17 @@
 /**
- * metro.config.js — Configuración de Metro Bundler para NativeWind 4
+ * metro.config.js — Configuración de Metro Bundler para NativeWind 4 + Privy/jose
  *
- * ⚠️  ESTE ARCHIVO ES CRÍTICO PARA QUE LOS ESTILOS FUNCIONEN.
+ * Dos configuraciones críticas aquí:
  *
- * NativeWind v4 requiere `withNativeWind()` en Metro para procesar
- * los archivos CSS de Tailwind y convertirlos en estilos de React Native.
- * Sin este archivo, todos los `className` se ignoran silenciosamente
- * y la UI se ve sin estilos (solo texto plano).
+ * 1. NativeWind: `withNativeWind()` procesa CSS de Tailwind → estilos RN
+ *    Sin esto, todos los `className` se ignoran silenciosamente.
  *
- * Referencias:
- *  - NativeWind v4 docs: https://www.nativewind.dev/getting-started/expo-router
- *  - Bug conocido: el plugin `nativewind/babel` solo es suficiente para
- *    transforms de JSX; el procesamiento CSS requiere el plugin de Metro.
+ * 2. jose/Privy: `unstable_conditionNames` resuelve imports condicionales
+ *    de la librería `jose` (usada por Privy para JWT). Sin esto, Metro
+ *    no encuentra los exports correctos y falla con "module not found".
+ *    DEBE ir DESPUÉS de withNativeWind (que puede sobreescribir resolver).
+ *
+ * IMPORTANTE: NO agregar paquetes a extraNodeModules si no están instalados.
  */
 const { getDefaultConfig } = require("expo/metro-config");
 const { withNativeWind } = require("nativewind/metro");
@@ -20,7 +20,17 @@ const { withNativeWind } = require("nativewind/metro");
 const config = getDefaultConfig(__dirname);
 
 // Envolver con NativeWind — apunta al archivo CSS global con los @tailwind directives
-module.exports = withNativeWind(config, {
-  // Ruta al CSS global que contiene @tailwind base/components/utilities
+const nativeWindConfig = withNativeWind(config, {
   input: "./global.css",
 });
+
+// Agregar conditionNames para jose (usado por Privy para JWT)
+// 'browser' hace que jose use la implementación WebCrypto (compatible con Hermes)
+// en lugar de la implementación Node.js que no existe en RN
+nativeWindConfig.resolver.unstable_conditionNames = [
+  "browser",
+  "require",
+  "default",
+];
+
+module.exports = nativeWindConfig;

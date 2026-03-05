@@ -1,0 +1,219 @@
+/**
+ * (onboarding)/contacts.tsx — S08: Setup de Contactos de Confianza
+ *
+ * Permite agregar contactos de confianza que serán notificados en crisis.
+ * El usuario puede agregar múltiples contactos o saltar este paso.
+ *
+ * Al terminar:
+ * 1. Marca onboarding_complete = true en Supabase
+ * 2. Actualiza el auth store
+ * 3. AuthGate en _layout.tsx redirige automáticamente a /(app)/home
+ *
+ * NOTA: El campo en la DB es "relationship" (no "relation").
+ */
+import React, { useState } from "react";
+import { View, ScrollView, Alert } from "react-native";
+import { useRouter } from "expo-router";
+import { Ionicons } from "@expo/vector-icons";
+import { SafeScreen, Typography, Button, TextInput, Chip } from "@/components/ui";
+import { supabase } from "@/lib/supabase";
+import { useAuthStore } from "@/stores/auth";
+
+// Opciones de relación
+const RELATIONSHIP_OPTIONS = [
+  "Pareja", "Familiar", "Amigo/a", "Terapeuta", "Otro",
+];
+
+interface Contact {
+  name: string;
+  phone: string;
+  relationship: string;
+}
+
+export default function ContactsScreen() {
+  const router = useRouter();
+  const supabaseUserId = useAuthStore((s) => s.user?.supabaseUserId);
+  const setOnboardingComplete = useAuthStore((s) => s.setOnboardingComplete);
+
+  const [contacts, setContacts] = useState<Contact[]>([]);
+  const [name, setName] = useState("");
+  const [phone, setPhone] = useState("");
+  const [relationship, setRelationship] = useState("");
+  const [isSaving, setIsSaving] = useState(false);
+
+  /** Agregar un contacto a la lista */
+  const addContact = async () => {
+    if (!name.trim() || !phone.trim()) {
+      Alert.alert("Campos requeridos", "Necesitamos al menos nombre y teléfono.");
+      return;
+    }
+
+    const newContact: Contact = {
+      name: name.trim(),
+      phone: phone.trim(),
+      relationship: relationship || "Otro",
+    };
+
+    // Guardar en Supabase inmediatamente
+    if (supabaseUserId) {
+      try {
+        await supabase.from("trusted_contacts").insert({
+          user_id: supabaseUserId,
+          name: newContact.name,
+          phone: newContact.phone,
+          relationship: newContact.relationship, // Campo correcto: "relationship"
+          is_active: true,
+        });
+      } catch (e) {
+        console.warn("[Contacts] Error guardando contacto:", e);
+      }
+    }
+
+    setContacts([...contacts, newContact]);
+    // Limpiar formulario
+    setName("");
+    setPhone("");
+    setRelationship("");
+  };
+
+  /** Eliminar contacto de la lista */
+  const removeContact = (index: number) => {
+    const updated = contacts.filter((_, i) => i !== index);
+    setContacts(updated);
+    // TODO: también eliminar de Supabase si es necesario
+  };
+
+  /** Completar onboarding */
+  const completeOnboarding = async () => {
+    setIsSaving(true);
+    try {
+      if (supabaseUserId) {
+        // Marcar onboarding como completo en Supabase
+        await supabase
+          .from("users")
+          .update({ onboarding_complete: true })
+          .eq("id", supabaseUserId);
+      }
+      // Actualizar el store — AuthGate redirigirá a /(app)/home
+      setOnboardingComplete(true);
+    } catch (e) {
+      console.warn("[Contacts] Error completando onboarding:", e);
+      // Aún así marcar como completo para no bloquear al usuario
+      setOnboardingComplete(true);
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
+  return (
+    <SafeScreen>
+      <ScrollView
+        contentContainerStyle={{ flexGrow: 1 }}
+        showsVerticalScrollIndicator={false}
+      >
+        <View className="flex-1 px-5 pt-6 pb-8 gap-6">
+          <View className="gap-2">
+            <Typography variant="headingL">Contactos de confianza</Typography>
+            <Typography
+              variant="body"
+              className="text-script-text-secondary dark:text-script-dark-text-secondary"
+            >
+              Estas personas serán notificadas si activas el protocolo de
+              crisis nivel 3. Puedes agregar o cambiar esto después.
+            </Typography>
+          </View>
+
+          {/* Contactos ya agregados */}
+          {contacts.length > 0 && (
+            <View className="gap-2">
+              <Typography variant="headingS">
+                Contactos agregados ({contacts.length})
+              </Typography>
+              {contacts.map((c, idx) => (
+                <View
+                  key={idx}
+                  className="flex-row items-center justify-between bg-script-surface dark:bg-script-dark-surface rounded-xl p-3"
+                >
+                  <View>
+                    <Typography variant="body">{c.name}</Typography>
+                    <Typography variant="caption">
+                      {c.phone} · {c.relationship}
+                    </Typography>
+                  </View>
+                  <Ionicons
+                    name="close-circle"
+                    size={24}
+                    color="#999"
+                    onPress={() => removeContact(idx)}
+                  />
+                </View>
+              ))}
+            </View>
+          )}
+
+          {/* Formulario para nuevo contacto */}
+          <View className="gap-3">
+            <Typography variant="headingS">Agregar contacto</Typography>
+            <TextInput
+              value={name}
+              onChangeText={setName}
+              placeholder="Nombre"
+              accessibilityLabel="Nombre del contacto"
+            />
+            <TextInput
+              value={phone}
+              onChangeText={setPhone}
+              placeholder="Teléfono"
+              keyboardType="phone-pad"
+              accessibilityLabel="Teléfono del contacto"
+            />
+            {/* Selector de relación */}
+            <View className="gap-1">
+              <Typography variant="caption">Relación</Typography>
+              <View className="flex-row flex-wrap gap-2">
+                {RELATIONSHIP_OPTIONS.map((r) => (
+                  <Chip
+                    key={r}
+                    label={r}
+                    selected={relationship === r}
+                    onPress={() => setRelationship(r)}
+                  />
+                ))}
+              </View>
+            </View>
+            <Button
+              title="+ Agregar contacto"
+              variant="secondary"
+              onPress={addContact}
+              disabled={!name.trim() || !phone.trim()}
+            />
+          </View>
+
+          <View className="flex-1" />
+
+          {/* CTAs finales */}
+          <View className="gap-3">
+            {contacts.length > 0 ? (
+              <Button
+                title={
+                  isSaving
+                    ? "Guardando..."
+                    : `Listo (${contacts.length} contacto${contacts.length > 1 ? "s" : ""})`
+                }
+                variant="primary"
+                onPress={completeOnboarding}
+                disabled={isSaving}
+              />
+            ) : null}
+            <Button
+              title="Omitir por ahora"
+              variant="ghost"
+              onPress={completeOnboarding}
+              disabled={isSaving}
+            />
+          </View>
+        </View>
+      </ScrollView>
+    </SafeScreen>
+  );
+}
