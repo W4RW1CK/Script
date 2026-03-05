@@ -35,8 +35,8 @@ Algo falla → ambas atacan el bug → w4rw1ck confirma fix
 | 3 | Referencias UI sensory-safe (3-5 opciones) | Ana + Aibus | Fase 1.3 | ✅ |
 | 4 | Validar/ajustar paleta de colores TEA | Ana + Aibus | Fase 1.3 | ✅ |
 | 5 | Traducciones en español: AQ Full (50q) + CAT-Q (25q) + RAADS-R (80q) | Ana + Aibus | Fase 1.8 | ⏳ |
-| 6 | Audio: voz guiada + tono ambient (para grounding y respiración) | Ana + Aibus | Fase 1.7 | ⏳ |
-| 7 | Revisar/completar contenido de 5 scripts sociales | Ana + Aibus | Fase 1.6 | ⏳ |
+| 6 | Audio: voz guiada + tono ambient (para grounding y respiración) | Ana + Aibus | Semana 2-3 | ⏳ |
+| 7 | Revisar/completar contenido de 5 scripts sociales | Ana + Aibus | Semana 2 | ⏳ |
 
 ---
 
@@ -108,8 +108,8 @@ Algo falla → ambas atacan el bug → w4rw1ck confirma fix
 ### Fase 1.4 — Bottom Navigation y Layout ✅ COMPLETA
 | Paso | Descripción | Estado | Notas |
 |---|---|---|---|
-| 1.4.1 | app/(app)/_layout.tsx con Tab Navigator | ✅ | expo-symbols, colores tokens, height 64px |
-| 1.4.2 | 5 tabs con íconos (expo-symbols) | ✅ | Placeholders con SafeScreen/Typography; (tabs) eliminado |
+| 1.4.1 | app/(app)/_layout.tsx con Tab Navigator | ✅ | Ionicons, colores tokens, height 64px |
+| 1.4.2 | 5 tabs con íconos (Ionicons) | ✅ | Placeholders con SafeScreen/Typography; (tabs) eliminado |
 | 1.4.3 | Botón de Rescate flotante (FAB) → /rescue/assess | ✅ | RescueFAB circular 56px, color crisis-soft, bottom:84px |
 | 1.4.4 | app/(app)/home.tsx (S09) básico | ✅ | CTA check-in, accesos rápidos, estado vacío último check-in |
 | **Verificación** | Navegación entre tabs + FAB navega a /rescue/assess | ✅ | Confirmado en dispositivo físico Android 2026-03-02 (post fix metro.config.js) |
@@ -138,7 +138,7 @@ Algo falla → ambas atacan el bug → w4rw1ck confirma fix
 |---|---|---|---|
 | 1.7.1 | app/(app)/rescue/assess.tsx **(S17)** | ✅ | Commit `3687e29` — §11 completo, 3 niveles, StyleSheet crítico |
 | 1.7.2 | app/(app)/rescue/protocol.tsx **(S18)** — niveles 1/2/3 | ✅ | Commit `ecea6f2` — grounding+háptico, círculo Reanimated, SAPTEL |
-| **Verificación** | Protocolo completo (1, 2, 3) | ⏳ | Pendiente prueba en dispositivo. Audio pendiente (assets/audio/) |
+| **Verificación** | Protocolo completo (1, 2, 3) | ✅ | Verificado en dispositivo físico Android por w4rw1ck — 2026-03-05. Bugs B-11 a B-14 encontrados y corregidos. Audio pendiente (assets/audio/) |
 
 ### Fase 1.8 — Auth Básico + Onboarding Completo
 | Paso | Descripción | Estado | Notas |
