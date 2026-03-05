@@ -263,17 +263,14 @@ Algo falla → ambas atacan el bug → w4rw1ck confirma fix
 
 ### Semana 1
 
-**2026-03-05 — Fixes post-verificación Fase 1.7 en dispositivo (w4rw1ck)**
-
-w4rw1ck probó el protocolo de rescate en su Android y reportó 4 issues:
-
-- **B-11** 🔴 Número SAPTEL incorrecto → corregido a (55) 5259-8121 (verificado en saptel.org.mx)
-- **B-12** 🔴 Dark mode ilegible → colores dinámicos con `useColorScheme()` en assess.tsx + protocol.tsx
-- **B-13** 🟡 Label desincronizado con círculo → `Date.now()` en vez de `elapsed += 100`
-- **B-14** 🟡 Sin háptico en respiración → Light impact en transiciones + Success al completar
-
-Commits: `e974d66` (SAPTEL) → `a2f3d41` (dark mode) → `67bb9d5` (sync) → `cf3db00` (haptics).
-Audio sigue pendiente (assets/audio/).
+**2026-03-05 — Verificación Fase 1.7 en dispositivo + 4 fixes (B-11 a B-14)**
+- w4rw1ck probó el protocolo de rescate en su Android físico
+- Bug B-11: número SAPTEL incorrecto (800-290-0024) → corregido a (55) 5259-8121 (verificado en saptel.org.mx)
+- Bug B-12: pantallas de crisis ilegibles en dark mode → colores dinámicos con `useColorScheme()` en assess.tsx + protocol.tsx
+- Bug B-13: label de respiración desincronizado con círculo animado → `Date.now()` en vez de `elapsed += 100`
+- Bug B-14: respiración guiada sin feedback háptico → Light impact en transiciones de fase + Success al completar
+- Audio sigue pendiente (assets/audio/)
+- Commits: `e974d66` → `a2f3d41` → `67bb9d5` → `cf3db00`
 
 **2026-03-02 — Fase 1.7 completa: Protocolo de Rescate (S17→S18)**
 - assess.tsx (S17): §11 estricto — fondo crisis, botones 72px, ← Salir, 3 niveles
