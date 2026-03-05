@@ -35,8 +35,8 @@ Algo falla → ambas atacan el bug → w4rw1ck confirma fix
 | 3 | Referencias UI sensory-safe (3-5 opciones) | Ana + Aibus | Fase 1.3 | ✅ |
 | 4 | Validar/ajustar paleta de colores TEA | Ana + Aibus | Fase 1.3 | ✅ |
 | 5 | Traducciones en español: AQ Full (50q) + CAT-Q (25q) + RAADS-R (80q) | Ana + Aibus | Fase 1.8 | ⏳ |
-| 6 | Audio: voz guiada + tono ambient (para grounding y respiración) | Ana + Aibus | Semana 2-3 | ⏳ |
-| 7 | Revisar/completar contenido de 5 scripts sociales | Ana + Aibus | Semana 2 | ⏳ |
+| 6 | Audio: voz guiada + tono ambient (para grounding y respiración) | Ana + Aibus | Fase 1.7 | ⏳ |
+| 7 | Revisar/completar contenido de 5 scripts sociales | Ana + Aibus | Fase 1.6 | ⏳ |
 
 ---
 
