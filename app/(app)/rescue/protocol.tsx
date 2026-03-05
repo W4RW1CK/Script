@@ -363,13 +363,13 @@ export default function RescueProtocolScreen() {
 
           {/* Botón: llamar a SAPTEL (línea de crisis México 24h) */}
           <Pressable
-            onPress={() => Linking.openURL("tel:8002900024")}
+            onPress={() => Linking.openURL("tel:5552598121")}
             style={({ pressed }) => [styles.primaryBtn, pressed && styles.primaryBtnPressed]}
             accessibilityRole="button"
-            accessibilityLabel="Llamar al 800 290-0024, línea de crisis SAPTEL"
+            accessibilityLabel="Llamar al 55 5259-8121, línea de crisis SAPTEL"
           >
             <Text style={styles.primaryBtnLabel}>Llamar SAPTEL</Text>
-            <Text style={styles.emergencySubLabel}>800 290-0024 · 24h · gratis</Text>
+            <Text style={styles.emergencySubLabel}>(55) 5259-8121 · 24h · gratis</Text>
           </Pressable>
 
           <View style={{ height: 16 }} />
