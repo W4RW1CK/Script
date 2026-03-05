@@ -4,7 +4,7 @@
 > **Cómo leer este archivo:**
 > ✅ Completado | 🔄 En progreso | ⏳ Pendiente | ❌ Bloqueado
 
-**Última actualización:** 2026-03-02  
+**Última actualización:** 2026-03-05 (fixes post-1.7: SAPTEL, dark mode, breathing sync, haptics)  
 **Semana actual:** 1  
 **Entrega próxima:** Lunes (MVP)
 
@@ -188,6 +188,10 @@ Algo falla → ambas atacan el bug → w4rw1ck confirma fix
 | B-08 | `Card` no tenía `variant` ni `onPress` — en S12 (reflect.tsx) las opciones de emoción no eran tocables ni mostraban estado "seleccionada". Flujo de check-in bloqueado | 🔴 Alta | 1.5 | ✅ Resuelto |
 | B-09 | result.tsx usaba `raw_text` y `confirmed_emotion` en el INSERT de Supabase, pero el schema real tiene `free_text` y `emotion_confirmed` — los check-ins no se habrían guardado correctamente | 🔴 Alta | 1.5 | ✅ Resuelto |
 | B-10 | `TextInput` no aceptaba `numberOfLines` ni `accessibilityHint` — `numberOfLines={6}` en notes.tsx se ignoraba silenciosamente; la altura del input quedaba fija en 120px mínimo | 🟡 Media | 1.5 | ✅ Resuelto |
+| B-11 | Número de SAPTEL incorrecto (800 290-0024) — el número real verificado en saptel.org.mx es (55) 5259-8121 | 🔴 Alta | 1.7 | ✅ Resuelto |
+| B-12 | Pantallas de crisis (assess.tsx + protocol.tsx) ilegibles en dark mode — botones rosa claro (#E8C4C4) y texto oscuro (#2D2D2D) invisibles contra fondo oscuro | 🔴 Alta | 1.7 | ✅ Resuelto |
+| B-13 | Label de respiración (Inhala/Pausa/Exhala) desincronizado con círculo animado — `setInterval` acumulaba drift vs animación Reanimated en UI thread | 🟡 Media | 1.7 | ✅ Resuelto |
+| B-14 | Respiración guiada (Nivel 2) sin feedback háptico — Nivel 1 (grounding) tenía háptico pero Nivel 2 no, a pesar de la decisión de diseño multimodal | 🟡 Media | 1.7 | ✅ Resuelto |
 
 **B-01 — Fix:** Se eliminaron las columnas `hour_of_day` y `day_of_week` de `checkins`. `EXTRACT()` usable en queries. Commit: `864e435`.
 
@@ -203,6 +207,14 @@ Algo falla → ambas atacan el bug → w4rw1ck confirma fix
 **B-06 — Fix:** Agregado `<Tabs.Screen name="rescue" options={{ href: null }} />` en `app/(app)/_layout.tsx`. Expo Router auto-descubre todas las carpetas en `(app)/`; sin este Screen con `href: null`, la carpeta `rescue/` aparecía como un 6to tab en la barra de navegación. Commit: `7ccfd0f`.
 
 **B-10 — Fix:** `TextInput.tsx` — agregados `numberOfLines?: number` y `accessibilityHint?: string` a la interface; ambos forwardeados a `RNTextInput`. `numberOfLines` solo aplica cuando `multiline=true`. Commit: `a1f5aab`.
+
+**B-11 — Fix:** `protocol.tsx` — número de teléfono de SAPTEL corregido de `800 290-0024` a `(55) 5259-8121`. Verificado directamente en saptel.org.mx. Afectaba `Linking.openURL("tel:...")` y el texto mostrado al usuario en Nivel 3 (Emergencia). Detectado por w4rw1ck. Commit: `e974d66`.
+
+**B-12 — Fix:** `assess.tsx` + `protocol.tsx` — todos los colores hardcodeados para light mode ahora se calculan dinámicamente con `useColorScheme()`. Botones: `#6A3E3E` (dark) / `#E8C4C4` (light). Texto: `#F0D0D0` (dark) / `#2D2D2D` (light). Aplicado en todas las pantallas de crisis: assess, grounding, breathing, emergency, y pantalla de cierre. StyleSheet mantiene tamaños/layout (críticos §11); solo los colores son dinámicos. Detectado por w4rw1ck en dispositivo Android. Commit: `a2f3d41`.
+
+**B-13 — Fix:** `protocol.tsx` — reemplazado `elapsed += 100` (drift acumulativo) por `Date.now() - startTime` (timestamp real). `setInterval` en JS thread no es preciso (cada tick puede tardar 100-115ms); después de ~10s el label ya iba desfasado del círculo Reanimated (UI thread, preciso). Con timestamps reales el label siempre refleja el momento exacto. Interval reducido a 80ms para labels más responsivos. Detectado por w4rw1ck en dispositivo Android. Commit: `67bb9d5`.
+
+**B-14 — Fix:** `protocol.tsx` — agregado `Haptics.impactAsync(Light)` en cada transición de fase (Inhala↔Pausa↔Exhala). Solo vibra cuando la fase cambia, no en cada tick. Vibración `notificationAsync(Success)` al completar los 4 ciclos. 12 vibraciones sutiles + 1 final por sesión completa. Commit: `cf3db00`.
 
 **B-09 — Fix:** `result.tsx` — corregidos nombres de campo en INSERT de Supabase: `raw_text→free_text`, `confirmed_emotion→emotion_confirmed`. Verificados contra `supabase/schema.sql`. Commit: `a1f5aab`.
 
@@ -240,6 +252,10 @@ Algo falla → ambas atacan el bug → w4rw1ck confirma fix
 | 2026-03-02 | Rutas ocultas requieren `Tabs.Screen href:null` en Expo Router | Expo Router auto-descubre todas las carpetas — rescue/ debe ocultarse explícitamente (B-06) |
 | 2026-03-02 | `Card` con `onPress`: Pressable directo con `opacity:0.85` al presionar | No se usa `TouchableOpacity` (deprecado). Pressable permite `style` como función con `pressed` state |
 | 2026-03-02 | `Card` variant "elevated": borde `script-blue` como indicador visual de selección | Solo el borde de color es suficiente — mantiene tono calmado del app |
+| 2026-03-05 | SAPTEL: (55) 5259-8121 (verificado en saptel.org.mx) | El número 800-290-0024 era incorrecto — en una app de crisis esto es crítico |
+| 2026-03-05 | Pantallas de crisis: colores dinámicos con `useColorScheme()`, layout en StyleSheet | Los tamaños son críticos (§11) y no deben variar, pero los colores deben adaptarse a dark mode para ser legibles |
+| 2026-03-05 | Tracking de fases en breathing: `Date.now()` en vez de `elapsed += interval` | `setInterval` en JS thread no es preciso; drift acumulado desincroniza con animaciones Reanimated (UI thread nativo) |
+| 2026-03-05 | Háptico en breathing: Light en transiciones + Success al completar | Consistente con la decisión de diseño multimodal; solo vibra en cambios de fase (no spam) |
 
 ---
 
@@ -247,12 +263,24 @@ Algo falla → ambas atacan el bug → w4rw1ck confirma fix
 
 ### Semana 1
 
+**2026-03-05 — Fixes post-verificación Fase 1.7 en dispositivo (w4rw1ck)**
+
+w4rw1ck probó el protocolo de rescate en su Android y reportó 4 issues:
+
+- **B-11** 🔴 Número SAPTEL incorrecto → corregido a (55) 5259-8121 (verificado en saptel.org.mx)
+- **B-12** 🔴 Dark mode ilegible → colores dinámicos con `useColorScheme()` en assess.tsx + protocol.tsx
+- **B-13** 🟡 Label desincronizado con círculo → `Date.now()` en vez de `elapsed += 100`
+- **B-14** 🟡 Sin háptico en respiración → Light impact en transiciones + Success al completar
+
+Commits: `e974d66` (SAPTEL) → `a2f3d41` (dark mode) → `67bb9d5` (sync) → `cf3db00` (haptics).
+Audio sigue pendiente (assets/audio/).
+
 **2026-03-02 — Fase 1.7 completa: Protocolo de Rescate (S17→S18)**
 - assess.tsx (S17): §11 estricto — fondo crisis, botones 72px, ← Salir, 3 niveles
 - protocol.tsx (S18): Nivel 1 grounding 5-4-3-2-1 + háptico; Nivel 2 círculo Reanimated (4s/2s/6s × 4 ciclos); Nivel 3 SAPTEL + respiración secundaria
 - StyleSheet en lugar de NativeWind en pantallas de crisis (valores críticos)
 - Audio pendiente: assets/audio/ README creado, esperando archivos MP3
-- SAPTEL: 800 290-0024, 24h, gratuito (México)
+- SAPTEL: (55) 5259-8121, 24h, gratuito (México)
 - Pendiente verificación en dispositivo y contactos de confianza (Fase 1.8+)
 
 **2026-03-02 — Fase 1.6 completa: Biblioteca de Scripts (S14→S15→S16)**
