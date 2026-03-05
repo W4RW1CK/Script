@@ -206,6 +206,12 @@ Algo falla → ambas atacan el bug → w4rw1ck confirma fix
 
 **B-06 — Fix:** Agregado `<Tabs.Screen name="rescue" options={{ href: null }} />` en `app/(app)/_layout.tsx`. Expo Router auto-descubre todas las carpetas en `(app)/`; sin este Screen con `href: null`, la carpeta `rescue/` aparecía como un 6to tab en la barra de navegación. Commit: `7ccfd0f`.
 
+**B-07 — Fix:** Reemplazado `expo-symbols` → `Ionicons` de `@expo/vector-icons` en todos los archivos del proyecto. SF Symbols es una tecnología exclusiva de Apple que no funciona en Android. Adicionalmente: FAB rediseñado con `View` overlay (`StyleSheet.absoluteFillObject` + `pointerEvents="box-none"` + flexbox) y círculo visual separado como `View` con `borderRadius` (en Android, `Pressable` no renderiza `borderRadius+backgroundColor` correctamente). Commits: `485284c`, `0698ac2`, `cdff16c`, `3d9801e`, `7b9d9a2`.
+
+**B-08 — Fix:** `Card.tsx` actualizado con props `variant` ("default"|"elevated") y `onPress` (Pressable con `opacity:0.85`). Variante "elevated" usa `bg-elevated + shadow-md + border script-blue`. Retrocompatible. `reflect.tsx` corregido: `ActivityIndicator` usa `useColorScheme()` para el color (#A8C5DA light / #5A7E92 dark). Commit: `c157bdb`. Encontrado por Aibus en auditoría.
+
+**B-09 — Fix:** `result.tsx` — corregidos nombres de campo en INSERT de Supabase: `raw_text→free_text`, `confirmed_emotion→emotion_confirmed`. Verificados contra `supabase/schema.sql`. Commit: `a1f5aab`.
+
 **B-10 — Fix:** `TextInput.tsx` — agregados `numberOfLines?: number` y `accessibilityHint?: string` a la interface; ambos forwardeados a `RNTextInput`. `numberOfLines` solo aplica cuando `multiline=true`. Commit: `a1f5aab`.
 
 **B-11 — Fix:** `protocol.tsx` — número de teléfono de SAPTEL corregido de `800 290-0024` a `(55) 5259-8121`. Verificado directamente en saptel.org.mx. Afectaba `Linking.openURL("tel:...")` y el texto mostrado al usuario en Nivel 3 (Emergencia). Detectado por w4rw1ck. Commit: `e974d66`.
@@ -215,12 +221,6 @@ Algo falla → ambas atacan el bug → w4rw1ck confirma fix
 **B-13 — Fix:** `protocol.tsx` — reemplazado `elapsed += 100` (drift acumulativo) por `Date.now() - startTime` (timestamp real). `setInterval` en JS thread no es preciso (cada tick puede tardar 100-115ms); después de ~10s el label ya iba desfasado del círculo Reanimated (UI thread, preciso). Con timestamps reales el label siempre refleja el momento exacto. Interval reducido a 80ms para labels más responsivos. Detectado por w4rw1ck en dispositivo Android. Commit: `67bb9d5`.
 
 **B-14 — Fix:** `protocol.tsx` — agregado `Haptics.impactAsync(Light)` en cada transición de fase (Inhala↔Pausa↔Exhala). Solo vibra cuando la fase cambia, no en cada tick. Vibración `notificationAsync(Success)` al completar los 4 ciclos. 12 vibraciones sutiles + 1 final por sesión completa. Commit: `cf3db00`.
-
-**B-09 — Fix:** `result.tsx` — corregidos nombres de campo en INSERT de Supabase: `raw_text→free_text`, `confirmed_emotion→emotion_confirmed`. Verificados contra `supabase/schema.sql`. Commit: `a1f5aab`.
-
-**B-08 — Fix:** `Card.tsx` actualizado con props `variant` ("default"|"elevated") y `onPress` (Pressable con `opacity:0.85`). Variante "elevated" usa `bg-elevated + shadow-md + border script-blue`. Retrocompatible. `reflect.tsx` corregido: `ActivityIndicator` usa `useColorScheme()` para el color (#A8C5DA light / #5A7E92 dark). Commit: `c157bdb`. Encontrado por Aibus en auditoría.
-
-**B-07 — Fix:** Reemplazado `expo-symbols` → `Ionicons` de `@expo/vector-icons` en todos los archivos del proyecto. SF Symbols es una tecnología exclusiva de Apple que no funciona en Android. Adicionalmente: FAB rediseñado con `View` overlay (`StyleSheet.absoluteFillObject` + `pointerEvents="box-none"` + flexbox) y círculo visual separado como `View` con `borderRadius` (en Android, `Pressable` no renderiza `borderRadius+backgroundColor` correctamente). Commits: `485284c`, `0698ac2`, `cdff16c`, `3d9801e`, `7b9d9a2`.
 
 ---
 
