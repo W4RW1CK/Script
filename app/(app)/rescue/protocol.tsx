@@ -145,18 +145,31 @@ export default function RescueProtocolScreen() {
     // círculo (UI thread, preciso) se desincronizan visiblemente.
     // Con timestamps reales, el label siempre refleja el tiempo real.
     const startTime = Date.now();
+    let lastPhase = ""; // Trackear fase anterior para detectar transiciones
     timerRef.current = setInterval(() => {
       const elapsed = Date.now() - startTime;
 
       // Calcular fase dentro del ciclo actual
       const inCycle = elapsed % CYCLE_MS;
-      if      (inCycle < INHALE_MS)              setPhaseLabel("Inhala");
-      else if (inCycle < INHALE_MS + PAUSE_MS)   setPhaseLabel("Pausa");
-      else                                        setPhaseLabel("Exhala");
+      let currentPhase: string;
+      if      (inCycle < INHALE_MS)              currentPhase = "Inhala";
+      else if (inCycle < INHALE_MS + PAUSE_MS)   currentPhase = "Pausa";
+      else                                        currentPhase = "Exhala";
+
+      // Háptico sutil en cada transición de fase (Inhala↔Pausa↔Exhala)
+      // Solo vibra cuando la fase CAMBIA — no en cada tick del interval
+      if (currentPhase !== lastPhase) {
+        lastPhase = currentPhase;
+        Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+      }
+
+      setPhaseLabel(currentPhase);
 
       // Detectar fin de todos los ciclos
       if (elapsed >= CYCLE_MS * CYCLE_COUNT) {
         if (timerRef.current) clearInterval(timerRef.current);
+        // Háptico final más notorio para indicar que terminó
+        Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
         setBreathingComplete(true);
       }
     }, 80); // 80ms para labels más responsivos sin overhead significativo
