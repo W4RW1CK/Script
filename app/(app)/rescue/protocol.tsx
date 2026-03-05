@@ -27,7 +27,7 @@
  * Diseño §11: fondo crisis, texto 28px, botones 64px+, "← Salir" visible.
  */
 import React, { useState, useEffect, useCallback, useRef } from "react";
-import { View, Pressable, Text, StyleSheet, Linking } from "react-native";
+import { View, Pressable, Text, StyleSheet, Linking, useColorScheme } from "react-native";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import Animated, {
   useSharedValue,
@@ -69,10 +69,22 @@ const CIRCLE_COLOR_DARK  = "rgba(90,126,146,0.55)";  // script-dark-blue 55%
 // ── Componente ─────────────────────────────────────────────────────────────
 export default function RescueProtocolScreen() {
   const router = useRouter();
+  const isDark = useColorScheme() === "dark";
   const { level: levelParam } = useLocalSearchParams<{ level: string }>();
 
   // Parsear nivel (default 1 si el param es inválido)
   const level = (parseInt(levelParam ?? "1", 10) as CrisisLevel) || 1;
+
+  // Colores adaptativos para dark mode — crisis debe ser legible siempre
+  const primaryBtnBg   = isDark ? "#6A3E3E" : "#E8C4C4";
+  const primaryBtnText = isDark ? "#F0D0D0" : "#2D2D2D";
+  const secondaryBorder = isDark ? "#5A4A4A" : "#E0DDD8";
+  const secondaryText  = isDark ? "#C0A0A0" : "#6B6B6B";
+  const exitColor      = isDark ? "#A0A0A0" : "#6B6B6B";
+  const closingColor   = isDark ? "#B0B0B0" : "#6B6B6B";
+  const numberColor    = isDark ? "#F0D0D0" : "#2D2D2D";
+  const dotDefault     = isDark ? "#5A4A4A" : "#E0DDD8";
+  const circleColor    = isDark ? CIRCLE_COLOR_DARK : CIRCLE_COLOR_LIGHT;
 
   // ── Estado de Nivel 1 (Grounding) ────────────────────────────────────────
   const [groundingStep, setGroundingStep] = useState(0); // 0..4, luego 5 = completo
@@ -180,23 +192,23 @@ export default function RescueProtocolScreen() {
             accessibilityRole="button"
             accessibilityLabel="Volver al inicio"
           >
-            <Text style={styles.exitText}>← Inicio</Text>
+            <Text style={[styles.exitText, { color: exitColor }]}>← Inicio</Text>
           </Pressable>
           <View style={styles.centerContent}>
             <Typography variant="crisis" className="text-center">
               Bien hecho.
             </Typography>
             <View style={{ height: 24 }} />
-            <Text style={styles.closingText}>
+            <Text style={[styles.closingText, { color: closingColor }]}>
               Tomaste un momento para ti.{"\n"}Eso siempre vale.
             </Text>
             <View style={{ height: 40 }} />
             <Pressable
               onPress={() => router.replace("/(app)/home")}
-              style={({ pressed }) => [styles.primaryBtn, pressed && styles.primaryBtnPressed]}
+              style={({ pressed }) => [styles.primaryBtn, { backgroundColor: primaryBtnBg }, pressed && styles.primaryBtnPressed]}
               accessibilityRole="button"
             >
-              <Text style={styles.primaryBtnLabel}>Volver al inicio</Text>
+              <Text style={[styles.primaryBtnLabel, { color: primaryBtnText }]}>Volver al inicio</Text>
             </Pressable>
           </View>
         </View>
@@ -218,12 +230,12 @@ export default function RescueProtocolScreen() {
             accessibilityRole="button"
             accessibilityLabel="Salir del protocolo"
           >
-            <Text style={styles.exitText}>← Salir</Text>
+            <Text style={[styles.exitText, { color: exitColor }]}>← Salir</Text>
           </Pressable>
 
           <View style={styles.centerContent}>
             {/* Número grande — foco visual */}
-            <Text style={styles.groundingNumber}>{step.count}</Text>
+            <Text style={[styles.groundingNumber, { color: numberColor }]}>{step.count}</Text>
 
             {/* Instrucción — máx 5 palabras (§11.4) */}
             <Typography variant="crisis" className="text-center mt-4">
@@ -237,6 +249,7 @@ export default function RescueProtocolScreen() {
                   key={idx}
                   style={[
                     styles.dot,
+                    { backgroundColor: dotDefault },
                     idx === groundingStep && styles.dotActive,
                     idx < groundingStep  && styles.dotDone,
                   ]}
@@ -249,11 +262,11 @@ export default function RescueProtocolScreen() {
             {/* "Hecho →" */}
             <Pressable
               onPress={handleGroundingNext}
-              style={({ pressed }) => [styles.primaryBtn, pressed && styles.primaryBtnPressed]}
+              style={({ pressed }) => [styles.primaryBtn, { backgroundColor: primaryBtnBg }, pressed && styles.primaryBtnPressed]}
               accessibilityRole="button"
               accessibilityLabel="Hecho, siguiente paso"
             >
-              <Text style={styles.primaryBtnLabel}>Hecho →</Text>
+              <Text style={[styles.primaryBtnLabel, { color: primaryBtnText }]}>Hecho →</Text>
             </Pressable>
           </View>
         </View>
@@ -274,7 +287,7 @@ export default function RescueProtocolScreen() {
             accessibilityRole="button"
             accessibilityLabel="Salir del protocolo de respiración"
           >
-            <Text style={styles.exitText}>← Salir</Text>
+            <Text style={[styles.exitText, { color: exitColor }]}>← Salir</Text>
           </Pressable>
 
           <View style={styles.centerContent}>
@@ -286,7 +299,7 @@ export default function RescueProtocolScreen() {
                   Respira conmigo.
                 </Typography>
                 <View style={{ height: 16 }} />
-                <Text style={styles.closingText}>
+                <Text style={[styles.closingText, { color: closingColor }]}>
                   4 segundos inhala.{"\n"}
                   2 segundos pausa.{"\n"}
                   6 segundos exhala.
@@ -294,10 +307,10 @@ export default function RescueProtocolScreen() {
                 <View style={{ height: 48 }} />
                 <Pressable
                   onPress={startBreathing}
-                  style={({ pressed }) => [styles.primaryBtn, pressed && styles.primaryBtnPressed]}
+                  style={({ pressed }) => [styles.primaryBtn, { backgroundColor: primaryBtnBg }, pressed && styles.primaryBtnPressed]}
                   accessibilityRole="button"
                 >
-                  <Text style={styles.primaryBtnLabel}>Comenzar →</Text>
+                  <Text style={[styles.primaryBtnLabel, { color: primaryBtnText }]}>Comenzar →</Text>
                 </Pressable>
               </>
             ) : (
@@ -313,22 +326,16 @@ export default function RescueProtocolScreen() {
                 {/* Círculo animado — Reanimated */}
                 <View style={styles.circleContainer}>
                   <Animated.View
-                    style={[styles.circle, animatedCircleStyle]}
+                    style={[styles.circle, { backgroundColor: circleColor }, animatedCircleStyle]}
                   />
                 </View>
 
                 <View style={{ height: 40 }} />
 
                 {/* Instrucción de ciclos restantes */}
-                <Text style={styles.closingText}>
+                <Text style={[styles.closingText, { color: closingColor }]}>
                   {CYCLE_COUNT} ciclos · ~{CYCLE_COUNT * 12}s
                 </Text>
-
-                {/*
-                  Audio: pendiente de archivos en assets/audio/
-                  TODO: activar cuando tone-inhale.mp3 + tone-exhale.mp3 estén disponibles
-                  import { useAudioPlayer } from "expo-audio";
-                */}
               </>
             )}
           </View>
@@ -350,7 +357,7 @@ export default function RescueProtocolScreen() {
           accessibilityRole="button"
           accessibilityLabel="Salir del protocolo de emergencia"
         >
-          <Text style={styles.exitText}>← Salir</Text>
+          <Text style={[styles.exitText, { color: exitColor }]}>← Salir</Text>
         </Pressable>
 
         <View style={styles.centerContent}>
@@ -364,12 +371,12 @@ export default function RescueProtocolScreen() {
           {/* Botón: llamar a SAPTEL (línea de crisis México 24h) */}
           <Pressable
             onPress={() => Linking.openURL("tel:5552598121")}
-            style={({ pressed }) => [styles.primaryBtn, pressed && styles.primaryBtnPressed]}
+            style={({ pressed }) => [styles.primaryBtn, { backgroundColor: primaryBtnBg }, pressed && styles.primaryBtnPressed]}
             accessibilityRole="button"
             accessibilityLabel="Llamar al 55 5259-8121, línea de crisis SAPTEL"
           >
-            <Text style={styles.primaryBtnLabel}>Llamar SAPTEL</Text>
-            <Text style={styles.emergencySubLabel}>(55) 5259-8121 · 24h · gratis</Text>
+            <Text style={[styles.primaryBtnLabel, { color: primaryBtnText }]}>Llamar SAPTEL</Text>
+            <Text style={[styles.emergencySubLabel, { color: secondaryText }]}>(55) 5259-8121 · 24h · gratis</Text>
           </Pressable>
 
           <View style={{ height: 16 }} />
@@ -382,11 +389,11 @@ export default function RescueProtocolScreen() {
                 params: { level: "2" },
               })
             }
-            style={({ pressed }) => [styles.secondaryBtn, pressed && styles.secondaryBtnPressed]}
+            style={({ pressed }) => [styles.secondaryBtn, { borderColor: secondaryBorder }, pressed && styles.secondaryBtnPressed]}
             accessibilityRole="button"
             accessibilityLabel="Iniciar respiración guiada"
           >
-            <Text style={styles.secondaryBtnLabel}>Respiración guiada</Text>
+            <Text style={[styles.secondaryBtnLabel, { color: secondaryText }]}>Respiración guiada</Text>
           </Pressable>
 
           {/*
@@ -419,7 +426,7 @@ const styles = StyleSheet.create({
   exitBtnPressed: { opacity: 0.6 },
   exitText: {
     fontSize: 18,
-    color: "#6B6B6B",
+    // color aplicado dinámicamente según tema
   },
   // ── Contenido centrado ─────────────────────────────────────────────────
   centerContent: {
@@ -431,7 +438,7 @@ const styles = StyleSheet.create({
   groundingNumber: {
     fontSize: 96,
     fontWeight: "bold",
-    color: "#2D2D2D",
+    // color aplicado dinámicamente según tema
     lineHeight: 100,
   },
   // ── Puntos de progreso (grounding) ────────────────────────────────────
@@ -444,7 +451,7 @@ const styles = StyleSheet.create({
     width: 10,
     height: 10,
     borderRadius: 5,
-    backgroundColor: "#E0DDD8", // script-border
+    // backgroundColor aplicado dinámicamente según tema
   },
   dotActive: {
     backgroundColor: "#A8C5DA", // script-blue
@@ -456,7 +463,7 @@ const styles = StyleSheet.create({
   // ── Texto de cierre / instrucción ─────────────────────────────────────
   closingText: {
     fontSize: 18,
-    color: "#6B6B6B",
+    // color aplicado dinámicamente según tema
     textAlign: "center",
     lineHeight: 28,
   },
@@ -468,11 +475,11 @@ const styles = StyleSheet.create({
     justifyContent: "center",
   },
   circle: {
-    backgroundColor: CIRCLE_COLOR_LIGHT,
+    // backgroundColor aplicado dinámicamente según tema
   },
   // ── Botón primario (64px+ §11.6) ──────────────────────────────────────
   primaryBtn: {
-    backgroundColor: "#E8C4C4", // script-crisis-soft
+    // backgroundColor aplicado dinámicamente según tema
     borderRadius: 20,
     paddingVertical: 18,
     paddingHorizontal: 32,
@@ -486,18 +493,18 @@ const styles = StyleSheet.create({
   primaryBtnLabel: {
     fontSize: 22,
     fontWeight: "600",
-    color: "#2D2D2D",
+    // color aplicado dinámicamente según tema
     textAlign: "center",
   },
   emergencySubLabel: {
     fontSize: 13,
-    color: "#6B6B6B",
+    // color aplicado dinámicamente según tema
     textAlign: "center",
   },
   // ── Botón secundario ──────────────────────────────────────────────────
   secondaryBtn: {
     borderWidth: 1.5,
-    borderColor: "#E0DDD8",
+    // borderColor aplicado dinámicamente según tema
     borderRadius: 20,
     paddingVertical: 16,
     paddingHorizontal: 32,
@@ -509,7 +516,7 @@ const styles = StyleSheet.create({
   secondaryBtnPressed: { opacity: 0.7 },
   secondaryBtnLabel: {
     fontSize: 18,
-    color: "#6B6B6B",
+    // color aplicado dinámicamente según tema
     textAlign: "center",
   },
 });

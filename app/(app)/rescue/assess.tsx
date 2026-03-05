@@ -23,7 +23,7 @@
  *   3 — "No puedo solo/a"       → Protocolo de emergencia + contactos
  */
 import React from "react";
-import { View, Pressable, Text, StyleSheet } from "react-native";
+import { View, Pressable, Text, StyleSheet, useColorScheme } from "react-native";
 import { useRouter } from "expo-router";
 import { SafeScreen, Typography } from "@/components/ui";
 
@@ -50,6 +50,13 @@ const LEVEL_OPTIONS = [
 // ── Componente ─────────────────────────────────────────────────────────────
 export default function RescueAssessScreen() {
   const router = useRouter();
+  const isDark = useColorScheme() === "dark";
+
+  // Colores que se adaptan al tema — crisis debe ser legible en ambos modos
+  const btnBg     = isDark ? "#6A3E3E" : "#E8C4C4"; // script-dark-crisis-soft / script-crisis-soft
+  const btnLabel  = isDark ? "#F0D0D0" : "#2D2D2D"; // claro sobre oscuro / oscuro sobre claro
+  const btnHint   = isDark ? "#C0A0A0" : "#6B6B6B"; // hint suave adaptado
+  const exitColor = isDark ? "#A0A0A0" : "#6B6B6B"; // "← Salir" visible en ambos modos
 
   /** Navegar al protocolo con el nivel elegido */
   const handleLevelSelect = (level: 1 | 2 | 3) => {
@@ -74,7 +81,7 @@ export default function RescueAssessScreen() {
           accessibilityRole="button"
           accessibilityLabel="Salir del protocolo de rescate"
         >
-          <Text style={styles.exitText}>← Salir</Text>
+          <Text style={[styles.exitText, { color: exitColor }]}>← Salir</Text>
         </Pressable>
 
         {/* ── Punto focal único: pregunta + opciones ────────────────── */}
@@ -93,15 +100,16 @@ export default function RescueAssessScreen() {
                 onPress={() => handleLevelSelect(level)}
                 style={({ pressed }) => [
                   styles.levelBtn,
+                  { backgroundColor: btnBg },
                   pressed && styles.levelBtnPressed,
                 ]}
                 accessibilityRole="button"
                 accessibilityLabel={`${label} — ${hint}`}
               >
-                {/* Etiqueta principal — 28px */}
-                <Text style={styles.levelBtnLabel}>{label}</Text>
+                {/* Etiqueta principal — 22px semibold */}
+                <Text style={[styles.levelBtnLabel, { color: btnLabel }]}>{label}</Text>
                 {/* Hint de protocolo — texto pequeño bajo */}
-                <Text style={styles.levelBtnHint}>{hint}</Text>
+                <Text style={[styles.levelBtnHint, { color: btnHint }]}>{hint}</Text>
               </Pressable>
             ))}
           </View>
@@ -134,7 +142,7 @@ const styles = StyleSheet.create({
   },
   exitText: {
     fontSize: 18,
-    color: "#6B6B6B", // script-text-secondary — nunca color alarmante
+    // color se aplica dinámicamente según tema (dark/light)
   },
   // ── Contenido centrado ───────────────────────────────────────────────────
   centerContent: {
@@ -146,7 +154,7 @@ const styles = StyleSheet.create({
     gap: 16,
   },
   levelBtn: {
-    backgroundColor: "#E8C4C4", // script-crisis-soft — suave, nunca rojo
+    // backgroundColor se aplica dinámicamente según tema (dark/light)
     borderRadius: 20,
     paddingVertical: 18,
     paddingHorizontal: 24,
@@ -161,12 +169,12 @@ const styles = StyleSheet.create({
   levelBtnLabel: {
     fontSize: 22,      // Cerca de 28px — etiqueta principal
     fontWeight: "600",
-    color: "#2D2D2D",  // script-text — alto contraste
+    // color se aplica dinámicamente según tema (dark/light)
     textAlign: "center",
   },
   levelBtnHint: {
     fontSize: 13,
-    color: "#6B6B6B",  // script-text-secondary
+    // color se aplica dinámicamente según tema (dark/light)
     textAlign: "center",
   },
 });
