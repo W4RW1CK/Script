@@ -138,9 +138,15 @@ export default function RescueProtocolScreen() {
     );
 
     // ── Tracking de fase en JS thread (para el label) ───────────────────
-    let elapsed = 0;
+    //
+    // IMPORTANTE: usar Date.now() en vez de sumar intervalos fijos.
+    // setInterval(100ms) en JS no es preciso — cada tick puede driftear
+    // unos ms, y el drift se acumula. Después de ~10s el label y el
+    // círculo (UI thread, preciso) se desincronizan visiblemente.
+    // Con timestamps reales, el label siempre refleja el tiempo real.
+    const startTime = Date.now();
     timerRef.current = setInterval(() => {
-      elapsed += 100;
+      const elapsed = Date.now() - startTime;
 
       // Calcular fase dentro del ciclo actual
       const inCycle = elapsed % CYCLE_MS;
@@ -153,7 +159,7 @@ export default function RescueProtocolScreen() {
         if (timerRef.current) clearInterval(timerRef.current);
         setBreathingComplete(true);
       }
-    }, 100);
+    }, 80); // 80ms para labels más responsivos sin overhead significativo
   }, [circleSize]);
 
   // Limpiar timer al desmontar
