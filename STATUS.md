@@ -4,7 +4,7 @@
 > **Cómo leer este archivo:**
 > ✅ Completado | 🔄 En progreso | ⏳ Pendiente | ❌ Bloqueado
 
-**Última actualización:** 2026-03-05 (fixes post-1.7: SAPTEL, dark mode, breathing sync, haptics)  
+**Última actualización:** 2026-03-06 (Fase 1.8 completa + 7 fixes de auditoría)  
 **Semana actual:** 1  
 **Entrega próxima:** Lunes (MVP)
 
@@ -45,7 +45,7 @@ Algo falla → ambas atacan el bug → w4rw1ck confirma fix
 | Semana | Descripción | Estado | Completado |
 |---|---|---|---|
 | Pre-implementación | Documentación + audit de los 6 docs canónicos | ✅ | PR #3 listo para merge |
-| Semana 1 | MVP: Setup + Check-in + Scripts + Rescate + Auth | 🔄 | 7 / 8 fases (1.1 ✅ 1.2 ✅ 1.3 ✅ 1.4 ✅ 1.5 ✅ 1.6 ✅ 1.7 ✅) |
+| Semana 1 | MVP: Setup + Check-in + Scripts + Rescate + Auth | 🔄 | Código 8/8 fases completo · Verificación funcional bloqueada por B-13 (Privy config) |
 | Semana 2 | Historial + Diccionario + Personalización | ⏳ | — |
 | Semana 3 | Red de Confianza + Notificaciones | ⏳ | — |
 | Semana 4 | IA + Vista Terapeuta | ⏳ | — |
@@ -140,24 +140,24 @@ Algo falla → ambas atacan el bug → w4rw1ck confirma fix
 | 1.7.2 | app/(app)/rescue/protocol.tsx **(S18)** — niveles 1/2/3 | ✅ | Commit `ecea6f2` — grounding+háptico, círculo Reanimated, SAPTEL |
 | **Verificación** | Protocolo completo (1, 2, 3) | ✅ | Verificado en dispositivo físico Android por w4rw1ck — 2026-03-05. Bugs B-11 a B-14 encontrados y corregidos. Audio pendiente (assets/audio/) |
 
-### Fase 1.8 — Auth Básico + Onboarding Completo
+### Fase 1.8 — Auth Básico + Onboarding Completo ✅ CÓDIGO COMPLETO
 | Paso | Descripción | Estado | Notas |
 |---|---|---|---|
-| 1.8.1 | PrivyProvider en app/_layout.tsx | ⏳ | |
-| 1.8.2 | app/auth.tsx **(S24)** (email + Google) | ⏳ | |
-| 1.8.3 | Edge Function: sync-privy-user | ⏳ | |
-| 1.8.4 | Redirect lógica post-auth | ⏳ | |
-| 1.8.5 | app/(onboarding)/index.tsx **(S01 Welcome)** | ⏳ | Tagline + "Necesito ayuda ahora" → S17 |
-| 1.8.6 | app/(onboarding)/aq10.tsx **(S02)** — 10 preguntas, 1 por pantalla | ⏳ | Preguntas de PRD Apéndice A |
-| 1.8.7 | app/(onboarding)/aq10-result.tsx **(S03)** — Score + decisión | ⏳ | Sin palabras "positivo/negativo" |
-| 1.8.8 | Componente reutilizable TestScreen | ⏳ | Props: questions[], scale, onComplete |
-| 1.8.9 | app/(onboarding)/aq-full.tsx **(S04)** — AQ 50 preguntas | ⏳ | Preguntas de PRD Apéndice C |
-| 1.8.10 | app/(onboarding)/catq.tsx **(S05)** — 25 preguntas, escala 1-7 | ⏳ | Preguntas de PRD Apéndice D |
-| 1.8.11 | app/(onboarding)/raads.tsx **(S06)** — 80 preguntas, con pausa | ⏳ | Preguntas de PRD Apéndice E |
-| 1.8.12 | lib/profile-seed.ts — sintetiza scores en perfil semilla | ⏳ | |
-| 1.8.13 | app/(onboarding)/profile.tsx **(S07)** — Cuestionario personal | ⏳ | react-hook-form + zod |
-| 1.8.14 | app/(onboarding)/contacts.tsx **(S08)** — Setup contactos | ⏳ | |
-| **Verificación** | Flujo completo S01→S02→S03→S07→S08→S24→S09. Email login funciona. Profile en Supabase. | ⏳ | |
+| 1.8.1 | PrivyProvider en app/_layout.tsx | ✅ | AuthGate integrado |
+| 1.8.2 | app/auth.tsx **(S24)** (email + Google) | ✅ | B-15/B-16 corregidos |
+| 1.8.3 | Edge Function: sync-privy-user | ✅ | CORS incluido (B-17) |
+| 1.8.4 | Redirect lógica post-auth | ✅ | AuthGate en _layout.tsx |
+| 1.8.5 | app/(onboarding)/index.tsx **(S01 Welcome)** | ✅ | Tagline + "Necesito ayuda ahora" → S17 |
+| 1.8.6 | app/(onboarding)/aq10.tsx **(S02)** — 10 preguntas, 1 por pantalla | ✅ | scoreOnAgree por pregunta |
+| 1.8.7 | app/(onboarding)/aq10-result.tsx **(S03)** — Score + decisión | ✅ | Sin palabras "positivo/negativo" |
+| 1.8.8 | Componente reutilizable TestScreen | ✅ | Selección por índice, pausa con SecureStore |
+| 1.8.9 | app/(onboarding)/aq-full.tsx **(S04)** — AQ 50 preguntas | ✅ | scoreOnAgree por pregunta (M-03 aprendizaje) |
+| 1.8.10 | app/(onboarding)/catq.tsx **(S05)** — 25 preguntas, escala 1-7 | ✅ | |
+| 1.8.11 | app/(onboarding)/raads.tsx **(S06)** — 80 preguntas, con pausa | ✅ | |
+| 1.8.12 | lib/profile-seed.ts — sintetiza scores en perfil semilla | ✅ | Runtime-only, no persiste en Supabase |
+| 1.8.13 | app/(onboarding)/profile.tsx **(S07)** — Cuestionario personal | ✅ | Guard para supabaseUserId null (B-19) |
+| 1.8.14 | app/(onboarding)/contacts.tsx **(S08)** — Setup contactos | ✅ | Usa "relationship" (schema correcto) |
+| **Verificación** | Flujo completo S01→S02→S03→S07→S08→S24→S09. Email login funciona. Profile en Supabase. | ❌ | Bloqueado por B-13 — Privy App ID pendiente de w4rw1ck |
 
 ---
 
@@ -192,6 +192,13 @@ Algo falla → ambas atacan el bug → w4rw1ck confirma fix
 | B-12 | Pantallas de crisis (assess.tsx + protocol.tsx) ilegibles en dark mode — botones rosa claro (#E8C4C4) y texto oscuro (#2D2D2D) invisibles contra fondo oscuro | 🔴 Alta | 1.7 | ✅ Resuelto |
 | B-13 | Label de respiración (Inhala/Pausa/Exhala) desincronizado con círculo animado — `setInterval` acumulaba drift vs animación Reanimated en UI thread | 🟡 Media | 1.7 | ✅ Resuelto |
 | B-14 | Respiración guiada (Nivel 2) sin feedback háptico — Nivel 1 (grounding) tenía háptico pero Nivel 2 no, a pesar de la decisión de diseño multimodal | 🟡 Media | 1.7 | ✅ Resuelto |
+| B-15 | `auth.tsx` — campo de código de verificación sin `value`/`onChangeText` — texto invisible en Android físico + no hay botón para verificar explícitamente | 🔴 Alta | 1.8 | ✅ Resuelto |
+| B-16 | `auth.tsx` — `handleVerifyCode` tragaba el error silenciosamente; el `catch` bajaba el loading sin mostrar al usuario que el código era incorrecto | 🔴 Alta | 1.8 | ✅ Resuelto |
+| B-17 | `sync-privy-user` Edge Function sin CORS headers — preflight OPTIONS falla, respuestas sin `Access-Control-Allow-*` | 🟡 Media | 1.8 | ✅ Resuelto |
+| B-18 | `contacts.tsx` — `useRouter` importado y `router` instanciado pero nunca usado (AuthGate maneja la redirección post-onboarding automáticamente) | 🟢 Baja | 1.8 | ✅ Resuelto |
+| B-19 | `profile.tsx` — guard `if (supabaseUserId)` existía pero sin log ni comentario — si sync falló, el guardado falla silenciosamente sin contexto | 🟡 Media | 1.8 | ✅ Resuelto |
+| B-20 | `VIABILITY_TEST.md` (311 líneas) trackeado en git — documento de análisis ajeno al proyecto | 🟢 Baja | 1.8 | ✅ Resuelto |
+| B-21 | `Typography.tsx` sin variants `headingS` / `heading` — `aq10-result.tsx` y otras pantallas de Fase 1.8 las usan y fallaban silenciosamente | 🔴 Alta | 1.8 | ✅ Resuelto |
 
 **B-01 — Fix:** Se eliminaron las columnas `hour_of_day` y `day_of_week` de `checkins`. `EXTRACT()` usable en queries. Commit: `864e435`.
 
@@ -221,6 +228,20 @@ Algo falla → ambas atacan el bug → w4rw1ck confirma fix
 **B-13 — Fix:** `protocol.tsx` — reemplazado `elapsed += 100` (drift acumulativo) por `Date.now() - startTime` (timestamp real). `setInterval` en JS thread no es preciso (cada tick puede tardar 100-115ms); después de ~10s el label ya iba desfasado del círculo Reanimated (UI thread, preciso). Con timestamps reales el label siempre refleja el momento exacto. Interval reducido a 80ms para labels más responsivos. Detectado por w4rw1ck en dispositivo Android. Commit: `67bb9d5`.
 
 **B-14 — Fix:** `protocol.tsx` — agregado `Haptics.impactAsync(Light)` en cada transición de fase (Inhala↔Pausa↔Exhala). Solo vibra cuando la fase cambia, no en cada tick. Vibración `notificationAsync(Success)` al completar los 4 ciclos. 12 vibraciones sutiles + 1 final por sesión completa. Commit: `cf3db00`.
+
+**B-15 — Fix:** `auth.tsx` — campo de código ahora tiene `value={code}` + `onChangeText={setCode}` (estado local). Agregado botón "Verificar código" explícito con `disabled` cuando el campo está vacío. El campo de solo `onSubmitEditing` no funciona confiablemente en Android físico. Commit: `57d4947`.
+
+**B-16 — Fix:** `auth.tsx` — `handleVerifyCode` ahora muestra `Alert` con el mensaje de error cuando el código es incorrecto. El `catch` previo bajaba `isLoading` sin feedback al usuario. Commit: `57d4947`.
+
+**B-17 — Fix:** `sync-privy-user/index.ts` — agregados `corsHeaders` con `Access-Control-Allow-Origin: *` y `Access-Control-Allow-Headers`. Todas las respuestas JSON usan `corsHeaders`. Preflight `OPTIONS` responde con `200 ok`. Commit: `fe855c2`.
+
+**B-18 — Fix:** `contacts.tsx` — removido `import { useRouter }` y `const router = useRouter()` que nunca se usaban. La navegación post-onboarding la maneja `AuthGate` en `_layout.tsx` automáticamente al detectar `onboardingComplete=true`. Commit: `8372e4e`.
+
+**B-19 — Fix:** `profile.tsx` — guard `if (!supabaseUserId)` con `console.warn` explícito y comentario documentando que el perfil se puede completar desde Ajustes en Semana 2. El usuario siempre puede continuar el onboarding aunque el guardado falle. Commit: `fa66ce1`.
+
+**B-20 — Fix:** `VIABILITY_TEST.md` eliminado del repo con `git rm`. Era un documento de análisis ajeno al proyecto que fue trackeado accidentalmente. Commit: `6eaae73`.
+
+**B-21 — Fix:** `Typography.tsx` — agregados variants `headingS` (18px semibold) y `heading` (alias de headingL). Usados en `aq10-result.tsx` y otras pantallas de Fase 1.8. Sin estos variants, el componente fallaba silenciosamente mostrando `undefined` como clases CSS. Commit: `523e50a`.
 
 ---
 
@@ -256,12 +277,24 @@ Algo falla → ambas atacan el bug → w4rw1ck confirma fix
 | 2026-03-05 | Pantallas de crisis: colores dinámicos con `useColorScheme()`, layout en StyleSheet | Los tamaños son críticos (§11) y no deben variar, pero los colores deben adaptarse a dark mode para ser legibles |
 | 2026-03-05 | Tracking de fases en breathing: `Date.now()` en vez de `elapsed += interval` | `setInterval` en JS thread no es preciso; drift acumulado desincroniza con animaciones Reanimated (UI thread nativo) |
 | 2026-03-05 | Háptico en breathing: Light en transiciones + Success al completar | Consistente con la decisión de diseño multimodal; solo vibra en cambios de fase (no spam) |
+| 2026-03-06 | Campos de input controlados (value+onChangeText) obligatorios en auth flows | `onSubmitEditing` sin estado local no funciona confiablemente en Android físico — siempre usar inputs controlados |
+| 2026-03-06 | CORS headers en todas las Edge Functions de Supabase | Buena práctica aunque RN no sea browser; facilita testing desde web y evita errores de preflight |
+| 2026-03-06 | AQ-10 usa `.agree` booleano; TestScreen usa `.value` numérico | AQ-10 es binario (sí/no); AQ-Full/CAT-Q/RAADS-R son escalas multi-punto — patrones diferentes para propósitos diferentes |
+| 2026-03-06 | `AuthGate` en `_layout.tsx` maneja toda la redirección post-auth | No duplicar lógica de navegación en pantallas individuales — una sola fuente de verdad |
 
 ---
 
 ## 📝 Notas del Sprint
 
 ### Semana 1
+
+**2026-03-06 — Fase 1.8 completa + auditoría + 7 fixes (B-15 a B-21)**
+- Fase 1.8 implementada por sub-agente: Auth Privy + Onboarding completo S01→S08 (commit `72abbc5`)
+- Auditoría inmediata por Aibus encontró 7 issues (2 altos, 3 medios, 2 bajos)
+- Corregidos en commits individuales: `57d4947` → `fe855c2` → `8372e4e` → `fa66ce1` → `6eaae73` → `e619532` → `6055a7b` → `523e50a`
+- Semana 1 código: 8/8 fases implementadas, 0 issues abiertos de auditoría
+- Bloqueador activo: B-13 Privy config (w4rw1ck necesita crear App ID en dashboard.privy.io)
+- Pendiente w4rw1ck: crear Privy App ID, llenar .env.local, `supabase functions deploy sync-privy-user`
 
 **2026-03-05 — Verificación Fase 1.7 en dispositivo + 4 fixes (B-11 a B-14)**
 - w4rw1ck probó el protocolo de rescate en su Android físico
