@@ -4,7 +4,7 @@
 > **Cómo leer este archivo:**
 > ✅ Completado | 🔄 En progreso | ⏳ Pendiente | ❌ Bloqueado
 
-**Última actualización:** 2026-03-06 (bloqueador #7 ✅ — scripts con fundamento clínico + REFERENCES.md)  
+**Última actualización:** 2026-03-06 (B-29 — uuid circular import fix en Metro)  
 **Semana actual:** 1  
 **Entrega próxima:** Lunes (MVP)
 
@@ -207,6 +207,7 @@ Algo falla → ambas atacan el bug → w4rw1ck confirma fix
 | B-26 | `ExpoSecureStore.getValueWithKeyAsync is not a function` — `expo-secure-store` no existe en web; Metro bundlea para web en paralelo al arrancar con `expo start` | 🔴 Alta | 1.8 | ✅ Resuelto |
 | B-27 | `ReferenceError: Property 'crypto' doesn't exist` — Hermes lanza ReferenceError (no retorna undefined) al acceder a `global.crypto` inexistente; `globalThis.crypto` también undefined en el dispositivo de w4rw1ck | 🔴 Alta | 1.8 | ✅ Resuelto |
 | B-28 | `ReferenceError: localStorage is not defined` — Metro SSR renderer corre en Node.js donde `localStorage` no existe aunque `Platform.OS === "web"` sea verdadero | 🟡 Media | 1.8 | ✅ Resuelto |
+| B-29 | `Cannot read properties of undefined (reading 'v1')` — `@privy-io/js-sdk-core` tiene `uuid` anidado; su `wrapper.mjs` hace `import { v1 } from 'uuid'` y Metro (condición "browser") lo resuelve circularmente al mismo `wrapper.mjs` → `undefined` | 🔴 Alta | 1.8 | ✅ Resuelto |
 
 **B-01 — Fix:** Se eliminaron las columnas `hour_of_day` y `day_of_week` de `checkins`. `EXTRACT()` usable en queries. Commit: `864e435`.
 
@@ -265,6 +266,8 @@ Algo falla → ambas atacan el bug → w4rw1ck confirma fix
 
 **B-28 — Fix:** `lib/supabase.ts` — todos los accesos a `localStorage` ahora están guardados con `typeof localStorage !== "undefined"`. El Metro SSR renderer corre en Node.js donde `localStorage` no existe aunque `Platform.OS === "web"`. Sin el guard, el proceso de Metro crasheaba al inicializar. Commit: `f80d5e0`.
 
+**B-29 — Fix:** `metro.config.js` + `package.json` — instalado `uuid ^9.0.1`; agregado `uuid: require.resolve("uuid")` a `extraNodeModules`. Con la condición "browser" activa, Metro resolvía `import 'uuid'` (desde dentro de `wrapper.mjs`) de vuelta al mismo `wrapper.mjs` — import circular que produce `undefined`. Forzar resolución al CJS raíz rompe el ciclo. Requiere `npm install`. Commit: `c29f4c6`.
+
 ---
 
 ## 🔒 Decisiones Técnicas Tomadas
@@ -308,6 +311,7 @@ Algo falla → ambas atacan el bug → w4rw1ck confirma fix
 | 2026-03-06 | SBTs de progreso descartados | Gamificar hitos de salud mental con tokens permanentes públicos es éticamente problemático para usuarios TEA — fijación, estigma, rigidez |
 | 2026-03-06 | `react-native-get-random-values` como polyfill de crypto en RN/Hermes | Hermes lanza ReferenceError al acceder a global.crypto inexistente (a diferencia de V8 que retorna undefined); este paquete es el estándar para Privy en RN |
 | 2026-03-06 | `typeof localStorage !== "undefined"` obligatorio en código web | Metro SSR renderer corre en Node.js puro; `Platform.OS === "web"` puede ser true pero localStorage no existe — siempre verificar antes de acceder |
+| 2026-03-06 | Paquetes con imports circulares en ESM deben ir en `extraNodeModules` de metro.config.js | Con condición "browser", Metro puede crear ciclos en `wrapper.mjs` de uuid — forzar CJS raíz los rompe |
 
 ---
 
@@ -323,6 +327,13 @@ Algo falla → ambas atacan el bug → w4rw1ck confirma fix
 - `REFERENCES.md` creado — fuentes académicas de scripts, tests de onboarding y recursos futuros
 - Bloqueador #7 resuelto ✅ — bloqueadores activos ahora: #2 (Privy App ID), #5 (traducciones), #6 (audio)
 - Commit: `fdcadd2`
+
+**2026-03-06 — Metro uuid circular import fix (B-29)**
+- Android bundled ✅ (crypto fix funcionó) — nuevo error: uuid wrapper.mjs circular
+- `@privy-io/js-sdk-core` anida su propio uuid; condición "browser" causaba import circular
+- Fix: uuid raíz en extraNodeModules de metro.config.js + `npm install uuid`
+- w4rw1ck debe correr `npm install` antes de `npx expo start`
+- Commit: `c29f4c6`
 
 **2026-03-06 — Polyfill fixes: crypto + localStorage (B-27/B-28)**
 - Bug B-27 🔴: `global.crypto` inexistente en Hermes lanza ReferenceError → instalado `react-native-get-random-values ~1.11.0`, importado primero en polyfills.ts
