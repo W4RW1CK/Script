@@ -67,7 +67,12 @@ function AuthGate({ children }: { children: React.ReactNode }) {
 
   // Privy es la fuente de verdad para auth — persiste en SecureStore entre arranques.
   // useAuthStore().user es solo una copia en memoria (se resetea al reiniciar la app).
-  const { user: privyUser, ready: privyReady } = usePrivy();
+  //
+  // IMPORTANTE: usar `authenticated` (boolean) en vez de `user` (objeto).
+  // `user` puede ser null brevemente mientras Privy restaura la sesión de SecureStore,
+  // aunque `authenticated` ya sea true. Usar `user` causaba un loop:
+  //   auth.tsx redirige a /(onboarding) → AuthGate ve user=null → manda de vuelta a /auth
+  const { user: privyUser, ready: privyReady, authenticated } = usePrivy();
 
   // Estado local de Zustand (en memoria — no persiste entre reinicios)
   const storeUser = useAuthStore((s) => s.user);
@@ -79,14 +84,16 @@ function AuthGate({ children }: { children: React.ReactNode }) {
   /**
    * Efecto de sincronización al arranque.
    *
-   * Si Privy tiene una sesión válida pero Zustand no (p.ej. después de un
-   * reinicio de app), sincronizamos el estado con Supabase para restaurar
-   * `user` y `onboardingComplete` sin que el usuario tenga que loguearse de nuevo.
+   * Si Privy tiene sesión (authenticated) pero Zustand no tiene datos (storeUser null),
+   * llamamos a sync-privy-user para restaurar user_id y onboarding_complete desde Supabase.
+   * Usamos `authenticated` en lugar de `privyUser` para no depender del objeto user
+   * que puede tardar más en popularse.
    */
   useEffect(() => {
     if (!privyReady) return;           // Esperar a que Privy termine de cargar
-    if (!privyUser) return;            // Sin sesión Privy, nada que sincronizar
+    if (!authenticated) return;        // Sin sesión, nada que sincronizar
     if (storeUser) return;             // Zustand ya tiene el usuario, no re-sincronizar
+    if (!privyUser) return;            // Necesitamos el objeto user para extraer email/id
 
     // Privy tiene sesión pero Zustand está vacío → restaurar
     const privyId = privyUser.id;
@@ -97,7 +104,7 @@ function AuthGate({ children }: { children: React.ReactNode }) {
       )?.address ||
       null;
 
-    // Setear usuario básico en Zustand de inmediato para que AuthGate no redirija a /auth
+    // Setear usuario básico en Zustand de inmediato
     setUser({ privyId, email: userEmail, supabaseUserId: null });
 
     // Luego obtener datos completos de Supabase (incluyendo onboarding_complete)
@@ -116,13 +123,13 @@ function AuthGate({ children }: { children: React.ReactNode }) {
       .catch((e) => {
         console.warn("[AuthGate] Error sincronizando sesión al arranque:", e);
       });
-  }, [privyReady, privyUser, storeUser]);
+  }, [privyReady, authenticated, privyUser, storeUser]);
 
   /**
    * Efecto de navegación.
    *
    * Decide a dónde ir basado en el estado combinado de Privy + Zustand.
-   * Fuente de verdad para "¿hay sesión?": privyUser (Privy, persiste).
+   * Fuente de verdad para "¿hay sesión?": `authenticated` (Privy, responde inmediato).
    * Fuente de verdad para "¿completó onboarding?": onboardingComplete (Zustand/Supabase).
    */
   useEffect(() => {
@@ -134,13 +141,11 @@ function AuthGate({ children }: { children: React.ReactNode }) {
     const inAppGroup = segments[0] === "(app)";
 
     // ⚠️ EXCEPCIÓN CRÍTICA: rescue es siempre accesible — incluso sin auth.
-    // En una crisis el usuario NUNCA debe ser bloqueado por un redirect de auth.
-    // APP_FLOW.md: "Necesito ayuda ahora" bypass de onboarding → S17 Rescate.
     const inRescueGroup = inAppGroup && segments[1] === "rescue";
     if (inRescueGroup) return;
 
-    // La presencia de sesión se determina por Privy (persiste) O por el store (sesión activa)
-    const hasSession = !!privyUser || !!storeUser;
+    // `authenticated` responde inmediato desde SecureStore — no tiene el lag de `user`
+    const hasSession = authenticated || !!storeUser;
 
     if (!hasSession) {
       // Sin sesión → ir a auth (solo si no estamos ya ahí)
@@ -158,7 +163,7 @@ function AuthGate({ children }: { children: React.ReactNode }) {
         router.replace("/(app)/home");
       }
     }
-  }, [privyReady, privyUser, storeUser, onboardingComplete, segments]);
+  }, [privyReady, authenticated, storeUser, onboardingComplete, segments]);
 
   return <>{children}</>;
 }
