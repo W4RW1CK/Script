@@ -4,7 +4,7 @@
 > **Cómo leer este archivo:**
 > ✅ Completado | 🔄 En progreso | ⏳ Pendiente | ❌ Bloqueado
 
-**Última actualización:** 2026-03-06 (B-32 — eliminar redirectUrl de sendCode() flujo OTP)  
+**Última actualización:** 2026-03-06 (B-33 — WebBrowser.maybeCompleteAuthSession() para Google OAuth)  
 **Semana actual:** 1  
 **Entrega próxima:** Lunes (MVP)
 
@@ -255,6 +255,7 @@ Algo falla → ambas atacan el bug → w4rw1ck confirma fix
 | B-30 | `Native app ID host.exp.exponent has not been set as an allowed app identifier` — Privy requiere `clientId` explícito en PrivyProvider cuando corre en Expo Go (host.exp.exponent); sin él bloquea todo intento de auth. ⚠️ Nota: commit original de Aibus usa ID "B-27" (colisión — B-27 ya estaba asignado a crypto polyfill) | 🔴 Alta | 1.8 | ✅ Resuelto |
 | B-31 | `Redirect URL scheme is not allowed` (intento 1) — Aibus agregó `redirectUrl: Linking.createURL('/auth')` a `sendCode()`. El scheme `exp://` de Expo Go no estaba en la lista de Privy, causando error | 🔴 Alta | 1.8 | ⚠️ Parcial — ver B-32 |
 | B-32 | `Redirect URL scheme is not allowed` (intento 2, raíz real) — `sendCode()` NO necesita `redirectUrl` en flujo OTP (código de 6 dígitos). `redirectUrl` solo se requiere para magic link clickeable. Pasar `exp://` a Privy en modo OTP causaba el error. Fix: eliminar `redirectUrl` de `sendCode()` | 🔴 Alta | 1.8 | ✅ Resuelto |
+| B-33 | Google OAuth no resuelve — browser de Google abre pero nunca regresa a la app. `WebBrowser.maybeCompleteAuthSession()` faltaba en `auth.tsx`. Sin esta llamada a nivel módulo, Expo no puede completar el callback del OAuth cuando Google redirige de vuelta | 🔴 Alta | 1.8 | ✅ Resuelto |
 
 **B-01 — Fix:** Se eliminaron las columnas `hour_of_day` y `day_of_week` de `checkins`. `EXTRACT()` usable en queries. Commit: `864e435`.
 
@@ -321,6 +322,8 @@ Algo falla → ambas atacan el bug → w4rw1ck confirma fix
 
 **B-32 — Fix:** `app/auth.tsx` — eliminado `redirectUrl` de `sendCode()` y `import * as Linking`. En el flujo OTP (código de 6 dígitos), Privy NO necesita `redirectUrl` — ese param es solo para el flujo de magic link clickeable donde el usuario es redirigido al app desde el email. Al pasarlo con scheme `exp://`, Privy lo validaba contra su lista de allowed schemes y fallaba. Sin `redirectUrl`, el email solo contiene el código numérico y el flujo funciona sin configuración adicional en el dashboard. Commit: `297ca72`.
 
+**B-33 — Fix:** `app/auth.tsx` — agregado `import * as WebBrowser from 'expo-web-browser'` y llamada a `WebBrowser.maybeCompleteAuthSession()` a nivel módulo. Esta función es obligatoria en Expo para completar el OAuth flow: cuando Google redirige de vuelta a la app tras el login, Expo Web Browser necesita saber que la sesión OAuth terminó y puede cerrar el browser. Sin esta llamada, el browser queda abierto o cuelga y `useLoginWithOAuth` nunca recibe el callback. Commit: `5f4bad5`.
+
 ---
 
 ## 🔒 Decisiones Técnicas Tomadas
@@ -364,6 +367,7 @@ Algo falla → ambas atacan el bug → w4rw1ck confirma fix
 | 2026-03-06 | SBTs de progreso descartados | Gamificar hitos de salud mental con tokens permanentes públicos es éticamente problemático para usuarios TEA — fijación, estigma, rigidez |
 | 2026-03-06 | Mapeo test→perfil semilla es decisión de diseño informado por clínica, NO protocolo clínico validado | Las reglas en `profile-seed.ts` (ej: AQ-10 alto → más scripts de socialización) son razonables pero no tienen publicación peer-reviewed que las respalde directamente. Documentado así en PRD para evitar escrutinio médico erróneo. Supervisión clínica recomendada antes de lanzamiento público (ver T-4.3) |
 | 2026-03-06 | `sendCode()` de Privy NO recibe `redirectUrl` en flujo OTP | `redirectUrl` solo es necesario para magic link clickeable (el usuario llega al app desde un link). En flujo OTP (código 6 dígitos) el param causa `Redirect URL scheme is not allowed` porque Privy valida el scheme contra su lista de allowed origins. Sin el param, el email solo contiene el código y el flujo funciona sin configuración extra en Privy dashboard |
+| 2026-03-06 | `WebBrowser.maybeCompleteAuthSession()` es obligatorio para OAuth en Expo | Debe llamarse a nivel módulo en el archivo que usa `useLoginWithOAuth`. Sin esta llamada, el browser OAuth queda colgado al recibir el redirect del proveedor (Google). Es el patrón estándar de Expo para cualquier OAuth flow con `expo-web-browser` |
 | 2026-03-06 | `react-native-get-random-values` como polyfill de crypto en RN/Hermes | Hermes lanza ReferenceError al acceder a global.crypto inexistente (a diferencia de V8 que retorna undefined); este paquete es el estándar para Privy en RN |
 | 2026-03-06 | `typeof localStorage !== "undefined"` obligatorio en código web | Metro SSR renderer corre en Node.js puro; `Platform.OS === "web"` puede ser true pero localStorage no existe — siempre verificar antes de acceder |
 | 2026-03-06 | Paquetes con imports circulares en ESM deben ir en `extraNodeModules` de metro.config.js | Con condición "browser", Metro puede crear ciclos en `wrapper.mjs` de uuid — forzar CJS raíz los rompe |
@@ -373,6 +377,15 @@ Algo falla → ambas atacan el bug → w4rw1ck confirma fix
 ## 📝 Notas del Sprint
 
 ### Semana 1
+
+**2026-03-06 — B-33 — Google OAuth fix (Ana)**
+- Email OTP funcionando ✅ (B-32 verificado por w4rw1ck en dispositivo Android)
+- Google OAuth: browser abría pero nunca regresaba a la app
+- Causa: `WebBrowser.maybeCompleteAuthSession()` faltaba — obligatorio para OAuth en Expo
+- Fix: agregar llamada a nivel módulo en `auth.tsx` + `import expo-web-browser`
+- Pendiente verificación en dispositivo (w4rw1ck)
+- Pendiente acción en Privy Dashboard: habilitar Google como Social Login provider (Authentication tab)
+- Commit: `5f4bad5`
 
 **2026-03-06 — B-32 — Privy auth OTP fix (Ana)**
 - Error `Redirect URL scheme is not allowed` al intentar login con email en Expo Go Android
