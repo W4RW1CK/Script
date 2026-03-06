@@ -15,11 +15,11 @@
  * Diseño: minimalista, tono cálido, sin presión.
  * Texto: "Sin cuenta, solo un email. Tus datos son tuyos."
  */
-import React, { useState } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { View, Alert, useColorScheme } from "react-native";
 // import * as Linking from "expo-linking"; // Reservado para magic link flow (Semana 3+)
 import * as WebBrowser from "expo-web-browser";
-import { useLoginWithEmail, useLoginWithOAuth } from "@privy-io/expo";
+import { usePrivy, useLoginWithEmail, useLoginWithOAuth } from "@privy-io/expo";
 
 /**
  * maybeCompleteAuthSession — OBLIGATORIO para OAuth en Expo.
@@ -40,6 +40,9 @@ export default function AuthScreen() {
   const setUser = useAuthStore((s) => s.setUser);
   const setSupabaseUserId = useAuthStore((s) => s.setSupabaseUserId);
   const setOnboardingComplete = useAuthStore((s) => s.setOnboardingComplete);
+
+  // Privy — fuente de verdad para auth
+  const { user: privyUser, ready: privyReady } = usePrivy();
 
   // Estado local
   const [email, setEmail] = useState("");
@@ -75,7 +78,7 @@ export default function AuthScreen() {
    * IMPORTANTE: usamos el `user` del resultado/callback, NO de usePrivy().user
    * porque el hook puede tener un valor stale en callbacks async.
    */
-  const handlePostLogin = async (user: any) => {
+  const handlePostLogin = useCallback(async (user: any) => {
     try {
       // Extraer datos del usuario de Privy
       const privyId = user.id;
@@ -107,7 +110,20 @@ export default function AuthScreen() {
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [setUser, setSupabaseUserId, setOnboardingComplete]);
+
+  /**
+   * Guard de sesión existente.
+   *
+   * Si Privy ya tiene una sesión válida cuando se monta esta pantalla
+   * (p.ej. el usuario reinició la app), hacemos el sync automáticamente.
+   * AuthGate debería haber redirigido, pero este es el safety net.
+   */
+  useEffect(() => {
+    if (privyReady && privyUser) {
+      handlePostLogin(privyUser);
+    }
+  }, [privyReady, privyUser, handlePostLogin]);
 
   /** Enviar código OTP al email */
   const handleSendCode = async () => {
