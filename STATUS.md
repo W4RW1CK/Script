@@ -4,7 +4,7 @@
 > **Cómo leer este archivo:**
 > ✅ Completado | 🔄 En progreso | ⏳ Pendiente | ❌ Bloqueado
 
-**Última actualización:** 2026-03-06 (T-U1 a T-V8 registrados — UI/UX audit + Identidad Visual)  
+**Última actualización:** 2026-03-06 (STATUS.md refactorizado — secciones ordenadas, docs actualizados, tickets en zonas correctas)  
 **Semana actual:** 1  
 **Entrega próxima:** Lunes (MVP)
 
@@ -45,8 +45,8 @@ Algo falla → ambas atacan el bug → w4rw1ck confirma fix
 | Semana | Descripción | Estado | Completado |
 |---|---|---|---|
 | Pre-implementación | Documentación + audit de los 6 docs canónicos | ✅ | PR #3 listo para merge |
-| Semana 1 | MVP: Setup + Check-in + Scripts + Rescate + Auth | 🔄 | Código 8/8 fases completo · Verificación funcional bloqueada por B-13 (Privy config) |
-| Semana 2 | Historial + Diccionario + Personalización | ⏳ | — |
+| Semana 1 | MVP: Setup + Check-in + Scripts + Rescate + Auth | 🔄 | Código 8/8 fases completo · Verificación funcional pendiente (Privy setup — ver Bloqueador #2) |
+| Semana 2 | Historial + Diccionario + Personalización + Identidad Visual | ⏳ | Sprints 2.A (Fundación Visual) y 2.B (Pantallas) agregados |
 | Semana 3 | Red de Confianza + Notificaciones | ⏳ | — |
 | Semana 4 | IA + Vista Terapeuta | ⏳ | — |
 | Semana 5 | EAS Attestations + Polish + APK | ⏳ | — |
@@ -59,11 +59,11 @@ Algo falla → ambas atacan el bug → w4rw1ck confirma fix
 |---|---|---|---|
 | `PRD.md` | v1.4 | ✅ | Tests movidos a Semana 1; offline clarificado; Settings timing corregido; tagline restaurada |
 | `APP_FLOW.md` | v1.3 | ✅ | Screen IDs S01–S24; Flujo 5 agregado; Nivel 1 crisis = multimodal (visual+voz+háptico) |
-| `TECH_STACK.md` | v1.2 | ✅ | expo-symbols agregado; rutas actualizadas a S01–S24 |
-| `FRONTEND_GUIDELINES.md` | v1.2 | ✅ | §0 agregada: tabla de inspiración por pantalla (Finch/Daylio); Compañero/Planta diferido a S3 |
+| `TECH_STACK.md` | **v1.4** | ✅ | Inter → Atkinson Hyperlegible (T-U3); expo-symbols eliminado (B-07) |
+| `FRONTEND_GUIDELINES.md` | **v1.4** | ✅ | §1.4 color emocional; §2 Atkinson; §4 shadows+gradiente; §7 useReduceMotion; §12 Identidad Visual |
 | `BACKEND_STRUCTURE.md` | v1.3 | ✅ | RAADS-R domain counts corregidos; RLS policies completadas; tone-grounding-voice.mp3 agregado |
-| `IMPLEMENTATION_PLAN.md` | v1.6 | ✅ | expo-symbols en install; supabase-js pinneada; Fase 1.8 expandida; timer 10s canónico |
-| `REFERENCES.md` | v1.0 | ✅ | Fuentes clínicas de scripts sociales (Gray, Baker, Gaus, Attwood, Hull) + tests (AQ, CAT-Q, RAADS-R) + recursos de investigación futuros |
+| `IMPLEMENTATION_PLAN.md` | **v1.7** | ✅ | Semana 2 sprints 2.A/2.B identidad visual; T-U1 a T-V9 integrados en plan |
+| `REFERENCES.md` | v1.0 | ✅ | PMID AQ-10 corregido (22366774→22397989); fuentes clínicas + tests (AQ, CAT-Q, RAADS-R) |
 
 ---
 
@@ -172,6 +172,8 @@ Algo falla → ambas atacan el bug → w4rw1ck confirma fix
 | T-C1 | **Safety screening de ideación suicida en S17** — `assess.tsx` debe incluir una pregunta de screening ("¿Estás teniendo pensamientos de hacerte daño?") con flujo diferenciado. Si la respuesta es sí: mostrar directamente Línea de la Vida (México: 800 911-2000, 24h gratuita), sin pasar por los 3 niveles estándar. Fundamento: Cassidy et al. (2018) — 66% adultos con ASD reportan ideación suicida; Hirvikoski et al. (2016) — mortalidad por suicidio 9x mayor en ASD | 🔴 Crítico | Ana | ⏳ |
 | T-C2 | **Safety filter en output de GPT-4o-mini** — Edge Function `interpret-checkin/index.ts` debe post-procesar las opciones de emoción antes de enviarlas al cliente. Si algún label cae en categorías de alerta (desesperanza, vacío, no querer estar aquí, etc.), el response debe incluir `crisis_flag: true` y la app escalar a flujo de rescate en lugar de continuar el check-in normal | 🔴 Crítico | Aibus | ⏳ |
 | T-C3 | **Pantalla de consentimiento informado en onboarding** — Nueva pantalla antes de S02 (o como overlay en S01) que explique con lenguaje simple: qué datos se procesan, para qué, que Script no es un dispositivo médico, y que no reemplaza atención profesional. Requisito: LFPDPPP México (Ley Federal de Protección de Datos Personales). Consentimiento debe ser explícito (botón "Entiendo y acepto") antes de empezar cualquier test | 🔴 Crítico | Ana | ⏳ |
+| T-U1 | **`useReduceMotion()` en todos los componentes de animación** — `prefers-reduced-motion` del OS no está implementado. Afecta `protocol.tsx` (breathing circle), `body.tsx` (body map selection), y cualquier animación Reanimated. Para ASD con sensibilidad sensorial esto no es opcional. Patrón: `const shouldReduce = useReduceMotion(); if (shouldReduce) → skip animation`. Ref: FRONTEND_GUIDELINES.md §7 | 🔴 Crítico | Ana | ⏳ |
+| T-U2 | **Error feedback visible cuando Edge Function falla en `reflect.tsx`** — El fallback silencioso a mock cuando GPT-4o-mini no responde no notifica al usuario. En contexto clínico, el usuario debe saber si la interpretación es aproximada o falló. Agregar texto visible (no solo console.warn) cuando `interpret-checkin` retorna error/timeout | 🔴 Crítico | Aibus | ⏳ |
 
 ---
 
@@ -189,24 +191,18 @@ Algo falla → ambas atacan el bug → w4rw1ck confirma fix
 | 2.8 | **INSERT `crisis_events` en `protocol.tsx`** | ⏳ | La tabla `crisis_events` existe en el schema pero nunca se escribe. Registrar: `user_id`, `level` (1/2/3), `started_at`, `completed_at`, `resolved` (boolean). Datos críticos para el módulo de terapeuta en Semana 4 (Ana) |
 | 2.9 | **Reducir temperatura GPT 0.7 → 0.4 en `interpret-checkin`** | ⏳ | Temperatura alta en contexto clínico produce outputs inconsistentes. 0.4 da más determinismo sin perder variedad. Menor que 0.3 puede ser demasiado rígido (Aibus) |
 | 2.10 | **INSERT `script_executions` en `execute.tsx`** | ⏳ | La tabla `script_executions` existe en el schema pero `execute.tsx` no hace INSERT. Registrar: `script_id`, `user_id`, `options_chosen` (JSONB), `completed` (boolean), `executed_at`. Input para historial S19 y terapeuta S23 (Ana) |
-| 2.11 | **Corregir PMID del AQ-10 en `REFERENCES.md`** | ⏳ | PMID actual `22366774` apunta a un paper de polimorfismos en asma pulmonar (WDR21A). PMID correcto: `22397989` (Allison et al., 2012, Arch Dis Child). Error menor pero inaceptable en referencia clínica (Ana) |
+| 2.11 | **Corregir PMID del AQ-10 en `REFERENCES.md`** | ✅ | PMID `22366774` → `22397989` (Allison et al., 2012, Arch Dis Child). Commit `1116147`. (Ana) |
 | 2.12 | **UI feedback cuando guardado de perfil falla en `profile.tsx`** | ⏳ | El guard `if (!supabaseUserId)` solo hace `console.warn` — el usuario no sabe si su perfil no se guardó. Agregar Alert o Toast visible con opción de reintentar (Aibus) |
 
 ---
 
-## 🎨 Tickets UI/UX — Auditoría clínica + Identidad Visual
+## 🎨 Tickets UI/UX + Identidad Visual — Semana 2
 
-> Fuentes: (1) Auditoría UI/UX con `nextlevelbuilder/ui-ux-pro-max-skill` (Aibus, 2026-03-06). (2) Análisis de identidad visual (Aibus, 2026-03-06). Revisado y aprobado por Ana.
-> **Cross-ref:** FRONTEND_GUIDELINES.md §7 (reduced motion), §1.4 (emotion colors), §12 (decisiones), IMPLEMENTATION_PLAN.md §Semana 2.
+> Fuentes: Auditoría `nextlevelbuilder/ui-ux-pro-max-skill` + análisis de identidad visual (Aibus, 2026-03-06). Revisado y aprobado por Ana.
+> **Cross-ref:** FRONTEND_GUIDELINES.md §7/§1.4/§4/§12, IMPLEMENTATION_PLAN.md sprints 2.A/2.B.
+> ℹ️ T-U1/T-U2 están en la sección **Críticos** arriba. T-U7/T-U8/T-V9 están en las secciones de **Semana 3 y 4** abajo.
 
-### 🔴 Antes de usuarios reales
-
-| Ticket | Descripción | Responsable | Estado |
-|---|---|---|---|
-| T-U1 | **`useReduceMotion()` en todos los componentes de animación** — `prefers-reduced-motion` del OS no está implementado en ningún lugar. Afecta `protocol.tsx` (breathing circle), `body.tsx` (body map selection), y cualquier animación Reanimated. Para ASD con sensibilidad sensorial esto no es opcional. Patrón: `const shouldReduce = useReduceMotion(); if (shouldReduce) → skip animation`. Ref: FRONTEND_GUIDELINES.md §7 | **Ana** | ⏳ |
-| T-U2 | **Error feedback visible cuando Edge Function falla en `reflect.tsx`** — El fallback silencioso a mock cuando GPT-4o-mini no responde no notifica al usuario. En contexto clínico, el usuario debería saber que "Esta interpretación es una sugerencia — no pude conectarme". Agregar texto visible (no solo console.warn) cuando `interpret-checkin` retorna error/timeout | **Aibus** | ⏳ |
-
-### 🟡 Semana 2 — UI/UX
+### 🟡 Semana 2 — UX (Sprint 2.B)
 
 | Ticket | Descripción | Responsable | Estado |
 |---|---|---|---|
@@ -215,7 +211,7 @@ Algo falla → ambas atacan el bug → w4rw1ck confirma fix
 | T-U5 | **Confirmación antes de notificación Level 3 en `protocol.tsx`** — Si hay auto-envío a red de confianza sin confirmación del usuario, puede generar falsos positivos. Agregar `Alert.alert("¿Confirmar notificación?", ...)` antes del envío. Ref: UX Guideline #35 Confirmation Dialogs | **Ana** | ⏳ |
 | T-U6 | **Audit de contraste `text-script-text-secondary` (WCAG AA)** — `#6B6B6B` sobre `#F8F6F2` ≈ 4.2:1 (ligeramente bajo WCAG AA 4.5:1). Verificar todas las combinaciones críticas. Si falla, oscurecer ligeramente a `#606060`. Ref: FRONTEND_GUIDELINES.md §10 | **Ana** | ⏳ |
 
-### 🟡 Semana 2 — Visual Identity
+### 🟡 Semana 2 — Identidad Visual (Sprint 2.A + 2.B)
 
 | Ticket | Descripción | Responsable | Estado |
 |---|---|---|---|
@@ -226,40 +222,40 @@ Algo falla → ambas atacan el bug → w4rw1ck confirma fix
 | T-V5 | **Home S09 redesign — inspirado en Finch** — Layout: saludo + hora del día, card "última emoción" con color emocional, mini historial 7 días (dots emocionales), botón CTA "Iniciar check-in", tiles de scripts rápidos. Requiere T-V1. Ref: FRONTEND_GUIDELINES.md §0 (tabla) + §12.2 | **Ana** | ⏳ |
 | T-V6 | **Gradiente mono-azul en botón primario** — Gradiente 135° de `#A8C5DA → #8BAEC4`. Profundidad visual sin introducir nuevos hues. Actualizar `Button.tsx` variant="primary". Ref: FRONTEND_GUIDELINES.md §4 | **Aibus** | ⏳ |
 | T-V7 | **Normalización de labels GPT en Edge Function `interpret-checkin`** — Garantizar que el output del modelo sea siempre uno de los 8 labels canónicos (ver FRONTEND_GUIDELINES.md §1.4). Post-process con mapping antes de retornar al cliente. Sin esta normalización, el emotion color system falla silenciosamente | **Aibus** | ⏳ |
-| T-V8 | **Calendario S19 estilo Year in Pixels** — Historia mensual con dots 36x36px usando `EmotionColors[key].dot`. Día sin check-in = borde dashed gris. Tap → bottom sheet con detalle del día. Para Semana 2 sprint 2 cuando haya datos históricos. Requiere T-V1. Ref: FRONTEND_GUIDELINES.md §0 (tabla Historial) | **Aibus** | ⏳ |
 
-### 🟢 Semana 3-4
+---
 
-| Ticket | Descripción | Responsable | Estado |
+## 🗓️ Semana 3 — Red de Confianza + Notificaciones
+
+> Ver IMPLEMENTATION_PLAN.md §Semana 3 para el plan de features completo. Esta tabla incluye: features principales, deuda técnica de auditoría clínica y tickets de UX polish.
+
+| Paso | Descripción | Estado | Notas |
 |---|---|---|---|
-| T-U7 | **Active/pressed state en emotion cards** (#30 UX guidelines) | **Ana** | ⏳ |
-| T-U8 | **Focus rings audit en Card y Pressable** (#28 UX guidelines) | **Aibus** | ⏳ |
+| 3.1 | Gestión completa de contactos de confianza (S22) | ⏳ | CRUD + permisos por contacto. Ver IMPLEMENTATION_PLAN.md |
+| 3.2 | Sistema de notificaciones completo | ⏳ | Expo Push + notificaciones locales de recordatorio |
+| 3.3 | Telegram Bot para personas de confianza | ⏳ | Edge Function integrada. Ver IMPLEMENTATION_PLAN.md |
+| 3.4 | Vista de Terapeuta (S23) — primera iteración | ⏳ | Solo lectura: historial de check-ins + uso de scripts |
+| T-3.1 | **Rate limiting en `interpret-checkin`** | ⏳ | Límite por `user_id` vía `rate_limits` en Supabase o Upstash Redis. 10 llamadas/hora MVP (Aibus) |
+| T-3.2 | **Logging de outputs de IA** | ⏳ | `ai_logs` table: `user_id`, `input_hash` (no raw — privacidad), `output`, `timestamp`, `flagged` (Aibus) |
+| T-U7 | **Active/pressed state en emotion cards** — feedback visual inmediato al presionar (antes de selección). UX Guideline #30 | **Ana** | ⏳ |
+| T-U8 | **Focus rings audit en `Card` y `Pressable`** — `focus:ring-2` visible en todos los elementos interactivos. UX Guideline #28 | **Aibus** | ⏳ |
+| T-V8 | **Calendario S19 Year in Pixels** — dots 36x36px con `EmotionColors[key].dot`. Tap → bottom sheet. Requiere T-V1 (ya en Semana 2) | **Aibus** | ⏳ |
+
+---
+
+## 🗓️ Semana 4 — IA Avanzada + Vista Terapeuta
+
+> Ver IMPLEMENTATION_PLAN.md §Semana 4 para el plan de features completo. Esta tabla incluye: mejoras de IA, mejoras clínicas y tickets diferidos de Semana 3.
+
+| Paso | Descripción | Estado | Notas |
+|---|---|---|---|
+| 4.1 | Scripts personalizados con IA (S15/S16 expandido) | ⏳ | GPT genera bloques de script adaptados al perfil del usuario |
+| 4.2 | Vista Terapeuta completa (S23) | ⏳ | Dashboard de historial + patrones + acciones |
+| 4.3 | EAS Consent Attestations — Semana 5 prep | ⏳ | Ver IMPLEMENTATION_PLAN.md §5.1 |
+| T-4.1 | **Script fading mechanism** | ⏳ | Generalización de scripts: fade-out gradual. Literatura: Gray, Krantz & McClannahan (Ana) |
+| T-4.2 | **Validar zonas corporales con protocolo Mahler** | ⏳ | 8 señales interoceptivas vs 6 zonas geográficas actuales. Bajo impacto en MVP; profundidad clínica en v2 (Ana) |
+| T-4.3 | **Supervisión clínica mapeo test→perfil** | ⏳ | Sesión con psicólogo/psiquiatra ASD antes del lanzamiento público. w4rw1ck coordina |
 | T-V9 | **Body map con colores emocionales contextuales** — Zonas seleccionadas adoptan el color de la emoción del check-in anterior. Requiere T-V1 + datos históricos en producción | **Ana** | ⏳ |
-
----
-
-## 🗓️ Semana 3 — Red de Confianza + Notificaciones (Backlog Técnico)
-
-> Ítems de deuda técnica de auditoría clínica para atacar en Semana 3.
-
-| Paso | Descripción | Estado | Notas |
-|---|---|---|---|
-| 3.x | Red de Confianza + Notificaciones (features S3 principales) | ⏳ | Detallar en sprint planning de Semana 3 |
-| T-3.1 | **Rate limiting en Edge Function `interpret-checkin`** | ⏳ | Sin límite de llamadas, un usuario (o atacante) puede agotar la cuota de OpenAI. Implementar límite por `user_id` vía tabla `rate_limits` en Supabase o Upstash Redis. 10 llamadas/hora es razonable para MVP (Aibus) |
-| T-3.2 | **Logging de outputs de IA para auditoría** | ⏳ | No hay trazabilidad de qué generó GPT-4o-mini por usuario. Si algo sale mal con un usuario real, no hay evidencia de qué sugirió el modelo. Logging básico: `ai_logs` table con `user_id`, `input_hash` (no raw — privacidad), `output`, `timestamp`, `flagged` (Aibus) |
-
----
-
-## 🗓️ Semana 4 — IA + Vista Terapeuta (Backlog Técnico)
-
-> Ítems de deuda técnica y mejoras clínicas para Semana 4.
-
-| Paso | Descripción | Estado | Notas |
-|---|---|---|---|
-| 4.x | IA avanzada + Vista Terapeuta S23 (features S4 principales) | ⏳ | Detallar en sprint planning de Semana 4 |
-| T-4.1 | **Script fading mechanism** | ⏳ | La evidencia muestra que scripts ayudan en situación entrenada pero la generalización es limitada en ASD. El módulo de scripts personalizados con IA debería tener como objetivo explícito la generalización (fade-out gradual). Buscar literatura "script fading autism" — hay protocolos establecidos (Gray, Krantz & McClannahan) (Ana) |
-| T-4.2 | **Validar zonas corporales con protocolo Mahler** | ⏳ | Las 6 zonas del mapa corporal son intuitivas pero arbitrarias. Mahler (2015) describe 8 señales interoceptivas (hambre, temperatura, dolor, respiración, ritmo cardíaco, etc.) — no zonas geográficas. Revisar diseño de BodyMap.tsx para alinearlo con literatura interoceptiva. Bajo impacto en MVP; mayor profundidad clínica en versión 2 (Ana) |
-| T-4.3 | **Supervisión clínica del mapeo test→perfil semilla** | ⏳ | Las reglas en `lib/profile-seed.ts` (ej: "AQ-10 alto → más scripts de socialización") son decisiones de diseño informado por clínica — NO protocolos clínicos validados. Recomendado: una sesión con psicólogo/psiquiatra especializado en ASD adultos para revisar el mapeo y el system prompt de `interpret-checkin` antes del lanzamiento público (w4rw1ck coordina) |
 
 ---
 
