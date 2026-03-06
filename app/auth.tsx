@@ -16,7 +16,7 @@
  * Texto: "Sin cuenta, solo un email. Tus datos son tuyos."
  */
 import React, { useState, useEffect, useCallback } from "react";
-import { View, Alert, useColorScheme } from "react-native";
+import { View, Alert, ActivityIndicator, useColorScheme } from "react-native";
 // import * as Linking from "expo-linking"; // Reservado para magic link flow (Semana 3+)
 import * as WebBrowser from "expo-web-browser";
 import { useRouter } from "expo-router";
@@ -120,19 +120,30 @@ export default function AuthScreen() {
         }
       );
 
+      let completedOnboarding = false;
       if (!error && data?.user_id) {
         setSupabaseUserId(data.user_id);
-        // Verificar si ya completó onboarding
         if (data.onboarding_complete) {
           setOnboardingComplete(true);
+          completedOnboarding = true;
         }
+      }
+
+      // Navegar explícitamente desde aquí — no depender solo de AuthGate.
+      // Si onboarding completo → home. Si no → primer paso del onboarding.
+      if (completedOnboarding) {
+        router.replace("/(app)/home");
+      } else {
+        router.replace("/(onboarding)");
       }
     } catch (e) {
       console.warn("[Auth] Error en post-login sync:", e);
+      // Aun si falla el sync, enviar al onboarding — datos se pueden completar desde Settings
+      router.replace("/(onboarding)");
     } finally {
       setIsLoading(false);
     }
-  }, [setUser, setSupabaseUserId, setOnboardingComplete]);
+  }, [router, setUser, setSupabaseUserId, setOnboardingComplete]);
 
   /**
    * Guard de sesión existente.
@@ -190,6 +201,39 @@ export default function AuthScreen() {
       setIsLoading(false);
     }
   };
+
+  /**
+   * Early return — sesión ya activa.
+   *
+   * Si Privy todavía está cargando (ready=false) o ya tiene una sesión válida,
+   * NO mostramos el formulario de login. Razones:
+   * 1. Evita el error "Already logged in" al intentar sendCode/loginWithOAuth
+   * 2. El useEffect de sesión existente se encarga de llamar handlePostLogin → navegar
+   * 3. Mientras Privy carga (!ready), no sabemos si hay sesión — pantalla neutral
+   */
+  if (!privyReady || privyUser) {
+    return (
+      <SafeScreen>
+        <View className="flex-1 items-center justify-center gap-4">
+          <Ionicons
+            name="document-text-outline"
+            size={48}
+            color={isDark ? "#5A7E92" : "#A8C5DA"}
+          />
+          <ActivityIndicator
+            size="large"
+            color={isDark ? "#5A7E92" : "#A8C5DA"}
+          />
+          <Typography
+            variant="body"
+            className="text-center text-script-text-secondary dark:text-script-dark-text-secondary"
+          >
+            {privyUser ? "Cargando tu sesión..." : "Iniciando..."}
+          </Typography>
+        </View>
+      </SafeScreen>
+    );
+  }
 
   return (
     <SafeScreen>
