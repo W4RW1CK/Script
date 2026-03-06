@@ -12,42 +12,38 @@
  *
  * Respuesta (JSON):
  *   options: EmotionOption[]  — array de 3-5 opciones ordenadas por confianza
+ *   crisis_flag: boolean      — true si algún label/descripción contiene señales de alerta
+ *   source: "ai" | "mock"     — T-U2: indica al cliente si la respuesta es real o fallback
  *
  * Seguridad:
  *   - OPENAI_API_KEY solo existe en el entorno de Supabase Edge Functions
  *   - NUNCA se expone al cliente (cumple TECH_STACK.md §seguridad)
- *   - La función requiere auth header de Supabase (anon key es suficiente)
  *
- * Crisis:
- *   - Si los zones/notes sugieren nivel de crisis 3, se activa
- *     send-crisis-notification (implementado en Fase 1.7)
- *   - Por ahora, el nivel de crisis es calculado en el cliente (S17)
+ * Safety filter (T-C2):
+ *   - Post-procesa el output de GPT antes de enviarlo al cliente
+ *   - Si algún label/descripción contiene términos de alerta (desesperanza,
+ *     vacío, no querer estar, etc.) → crisis_flag = true
+ *   - La app puede escalar a flujo de rescate cuando crisis_flag = true
+ *   - Fundamento: Cassidy et al. (2018) — 66% adultos ASD reportan ideación suicida
  *
  * Lenguaje de respuesta (OBLIGATORIO — BACKEND_STRUCTURE.md §5):
  *   ✅ "¿Podría ser...?", "Algunas personas describen..."
  *   ❌ "Tú sientes", "Esto es", "Claramente"
- *   - Siempre en español
- *   - Tono tentativo, nunca diagnóstico
  *
  * Deno runtime — imports desde CDN de Deno (no npm)
  */
 
-// Deno std server — requerido por Supabase Edge Functions
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
-
-// OpenAI SDK para Deno
 import OpenAI from "https://deno.land/x/openai@v4.24.1/mod.ts";
 
-// ── CORS headers ───────────────────────────────────────────────────────────
-// Necesarios para que el cliente (React Native) pueda llamar la función
+// ── CORS headers ────────────────────────────────────────────────────────────
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Headers":
     "authorization, x-client-info, apikey, content-type",
 };
 
-// ── System Prompt ──────────────────────────────────────────────────────────
-// Define el rol y las reglas estrictas de lenguaje del asistente
+// ── System Prompt ───────────────────────────────────────────────────────────
 const SYSTEM_PROMPT = `Eres un asistente especializado en apoyar a personas con TEA Nivel 1
 a identificar y nombrar sus experiencias emocionales y sensoriales.
 
@@ -74,7 +70,7 @@ Devuelve entre 3 y 5 opciones, ordenadas de mayor a menor confianza.
 La última opción SIEMPRE debe ser "Algo que aún no tiene nombre" o similar,
 para validar que las experiencias no siempre encajan en categorías.`;
 
-// ── Tipos ──────────────────────────────────────────────────────────────────
+// ── Tipos ───────────────────────────────────────────────────────────────────
 type EmotionOption = {
   label: string;
   description: string;
@@ -83,23 +79,85 @@ type EmotionOption = {
 
 type ResponseBody = {
   options: EmotionOption[];
+  crisis_flag: boolean;
+  source: "ai" | "mock";
 };
 
-// ── Handler principal ──────────────────────────────────────────────────────
+// ── Safety filter (T-C2) ────────────────────────────────────────────────────
+/**
+ * Términos de alerta en español que indican posible ideación suicida o
+ * crisis severa. Se revisan en labels Y descripciones del output de GPT.
+ *
+ * Fundamento clínico:
+ * - Cassidy et al. (2018): 66% adultos ASD reportan ideación suicida lifetime
+ * - Hirvikoski et al. (2016): mortalidad suicidio 9x mayor en ASD vs población general
+ * - La detección temprana en el lenguaje es la intervención más efectiva
+ *
+ * Nota: los términos son intencionalmente amplios (mejor un falso positivo
+ * que omitir una señal real). La app decide qué hacer con crisis_flag.
+ */
+const CRISIS_TERMS = [
+  // Ideación directa
+  "no quiero estar",
+  "no quiero vivir",
+  "no querer estar",
+  "no querer vivir",
+  "quiero desaparecer",
+  "querer desaparecer",
+  "hacerme daño",
+  "hacerse daño",
+  "hacerme lastimar",
+  "ideación",
+  "suicid",
+  // Estados de alerta clínica
+  "desesperanza",
+  "desesperado",
+  "sin esperanza",
+  "vacío existencial",
+  "nada importa",
+  "todo es inútil",
+  "no hay salida",
+  "sin salida",
+  "carga para",
+  "mejor sin mí",
+  "mejor sin mi",
+  // Disociación severa
+  "no soy real",
+  "no existo",
+  "desvanecerme",
+];
+
+/**
+ * Revisa si alguna opción de emoción contiene términos de alerta.
+ * Normaliza a minúsculas y sin acentos para mejorar detección.
+ */
+function containsCrisisSignal(options: EmotionOption[]): boolean {
+  const normalize = (s: string) =>
+    s.toLowerCase()
+      .normalize("NFD")
+      .replace(/[\u0300-\u036f]/g, "");
+
+  const normalizedTerms = CRISIS_TERMS.map(normalize);
+
+  return options.some((opt) => {
+    const text = normalize(`${opt.label} ${opt.description}`);
+    return normalizedTerms.some((term) => text.includes(term));
+  });
+}
+
+// ── Handler principal ───────────────────────────────────────────────────────
 serve(async (req: Request) => {
-  // Responder a CORS preflight (OPTIONS)
+  // Responder a CORS preflight
   if (req.method === "OPTIONS") {
     return new Response("ok", { headers: corsHeaders });
   }
 
   try {
-    // Parsear body de la request
     const { zones, notes } = await req.json() as {
       zones: string[];
       notes: string;
     };
 
-    // Validación básica
     if (!Array.isArray(zones)) {
       return new Response(
         JSON.stringify({ error: "zones debe ser un array" }),
@@ -107,52 +165,80 @@ serve(async (req: Request) => {
       );
     }
 
-    // Inicializar cliente de OpenAI con la API key del entorno Supabase
-    // IMPORTANTE: OPENAI_API_KEY NUNCA llega al cliente — solo está aquí
+    // También aplicar safety filter al texto libre del usuario (notes)
+    // antes de enviarlo a GPT — si el usuario ya describe una crisis,
+    // no tiene sentido pedirle que nombre emociones
+    const notesNormalized = (notes ?? "").toLowerCase()
+      .normalize("NFD")
+      .replace(/[\u0300-\u036f]/g, "");
+    const notesCrisis = CRISIS_TERMS.map(t =>
+      t.normalize("NFD").replace(/[\u0300-\u036f]/g, "")
+    ).some(term => notesNormalized.includes(term));
+
+    if (notesCrisis) {
+      // El usuario ya expresó señales de crisis en su descripción libre
+      // Devolver crisis_flag sin llamar a GPT (innecesario y puede ser dañino)
+      return new Response(
+        JSON.stringify({
+          options: [],
+          crisis_flag: true,
+          source: "ai",
+          crisis_source: "notes", // debug: dónde se detectó
+        } satisfies ResponseBody & { crisis_source: string }),
+        { headers: { ...corsHeaders, "Content-Type": "application/json" }, status: 200 }
+      );
+    }
+
     const openai = new OpenAI({
       apiKey: Deno.env.get("OPENAI_API_KEY")!,
     });
 
-    // Construir el mensaje del usuario con los datos del check-in
     const userMessage = [
-      `Zonas corporales donde el usuario siente algo: ${zones.length > 0 ? zones.join(", ") : "(ninguna especificada)"}`,
-      `Descripción libre del usuario: "${notes?.trim() || "(sin descripción)"}"`,
+      `Zonas corporales: ${zones.length > 0 ? zones.join(", ") : "(ninguna)"}`,
+      `Descripción libre: "${notes?.trim() || "(sin descripción)"}"`,
     ].join("\n");
 
-    // Llamar a GPT-4o-mini con el system prompt estricto
     const completion = await openai.chat.completions.create({
-      model: "gpt-4o-mini",       // Más económico y rápido que gpt-4o
+      model: "gpt-4o-mini",
       messages: [
         { role: "system", content: SYSTEM_PROMPT },
         { role: "user",   content: userMessage   },
       ],
-      temperature: 0.7,           // Algo de variedad sin ser errático
+      temperature: 0.7,
       max_tokens: 600,
-      response_format: { type: "json_object" }, // Fuerza JSON válido
+      response_format: { type: "json_object" },
     });
 
-    // Extraer y parsear la respuesta
     const content = completion.choices[0]?.message?.content ?? "{}";
-    const parsed = JSON.parse(content) as ResponseBody;
+    const parsed = JSON.parse(content) as { options: EmotionOption[] };
 
-    // Validar que el formato es correcto
     if (!Array.isArray(parsed.options)) {
       throw new Error("Formato de respuesta inesperado de OpenAI");
     }
 
-    // Devolver las opciones al cliente
-    return new Response(JSON.stringify(parsed), {
+    // T-C2: aplicar safety filter al OUTPUT de GPT
+    const crisis_flag = containsCrisisSignal(parsed.options);
+
+    const response: ResponseBody = {
+      options: parsed.options,
+      crisis_flag,
+      source: "ai",
+    };
+
+    return new Response(JSON.stringify(response), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
       status: 200,
     });
 
   } catch (error) {
-    // Log del error en Supabase Edge Function logs
     console.error("[interpret-checkin] Error:", error);
 
+    // T-U2: incluir source:"error" para que el cliente muestre feedback visible
     return new Response(
       JSON.stringify({
         error: "Error interno al interpretar el check-in",
+        source: "error",
+        crisis_flag: false,
       }),
       {
         headers: { ...corsHeaders, "Content-Type": "application/json" },
