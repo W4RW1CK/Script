@@ -13,8 +13,8 @@
  */
 import React, { useState } from "react";
 import { View, ScrollView, Alert } from "react-native";
-import { useRouter } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
+// M-03: useRouter removido — la navegación post-onboarding la maneja AuthGate automáticamente
 import { SafeScreen, Typography, Button, TextInput, Chip } from "@/components/ui";
 import { supabase } from "@/lib/supabase";
 import { useAuthStore } from "@/stores/auth";
@@ -31,7 +31,7 @@ interface Contact {
 }
 
 export default function ContactsScreen() {
-  const router = useRouter();
+  // M-03: router removido — AuthGate redirige a /(app)/home cuando onboardingComplete=true
   const supabaseUserId = useAuthStore((s) => s.user?.supabaseUserId);
   const setOnboardingComplete = useAuthStore((s) => s.setOnboardingComplete);
 
