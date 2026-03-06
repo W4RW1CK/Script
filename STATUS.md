@@ -4,7 +4,7 @@
 > **Cómo leer este archivo:**
 > ✅ Completado | 🔄 En progreso | ⏳ Pendiente | ❌ Bloqueado
 
-**Última actualización:** 2026-03-06 (Auditoría clínica Aibus — tickets T-C1 a T-2.12 registrados)  
+**Última actualización:** 2026-03-06 (B-30/B-31 — Privy clientId + redirectUrl; colisión numeración documentada)  
 **Semana actual:** 1  
 **Entrega próxima:** Lunes (MVP)
 
@@ -252,6 +252,8 @@ Algo falla → ambas atacan el bug → w4rw1ck confirma fix
 | B-27 | `ReferenceError: Property 'crypto' doesn't exist` — Hermes lanza ReferenceError (no retorna undefined) al acceder a `global.crypto` inexistente; `globalThis.crypto` también undefined en el dispositivo de w4rw1ck | 🔴 Alta | 1.8 | ✅ Resuelto |
 | B-28 | `ReferenceError: localStorage is not defined` — Metro SSR renderer corre en Node.js donde `localStorage` no existe aunque `Platform.OS === "web"` sea verdadero | 🟡 Media | 1.8 | ✅ Resuelto |
 | B-29 | `Cannot read properties of undefined (reading 'v1')` — `@privy-io/js-sdk-core` tiene `uuid` anidado; su `wrapper.mjs` hace `import { v1 } from 'uuid'` y Metro (condición "browser") lo resuelve circularmente al mismo `wrapper.mjs` → `undefined` | 🔴 Alta | 1.8 | ✅ Resuelto |
+| B-30 | `Native app ID host.exp.exponent has not been set as an allowed app identifier` — Privy requiere `clientId` explícito en PrivyProvider cuando corre en Expo Go (host.exp.exponent); sin él bloquea todo intento de auth. ⚠️ Nota: commit original de Aibus usa ID "B-27" (colisión — B-27 ya estaba asignado a crypto polyfill) | 🔴 Alta | 1.8 | ✅ Resuelto |
+| B-31 | `Redirect URL scheme is not allowed` — `sendCode()` de Privy requiere `redirectUrl` explícito via `Linking.createURL('/')` para que el magic link de email regrese a la app; sin él Privy rechaza el scheme del deep link | 🔴 Alta | 1.8 | ✅ Resuelto |
 
 **B-01 — Fix:** Se eliminaron las columnas `hour_of_day` y `day_of_week` de `checkins`. `EXTRACT()` usable en queries. Commit: `864e435`.
 
@@ -311,6 +313,10 @@ Algo falla → ambas atacan el bug → w4rw1ck confirma fix
 **B-28 — Fix:** `lib/supabase.ts` — todos los accesos a `localStorage` ahora están guardados con `typeof localStorage !== "undefined"`. El Metro SSR renderer corre en Node.js donde `localStorage` no existe aunque `Platform.OS === "web"`. Sin el guard, el proceso de Metro crasheaba al inicializar. Commit: `f80d5e0`.
 
 **B-29 — Fix:** `metro.config.js` + `package.json` — instalado `uuid ^9.0.1`; agregado `uuid: require.resolve("uuid")` a `extraNodeModules`. Con la condición "browser" activa, Metro resolvía `import 'uuid'` (desde dentro de `wrapper.mjs`) de vuelta al mismo `wrapper.mjs` — import circular que produce `undefined`. Forzar resolución al CJS raíz rompe el ciclo. Requiere `npm install`. Commit: `c29f4c6`.
+
+**B-30 — Fix:** `app/_layout.tsx` + `.env.local.example` — agregada prop `clientId={process.env.EXPO_PUBLIC_PRIVY_CLIENT_ID}` a `<PrivyProvider>`. Privy Expo en modo nativo requiere un Client ID separado del App ID para identificar la instancia correcta en Expo Go (bundle ID `host.exp.exponent`). w4rw1ck debe crear un Client en Privy Dashboard → Clients tab y agregar `EXPO_PUBLIC_PRIVY_CLIENT_ID` a `.env.local`. Commit: `120b10d`. ⚠️ Commit original etiquetado "B-27" (colisión de numeración — renombrado B-30 en STATUS.md).
+
+**B-31 — Fix:** `app/auth.tsx` — `sendCode()` ahora pasa `redirectUrl: Linking.createURL('/')` explícitamente. Privy valida que el scheme del deep link esté en la lista de allowed origins; `Linking.createURL` genera el scheme correcto del app. También se agregó `import * as Linking from 'expo-linking'`. Commits: `fdbde71` + `f9011b2`. ⚠️ Commits originales etiquetados "B-28" (colisión — renombrado B-31 en STATUS.md).
 
 ---
 
