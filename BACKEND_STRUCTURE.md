@@ -21,7 +21,7 @@ Cliente (Expo App)
      │
      ├── Privy SDK ───────────────→ Privy Cloud
      │                               ├── Auth embebido
-     │                               └── Wallet custodial (semana 4+)
+     │                               └── Wallet custodial (Semana 5 — EAS attestations)
      │
      └── expo-secure-store ───────→ Local (offline)
                                      ├── Scripts cacheados

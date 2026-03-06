@@ -184,7 +184,7 @@ export const supabase = createClient(
 **Métodos de login habilitados:**
 1. Email (magic link)
 2. Google OAuth
-3. Wallet embedded (para on-chain en semana 4+)
+3. Wallet embedded (para EAS attestations en Semana 5)
 
 ---
 

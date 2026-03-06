@@ -499,11 +499,13 @@ Paso 14: Crear app/(onboarding)/contacts.tsx (S08 — Setup Contactos):
 ## SEMANA 5 — On-Chain, Polish y APK
 
 ```
-5.1 On-chain access control (Privy wallet + EVM L2)
-    - Definir red (Arbitrum Sepolia para testnet)
-    - Smart contract simple: mapping de permisos (patient → therapist → expiry)
-    - Funciones: grantAccess(), revokeAccess(), checkAccess()
-    - Integrar con vista de gestión de permisos del terapeuta
+5.1 EAS consent attestations (Ethereum Attestation Service)
+    - Consentimiento clínico paciente→terapeuta como attestation inmutable
+    - Pasa el filtro on-chain: es un compromiso permanente con significado legal/clínico
+    - No requiere smart contract propio: usar EAS (attestation schema para permisos de salud)
+    - Integrar con vista terapeuta (S23): mostrar estado del consentimiento verificado
+    - Permisos de acceso (CRUD) siguen manejados por Supabase RLS (off-chain)
+    - Token-gating de features premium: arquitectura a definir post-Semana 5 (plan pendiente)
 
 5.2 Sincronización offline completa
     - Implementar offline-sync.ts (ver BACKEND_STRUCTURE.md §7)
@@ -562,6 +564,6 @@ Paso 14: Crear app/(onboarding)/contacts.tsx (S08 — Setup Contactos):
 
 ### Semana 5 ✅
 - [ ] APK instalable generado y probado
-- [ ] On-chain access control funcional (testnet)
+- [ ] EAS consent attestations funcional (testnet)
 - [ ] Prueba completa con usuario real
 - [ ] App no genera ningún detonante sensorial (validado por usuario con TEA)

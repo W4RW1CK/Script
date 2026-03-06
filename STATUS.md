@@ -4,7 +4,7 @@
 > **Cómo leer este archivo:**
 > ✅ Completado | 🔄 En progreso | ⏳ Pendiente | ❌ Bloqueado
 
-**Última actualización:** 2026-03-06 (Fase 1.8 completa + 7 fixes de auditoría)  
+**Última actualización:** 2026-03-06 (Fase 1.8 ✅ + decisiones on-chain arquitecturales)  
 **Semana actual:** 1  
 **Entrega próxima:** Lunes (MVP)
 
@@ -49,7 +49,7 @@ Algo falla → ambas atacan el bug → w4rw1ck confirma fix
 | Semana 2 | Historial + Diccionario + Personalización | ⏳ | — |
 | Semana 3 | Red de Confianza + Notificaciones | ⏳ | — |
 | Semana 4 | IA + Vista Terapeuta | ⏳ | — |
-| Semana 5 | On-Chain + Polish + APK | ⏳ | — |
+| Semana 5 | EAS Attestations + Polish + APK | ⏳ | — |
 
 ---
 
@@ -253,7 +253,7 @@ Algo falla → ambas atacan el bug → w4rw1ck confirma fix
 | 2026-02-26 | expo-audio en lugar de expo-av | expo-av deprecated en Expo 55 |
 | 2026-02-26 | Zod 4.x | Versión actual, API compatible con hookform resolvers 5.x |
 | 2026-02-26 | openai SDK v6 | Versión actual con API estable |
-| 2026-02-26 | On-chain control de acceso en Semana 5 | Prioridad es MVP funcional primero |
+| 2026-02-26 | On-chain: solo si involucra transferencia de valor trustless o compromiso permanente | Principio arquitectural — evitar on-chain innecesario que añade fricción sin beneficio real |
 | 2026-02-26 | SMS nativo como fallback offline en crisis | Funciona sin internet ni app del contacto |
 | 2026-02-26 | Screen IDs S01–S24 (re-numerados) | Onboarding expandido con tests opcionales AQ/CAT-Q/RAADS-R |
 | 2026-02-26 | Settings entry para tests en Semana 2 (no 1) | settings/index.tsx se construye en Fase 2.4 |
@@ -281,12 +281,23 @@ Algo falla → ambas atacan el bug → w4rw1ck confirma fix
 | 2026-03-06 | CORS headers en todas las Edge Functions de Supabase | Buena práctica aunque RN no sea browser; facilita testing desde web y evita errores de preflight |
 | 2026-03-06 | AQ-10 usa `.agree` booleano; TestScreen usa `.value` numérico | AQ-10 es binario (sí/no); AQ-Full/CAT-Q/RAADS-R son escalas multi-punto — patrones diferentes para propósitos diferentes |
 | 2026-03-06 | `AuthGate` en `_layout.tsx` maneja toda la redirección post-auth | No duplicar lógica de navegación en pantallas individuales — una sola fuente de verdad |
+| 2026-03-06 | EAS consent attestations reemplaza on-chain access control en Semana 5 | `grantAccess()/revokeAccess()` on-chain es mutable y no pasa el filtro; EAS emite consentimiento clínico como compromiso permanente e irrevocable |
+| 2026-03-06 | Token-gating de features premium: arquitectura pendiente, post-Semana 5 | w4rw1ck tiene un plan — se define cuando llegue el momento |
+| 2026-03-06 | SBTs de progreso descartados | Gamificar hitos de salud mental con tokens permanentes públicos es éticamente problemático para usuarios TEA — fijación, estigma, rigidez |
 
 ---
 
 ## 📝 Notas del Sprint
 
 ### Semana 1
+
+**2026-03-06 — Decisiones de arquitectura on-chain (Semana 5)**
+- Principio establecido: "si no involucra transferencia de valor trustless o compromiso permanente, no va on-chain"
+- On-chain access control descartado: `grantAccess()/revokeAccess()` es mutable; Supabase RLS es suficiente para permisos
+- EAS consent attestations aprobado para Semana 5: consentimiento clínico paciente→terapeuta como attestation inmutable
+- Token-gating de features premium: aprobado en principio, arquitectura a definir post-Semana 5 (w4rw1ck tiene plan)
+- SBTs de progreso descartados: éticamente problemáticos en contexto de salud mental TEA (fijación, estigma, permanencia pública)
+- Docs actualizados: PRD.md, IMPLEMENTATION_PLAN.md, TECH_STACK.md, STATUS.md
 
 **2026-03-06 — Fase 1.8 completa + auditoría + 7 fixes (B-15 a B-21)**
 - Fase 1.8 implementada por sub-agente: Auth Privy + Onboarding completo S01→S08 (commit `72abbc5`)

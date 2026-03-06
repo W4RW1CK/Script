@@ -205,7 +205,8 @@ Cada bloque tiene 2–3 opciones de lenguaje. El usuario elige en el momento, no
 - Botón "🚩 Esto no se siente bien" para supervisión clínica
 
 ### Semana 5
-- Control de acceso on-chain (EVM L2 — TBD)
+- EAS consent attestations: consentimiento clínico paciente→terapeuta en cadena (inmutable, verificable independientemente de la app)
+- Token-gating de features premium: decidir arquitectura post-Semana 5 (w4rw1ck tiene plan)
 - Sincronización inteligente avanzada (resolución de conflictos, queue de pendientes, background sync) — las funciones core ya son offline-first desde Semana 1
 - Reducción sensorial automática en crisis (contraste, animaciones)
 - Build APK para Android
