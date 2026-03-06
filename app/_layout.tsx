@@ -31,7 +31,7 @@ import { PrivyProvider, usePrivy } from "@privy-io/expo";
 import { useFonts } from "expo-font";
 import { Stack, useRouter, useSegments } from "expo-router";
 import * as SplashScreen from "expo-splash-screen";
-import { useEffect } from "react";
+import React, { useEffect } from "react";
 import "react-native-reanimated";
 import { useColorScheme, View } from "react-native";
 import { SafeAreaProvider } from "react-native-safe-area-context";
@@ -126,6 +126,23 @@ function AuthGate({ children }: { children: React.ReactNode }) {
   }, [privyReady, authenticated, privyUser, storeUser]);
 
   /**
+   * Flag que indica que ya esperamos el ciclo completo de Privy.
+   *
+   * `privyReady=true` no garantiza que `authenticated` sea definitivo —
+   * Privy puede tardar un ciclo adicional en restaurar la sesión de SecureStore.
+   * Esperamos un tick (setTimeout 0) para que React procese el estado final
+   * antes de tomar decisiones de navegación. Esto rompe el loop:
+   *   auth.tsx redirige → AuthGate ve authenticated=false (lag) → manda a /auth
+   */
+  const [navReady, setNavReady] = React.useState(false);
+  useEffect(() => {
+    if (!privyReady) return;
+    // Esperar un tick para que Privy termine de restaurar la sesión de SecureStore
+    const t = setTimeout(() => setNavReady(true), 100);
+    return () => clearTimeout(t);
+  }, [privyReady]);
+
+  /**
    * Efecto de navegación.
    *
    * Decide a dónde ir basado en el estado combinado de Privy + Zustand.
@@ -133,8 +150,8 @@ function AuthGate({ children }: { children: React.ReactNode }) {
    * Fuente de verdad para "¿completó onboarding?": onboardingComplete (Zustand/Supabase).
    */
   useEffect(() => {
-    // No navegar hasta que Privy haya cargado — evita flashes de redirección
-    if (!privyReady) return;
+    // Esperar a que Privy haya cargado Y al tick extra de restauración de sesión
+    if (!navReady) return;
 
     const inAuthGroup = segments[0] === "auth";
     const inOnboardingGroup = segments[0] === "(onboarding)";
@@ -163,7 +180,7 @@ function AuthGate({ children }: { children: React.ReactNode }) {
         router.replace("/(app)/home");
       }
     }
-  }, [privyReady, authenticated, storeUser, onboardingComplete, segments]);
+  }, [navReady, authenticated, storeUser, onboardingComplete, segments]);
 
   return <>{children}</>;
 }
