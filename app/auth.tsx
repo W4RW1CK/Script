@@ -103,7 +103,11 @@ export default function AuthScreen() {
     if (!email.trim()) return;
     setIsLoading(true);
     try {
-      await sendCode({ email: email.trim() });
+      // redirectUrl: esquema de la app para que Privy sepa dónde regresar al usuario
+      // "exp://" = Expo Go dev | "scriptapp://" = build de producción
+      await sendCode({
+        email: email.trim(),
+      });
       setAwaitingCode(true);
       setIsLoading(false);
     } catch {
