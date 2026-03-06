@@ -1,8 +1,10 @@
 # IMPLEMENTATION_PLAN.md — Plan de Implementación
 ## Script — Compañero Digital para Adultos con TEA Nivel 1
 
-**Versión:** 1.6  
-**Última actualización:** 2026-02-27  
+**Versión:** 1.7  
+**Última actualización:** 2026-03-06  
+**Cambios v1.7:** Semana 2 — sprints 2.A (Fundación Visual) y 2.B (Pantallas de Identidad) agregados. Sistema de color emocional, Atkinson Hyperlegible, shadows, gradiente botón, emotion cards, home redesign, calendario Y-i-P. Ref: STATUS.md T-U1 a T-V9, FRONTEND_GUIDELINES.md v1.4.  
+**Cambios v1.6:** Step 5.1 reemplazado de smart contract a EAS attestations.  
 **Cambios v1.5:** §1.7 Paso 2A — Grounding nivel 1 actualizado a MULTIMODAL (visual + audio/voz guiada + háptico); agrega tone-grounding-voice.mp3 a assets requeridos. Decisión confirmada en sesión de planning 2026-02-27.  
 **Cambios v1.4:** §1.7 audio filename corregido calm-tone.mp3→tone-ambient.mp3 (consistente con BACKEND_STRUCTURE §5). §1.8 Paso 5 tagline corregido (texto completo). §1.8 Paso 12 profile-seed aclarado como runtime/Zustand (no persiste en Supabase).  
 **Cambios v1.3:** FASE 1.1 — agregado expo-symbols al install; corregido @supabase/supabase-js de npx expo install → npm install@2.97.0 (versión pinneada, consistente con TECH_STACK.md).  
@@ -397,9 +399,77 @@ Paso 14: Crear app/(onboarding)/contacts.tsx (S08 — Setup Contactos):
 
 ---
 
-## SEMANA 2 — Historial, Diccionario y Personalización
+## SEMANA 2 — Historial, Diccionario, Personalización e Identidad Visual
+
+> **Nota v1.7 (2026-03-06):** Se agregan sprints 2.A (Fundación Visual) y 2.B (Pantallas de Identidad) resultado de la auditoría UI/UX + análisis de identidad visual. Ref: STATUS.md tickets T-U1 a T-V9, FRONTEND_GUIDELINES.md §1.4/§2/§4/§7/§12.
 
 ```
+2.A SPRINT — Fundación Visual (hacer ANTES que 2.1–2.5)
+
+2.A.1 Tickets críticos pre-usuarios
+    T-U1: useReduceMotion() en protocol.tsx, body.tsx, y cualquier Reanimated animation
+         Patrón: const shouldReduce = useReduceMotion(); if (shouldReduce) skip animation
+         Ref: FRONTEND_GUIDELINES.md §7 (Ana)
+    T-U2: Error feedback visible en reflect.tsx cuando interpret-checkin falla
+         Usuario debe saber que la interpretación es aproximada o falló
+         Ref: STATUS.md T-U2 (Aibus)
+
+2.A.2 Sistema de color emocional (T-V1) — BLOQUEANTE para T-V3, T-V4, T-V5
+    - Crear constants/colors.ts con EmotionColors (7 emociones × {bg, dot, text})
+    - Exportar EmotionKey type
+    - Ref: FRONTEND_GUIDELINES.md §1.4 (Ana)
+
+2.A.3 Tokens NativeWind nuevos en tailwind.config.js (T-U4, T-V2)
+    - Agregar script-accent: #10B981, script-warning: #F59E0B (T-U4)
+    - Agregar shadow-card, shadow-card-elevated, shadow-card-pressed, shadow-card-dark (T-V2)
+    - Actualizar Card.tsx para usar shadow-card por default
+    - Ref: FRONTEND_GUIDELINES.md §1.2.1 + §4 (Aibus)
+
+2.A.4 Atkinson Hyperlegible (T-U3)
+    - npx expo install @expo-google-fonts/atkinson-hyperlegible
+    - _layout.tsx: reemplazar Inter fonts por Atkinson Regular + Bold
+    - constants/typography.ts: actualizar fontFamily (sin SemiBold — headings usan Bold)
+    - Ref: FRONTEND_GUIDELINES.md §2 (Aibus)
+
+2.A.5 Normalización labels GPT en Edge Function (T-V7) — BLOQUEANTE para T-V3
+    - interpret-checkin/index.ts: post-process output → mapear a 8 labels canónicos
+    - Ref: FRONTEND_GUIDELINES.md §1.4 (mapeo) (Aibus)
+
+2.A.6 Gradiente mono-azul en Button.tsx (T-V6)
+    - Primary variant: gradiente 135° #A8C5DA → #8BAEC4
+    - Ref: FRONTEND_GUIDELINES.md §4 (Aibus)
+
+2.A.7 Audit de contraste (T-U6)
+    - text-script-text-secondary (#6B6B6B sobre #F8F6F2) — verificar WCAG AA
+    - Si falla → ajustar a #606060
+    - Ref: FRONTEND_GUIDELINES.md §10 (Ana)
+
+
+2.B SPRINT — Pantallas de Identidad Visual (después de 2.A)
+
+2.B.1 reflect.tsx — emotion cards con color (T-V3)
+    - Card seleccionado: EmotionColors[key].bg como fondo, dot como borde 1.5px + círculo 8px
+    - Press animation: scale 0.97→1.0 (100ms)
+    - Requiere T-V1 + T-V7
+    - Ref: FRONTEND_GUIDELINES.md §12.2 (Ana)
+
+2.B.2 result.tsx — fondo del color de emoción (T-V4)
+    - Pantalla S13: fondo full-screen EmotionColors[key].bg
+    - Transición fade 300ms desde color del card anterior
+    - Requiere T-V1
+    - Ref: FRONTEND_GUIDELINES.md §12.2 (Ana)
+
+2.B.3 home.tsx — redesign Finch (T-V5)
+    - Layout: saludo + hora del día, card "última emoción" con EmotionColors, mini historial 7 días, CTA check-in, tiles scripts rápidos
+    - Empty state cuando no hay datos previos (primera apertura)
+    - Requiere T-V1
+    - Ref: FRONTEND_GUIDELINES.md §0 + §12.2 (Ana)
+
+2.B.4 Confirmación antes de notificación Level 3 (T-U5)
+    - protocol.tsx: Alert.alert("¿Confirmar?") antes de envío a red de confianza
+    - Ref: UX Guideline #35 (Ana)
+
+
 2.1 Tests opcionales de screening accesibles desde Configuración
     - Completar los pasos que el usuario omitió durante onboarding (S04, S05, S06)
     - app/(app)/settings/index.tsx: agregar sección "Completar mi perfil"
@@ -409,8 +479,9 @@ Paso 14: Crear app/(onboarding)/contacts.tsx (S08 — Setup Contactos):
 
 2.2 Historial de check-ins
     - app/(app)/history.tsx: lista de check-ins con fecha, emoción, zonas
-    - Gráfico simple: emociones de los últimos 7 días (bar chart básico)
-    - Tap en item → ver detalle del check-in
+    - Calendario estilo Year in Pixels (T-V8): dots 36x36px con EmotionColors[key].dot por día
+    - Tap en día → bottom sheet con detalle
+    - Requiere T-V1 (sistema emocional)
 
 2.3 Diccionario emocional
     - app/(app)/dictionary.tsx: palabras confirmadas con frecuencia
