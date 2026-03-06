@@ -32,6 +32,7 @@ export default function AuthScreen() {
 
   // Estado local
   const [email, setEmail] = useState("");
+  const [code, setCode] = useState("");         // A-02: estado local para el campo de código
   const [awaitingCode, setAwaitingCode] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
 
@@ -111,12 +112,16 @@ export default function AuthScreen() {
   };
 
   /** Verificar código del magic link */
-  const handleVerifyCode = async (code: string) => {
+  const handleVerifyCode = async () => {
+    if (!code.trim()) return;
     setIsLoading(true);
     try {
-      await loginWithCode({ code });
-      // onLoginSuccess se encarga del resto
-    } catch {
+      await loginWithCode({ code: code.trim() });
+      // onLoginSuccess se encarga del resto via callback
+    } catch (e) {
+      // A-01: mostrar error al usuario — el try/catch no debe tragarse el error silenciosamente
+      const msg = e instanceof Error ? e.message : "Código incorrecto. Intenta de nuevo.";
+      Alert.alert("Error", msg);
       setIsLoading(false);
     }
   };
@@ -175,19 +180,25 @@ export default function AuthScreen() {
             <Typography variant="body" className="text-center">
               Revisa tu email. Te enviamos un código de verificación.
             </Typography>
+            {/* A-02: campo controlado con value+onChangeText para que el texto sea visible en Android */}
             <TextInput
+              value={code}
+              onChangeText={setCode}
               placeholder="Código de verificación"
               keyboardType="number-pad"
               autoComplete="one-time-code"
-              onSubmitEditing={(e) =>
-                handleVerifyCode(e.nativeEvent.text)
-              }
               accessibilityLabel="Código de verificación"
+            />
+            <Button
+              title={isLoading ? "Verificando..." : "Verificar código"}
+              onPress={handleVerifyCode}
+              variant="primary"
+              disabled={isLoading || !code.trim()}
             />
             <Button
               title="← Cambiar email"
               variant="ghost"
-              onPress={() => setAwaitingCode(false)}
+              onPress={() => { setAwaitingCode(false); setCode(""); }}
             />
           </View>
         )}
