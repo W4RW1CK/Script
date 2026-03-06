@@ -138,7 +138,10 @@ function RootLayoutNav() {
   const colorScheme = useColorScheme();
 
   return (
-    <PrivyProvider appId={process.env.EXPO_PUBLIC_PRIVY_APP_ID!}>
+    <PrivyProvider
+      appId={process.env.EXPO_PUBLIC_PRIVY_APP_ID!}
+      clientId={process.env.EXPO_PUBLIC_PRIVY_CLIENT_ID!}
+    >
       <SafeAreaProvider>
         <ThemeProvider
           value={colorScheme === "dark" ? DarkTheme : DefaultTheme}
