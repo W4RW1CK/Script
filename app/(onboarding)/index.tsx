@@ -3,7 +3,7 @@
  *
  * Primera pantalla del onboarding. Muestra el nombre de la app,
  * la tagline y dos opciones:
- * - "Comenzar mi camino" → inicia el AQ-10
+ * - "Comenzar mi camino" → pantalla de consentimiento (T-C3) → AQ-10
  * - "Necesito ayuda ahora" → va directo al protocolo de rescate
  *
  * El tono es cálido y sin presión. No se pide nada al usuario todavía.
@@ -48,7 +48,8 @@ export default function OnboardingWelcomeScreen() {
         <View className="w-full gap-4">
           <Button
             title="Comenzar mi camino"
-            onPress={() => router.push("/(onboarding)/aq10")}
+            onPress={() => router.push("/(onboarding)/consent")}
+            /* T-C3: va a consent (S01.5) primero, luego consent navega a aq10 */
             variant="primary"
           />
           <Button

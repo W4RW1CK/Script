@@ -12,6 +12,8 @@ export default function OnboardingLayout() {
   return (
     <Stack screenOptions={{ headerShown: false, animation: "slide_from_right" }}>
       <Stack.Screen name="index" />
+      {/* T-C3: pantalla de consentimiento informado (LFPDPPP) antes del AQ-10 */}
+      <Stack.Screen name="consent" />
       <Stack.Screen name="aq10" />
       <Stack.Screen name="aq10-result" />
       <Stack.Screen name="aq-full" />
