@@ -4,7 +4,7 @@
 > **Cómo leer este archivo:**
 > ✅ Completado | 🔄 En progreso | ⏳ Pendiente | ❌ Bloqueado
 
-**Última actualización:** 2026-03-06 (STATUS.md refactorizado — secciones ordenadas, docs actualizados, tickets en zonas correctas)  
+**Última actualización:** 2026-03-06 (T-C1 ✅ T-C3 ✅ T-U1 ✅ — Ana; T-C2 ✅ T-U2 ✅ — Aibus)  
 **Semana actual:** 1  
 **Entrega próxima:** Lunes (MVP)
 
@@ -169,10 +169,10 @@ Algo falla → ambas atacan el bug → w4rw1ck confirma fix
 
 | Ticket | Descripción | Severidad | Responsable | Estado |
 |---|---|---|---|---|
-| T-C1 | **Safety screening de ideación suicida en S17** — `assess.tsx` debe incluir una pregunta de screening ("¿Estás teniendo pensamientos de hacerte daño?") con flujo diferenciado. Si la respuesta es sí: mostrar directamente Línea de la Vida (México: 800 911-2000, 24h gratuita), sin pasar por los 3 niveles estándar. Fundamento: Cassidy et al. (2018) — 66% adultos con ASD reportan ideación suicida; Hirvikoski et al. (2016) — mortalidad por suicidio 9x mayor en ASD | 🔴 Crítico | Ana | ⏳ |
+| T-C1 | **Safety screening de ideación suicida en S17** — `assess.tsx` debe incluir una pregunta de screening ("¿Estás teniendo pensamientos de hacerte daño?") con flujo diferenciado. Si la respuesta es sí: mostrar directamente Línea de la Vida (México: 800 911-2000, 24h gratuita), sin pasar por los 3 niveles estándar. Fundamento: Cassidy et al. (2018) — 66% adultos con ASD reportan ideación suicida; Hirvikoski et al. (2016) — mortalidad por suicidio 9x mayor en ASD | 🔴 Crítico | Ana | ✅ `88c7b5e` |
 | T-C2 | **Safety filter en output de GPT-4o-mini** — Edge Function `interpret-checkin/index.ts` debe post-procesar las opciones de emoción antes de enviarlas al cliente. Si algún label cae en categorías de alerta (desesperanza, vacío, no querer estar aquí, etc.), el response debe incluir `crisis_flag: true` y la app escalar a flujo de rescate en lugar de continuar el check-in normal | 🔴 Crítico | Aibus | ✅ `aaaa6a7` |
-| T-C3 | **Pantalla de consentimiento informado en onboarding** — Nueva pantalla antes de S02 (o como overlay en S01) que explique con lenguaje simple: qué datos se procesan, para qué, que Script no es un dispositivo médico, y que no reemplaza atención profesional. Requisito: LFPDPPP México (Ley Federal de Protección de Datos Personales). Consentimiento debe ser explícito (botón "Entiendo y acepto") antes de empezar cualquier test | 🔴 Crítico | Ana | ⏳ |
-| T-U1 | **`useReduceMotion()` en todos los componentes de animación** — `prefers-reduced-motion` del OS no está implementado. Afecta `protocol.tsx` (breathing circle), `body.tsx` (body map selection), y cualquier animación Reanimated. Para ASD con sensibilidad sensorial esto no es opcional. Patrón: `const shouldReduce = useReduceMotion(); if (shouldReduce) → skip animation`. Ref: FRONTEND_GUIDELINES.md §7 | 🔴 Crítico | Ana | ⏳ |
+| T-C3 | **Pantalla de consentimiento informado en onboarding** — Nueva pantalla antes de S02 (o como overlay en S01) que explique con lenguaje simple: qué datos se procesan, para qué, que Script no es un dispositivo médico, y que no reemplaza atención profesional. Requisito: LFPDPPP México (Ley Federal de Protección de Datos Personales). Consentimiento debe ser explícito (botón "Entiendo y acepto") antes de empezar cualquier test | 🔴 Crítico | Ana | ✅ `6e300b6` |
+| T-U1 | **`useReduceMotion()` en todos los componentes de animación** — `prefers-reduced-motion` del OS no está implementado. Afecta `protocol.tsx` (breathing circle), `body.tsx` (body map selection), y cualquier animación Reanimated. Para ASD con sensibilidad sensorial esto no es opcional. Patrón: `const shouldReduce = useReduceMotion(); if (shouldReduce) → skip animation`. Ref: FRONTEND_GUIDELINES.md §7 | 🔴 Crítico | Ana | ✅ `b350f0a` |
 | T-U2 | **Error feedback visible cuando Edge Function falla en `reflect.tsx`** — El fallback silencioso a mock cuando GPT-4o-mini no responde no notifica al usuario. En contexto clínico, el usuario debe saber si la interpretación es aproximada o falló. Agregar texto visible (no solo console.warn) cuando `interpret-checkin` retorna error/timeout | 🔴 Crítico | Aibus | ✅ `ef16c22` |
 
 ---
