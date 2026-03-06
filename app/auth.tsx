@@ -18,7 +18,17 @@
 import React, { useState } from "react";
 import { View, Alert, useColorScheme } from "react-native";
 // import * as Linking from "expo-linking"; // Reservado para magic link flow (Semana 3+)
+import * as WebBrowser from "expo-web-browser";
 import { useLoginWithEmail, useLoginWithOAuth } from "@privy-io/expo";
+
+/**
+ * maybeCompleteAuthSession — OBLIGATORIO para OAuth en Expo.
+ * Cuando Google redirige de vuelta a la app después del login,
+ * esta llamada completa la sesión del browser y permite que
+ * useLoginWithOAuth resuelva el callback. Sin esto, el browser
+ * abre pero nunca regresa a la app. Debe llamarse a nivel módulo.
+ */
+WebBrowser.maybeCompleteAuthSession();
 import { Ionicons } from "@expo/vector-icons";
 import { SafeScreen, Typography, Button, TextInput } from "@/components/ui";
 import { useAuthStore } from "@/stores/auth";
