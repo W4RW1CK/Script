@@ -398,3 +398,14 @@ npm install nativewind@4.2.2 tailwindcss@3.4.0
 12. **Offline-first:** Toda escritura va a SecureStore primero, luego sincroniza.
 13. **Sin console.log en producción.** Usar un logger wrapper.
 14. **React 19 patterns.** No usar APIs deprecated de React 18.
+
+---
+
+## 📚 Recursos de Investigación (Dev Tools)
+
+Herramientas para que los agentes consulten literatura científica durante el desarrollo.
+**No son dependencias de la app** — son recursos para tomar mejores decisiones de diseño.
+
+| Recurso | URL | Uso en Script |
+|---|---|---|
+| **paper-search-mcp** | https://github.com/openags/paper-search-mcp | MCP server para buscar papers en arXiv/PubMed/bioRxiv — validar umbrales de tests (AQ ≥6/≥32, RAADS-R), informar contenido de scripts con evidencia clínica, consultar literatura sobre TEA y enmascaramiento |
