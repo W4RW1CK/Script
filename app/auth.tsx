@@ -43,28 +43,33 @@ export default function AuthScreen() {
   const setOnboardingComplete = useAuthStore((s) => s.setOnboardingComplete);
 
   // Privy — fuente de verdad para auth
-  const { user: privyUser, ready: privyReady } = usePrivy();
+  // `authenticated` es un boolean directo — más confiable que checar `user !== null`
+  // porque `user` puede ser null brevemente mientras la sesión se restaura de SecureStore
+  const { user: privyUser, ready: privyReady, authenticated } = usePrivy();
   const router = useRouter();
   const onboardingComplete = useAuthStore((s) => s.onboardingComplete);
 
   /**
    * Guard de sesión existente — B-29.
    *
-   * Cuando Expo Go reinicia, AuthGate puede llegar a /auth antes de que
-   * privyUser cargue (race condition). Este efecto detecta si Privy ya tiene
-   * sesión activa y redirige directamente, sin que el usuario tenga que
-   * volver a loguearse.
+   * Privy restaura la sesión de SecureStore de forma async. Hay una ventana donde
+   * `ready=true` pero `user=null` aunque SÍ haya sesión guardada. `authenticated`
+   * refleja el estado real de la sesión antes de que `user` esté disponible.
+   *
+   * Estrategia: esperar a `ready=true` y luego checar `authenticated`:
+   * - Si `authenticated=true` → ya hay sesión, redirigir sin pedir login de nuevo
+   * - Si `authenticated=false` → genuinamente sin sesión, mostrar login form
    */
   useEffect(() => {
-    if (!privyReady) return;
-    if (!privyUser) return;
-    // Ya hay sesión — dejar que AuthGate decida, pero si seguimos aquí redirigir
+    if (!privyReady) return;           // Privy aún inicializando — esperar
+    if (!authenticated) return;        // Sin sesión — mostrar form normalmente
+    // Sesión existente → redirigir según estado de onboarding
     if (onboardingComplete) {
       router.replace("/(app)/home");
     } else {
       router.replace("/(onboarding)");
     }
-  }, [privyReady, privyUser, onboardingComplete]);
+  }, [privyReady, authenticated, onboardingComplete]);
 
   // Estado local
   const [email, setEmail] = useState("");
@@ -203,15 +208,15 @@ export default function AuthScreen() {
   };
 
   /**
-   * Early return — sesión ya activa.
+   * Early return — sesión ya activa o Privy cargando.
    *
-   * Si Privy todavía está cargando (ready=false) o ya tiene una sesión válida,
+   * Si Privy todavía está cargando (!ready) o ya hay sesión (authenticated),
    * NO mostramos el formulario de login. Razones:
    * 1. Evita el error "Already logged in" al intentar sendCode/loginWithOAuth
-   * 2. El useEffect de sesión existente se encarga de llamar handlePostLogin → navegar
-   * 3. Mientras Privy carga (!ready), no sabemos si hay sesión — pantalla neutral
+   * 2. El useEffect de sesión redirige al destino correcto
+   * 3. Mientras Privy carga, mostramos spinner neutral — sin flash de login form
    */
-  if (!privyReady || privyUser) {
+  if (!privyReady || authenticated) {
     return (
       <SafeScreen>
         <View className="flex-1 items-center justify-center gap-4">
