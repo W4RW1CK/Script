@@ -4,7 +4,7 @@
 > **Cómo leer este archivo:**
 > ✅ Completado | 🔄 En progreso | ⏳ Pendiente | ❌ Bloqueado
 
-**Última actualización:** 2026-03-06 (B-34 — AuthGate usa Privy como fuente de verdad + sync sesión al arranque)  
+**Última actualización:** 2026-03-06 (B-35 — guard sesión existente en AuthScreen via usePrivy())  
 **Semana actual:** 1  
 **Entrega próxima:** Lunes (MVP)
 
@@ -257,6 +257,7 @@ Algo falla → ambas atacan el bug → w4rw1ck confirma fix
 | B-32 | `Redirect URL scheme is not allowed` (intento 2, raíz real) — `sendCode()` NO necesita `redirectUrl` en flujo OTP (código de 6 dígitos). `redirectUrl` solo se requiere para magic link clickeable. Pasar `exp://` a Privy en modo OTP causaba el error. Fix: eliminar `redirectUrl` de `sendCode()` | 🔴 Alta | 1.8 | ✅ Resuelto |
 | B-33 | Google OAuth no resuelve — browser de Google abre pero nunca regresa a la app. `WebBrowser.maybeCompleteAuthSession()` faltaba en `auth.tsx`. Sin esta llamada a nivel módulo, Expo no puede completar el callback del OAuth cuando Google redirige de vuelta | 🔴 Alta | 1.8 | ✅ Resuelto |
 | B-34 | `Already logged in, if trying to link an OAuth account use useLinkWithOAuth` — `AuthGate` usaba `useAuthStore().user` (Zustand, en memoria) como fuente de verdad para auth. Zustand se resetea en cada reinicio de app, pero Privy persiste la sesión en SecureStore. Resultado: usuario ya autenticado en Privy sigue viendo `/auth` en cada arranque frío | 🔴 Alta | 1.8 | ✅ Resuelto |
+| B-35 | `AuthScreen` no detectaba sesión existente de Privy al montarse — usuario ya logueado (sesión en SecureStore) veía pantalla de login y no podía loguearse de nuevo ("already logged in"). Safety net: `useEffect` en `auth.tsx` que llama `handlePostLogin(privyUser)` si Privy ya tiene sesión al abrir la pantalla | 🔴 Alta | 1.8 | ✅ Resuelto |
 
 **B-01 — Fix:** Se eliminaron las columnas `hour_of_day` y `day_of_week` de `checkins`. `EXTRACT()` usable en queries. Commit: `864e435`.
 
@@ -322,6 +323,8 @@ Algo falla → ambas atacan el bug → w4rw1ck confirma fix
 **B-31 — Fix (parcial):** `app/auth.tsx` — Aibus agregó `redirectUrl: Linking.createURL('/auth')` a `sendCode()`. El problema de fondo es que Privy no acepta el scheme `exp://` de Expo Go. Ver B-32 para la solución real. Commits: `fdbde71` + `f9011b2`. ⚠️ Commits originales etiquetados "B-28" (colisión — renombrado B-31 en STATUS.md).
 
 **B-32 — Fix:** `app/auth.tsx` — eliminado `redirectUrl` de `sendCode()` y `import * as Linking`. En el flujo OTP (código de 6 dígitos), Privy NO necesita `redirectUrl` — ese param es solo para el flujo de magic link clickeable donde el usuario es redirigido al app desde el email. Al pasarlo con scheme `exp://`, Privy lo validaba contra su lista de allowed schemes y fallaba. Sin `redirectUrl`, el email solo contiene el código numérico y el flujo funciona sin configuración adicional en el dashboard. Commit: `297ca72`.
+
+**B-35 — Fix:** `app/auth.tsx` — agregados `useEffect` + `useCallback` + `usePrivy()`. Al montarse `AuthScreen`, si `privyReady=true` y `privyUser` existe (sesión en SecureStore), llama automáticamente a `handlePostLogin(privyUser)` para sincronizar con Supabase y actualizar Zustand → `AuthGate` detecta el usuario y redirige a `/(onboarding)` o `/(app)/home`. `handlePostLogin` envuelto en `useCallback` para estabilizar la referencia en el dependency array de `useEffect`. Safety net por si `AuthGate` no redirige a tiempo. Commit: `ffacd2d`.
 
 **B-34 — Fix:** `app/_layout.tsx` — `AuthGate` refactorizado para usar `usePrivy()` como fuente de verdad de autenticación. Dos cambios clave: (1) `{ user: privyUser, ready: privyReady } = usePrivy()` — la presencia de `privyUser` (no `storeUser`) determina si hay sesión; (2) efecto de sincronización al arranque: si Privy tiene sesión pero Zustand está vacío (reinicio de app), llama automáticamente a `sync-privy-user` Edge Function para restaurar `user` y `onboardingComplete` sin re-login. `privyReady` evita flashes de redirección mientras Privy carga. También importado `supabase` en `_layout.tsx`. Commit: `d30290d`.
 
