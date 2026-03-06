@@ -33,6 +33,8 @@ interface Contact {
 export default function ContactsScreen() {
   // M-03: router removido — AuthGate redirige a /(app)/home cuando onboardingComplete=true
   const supabaseUserId = useAuthStore((s) => s.user?.supabaseUserId);
+  const privyId = useAuthStore((s) => s.user?.privyId);
+  const setSupabaseUserId = useAuthStore((s) => s.setSupabaseUserId);
   const setOnboardingComplete = useAuthStore((s) => s.setOnboardingComplete);
 
   const [contacts, setContacts] = useState<Contact[]>([]);
@@ -87,18 +89,41 @@ export default function ContactsScreen() {
   const completeOnboarding = async () => {
     setIsSaving(true);
     try {
-      if (supabaseUserId) {
-        // Marcar onboarding como completo en Supabase
-        await supabase
+      let resolvedSupabaseId = supabaseUserId;
+
+      // B-30: si supabaseUserId es null (sync-privy-user falló en login),
+      // intentar sync de nuevo antes de marcar onboarding completo
+      if (!resolvedSupabaseId && privyId) {
+        console.log("[Contacts] supabaseUserId null — reintentando sync-privy-user...");
+        const { data, error } = await supabase.functions.invoke("sync-privy-user", {
+          body: { privy_user_id: privyId, email: null },
+        });
+        if (!error && data?.user_id) {
+          resolvedSupabaseId = data.user_id;
+          setSupabaseUserId(data.user_id);
+        }
+      }
+
+      if (resolvedSupabaseId) {
+        // Marcar onboarding como completo en Supabase usando privy_user_id como fallback
+        const { error } = await supabase
           .from("users")
           .update({ onboarding_complete: true })
-          .eq("id", supabaseUserId);
+          .eq("id", resolvedSupabaseId);
+        if (error) {
+          // Fallback: buscar por privy_user_id si el id no funcionó
+          await supabase
+            .from("users")
+            .update({ onboarding_complete: true })
+            .eq("privy_user_id", privyId);
+        }
       }
+
       // Actualizar el store — AuthGate redirigirá a /(app)/home
       setOnboardingComplete(true);
     } catch (e) {
       console.warn("[Contacts] Error completando onboarding:", e);
-      // Aún así marcar como completo para no bloquear al usuario
+      // Aún así marcar como completo en store para no bloquear al usuario
       setOnboardingComplete(true);
     } finally {
       setIsSaving(false);
