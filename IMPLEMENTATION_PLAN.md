@@ -530,6 +530,16 @@ Paso 14: Crear app/(onboarding)/contacts.tsx (S08 — Setup Contactos):
     - Activar solo cuando no hay conexión
 ```
 
+**Tickets técnicos + UX de Semana 3** (ver STATUS.md para detalle completo):
+
+| Ticket | Descripción | Responsable |
+|---|---|---|
+| T-3.1 | Rate limiting en `interpret-checkin` — límite por `user_id` (10 calls/hora) | Aibus |
+| T-3.2 | Logging de outputs de IA — tabla `ai_logs` para auditoría clínica | Aibus |
+| T-U7 | Active/pressed state en emotion cards — UX feedback inmediato | Ana |
+| T-U8 | Focus rings audit en `Card` y `Pressable` — accesibilidad | Aibus |
+| T-V8 | Calendario S19 Year in Pixels — dots emocionales 36×36px | Aibus |
+
 ---
 
 ## SEMANA 4 — Inteligencia Artificial y Vista Terapeuta
@@ -564,6 +574,15 @@ Paso 14: Crear app/(onboarding)/contacts.tsx (S08 — Setup Contactos):
     - Puede agregar nota aclaratoria
     - Usuario recibe feedback del terapeuta
 ```
+
+**Tickets técnicos + UX de Semana 4** (ver STATUS.md para detalle completo):
+
+| Ticket | Descripción | Responsable |
+|---|---|---|
+| T-4.1 | Script fading mechanism — generalización de scripts (Gray, Krantz & McClannahan) | Ana |
+| T-4.2 | Validar zonas corporales con protocolo Mahler (8 señales interoceptivas) | Ana |
+| T-4.3 | Supervisión clínica del mapeo test→perfil (psicólogo ASD adultos) | w4rw1ck |
+| T-V9 | Body map con colores emocionales contextuales — requiere T-V1 + datos históricos | Ana |
 
 ---
 

@@ -231,10 +231,11 @@ Algo falla → ambas atacan el bug → w4rw1ck confirma fix
 
 | Paso | Descripción | Estado | Notas |
 |---|---|---|---|
-| 3.1 | Gestión completa de contactos de confianza (S22) | ⏳ | CRUD + permisos por contacto. Ver IMPLEMENTATION_PLAN.md |
-| 3.2 | Sistema de notificaciones completo | ⏳ | Expo Push + notificaciones locales de recordatorio |
-| 3.3 | Telegram Bot para personas de confianza | ⏳ | Edge Function integrada. Ver IMPLEMENTATION_PLAN.md |
-| 3.4 | Vista de Terapeuta (S23) — primera iteración | ⏳ | Solo lectura: historial de check-ins + uso de scripts |
+| 3.1 | Gestión completa de contactos de confianza (S22) | ⏳ | CRUD + permisos por contacto. Ver IMPLEMENTATION_PLAN.md §3.1 |
+| 3.2 | Sistema de notificaciones completo | ⏳ | Expo Push + notificaciones locales. Ver IMPLEMENTATION_PLAN.md §3.2 |
+| 3.3 | Telegram Bot para personas de confianza | ⏳ | Ver IMPLEMENTATION_PLAN.md §3.3 |
+| 3.4 | Respuesta bilateral en crisis | ⏳ | Contacto puede responder notificación push. Ver IMPLEMENTATION_PLAN.md §3.4 |
+| 3.5 | SMS fallback offline | ⏳ | expo-sms para cuando no hay conexión. Ver IMPLEMENTATION_PLAN.md §3.5 |
 | T-3.1 | **Rate limiting en `interpret-checkin`** | ⏳ | Límite por `user_id` vía `rate_limits` en Supabase o Upstash Redis. 10 llamadas/hora MVP (Aibus) |
 | T-3.2 | **Logging de outputs de IA** | ⏳ | `ai_logs` table: `user_id`, `input_hash` (no raw — privacidad), `output`, `timestamp`, `flagged` (Aibus) |
 | T-U7 | **Active/pressed state en emotion cards** — feedback visual inmediato al presionar (antes de selección). UX Guideline #30 | **Ana** | ⏳ |
@@ -249,9 +250,12 @@ Algo falla → ambas atacan el bug → w4rw1ck confirma fix
 
 | Paso | Descripción | Estado | Notas |
 |---|---|---|---|
-| 4.1 | Scripts personalizados con IA (S15/S16 expandido) | ⏳ | GPT genera bloques de script adaptados al perfil del usuario |
-| 4.2 | Vista Terapeuta completa (S23) | ⏳ | Dashboard de historial + patrones + acciones |
-| 4.3 | EAS Consent Attestations — Semana 5 prep | ⏳ | Ver IMPLEMENTATION_PLAN.md §5.1 |
+| 4.1 | Mejorar `interpret-checkin` con contexto completo | ⏳ | Últimos 5 check-ins + perfil sensorial en el prompt. Ver IMPLEMENTATION_PLAN.md §4.1 |
+| 4.2 | Detección de patrones — Edge Function `analyze-patterns` | ⏳ | Top zonas, emociones, horarios trigger. Ver IMPLEMENTATION_PLAN.md §4.2 |
+| 4.3 | Scripts personalizados con IA (S15/S16 expandido) | ⏳ | GPT genera bloques de script adaptados. Ver IMPLEMENTATION_PLAN.md §4.3 |
+| 4.4 | Vista Terapeuta completa (S23) | ⏳ | Dashboard historial + patrones + scripts + reporte. Ver IMPLEMENTATION_PLAN.md §4.4 |
+| 4.5 | Botón 🚩 y supervisión clínica | ⏳ | Terapeuta ve interpretaciones marcadas. Ver IMPLEMENTATION_PLAN.md §4.5 |
+| 4.6 | EAS Consent Attestations — Semana 5 prep | ⏳ | Ver IMPLEMENTATION_PLAN.md §5.1 |
 | T-4.1 | **Script fading mechanism** | ⏳ | Generalización de scripts: fade-out gradual. Literatura: Gray, Krantz & McClannahan (Ana) |
 | T-4.2 | **Validar zonas corporales con protocolo Mahler** | ⏳ | 8 señales interoceptivas vs 6 zonas geográficas actuales. Bajo impacto en MVP; profundidad clínica en v2 (Ana) |
 | T-4.3 | **Supervisión clínica mapeo test→perfil** | ⏳ | Sesión con psicólogo/psiquiatra ASD antes del lanzamiento público. w4rw1ck coordina |
