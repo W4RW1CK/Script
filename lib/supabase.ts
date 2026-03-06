@@ -15,13 +15,18 @@ import { Platform } from "react-native";
 const storage = Platform.OS === "web"
   ? {
       // Fallback para web — solo usado en Expo dev tools, no en producción
-      getItem: (key: string) => Promise.resolve(localStorage.getItem(key)),
+      // NOTA: Metro SSR renderer corre en Node.js donde localStorage no existe.
+      // Verificar typeof antes de usarlo para evitar ReferenceError en SSR.
+      getItem: (key: string) =>
+        Promise.resolve(
+          typeof localStorage !== "undefined" ? localStorage.getItem(key) : null
+        ),
       setItem: (key: string, value: string) => {
-        localStorage.setItem(key, value);
+        if (typeof localStorage !== "undefined") localStorage.setItem(key, value);
         return Promise.resolve();
       },
       removeItem: (key: string) => {
-        localStorage.removeItem(key);
+        if (typeof localStorage !== "undefined") localStorage.removeItem(key);
         return Promise.resolve();
       },
     }
