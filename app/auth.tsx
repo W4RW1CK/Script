@@ -19,6 +19,7 @@ import React, { useState, useEffect, useCallback } from "react";
 import { View, Alert, useColorScheme } from "react-native";
 // import * as Linking from "expo-linking"; // Reservado para magic link flow (Semana 3+)
 import * as WebBrowser from "expo-web-browser";
+import { useRouter } from "expo-router";
 import { usePrivy, useLoginWithEmail, useLoginWithOAuth } from "@privy-io/expo";
 
 /**
@@ -43,6 +44,27 @@ export default function AuthScreen() {
 
   // Privy — fuente de verdad para auth
   const { user: privyUser, ready: privyReady } = usePrivy();
+  const router = useRouter();
+  const onboardingComplete = useAuthStore((s) => s.onboardingComplete);
+
+  /**
+   * Guard de sesión existente — B-29.
+   *
+   * Cuando Expo Go reinicia, AuthGate puede llegar a /auth antes de que
+   * privyUser cargue (race condition). Este efecto detecta si Privy ya tiene
+   * sesión activa y redirige directamente, sin que el usuario tenga que
+   * volver a loguearse.
+   */
+  useEffect(() => {
+    if (!privyReady) return;
+    if (!privyUser) return;
+    // Ya hay sesión — dejar que AuthGate decida, pero si seguimos aquí redirigir
+    if (onboardingComplete) {
+      router.replace("/(app)/home");
+    } else {
+      router.replace("/(onboarding)");
+    }
+  }, [privyReady, privyUser, onboardingComplete]);
 
   // Estado local
   const [email, setEmail] = useState("");
