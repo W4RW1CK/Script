@@ -4,7 +4,7 @@
 > **Cómo leer este archivo:**
 > ✅ Completado | 🔄 En progreso | ⏳ Pendiente | ❌ Bloqueado
 
-**Última actualización:** 2026-03-06 (B-29 — uuid circular import fix en Metro)  
+**Última actualización:** 2026-03-06 (Auditoría clínica Aibus — tickets T-C1 a T-2.12 registrados)  
 **Semana actual:** 1  
 **Entrega próxima:** Lunes (MVP)
 
@@ -162,6 +162,19 @@ Algo falla → ambas atacan el bug → w4rw1ck confirma fix
 
 ---
 
+## 🔴 Tickets Críticos — Antes de Usuarios Reales
+
+> Identificados en auditoría clínica de Aibus Dumbleclaw (2026-03-06, commit base `fdcadd2`).
+> Estos items NO son opcionales. Deben resolverse antes de compartir la app con cualquier usuario real.
+
+| Ticket | Descripción | Severidad | Responsable | Estado |
+|---|---|---|---|---|
+| T-C1 | **Safety screening de ideación suicida en S17** — `assess.tsx` debe incluir una pregunta de screening ("¿Estás teniendo pensamientos de hacerte daño?") con flujo diferenciado. Si la respuesta es sí: mostrar directamente Línea de la Vida (México: 800 911-2000, 24h gratuita), sin pasar por los 3 niveles estándar. Fundamento: Cassidy et al. (2018) — 66% adultos con ASD reportan ideación suicida; Hirvikoski et al. (2016) — mortalidad por suicidio 9x mayor en ASD | 🔴 Crítico | Ana | ⏳ |
+| T-C2 | **Safety filter en output de GPT-4o-mini** — Edge Function `interpret-checkin/index.ts` debe post-procesar las opciones de emoción antes de enviarlas al cliente. Si algún label cae en categorías de alerta (desesperanza, vacío, no querer estar aquí, etc.), el response debe incluir `crisis_flag: true` y la app escalar a flujo de rescate en lugar de continuar el check-in normal | 🔴 Crítico | Aibus | ⏳ |
+| T-C3 | **Pantalla de consentimiento informado en onboarding** — Nueva pantalla antes de S02 (o como overlay en S01) que explique con lenguaje simple: qué datos se procesan, para qué, que Script no es un dispositivo médico, y que no reemplaza atención profesional. Requisito: LFPDPPP México (Ley Federal de Protección de Datos Personales). Consentimiento debe ser explícito (botón "Entiendo y acepto") antes de empezar cualquier test | 🔴 Crítico | Ana | ⏳ |
+
+---
+
 ## 🗓️ Semana 2 — Historial, Diccionario y Personalización
 
 | Paso | Descripción | Estado | Notas |
@@ -172,6 +185,37 @@ Algo falla → ambas atacan el bug → w4rw1ck confirma fix
 | 2.4 | app/(app)/settings/index.tsx **(S21)** — tema + paleta | ⏳ | |
 | 2.5 | "Insights desbloqueados" (3, 7, 15 check-ins) | ⏳ | |
 | 2.6 | **Persistencia de progreso en script** (S16) | ⏳ | Si el usuario sale a mitad de un script y vuelve, actualmente reinicia desde el bloque 1. Opciones: (a) Zustand en memoria (persiste mientras la app no se cierra); (b) tabla `script_sessions` en Supabase para persistencia entre cierres. MVP usa (a) — decidir en sprint de Semana 2 |
+| 2.7 | **Persistir scores de tests en Supabase inmediatamente** | ⏳ | `profile-seed.ts` es runtime-only — si el usuario cierra la app post-onboarding, pierde los resultados del AQ/CAT-Q/RAADS-R. Fix: INSERT en `profiles` al completar cada test individual, no al final del onboarding. Impacto: pérdida de 30 min de trabajo del usuario (Aibus) |
+| 2.8 | **INSERT `crisis_events` en `protocol.tsx`** | ⏳ | La tabla `crisis_events` existe en el schema pero nunca se escribe. Registrar: `user_id`, `level` (1/2/3), `started_at`, `completed_at`, `resolved` (boolean). Datos críticos para el módulo de terapeuta en Semana 4 (Ana) |
+| 2.9 | **Reducir temperatura GPT 0.7 → 0.4 en `interpret-checkin`** | ⏳ | Temperatura alta en contexto clínico produce outputs inconsistentes. 0.4 da más determinismo sin perder variedad. Menor que 0.3 puede ser demasiado rígido (Aibus) |
+| 2.10 | **INSERT `script_executions` en `execute.tsx`** | ⏳ | La tabla `script_executions` existe en el schema pero `execute.tsx` no hace INSERT. Registrar: `script_id`, `user_id`, `options_chosen` (JSONB), `completed` (boolean), `executed_at`. Input para historial S19 y terapeuta S23 (Ana) |
+| 2.11 | **Corregir PMID del AQ-10 en `REFERENCES.md`** | ⏳ | PMID actual `22366774` apunta a un paper de polimorfismos en asma pulmonar (WDR21A). PMID correcto: `22397989` (Allison et al., 2012, Arch Dis Child). Error menor pero inaceptable en referencia clínica (Ana) |
+| 2.12 | **UI feedback cuando guardado de perfil falla en `profile.tsx`** | ⏳ | El guard `if (!supabaseUserId)` solo hace `console.warn` — el usuario no sabe si su perfil no se guardó. Agregar Alert o Toast visible con opción de reintentar (Aibus) |
+
+---
+
+## 🗓️ Semana 3 — Red de Confianza + Notificaciones (Backlog Técnico)
+
+> Ítems de deuda técnica de auditoría clínica para atacar en Semana 3.
+
+| Paso | Descripción | Estado | Notas |
+|---|---|---|---|
+| 3.x | Red de Confianza + Notificaciones (features S3 principales) | ⏳ | Detallar en sprint planning de Semana 3 |
+| T-3.1 | **Rate limiting en Edge Function `interpret-checkin`** | ⏳ | Sin límite de llamadas, un usuario (o atacante) puede agotar la cuota de OpenAI. Implementar límite por `user_id` vía tabla `rate_limits` en Supabase o Upstash Redis. 10 llamadas/hora es razonable para MVP (Aibus) |
+| T-3.2 | **Logging de outputs de IA para auditoría** | ⏳ | No hay trazabilidad de qué generó GPT-4o-mini por usuario. Si algo sale mal con un usuario real, no hay evidencia de qué sugirió el modelo. Logging básico: `ai_logs` table con `user_id`, `input_hash` (no raw — privacidad), `output`, `timestamp`, `flagged` (Aibus) |
+
+---
+
+## 🗓️ Semana 4 — IA + Vista Terapeuta (Backlog Técnico)
+
+> Ítems de deuda técnica y mejoras clínicas para Semana 4.
+
+| Paso | Descripción | Estado | Notas |
+|---|---|---|---|
+| 4.x | IA avanzada + Vista Terapeuta S23 (features S4 principales) | ⏳ | Detallar en sprint planning de Semana 4 |
+| T-4.1 | **Script fading mechanism** | ⏳ | La evidencia muestra que scripts ayudan en situación entrenada pero la generalización es limitada en ASD. El módulo de scripts personalizados con IA debería tener como objetivo explícito la generalización (fade-out gradual). Buscar literatura "script fading autism" — hay protocolos establecidos (Gray, Krantz & McClannahan) (Ana) |
+| T-4.2 | **Validar zonas corporales con protocolo Mahler** | ⏳ | Las 6 zonas del mapa corporal son intuitivas pero arbitrarias. Mahler (2015) describe 8 señales interoceptivas (hambre, temperatura, dolor, respiración, ritmo cardíaco, etc.) — no zonas geográficas. Revisar diseño de BodyMap.tsx para alinearlo con literatura interoceptiva. Bajo impacto en MVP; mayor profundidad clínica en versión 2 (Ana) |
+| T-4.3 | **Supervisión clínica del mapeo test→perfil semilla** | ⏳ | Las reglas en `lib/profile-seed.ts` (ej: "AQ-10 alto → más scripts de socialización") son decisiones de diseño informado por clínica — NO protocolos clínicos validados. Recomendado: una sesión con psicólogo/psiquiatra especializado en ASD adultos para revisar el mapeo y el system prompt de `interpret-checkin` antes del lanzamiento público (w4rw1ck coordina) |
 
 ---
 
@@ -309,6 +353,7 @@ Algo falla → ambas atacan el bug → w4rw1ck confirma fix
 | 2026-03-06 | EAS consent attestations reemplaza on-chain access control en Semana 5 | `grantAccess()/revokeAccess()` on-chain es mutable y no pasa el filtro; EAS emite consentimiento clínico como compromiso permanente e irrevocable |
 | 2026-03-06 | Token-gating de features premium: arquitectura pendiente, post-Semana 5 | w4rw1ck tiene un plan — se define cuando llegue el momento |
 | 2026-03-06 | SBTs de progreso descartados | Gamificar hitos de salud mental con tokens permanentes públicos es éticamente problemático para usuarios TEA — fijación, estigma, rigidez |
+| 2026-03-06 | Mapeo test→perfil semilla es decisión de diseño informado por clínica, NO protocolo clínico validado | Las reglas en `profile-seed.ts` (ej: AQ-10 alto → más scripts de socialización) son razonables pero no tienen publicación peer-reviewed que las respalde directamente. Documentado así en PRD para evitar escrutinio médico erróneo. Supervisión clínica recomendada antes de lanzamiento público (ver T-4.3) |
 | 2026-03-06 | `react-native-get-random-values` como polyfill de crypto en RN/Hermes | Hermes lanza ReferenceError al acceder a global.crypto inexistente (a diferencia de V8 que retorna undefined); este paquete es el estándar para Privy en RN |
 | 2026-03-06 | `typeof localStorage !== "undefined"` obligatorio en código web | Metro SSR renderer corre en Node.js puro; `Platform.OS === "web"` puede ser true pero localStorage no existe — siempre verificar antes de acceder |
 | 2026-03-06 | Paquetes con imports circulares en ESM deben ir en `extraNodeModules` de metro.config.js | Con condición "browser", Metro puede crear ciclos en `wrapper.mjs` de uuid — forzar CJS raíz los rompe |
@@ -318,6 +363,17 @@ Algo falla → ambas atacan el bug → w4rw1ck confirma fix
 ## 📝 Notas del Sprint
 
 ### Semana 1
+
+**2026-03-06 — Auditoría clínica completa por Aibus Dumbleclaw — 12 tickets registrados**
+- Base: commit `fdcadd2` (dev branch) — Semana 1 código completo
+- Score global: **6.6/10** — sólido para MVP con usuarios conocidos; no suficiente para lanzamiento público sin resolver críticos
+- Fortalezas: enfoque sensory-first ✅, lenguaje tentativo en IA ✅, tests clínicamente validados (AQ/CAT-Q/RAADS-R) ✅, offline-first en crisis ✅, RLS en 9 tablas ✅
+- 3 tickets críticos antes de usuarios reales (T-C1/T-C2/T-C3): ideación suicida, safety filter GPT, consentimiento informado
+- 6 tickets Semana 2 de alta/media prioridad (T-2.7 a T-2.12): persistencia scores, crisis_events, temperatura GPT, script_executions, PMID, UI feedback
+- 3 tickets Semana 3-4 (T-3.1, T-3.2, T-4.1, T-4.2, T-4.3): rate limiting, logging IA, script fading, zonas Mahler, supervisión clínica
+- División: T-C1/T-C3/2.8/2.10/2.11/4.1/4.2 → **Ana** | T-C2/2.7/2.9/2.12/3.1/3.2 → **Aibus**
+- Nueva decisión técnica registrada: mapeo test→perfil = "diseño informado por clínica" no protocolo validado
+- Ref: https://gist.github.com/dumbleclaw/8d6db74cc4b64b03dde7ed4623ef4bec
 
 **2026-03-06 — Contenido scripts sociales con fundamento clínico (bloqueador #7 ✅)**
 - `supabase/seed-scripts.sql` reescrito — 5 scripts con bloques completos, frases reales, contexto clínico
