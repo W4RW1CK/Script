@@ -50,25 +50,54 @@ export default function AuthScreen() {
   const onboardingComplete = useAuthStore((s) => s.onboardingComplete);
 
   /**
-   * Guard de sesión existente — B-29.
+   * Guard de sesión existente — B-37 (merged Aibus B-29 + Ana B-37).
    *
-   * Privy restaura la sesión de SecureStore de forma async. Hay una ventana donde
-   * `ready=true` pero `user=null` aunque SÍ haya sesión guardada. `authenticated`
-   * refleja el estado real de la sesión antes de que `user` esté disponible.
+   * PROBLEMA: Privy restaura la sesión de SecureStore de forma async. Hay una
+   * ventana donde `ready=true` pero `user=null` aunque SÍ haya sesión guardada.
+   * `authenticated` refleja el estado real antes de que `user` esté disponible.
    *
-   * Estrategia: esperar a `ready=true` y luego checar `authenticated`:
-   * - Si `authenticated=true` → ya hay sesión, redirigir sin pedir login de nuevo
-   * - Si `authenticated=false` → genuinamente sin sesión, mostrar login form
+   * SOLUCIÓN:
+   * 1. Usar `authenticated` (boolean) para detectar sesión — más rápido que `privyUser`
+   * 2. Navegar INMEDIATAMENTE (sin esperar Edge Function) — evita spinner colgado
+   * 3. Sync con Supabase en background, fire-and-forget — nunca bloquea navegación
    */
   useEffect(() => {
     if (!privyReady) return;           // Privy aún inicializando — esperar
     if (!authenticated) return;        // Sin sesión — mostrar form normalmente
-    // Sesión existente → redirigir según estado de onboarding
+
+    // Sesión existente → navegar inmediatamente (no esperar sync)
     if (onboardingComplete) {
       router.replace("/(app)/home");
     } else {
       router.replace("/(onboarding)");
     }
+
+    // Sync con Supabase en background (fire-and-forget, sin bloquear navegación)
+    if (!privyUser) return;
+    const privyId = privyUser.id;
+    const userEmail =
+      (privyUser as any).email?.address ||
+      (privyUser as any).linked_accounts?.find((a: any) => a.type === "email")?.address ||
+      null;
+    setUser({ privyId, email: userEmail, supabaseUserId: null });
+
+    supabase.functions
+      .invoke("sync-privy-user", {
+        body: { privy_user_id: privyId, email: userEmail },
+      })
+      .then(({ data, error }) => {
+        if (!error && data?.user_id) {
+          setSupabaseUserId(data.user_id);
+          if (data.onboarding_complete) {
+            setOnboardingComplete(true);
+            router.replace("/(app)/home");
+          }
+        }
+      })
+      .catch((e) => {
+        console.warn("[Auth] Background sync failed (non-blocking):", e);
+      });
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [privyReady, authenticated, onboardingComplete]);
 
   // Estado local
@@ -118,12 +147,20 @@ export default function AuthScreen() {
       setUser({ privyId, email: userEmail, supabaseUserId: null });
 
       // Sincronizar con Supabase via Edge Function
-      const { data, error } = await supabase.functions.invoke(
-        "sync-privy-user",
-        {
-          body: { privy_user_id: privyId, email: userEmail },
-        }
+      // Timeout de 5s — si la Edge Function no responde, seguir con navigate
+      const syncTimeout = new Promise<{ data: null; error: Error }>(
+        (resolve) =>
+          setTimeout(
+            () => resolve({ data: null, error: new Error("sync timeout") }),
+            5000
+          )
       );
+      const { data, error } = await Promise.race([
+        supabase.functions.invoke("sync-privy-user", {
+          body: { privy_user_id: privyId, email: userEmail },
+        }),
+        syncTimeout,
+      ]);
 
       let completedOnboarding = false;
       if (!error && data?.user_id) {
@@ -150,18 +187,8 @@ export default function AuthScreen() {
     }
   }, [router, setUser, setSupabaseUserId, setOnboardingComplete]);
 
-  /**
-   * Guard de sesión existente.
-   *
-   * Si Privy ya tiene una sesión válida cuando se monta esta pantalla
-   * (p.ej. el usuario reinició la app), hacemos el sync automáticamente.
-   * AuthGate debería haber redirigido, pero este es el safety net.
-   */
-  useEffect(() => {
-    if (privyReady && privyUser) {
-      handlePostLogin(privyUser);
-    }
-  }, [privyReady, privyUser, handlePostLogin]);
+  // El guard de sesión existente está arriba (B-37).
+  // handlePostLogin se llama SOLO desde los callbacks de Privy (OTP/OAuth).
 
   /** Enviar código OTP al email */
   const handleSendCode = async () => {
