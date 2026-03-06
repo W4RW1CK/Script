@@ -68,7 +68,12 @@ export default function ProfileScreen() {
   const onSubmit = async (data: FormData) => {
     setIsSaving(true);
     try {
-      if (supabaseUserId) {
+      if (!supabaseUserId) {
+        // M-04: supabaseUserId puede ser null si sync-privy-user falló (sin internet, etc.)
+        // En ese caso no intentamos el INSERT (fallaría con RLS error) y continuamos el flujo.
+        // El perfil se puede completar más tarde desde Ajustes.
+        console.warn("[Profile] supabaseUserId es null — saltando guardado en Supabase");
+      } else {
         await supabase
           .from("profiles")
           .update({
@@ -82,6 +87,7 @@ export default function ProfileScreen() {
       }
     } catch (e) {
       console.warn("[Profile] Error guardando perfil:", e);
+      // No bloqueamos al usuario — puede completar perfil desde Ajustes (Semana 2)
     } finally {
       setIsSaving(false);
       router.push("/(onboarding)/contacts");
