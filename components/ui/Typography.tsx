@@ -24,6 +24,8 @@ type TypographyVariant =
   | "headingXL"
   | "headingL"
   | "headingM"
+  | "headingS"   // 18px semibold — subtítulos en cards y secciones
+  | "heading"    // alias de headingL — compatibilidad con código generado
   | "body"
   | "bodyLarge"
   | "caption"
@@ -42,6 +44,8 @@ const variantClasses: Record<TypographyVariant, string> = {
   headingXL: "text-[32px] leading-[40px] font-bold",
   headingL:  "text-2xl leading-8 font-semibold",
   headingM:  "text-xl leading-7 font-semibold",
+  headingS:  "text-lg leading-6 font-semibold",     // 18px — subtítulos en cards
+  heading:   "text-2xl leading-8 font-semibold",    // alias de headingL
   body:      "text-base leading-6",
   bodyLarge: "text-lg leading-7",
   caption:   "text-sm leading-5",
