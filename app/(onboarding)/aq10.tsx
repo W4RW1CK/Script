@@ -107,7 +107,7 @@ export default function AQ10Screen() {
         </Typography>
 
         {/* Barra de progreso visual */}
-        <View className="h-2 bg-script-surface dark:bg-script-dark-surface rounded-full mb-6">
+        <View className="h-2 bg-script-bg-secondary dark:bg-script-dark-secondary rounded-full mb-6">
           <View
             className="h-2 bg-script-blue dark:bg-script-dark-blue rounded-full"
             style={{

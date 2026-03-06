@@ -132,7 +132,7 @@ export default function ContactsScreen() {
               {contacts.map((c, idx) => (
                 <View
                   key={idx}
-                  className="flex-row items-center justify-between bg-script-surface dark:bg-script-dark-surface rounded-xl p-3"
+                  className="flex-row items-center justify-between bg-script-bg-secondary dark:bg-script-dark-secondary rounded-xl p-3"
                 >
                   <View>
                     <Typography variant="body">{c.name}</Typography>
