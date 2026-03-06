@@ -24,6 +24,8 @@ interface ButtonProps {
   disabled?: boolean;
   /** Texto adicional que los lectores de pantalla leen después del label */
   accessibilityHint?: string;
+  /** Clases NativeWind adicionales (márgenes, padding externo, etc.) */
+  className?: string;
 }
 
 /** Clases NativeWind por variante — contenedor y texto separados */
@@ -53,6 +55,7 @@ export function Button({
   variant = "primary",
   disabled = false,
   accessibilityHint,
+  className = "",
 }: ButtonProps) {
   const styles = variantStyles[variant];
 
@@ -65,7 +68,7 @@ export function Button({
       accessibilityHint={accessibilityHint}
       className={`w-full items-center justify-center rounded-2xl py-4 px-6 ${styles.container} ${
         disabled ? "opacity-50" : ""
-      }`}
+      } ${className}`}
       // Feedback visual al presionar: reducir opacidad levemente
       style={({ pressed }) => ({ opacity: pressed && !disabled ? 0.85 : 1 })}
     >
