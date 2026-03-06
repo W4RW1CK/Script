@@ -35,7 +35,7 @@ Los 5 scripts predefinidos en `supabase/seed-scripts.sql` están basados en:
 
 | Test | Fuente |
 |---|---|
-| AQ-10 | Allison et al. (2012). Autism Spectrum Quotient-10. PubMed PMID: 22366774 |
+| AQ-10 | Allison et al. (2012). Autism Spectrum Quotient-10. PubMed PMID: 22397989 |
 | AQ-Full (50) | Baron-Cohen et al. (2001). The Autism-Spectrum Quotient. Journal of Autism and Developmental Disorders |
 | CAT-Q (25) | Hull et al. (2019). Development and Validation of the Camouflaging Autistic Traits Questionnaire. Journal of Autism and Developmental Disorders |
 | RAADS-R (80) | Ritvo et al. (2011). The Ritvo Autism Asperger Diagnostic Scale-Revised. Journal of Autism and Developmental Disorders |
