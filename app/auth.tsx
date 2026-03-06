@@ -17,6 +17,7 @@
  */
 import React, { useState } from "react";
 import { View, Alert, useColorScheme } from "react-native";
+import * as Linking from "expo-linking";
 import { useLoginWithEmail, useLoginWithOAuth } from "@privy-io/expo";
 import { Ionicons } from "@expo/vector-icons";
 import { SafeScreen, Typography, Button, TextInput } from "@/components/ui";
@@ -103,11 +104,12 @@ export default function AuthScreen() {
     if (!email.trim()) return;
     setIsLoading(true);
     try {
-      // redirectUrl: esquema de la app para que Privy sepa dónde regresar al usuario
-      // "exp://" = Expo Go dev | "scriptapp://" = build de producción
-      await sendCode({
-        email: email.trim(),
-      });
+      // redirectUrl: le dice a Privy a dónde regresar después del magic link.
+      // Linking.createURL() genera automáticamente el esquema correcto:
+      //   - Expo Go dev:  exp://192.168.x.x:8081/--/auth
+      //   - Producción:   scriptapp://auth
+      const redirectUrl = Linking.createURL("/auth");
+      await sendCode({ email: email.trim(), redirectUrl });
       setAwaitingCode(true);
       setIsLoading(false);
     } catch {
