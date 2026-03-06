@@ -32,6 +32,12 @@ type EmotionOption = {
   confidence: "alta" | "media" | "baja";
 };
 
+/**
+ * Estado del fetch de opciones de emoción.
+ * T-U2: distinguir "ai" vs "mock" vs "error" para mostrar feedback correcto.
+ */
+type FetchSource = "ai" | "mock" | "error";
+
 // ── Mock fallback ──────────────────────────────────────────────────────────
 /**
  * Mock de opciones — se usa cuando la Edge Function no está disponible.
@@ -73,13 +79,25 @@ function getMockOptions(_zones: ZoneId[], _notes: string): EmotionOption[] {
 }
 
 /**
+ * Resultado del fetch de opciones de emoción.
+ * T-U2: devuelve la fuente para que el componente muestre feedback correcto.
+ * T-C2: incluye crisis_flag para escalar a flujo de rescate si aplica.
+ */
+type FetchResult = {
+  options: EmotionOption[];
+  source: FetchSource;
+  crisis_flag: boolean;
+};
+
+/**
  * Llama a la Edge Function interpret-checkin con fallback a mock.
- * Intenta la llamada real; si falla por cualquier motivo, usa mock.
+ * T-U2: siempre indica la fuente real (ai/mock/error) — no falla silenciosamente.
+ * T-C2: propaga crisis_flag si la Edge Function lo detectó.
  */
 async function fetchEmotionOptions(
   zones: ZoneId[],
   notes: string
-): Promise<EmotionOption[]> {
+): Promise<FetchResult> {
   try {
     const { data, error } = await supabase.functions.invoke(
       "interpret-checkin",
@@ -87,20 +105,31 @@ async function fetchEmotionOptions(
     );
 
     if (error) {
-      console.warn("[Reflect] Edge Function error, using mock:", error.message);
-      return getMockOptions(zones, notes);
+      console.warn("[Reflect] Edge Function error, usando mock:", error.message);
+      return { options: getMockOptions(zones, notes), source: "mock", crisis_flag: false };
     }
 
-    // Validar que la respuesta tiene el formato esperado
+    // T-C2: si crisis_flag = true y no hay opciones, redirigir a rescate
+    if (data?.crisis_flag === true && (!data.options || data.options.length === 0)) {
+      return { options: [], source: "ai", crisis_flag: true };
+    }
+
+    // Validar formato de respuesta
     if (data?.options && Array.isArray(data.options) && data.options.length > 0) {
-      return data.options;
+      return {
+        options: data.options,
+        source: data.source === "ai" ? "ai" : "mock",
+        crisis_flag: data.crisis_flag === true,
+      };
     }
 
-    console.warn("[Reflect] Invalid response format, using mock");
-    return getMockOptions(zones, notes);
+    console.warn("[Reflect] Formato inesperado, usando mock");
+    return { options: getMockOptions(zones, notes), source: "mock", crisis_flag: false };
+
   } catch (e) {
-    console.warn("[Reflect] Network error, using mock:", e);
-    return getMockOptions(zones, notes);
+    console.warn("[Reflect] Error de red:", e);
+    // T-U2: "error" indica fallo real de red — no falla silenciosamente
+    return { options: getMockOptions(zones, notes), source: "error", crisis_flag: false };
   }
 }
 
@@ -120,6 +149,8 @@ export default function CheckinReflectScreen() {
   const [selected, setSelected] = useState<string | null>(null);
   const [showCustomInput, setShowCustomInput] = useState(false);
   const [customEmotion, setCustomEmotion] = useState("");
+  // T-U2: fuente de la respuesta para feedback visible al usuario
+  const [fetchSource, setFetchSource] = useState<FetchSource>("ai");
 
   const confirmedEmotion = showCustomInput ? customEmotion.trim() : selected;
 
@@ -128,8 +159,14 @@ export default function CheckinReflectScreen() {
     const zones = (zonesParam?.split(",").filter(Boolean) ?? []) as ZoneId[];
     const notes = notesParam ?? "";
 
-    fetchEmotionOptions(zones, notes).then((opts) => {
-      setOptions(opts);
+    fetchEmotionOptions(zones, notes).then((result) => {
+      // T-C2: si hay crisis_flag, redirigir al flujo de rescate inmediatamente
+      if (result.crisis_flag) {
+        router.replace("/(app)/rescue/assess");
+        return;
+      }
+      setOptions(result.options);
+      setFetchSource(result.source);
       setIsLoading(false);
     });
   }, [zonesParam, notesParam]);
@@ -182,6 +219,28 @@ export default function CheckinReflectScreen() {
               No son diagnósticos — son posibilidades. Elige la que más resuene.
             </Typography>
           </View>
+
+          {/* T-U2: feedback visible cuando la respuesta es aproximada o falló */}
+          {fetchSource === "mock" && (
+            <View className="bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-700 rounded-xl px-4 py-3">
+              <Typography
+                variant="caption"
+                className="text-yellow-800 dark:text-yellow-200"
+              >
+                💡 Estas opciones son aproximadas — la interpretación personalizada no está disponible en este momento.
+              </Typography>
+            </View>
+          )}
+          {fetchSource === "error" && (
+            <View className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-700 rounded-xl px-4 py-3">
+              <Typography
+                variant="caption"
+                className="text-red-800 dark:text-red-200"
+              >
+                ⚠️ No se pudo conectar al servicio de interpretación. Las opciones que ves son generales, no personalizadas para tu check-in de hoy.
+              </Typography>
+            </View>
+          )}
 
           <View className="gap-3">
             {options.map((option) => (
