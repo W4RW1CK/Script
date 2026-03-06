@@ -22,14 +22,26 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2.97.0";
 const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
 const supabaseServiceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
 
+// CORS headers — necesarios para peticiones desde web (y buena práctica general)
+const corsHeaders = {
+  "Access-Control-Allow-Origin": "*",
+  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
+  "Content-Type": "application/json",
+};
+
 serve(async (req) => {
+  // M-02: responder a preflight CORS
+  if (req.method === "OPTIONS") {
+    return new Response("ok", { headers: corsHeaders });
+  }
+
   try {
     const { privy_user_id, email } = await req.json();
 
     if (!privy_user_id) {
       return new Response(
         JSON.stringify({ error: "privy_user_id is required" }),
-        { status: 400, headers: { "Content-Type": "application/json" } }
+        { status: 400, headers: corsHeaders }
       );
     }
 
@@ -56,7 +68,7 @@ serve(async (req) => {
           onboarding_complete: existingUser.onboarding_complete ?? false,
           created: false,
         }),
-        { headers: { "Content-Type": "application/json" } }
+        { headers: corsHeaders }
       );
     }
 
@@ -86,13 +98,13 @@ serve(async (req) => {
         onboarding_complete: false,
         created: true,
       }),
-      { headers: { "Content-Type": "application/json" } }
+      { headers: corsHeaders }
     );
   } catch (error) {
     console.error("[sync-privy-user] Error:", error);
     return new Response(
       JSON.stringify({ error: error.message }),
-      { status: 500, headers: { "Content-Type": "application/json" } }
+      { status: 500, headers: corsHeaders }
     );
   }
 });
