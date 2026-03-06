@@ -40,7 +40,10 @@ const QUESTIONS: AQ10Question[] = [
   { text: "Me resulta difícil saber cómo terminar una conversación.", scoreOnAgree: true },
 ];
 
-// Opciones de respuesta — el value indica si es "de acuerdo" (true) o no (false)
+// Opciones de respuesta — usa campo `agree` (booleano) para scoring direccional.
+// M-01: AQ-10 usa `.agree` (booleano) en vez de `.value` (numérico) porque la lógica
+// es binaria: de acuerdo / en desacuerdo. TestScreen (AQ-Full, CAT-Q, RAADS-R) usa
+// `.value` numérico para escalas multi-punto. Ambos son correctos para su caso de uso.
 const OPTIONS = [
   { label: "Totalmente de acuerdo", agree: true },
   { label: "Ligeramente de acuerdo", agree: true },
