@@ -409,3 +409,13 @@ Herramientas para que los agentes consulten literatura científica durante el de
 | Recurso | URL | Uso en Script |
 |---|---|---|
 | **paper-search-mcp** | https://github.com/openags/paper-search-mcp | MCP server para buscar papers en arXiv/PubMed/bioRxiv — validar umbrales de tests (AQ ≥6/≥32, RAADS-R), informar contenido de scripts con evidencia clínica, consultar literatura sobre TEA y enmascaramiento |
+
+---
+
+## 📚 Recursos de Investigación (Dev Tools — no son dependencias de la app)
+
+| Herramienta | URL | Uso |
+|---|---|---|
+| `paper-search-mcp` | https://github.com/openags/paper-search-mcp | MCP server para búsqueda de papers académicos (arXiv, PubMed, bioRxiv, etc.) — útil para validar umbrales de tests (AQ, CAT-Q, RAADS-R) y fundamentar decisiones de diseño con evidencia clínica |
+
+> Estas herramientas son para los agentes de desarrollo (Ana, Aibus), no para la app final.

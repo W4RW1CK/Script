@@ -4,7 +4,7 @@
 > **Cómo leer este archivo:**
 > ✅ Completado | 🔄 En progreso | ⏳ Pendiente | ❌ Bloqueado
 
-**Última actualización:** 2026-03-06 (auditoría Fase 1.8 por Ana — B-22/B-23/B-24 resueltos)  
+**Última actualización:** 2026-03-06 (B-22 a B-28 resueltos — polyfills crypto/localStorage corregidos)  
 **Semana actual:** 1  
 **Entrega próxima:** Lunes (MVP)
 
@@ -202,6 +202,10 @@ Algo falla → ambas atacan el bug → w4rw1ck confirma fix
 | B-22 | `AuthGate` bloqueaba el protocolo de rescate sin auth — usuario en crisis redirigido a `/auth` al presionar FAB desde pantalla de login o onboarding | 🔴 Alta | 1.8 | ✅ Resuelto |
 | B-23 | Token NativeWind inválido `script-surface` / `script-dark-surface` — no existe en `tailwind.config.js`; barras de progreso en tests y tarjeta de contactos se renderizaban sin fondo | 🟡 Media | 1.8 | ✅ Resuelto |
 | B-24 | `Button` no aceptaba `className` prop — `className="mt-3"` en botones de `aq10-result.tsx` era ignorado silenciosamente; sin margen superior en botones dentro de Cards | 🟡 Media | 1.8 | ✅ Resuelto |
+| B-25 | `import { Buffer } from "buffer"` fallaba al bundlear — Metro trataba `buffer` como módulo de Node stdlib en lugar de npm package | 🔴 Alta | 1.8 | ✅ Resuelto |
+| B-26 | `ExpoSecureStore.getValueWithKeyAsync is not a function` — `expo-secure-store` no existe en web; Metro bundlea para web en paralelo al arrancar con `expo start` | 🔴 Alta | 1.8 | ✅ Resuelto |
+| B-27 | `ReferenceError: Property 'crypto' doesn't exist` — Hermes lanza ReferenceError (no retorna undefined) al acceder a `global.crypto` inexistente; `globalThis.crypto` también undefined en el dispositivo de w4rw1ck | 🔴 Alta | 1.8 | ✅ Resuelto |
+| B-28 | `ReferenceError: localStorage is not defined` — Metro SSR renderer corre en Node.js donde `localStorage` no existe aunque `Platform.OS === "web"` sea verdadero | 🟡 Media | 1.8 | ✅ Resuelto |
 
 **B-01 — Fix:** Se eliminaron las columnas `hour_of_day` y `day_of_week` de `checkins`. `EXTRACT()` usable en queries. Commit: `864e435`.
 
@@ -252,6 +256,14 @@ Algo falla → ambas atacan el bug → w4rw1ck confirma fix
 
 **B-24 — Fix:** `components/ui/Button.tsx` — agregado `className?: string` a `ButtonProps` e interpolado en el `className` del `Pressable`. Permite pasar márgenes externos (`mt-3`, `mb-4`, etc.) desde el componente padre. Retrocompatible — valor por defecto `""`. Commit: `f733e23`.
 
+**B-25 — Fix:** `package.json` + `metro.config.js` — agregado `"buffer": "^6.0.3"` a dependencies; `metro.config.js` añade `buffer: require.resolve("buffer")` a `extraNodeModules`. Metro ya no trata `buffer` como módulo de Node stdlib. Requiere `npm install` en el proyecto del usuario. Commits: `aac43e1`.
+
+**B-26 — Fix:** `lib/supabase.ts` — agregado adaptador condicional por `Platform.OS`. En web usa `localStorage`; en nativo (Android/iOS) usa `SecureStore`. El adaptador de web no lanza errores aunque SecureStore no exista en ese entorno. Commits: `aac43e1`.
+
+**B-27 — Fix:** `polyfills.ts` + `package.json` — agregado `react-native-get-random-values ~1.11.0`; importado como primer import en polyfills.ts. Este paquete inyecta `global.crypto.getRandomValues` usando la API nativa de RN y registra `global.crypto` de forma segura. Evita el ReferenceError de Hermes que ocurre al acceder a propiedades globales inexistentes. Requiere `npm install` en el proyecto del usuario. Commit: `d9e562c`.
+
+**B-28 — Fix:** `lib/supabase.ts` — todos los accesos a `localStorage` ahora están guardados con `typeof localStorage !== "undefined"`. El Metro SSR renderer corre en Node.js donde `localStorage` no existe aunque `Platform.OS === "web"`. Sin el guard, el proceso de Metro crasheaba al inicializar. Commit: `f80d5e0`.
+
 ---
 
 ## 🔒 Decisiones Técnicas Tomadas
@@ -293,12 +305,20 @@ Algo falla → ambas atacan el bug → w4rw1ck confirma fix
 | 2026-03-06 | EAS consent attestations reemplaza on-chain access control en Semana 5 | `grantAccess()/revokeAccess()` on-chain es mutable y no pasa el filtro; EAS emite consentimiento clínico como compromiso permanente e irrevocable |
 | 2026-03-06 | Token-gating de features premium: arquitectura pendiente, post-Semana 5 | w4rw1ck tiene un plan — se define cuando llegue el momento |
 | 2026-03-06 | SBTs de progreso descartados | Gamificar hitos de salud mental con tokens permanentes públicos es éticamente problemático para usuarios TEA — fijación, estigma, rigidez |
+| 2026-03-06 | `react-native-get-random-values` como polyfill de crypto en RN/Hermes | Hermes lanza ReferenceError al acceder a global.crypto inexistente (a diferencia de V8 que retorna undefined); este paquete es el estándar para Privy en RN |
+| 2026-03-06 | `typeof localStorage !== "undefined"` obligatorio en código web | Metro SSR renderer corre en Node.js puro; `Platform.OS === "web"` puede ser true pero localStorage no existe — siempre verificar antes de acceder |
 
 ---
 
 ## 📝 Notas del Sprint
 
 ### Semana 1
+
+**2026-03-06 — Polyfill fixes: crypto + localStorage (B-27/B-28)**
+- Bug B-27 🔴: `global.crypto` inexistente en Hermes lanza ReferenceError → instalado `react-native-get-random-values ~1.11.0`, importado primero en polyfills.ts
+- Bug B-28 🟡: `localStorage` undefined en Metro SSR (Node.js) → guards `typeof localStorage !== "undefined"` en supabase.ts
+- w4rw1ck debe correr `npm install` para instalar el nuevo paquete
+- Commits: `d9e562c` (polyfills) → `f80d5e0` (supabase)
 
 **2026-03-06 — Auditoría Fase 1.8 por Ana — 3 bugs encontrados y resueltos (B-22 a B-24)**
 - Bug B-22 🔴: AuthGate bloqueaba el protocolo de rescate sin auth — crítico en crisis — fix: excepción explícita en guard para rutas `rescue/`
