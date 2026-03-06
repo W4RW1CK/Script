@@ -4,7 +4,7 @@
 > **Cómo leer este archivo:**
 > ✅ Completado | 🔄 En progreso | ⏳ Pendiente | ❌ Bloqueado
 
-**Última actualización:** 2026-03-06 (Fase 1.8 ✅ + decisiones on-chain arquitecturales)  
+**Última actualización:** 2026-03-06 (auditoría Fase 1.8 por Ana — B-22/B-23/B-24 resueltos)  
 **Semana actual:** 1  
 **Entrega próxima:** Lunes (MVP)
 
@@ -199,6 +199,9 @@ Algo falla → ambas atacan el bug → w4rw1ck confirma fix
 | B-19 | `profile.tsx` — guard `if (supabaseUserId)` existía pero sin log ni comentario — si sync falló, el guardado falla silenciosamente sin contexto | 🟡 Media | 1.8 | ✅ Resuelto |
 | B-20 | `VIABILITY_TEST.md` (311 líneas) trackeado en git — documento de análisis ajeno al proyecto | 🟢 Baja | 1.8 | ✅ Resuelto |
 | B-21 | `Typography.tsx` sin variants `headingS` / `heading` — `aq10-result.tsx` y otras pantallas de Fase 1.8 las usan y fallaban silenciosamente | 🔴 Alta | 1.8 | ✅ Resuelto |
+| B-22 | `AuthGate` bloqueaba el protocolo de rescate sin auth — usuario en crisis redirigido a `/auth` al presionar FAB desde pantalla de login o onboarding | 🔴 Alta | 1.8 | ✅ Resuelto |
+| B-23 | Token NativeWind inválido `script-surface` / `script-dark-surface` — no existe en `tailwind.config.js`; barras de progreso en tests y tarjeta de contactos se renderizaban sin fondo | 🟡 Media | 1.8 | ✅ Resuelto |
+| B-24 | `Button` no aceptaba `className` prop — `className="mt-3"` en botones de `aq10-result.tsx` era ignorado silenciosamente; sin margen superior en botones dentro de Cards | 🟡 Media | 1.8 | ✅ Resuelto |
 
 **B-01 — Fix:** Se eliminaron las columnas `hour_of_day` y `day_of_week` de `checkins`. `EXTRACT()` usable en queries. Commit: `864e435`.
 
@@ -242,6 +245,12 @@ Algo falla → ambas atacan el bug → w4rw1ck confirma fix
 **B-20 — Fix:** `VIABILITY_TEST.md` eliminado del repo con `git rm`. Era un documento de análisis ajeno al proyecto que fue trackeado accidentalmente. Commit: `6eaae73`.
 
 **B-21 — Fix:** `Typography.tsx` — agregados variants `headingS` (18px semibold) y `heading` (alias de headingL). Usados en `aq10-result.tsx` y otras pantallas de Fase 1.8. Sin estos variants, el componente fallaba silenciosamente mostrando `undefined` como clases CSS. Commit: `523e50a`.
+
+**B-22 — Fix:** `_layout.tsx` — `AuthGate` ahora incluye excepción explícita para rutas de rescue (`segments[0] === "(app)" && segments[1] === "rescue"`). Si el usuario está en rescue, el guard retorna sin redirigir — independientemente del estado de auth. Regla: la crisis nunca puede ser bloqueada por un wall de autenticación. Commit: `05fb4e8`.
+
+**B-23 — Fix:** `aq10.tsx`, `TestScreen.tsx`, `contacts.tsx` — reemplazado token inexistente `bg-script-surface dark:bg-script-dark-surface` por `bg-script-bg-secondary dark:bg-script-dark-secondary` (tokens válidos definidos en `tailwind.config.js`). Afectaba la barra de progreso de los tests y la tarjeta de contactos. Commit: `38bfacb`.
+
+**B-24 — Fix:** `components/ui/Button.tsx` — agregado `className?: string` a `ButtonProps` e interpolado en el `className` del `Pressable`. Permite pasar márgenes externos (`mt-3`, `mb-4`, etc.) desde el componente padre. Retrocompatible — valor por defecto `""`. Commit: `f733e23`.
 
 ---
 
@@ -290,6 +299,14 @@ Algo falla → ambas atacan el bug → w4rw1ck confirma fix
 ## 📝 Notas del Sprint
 
 ### Semana 1
+
+**2026-03-06 — Auditoría Fase 1.8 por Ana — 3 bugs encontrados y resueltos (B-22 a B-24)**
+- Bug B-22 🔴: AuthGate bloqueaba el protocolo de rescate sin auth — crítico en crisis — fix: excepción explícita en guard para rutas `rescue/`
+- Bug B-23 🟡: Token NativeWind `script-surface` inexistente en 3 archivos — barras de progreso y tarjeta de contactos sin fondo visible
+- Bug B-24 🟡: `Button` sin `className` prop — `className="mt-3"` ignorado en `aq10-result.tsx`
+- Commits: `05fb4e8` → `38bfacb` → `f733e23`
+- Semana 1 código: 8/8 fases implementadas, 24 bugs documentados y resueltos
+- Pendiente verificación funcional en dispositivo (bloqueada por Privy App ID — ver bloqueador #2)
 
 **2026-03-06 — Decisiones de arquitectura on-chain (Semana 5)**
 - Principio establecido: "si no involucra transferencia de valor trustless o compromiso permanente, no va on-chain"
