@@ -3,25 +3,39 @@
  *
  * DEBE importarse PRIMERO en app/_layout.tsx (antes de cualquier otro import).
  *
- * ¿Por qué?
- * - Privy usa la librería `jose` para JWT, que necesita `crypto.subtle`
- * - Hermes (RN 0.83+) ya tiene WebCrypto nativo en `globalThis.crypto`
- * - Pero algunas librerías buscan `global.crypto`, que no existe por defecto
- * - Buffer es necesario para varias operaciones de encoding en Privy
+ * ¿Por qué necesitamos esto?
+ * - Privy usa `jose` para JWT, que necesita `crypto.subtle`
+ * - `@noble/hashes` (dep de Privy) necesita `crypto.getRandomValues`
+ * - Buffer es necesario para encoding en Privy/jose
  *
- * IMPORTANTE:
- * - NO instalar ni referenciar `readable-stream` (no está en el proyecto)
- * - NO usar polyfills de crypto pesados — Hermes ya lo tiene nativo
+ * ¿Por qué `react-native-get-random-values`?
+ * - En Hermes (RN 0.83), acceder a `global.crypto` cuando NO existe lanza
+ *   ReferenceError (distinto a V8 que retorna undefined).
+ * - `globalThis.crypto` también puede ser undefined en algunos dispositivos.
+ * - Este paquete inyecta `crypto.getRandomValues` nativo y registra
+ *   `global.crypto` de forma segura — es el estándar para RN + Privy.
+ *
+ * Orden de imports: esta secuencia es CRÍTICA — no reordenar.
+ *  1. react-native-get-random-values → registra global.crypto (nativo)
+ *  2. buffer → registra global.Buffer
+ *
+ * Docs Privy RN: https://docs.privy.io/guide/expo/setup
  */
 
-import { Buffer } from "buffer";
+// 1. Polyfill de crypto — PRIMERO, antes de cualquier lib que use crypto
+//    Registra global.crypto.getRandomValues con implementación nativa.
+//    También expone global.crypto.subtle vía globalThis si Hermes lo tiene.
+import "react-native-get-random-values";
 
-// Buffer global — requerido por varias dependencias de Privy
+// 2. Polyfill de Buffer — requerido por Privy/jose para encoding
+import { Buffer } from "buffer";
 global.Buffer = Buffer;
 
-// Crypto — Hermes RN 0.83 tiene WebCrypto nativo en globalThis
-// Solo necesitamos asegurarnos de que `global.crypto` apunte ahí
-if (typeof global.crypto === "undefined" && typeof globalThis.crypto !== "undefined") {
-  // @ts-ignore — asignar crypto nativo de Hermes al global de Node-style
+// 3. Asegurar que global.crypto apunte a globalThis.crypto para librerías
+//    que usan global.crypto.subtle (patrón Node.js vs patrón browser)
+//    react-native-get-random-values ya registró global.crypto, así que
+//    esta línea solo refuerza la referencia si falta algo.
+if (typeof globalThis.crypto !== "undefined" && typeof global.crypto === "undefined") {
+  // @ts-ignore — bridge entre namespace de Node-style y browser-style
   global.crypto = globalThis.crypto;
 }
