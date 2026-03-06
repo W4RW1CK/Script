@@ -25,7 +25,7 @@ export default function OnboardingWelcomeScreen() {
         <Ionicons
           name="document-text-outline"
           size={80}
-          color={isDark ? "#5A7E92" : "#A8C5DA"}
+          color={isDark ? "#5A7E92" : "#A8C5DA"} // script-dark-blue / script-blue
         />
 
         {/* Nombre de la app */}

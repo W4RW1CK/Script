@@ -145,7 +145,7 @@ export default function AuthScreen() {
           <Ionicons
             name="document-text-outline"
             size={64}
-            color={isDark ? "#5A7E92" : "#A8C5DA"}
+            color={isDark ? "#5A7E92" : "#A8C5DA"} // script-dark-blue / script-blue
           />
           <Typography variant="headingL">Script</Typography>
           <Typography
