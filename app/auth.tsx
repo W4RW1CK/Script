@@ -17,7 +17,7 @@
  */
 import React, { useState } from "react";
 import { View, Alert, useColorScheme } from "react-native";
-import * as Linking from "expo-linking";
+// import * as Linking from "expo-linking"; // Reservado para magic link flow (Semana 3+)
 import { useLoginWithEmail, useLoginWithOAuth } from "@privy-io/expo";
 import { Ionicons } from "@expo/vector-icons";
 import { SafeScreen, Typography, Button, TextInput } from "@/components/ui";
@@ -99,17 +99,17 @@ export default function AuthScreen() {
     }
   };
 
-  /** Enviar magic link al email */
+  /** Enviar código OTP al email */
   const handleSendCode = async () => {
     if (!email.trim()) return;
     setIsLoading(true);
     try {
-      // redirectUrl: le dice a Privy a dónde regresar después del magic link.
-      // Linking.createURL() genera automáticamente el esquema correcto:
-      //   - Expo Go dev:  exp://192.168.x.x:8081/--/auth
-      //   - Producción:   scriptapp://auth
-      const redirectUrl = Linking.createURL("/auth");
-      await sendCode({ email: email.trim(), redirectUrl });
+      // NO pasamos redirectUrl aquí: estamos usando flujo OTP (código de 6 dígitos),
+      // no magic link clickeable. redirectUrl solo es necesario si Privy debe redirigir
+      // al usuario de vuelta a la app desde un link en el email.
+      // Pasar redirectUrl con scheme exp:// causa "Redirect URL scheme is not allowed"
+      // porque Privy no valida esquemas nativos en este contexto. (B-31 fix v2)
+      await sendCode({ email: email.trim() });
       setAwaitingCode(true);
       setIsLoading(false);
     } catch {
