@@ -71,6 +71,13 @@ function AuthGate({ children }: { children: React.ReactNode }) {
     const inOnboardingGroup = segments[0] === "(onboarding)";
     const inAppGroup = segments[0] === "(app)";
 
+    // ⚠️ EXCEPCIÓN CRÍTICA: rescue es siempre accesible — incluso sin auth.
+    // En una crisis el usuario NUNCA debe ser bloqueado por un redirect de auth.
+    // APP_FLOW.md: "Necesito ayuda ahora" bypass de onboarding → S17 Rescate.
+    const inRescueGroup =
+      inAppGroup && segments[1] === "rescue";
+    if (inRescueGroup) return;
+
     if (!user) {
       // Sin sesión → ir a auth (solo si no estamos ya ahí)
       if (!inAuthGroup) {
