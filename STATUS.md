@@ -4,7 +4,7 @@
 > **Cómo leer este archivo:**
 > ✅ Completado | 🔄 En progreso | ⏳ Pendiente | ❌ Bloqueado
 
-**Última actualización:** 2026-03-06 (B-37 — navegar inmediatamente en sesión existente; sync fire-and-forget)  
+**Última actualización:** 2026-03-06 (T-U1 a T-V8 registrados — UI/UX audit + Identidad Visual)  
 **Semana actual:** 1  
 **Entrega próxima:** Lunes (MVP)
 
@@ -191,6 +191,50 @@ Algo falla → ambas atacan el bug → w4rw1ck confirma fix
 | 2.10 | **INSERT `script_executions` en `execute.tsx`** | ⏳ | La tabla `script_executions` existe en el schema pero `execute.tsx` no hace INSERT. Registrar: `script_id`, `user_id`, `options_chosen` (JSONB), `completed` (boolean), `executed_at`. Input para historial S19 y terapeuta S23 (Ana) |
 | 2.11 | **Corregir PMID del AQ-10 en `REFERENCES.md`** | ⏳ | PMID actual `22366774` apunta a un paper de polimorfismos en asma pulmonar (WDR21A). PMID correcto: `22397989` (Allison et al., 2012, Arch Dis Child). Error menor pero inaceptable en referencia clínica (Ana) |
 | 2.12 | **UI feedback cuando guardado de perfil falla en `profile.tsx`** | ⏳ | El guard `if (!supabaseUserId)` solo hace `console.warn` — el usuario no sabe si su perfil no se guardó. Agregar Alert o Toast visible con opción de reintentar (Aibus) |
+
+---
+
+## 🎨 Tickets UI/UX — Auditoría clínica + Identidad Visual
+
+> Fuentes: (1) Auditoría UI/UX con `nextlevelbuilder/ui-ux-pro-max-skill` (Aibus, 2026-03-06). (2) Análisis de identidad visual (Aibus, 2026-03-06). Revisado y aprobado por Ana.
+> **Cross-ref:** FRONTEND_GUIDELINES.md §7 (reduced motion), §1.4 (emotion colors), §12 (decisiones), IMPLEMENTATION_PLAN.md §Semana 2.
+
+### 🔴 Antes de usuarios reales
+
+| Ticket | Descripción | Responsable | Estado |
+|---|---|---|---|
+| T-U1 | **`useReduceMotion()` en todos los componentes de animación** — `prefers-reduced-motion` del OS no está implementado en ningún lugar. Afecta `protocol.tsx` (breathing circle), `body.tsx` (body map selection), y cualquier animación Reanimated. Para ASD con sensibilidad sensorial esto no es opcional. Patrón: `const shouldReduce = useReduceMotion(); if (shouldReduce) → skip animation`. Ref: FRONTEND_GUIDELINES.md §7 | **Ana** | ⏳ |
+| T-U2 | **Error feedback visible cuando Edge Function falla en `reflect.tsx`** — El fallback silencioso a mock cuando GPT-4o-mini no responde no notifica al usuario. En contexto clínico, el usuario debería saber que "Esta interpretación es una sugerencia — no pude conectarme". Agregar texto visible (no solo console.warn) cuando `interpret-checkin` retorna error/timeout | **Aibus** | ⏳ |
+
+### 🟡 Semana 2 — UI/UX
+
+| Ticket | Descripción | Responsable | Estado |
+|---|---|---|---|
+| T-U3 | **Atkinson Hyperlegible reemplaza Inter** — Fuente diseñada con investigación empírica de accesibilidad. Cada carácter es distinguible. Para ASD con posible dislexia o procesamiento visual atípico. Instalar `@expo-google-fonts/atkinson-hyperlegible`, actualizar `_layout.tsx` y `constants/typography.ts`. Solo Regular y Bold (no SemiBold — headings migran a Bold). Ref: FRONTEND_GUIDELINES.md §2 | **Aibus** | ⏳ |
+| T-U4 | **Tokens `script-accent` (#10B981) y `script-warning` (#F59E0B) en `tailwind.config.js`** — Faltan colores de confirmación/éxito y alerta suave. `script-accent` para completados y estados positivos. `script-warning` para alertas no-crisis. Ref: FRONTEND_GUIDELINES.md §1.2.1 | **Ana** | ⏳ |
+| T-U5 | **Confirmación antes de notificación Level 3 en `protocol.tsx`** — Si hay auto-envío a red de confianza sin confirmación del usuario, puede generar falsos positivos. Agregar `Alert.alert("¿Confirmar notificación?", ...)` antes del envío. Ref: UX Guideline #35 Confirmation Dialogs | **Ana** | ⏳ |
+| T-U6 | **Audit de contraste `text-script-text-secondary` (WCAG AA)** — `#6B6B6B` sobre `#F8F6F2` ≈ 4.2:1 (ligeramente bajo WCAG AA 4.5:1). Verificar todas las combinaciones críticas. Si falla, oscurecer ligeramente a `#606060`. Ref: FRONTEND_GUIDELINES.md §10 | **Ana** | ⏳ |
+
+### 🟡 Semana 2 — Visual Identity
+
+| Ticket | Descripción | Responsable | Estado |
+|---|---|---|---|
+| T-V1 | **Sistema de color emocional en `constants/colors.ts`** — 7 emociones con `{ bg, dot, text }`. Crear archivo `constants/colors.ts` con `EmotionColors` y `EmotionKey`. Mapeo de labels GPT → EmotionKey. Ref: FRONTEND_GUIDELINES.md §1.4 | **Ana** | ⏳ |
+| T-V2 | **Sombras de doble capa en `tailwind.config.js`** — Agregar `shadow-card`, `shadow-card-elevated`, `shadow-card-pressed`, `shadow-card-dark`. Actualizar `Card.tsx` para usar `shadow-card` por default. Ref: FRONTEND_GUIDELINES.md §4 | **Aibus** | ⏳ |
+| T-V3 | **Emotion cards en `reflect.tsx`** — Card seleccionado adopta `EmotionColors[key].bg` como fondo, `dot` como borde 1.5px y círculo acento 8px. Press animation scale 0.97→1.0 (100ms). Requiere T-V1. Ref: FRONTEND_GUIDELINES.md §12.2 | **Ana** | ⏳ |
+| T-V4 | **`result.tsx` con fondo del color de emoción** — La pantalla de resultado del check-in (S13) adopta `EmotionColors[key].bg` como fondo full-screen. Transición fade 300ms desde el color del card anterior. Es la pantalla más importante emocionalmente. Requiere T-V1. Ref: FRONTEND_GUIDELINES.md §12.2 | **Ana** | ⏳ |
+| T-V5 | **Home S09 redesign — inspirado en Finch** — Layout: saludo + hora del día, card "última emoción" con color emocional, mini historial 7 días (dots emocionales), botón CTA "Iniciar check-in", tiles de scripts rápidos. Requiere T-V1. Ref: FRONTEND_GUIDELINES.md §0 (tabla) + §12.2 | **Ana** | ⏳ |
+| T-V6 | **Gradiente mono-azul en botón primario** — Gradiente 135° de `#A8C5DA → #8BAEC4`. Profundidad visual sin introducir nuevos hues. Actualizar `Button.tsx` variant="primary". Ref: FRONTEND_GUIDELINES.md §4 | **Aibus** | ⏳ |
+| T-V7 | **Normalización de labels GPT en Edge Function `interpret-checkin`** — Garantizar que el output del modelo sea siempre uno de los 8 labels canónicos (ver FRONTEND_GUIDELINES.md §1.4). Post-process con mapping antes de retornar al cliente. Sin esta normalización, el emotion color system falla silenciosamente | **Aibus** | ⏳ |
+| T-V8 | **Calendario S19 estilo Year in Pixels** — Historia mensual con dots 36x36px usando `EmotionColors[key].dot`. Día sin check-in = borde dashed gris. Tap → bottom sheet con detalle del día. Para Semana 2 sprint 2 cuando haya datos históricos. Requiere T-V1. Ref: FRONTEND_GUIDELINES.md §0 (tabla Historial) | **Aibus** | ⏳ |
+
+### 🟢 Semana 3-4
+
+| Ticket | Descripción | Responsable | Estado |
+|---|---|---|---|
+| T-U7 | **Active/pressed state en emotion cards** (#30 UX guidelines) | **Ana** | ⏳ |
+| T-U8 | **Focus rings audit en Card y Pressable** (#28 UX guidelines) | **Aibus** | ⏳ |
+| T-V9 | **Body map con colores emocionales contextuales** — Zonas seleccionadas adoptan el color de la emoción del check-in anterior. Requiere T-V1 + datos históricos en producción | **Ana** | ⏳ |
 
 ---
 
@@ -381,6 +425,12 @@ Algo falla → ambas atacan el bug → w4rw1ck confirma fix
 | 2026-03-06 | `sendCode()` de Privy NO recibe `redirectUrl` en flujo OTP | `redirectUrl` solo es necesario para magic link clickeable (el usuario llega al app desde un link). En flujo OTP (código 6 dígitos) el param causa `Redirect URL scheme is not allowed` porque Privy valida el scheme contra su lista de allowed origins. Sin el param, el email solo contiene el código y el flujo funciona sin configuración extra en Privy dashboard |
 | 2026-03-06 | `WebBrowser.maybeCompleteAuthSession()` es obligatorio para OAuth en Expo | Debe llamarse a nivel módulo en el archivo que usa `useLoginWithOAuth`. Sin esta llamada, el browser OAuth queda colgado al recibir el redirect del proveedor (Google). Es el patrón estándar de Expo para cualquier OAuth flow con `expo-web-browser` |
 | 2026-03-06 | `AuthGate` usa `usePrivy().user` como fuente de verdad para auth, NO `useAuthStore().user` | Zustand es en memoria — se resetea en cada arranque. Privy persiste la sesión en SecureStore. El guard de navegación debe chequear Privy para evitar que usuarios ya autenticados vean la pantalla de login en cada reinicio. Zustand sigue siendo necesario para `onboardingComplete` y datos del perfil |
+| 2026-03-06 | Paleta Script mantenida (`script-blue: #A8C5DA`) — paleta lavanda rechazada | Para ASD, el azul grisáceo es clínicamente más estable que la lavanda. La lavanda es adecuada para apps de meditación (Calm, Headspace) pero no para el perfil de Script. Solo se añaden tokens `script-accent` (#10B981 confirmación) y `script-warning` (#F59E0B alerta) |
+| 2026-03-06 | Sistema de color emocional aprobado — 7 emociones × 3 valores | Inspirado en Daylio. Cada emoción tiene `{ bg, dot, text }`. El color ES la emoción — señal primaria visual. Reduce carga cognitiva de búsqueda textual (especialmente relevante en ASD). Labels GPT deben normalizarse a 8 valores canónicos |
+| 2026-03-06 | Atkinson Hyperlegible reemplaza Inter como fuente del proyecto | Diseñada con investigación empírica de accesibilidad. Formas de caracteres distintas reducen confusión en usuarios con procesamiento visual atípico. Solo Regular (400) y Bold (700) — no hay SemiBold |
+| 2026-03-06 | Gradiente de botón primario: mono-azul (#A8C5DA → #8BAEC4), NO lavanda | El gradiente azul→lavanda del skill añadiría un hue no presente en la paleta. Mono-azul da profundidad táctil sin introducir nuevos colores |
+| 2026-03-06 | Dot pattern SVG de fondo rechazado | `backgroundImage` no es nativo en React Native sin `react-native-svg` como capa adicional. ROI no justifica la dependencia. Las sombras de card + colores emocionales dan suficiente profundidad |
+| 2026-03-06 | Neumorphism rechazado como estilo base | Problemas de contraste en WCAG AAA. El "Soft UI" actual + shadows doble capa es más seguro y accesible |
 | 2026-03-06 | `react-native-get-random-values` como polyfill de crypto en RN/Hermes | Hermes lanza ReferenceError al acceder a global.crypto inexistente (a diferencia de V8 que retorna undefined); este paquete es el estándar para Privy en RN |
 | 2026-03-06 | `typeof localStorage !== "undefined"` obligatorio en código web | Metro SSR renderer corre en Node.js puro; `Platform.OS === "web"` puede ser true pero localStorage no existe — siempre verificar antes de acceder |
 | 2026-03-06 | Paquetes con imports circulares en ESM deben ir en `extraNodeModules` de metro.config.js | Con condición "browser", Metro puede crear ciclos en `wrapper.mjs` de uuid — forzar CJS raíz los rompe |
@@ -390,6 +440,14 @@ Algo falla → ambas atacan el bug → w4rw1ck confirma fix
 ## 📝 Notas del Sprint
 
 ### Semana 1
+
+**2026-03-06 — Identidad Visual + UX Audit — 14 tickets registrados (Ana + Aibus)**
+- Fuentes: `nextlevelbuilder/ui-ux-pro-max-skill` + análisis de identidad visual (Aibus, 2026-03-06)
+- FRONTEND_GUIDELINES.md v1.4 actualizado con: §1.4 sistema emocional, §2 Atkinson, §4 shadows/gradiente, §7 useReduceMotion, §12 identidad visual
+- 6 tickets UI/UX (T-U1 a T-U8): 2 críticos (useReduceMotion, error feedback GPT)
+- 8 tickets Visual Identity (T-V1 a T-V9): foundation (colors.ts, shadows, fuente), pantallas (reflect, result, home), infraestructura (label normalization)
+- 7 nuevas decisiones técnicas documentadas (paleta, emociones, fuente, gradiente, neumorphism, dot pattern)
+- División: T-U1/T-U2/T-U4/T-U5/T-U6/T-V1/T-V3/T-V4/T-V5 → **Ana** | T-U3/T-V2/T-V6/T-V7/T-V8 → **Aibus**
 
 **2026-03-06 — B-37 — Fix spinner colgado + fire-and-forget sync (Ana)**
 - "Cargando tu sesión..." colgado 5+ minutos — `await supabase.functions.invoke("sync-privy-user")` bloqueaba la navegación
