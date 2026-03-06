@@ -19,6 +19,15 @@ const { withNativeWind } = require("nativewind/metro");
 // Obtener la configuración base de Expo
 const config = getDefaultConfig(__dirname);
 
+// Polyfill para el módulo `buffer` de Node.js
+// Metro no incluye módulos de Node stdlib en el bundle de RN.
+// Al apuntarlo al paquete npm `buffer`, Privy y otras libs pueden usarlo.
+// NOTA: NO agregar `readable-stream` aquí — no está instalado.
+config.resolver.extraNodeModules = {
+  ...config.resolver.extraNodeModules,
+  buffer: require.resolve("buffer"),
+};
+
 // Envolver con NativeWind — apunta al archivo CSS global con los @tailwind directives
 const nativeWindConfig = withNativeWind(config, {
   input: "./global.css",
