@@ -4,7 +4,7 @@
 > **Cómo leer este archivo:**
 > ✅ Completado | 🔄 En progreso | ⏳ Pendiente | ❌ Bloqueado
 
-**Última actualización:** 2026-03-06 (B-22 a B-28 resueltos — polyfills crypto/localStorage corregidos)  
+**Última actualización:** 2026-03-06 (bloqueador #7 ✅ — scripts con fundamento clínico + REFERENCES.md)  
 **Semana actual:** 1  
 **Entrega próxima:** Lunes (MVP)
 
@@ -36,7 +36,7 @@ Algo falla → ambas atacan el bug → w4rw1ck confirma fix
 | 4 | Validar/ajustar paleta de colores TEA | Ana + Aibus | Fase 1.3 | ✅ |
 | 5 | Traducciones en español: AQ Full (50q) + CAT-Q (25q) + RAADS-R (80q) | Ana + Aibus | Fase 1.8 | ⏳ |
 | 6 | Audio: voz guiada + tono ambient (para grounding y respiración) | Ana + Aibus | Fase 1.7 | ⏳ |
-| 7 | Revisar/completar contenido de 5 scripts sociales | Ana + Aibus | Fase 1.6 | ⏳ |
+| 7 | Revisar/completar contenido de 5 scripts sociales | Ana + Aibus | Fase 1.6 | ✅ |
 
 ---
 
@@ -63,6 +63,7 @@ Algo falla → ambas atacan el bug → w4rw1ck confirma fix
 | `FRONTEND_GUIDELINES.md` | v1.2 | ✅ | §0 agregada: tabla de inspiración por pantalla (Finch/Daylio); Compañero/Planta diferido a S3 |
 | `BACKEND_STRUCTURE.md` | v1.3 | ✅ | RAADS-R domain counts corregidos; RLS policies completadas; tone-grounding-voice.mp3 agregado |
 | `IMPLEMENTATION_PLAN.md` | v1.6 | ✅ | expo-symbols en install; supabase-js pinneada; Fase 1.8 expandida; timer 10s canónico |
+| `REFERENCES.md` | v1.0 | ✅ | Fuentes clínicas de scripts sociales (Gray, Baker, Gaus, Attwood, Hull) + tests (AQ, CAT-Q, RAADS-R) + recursos de investigación futuros |
 
 ---
 
@@ -313,6 +314,15 @@ Algo falla → ambas atacan el bug → w4rw1ck confirma fix
 ## 📝 Notas del Sprint
 
 ### Semana 1
+
+**2026-03-06 — Contenido scripts sociales con fundamento clínico (bloqueador #7 ✅)**
+- `supabase/seed-scripts.sql` reescrito — 5 scripts con bloques completos, frases reales, contexto clínico
+- Estructura apertura→contexto→acción→salida basada en Gray (1994) Social Stories™ + Baker (2003)
+- Múltiples opciones por fase para reducir carga cognitiva (Gaus, 2011)
+- Salida `optional: true` — no forzar cierre formal (Attwood, 2007)
+- `REFERENCES.md` creado — fuentes académicas de scripts, tests de onboarding y recursos futuros
+- Bloqueador #7 resuelto ✅ — bloqueadores activos ahora: #2 (Privy App ID), #5 (traducciones), #6 (audio)
+- Commit: `fdcadd2`
 
 **2026-03-06 — Polyfill fixes: crypto + localStorage (B-27/B-28)**
 - Bug B-27 🔴: `global.crypto` inexistente en Hermes lanza ReferenceError → instalado `react-native-get-random-values ~1.11.0`, importado primero en polyfills.ts
