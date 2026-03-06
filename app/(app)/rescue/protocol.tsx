@@ -17,10 +17,11 @@
  *   Círculo animado con Reanimated (expand=inhala, hold=pausa, contract=exhala).
  *   4 ciclos (4s inhalar / 2s pausa / 6s exhalar = 12s por ciclo).
  *   Etiqueta de fase (Inhala/Pausa/Exhala) actualizada con setInterval JS-side.
+ *   T-U1: useReduceMotion() — si true, círculo estático + labels; sin animación visual.
  *   Audio: pendiente (ver assets/audio/README.md).
  *
  * Nivel 3 — Emergencia:
- *   Teléfono de crisis SAPTEL (800 290-0024, México, 24h).
+ *   Teléfono de crisis SAPTEL (55) 5259-8121, México, 24h. Línea de la Vida 800 911-2000.
  *   Botón "Respiración guiada" → redirige internamente a Level 2.
  *   TODO (Fase 1.8+): mostrar contactos de confianza del usuario.
  *
@@ -35,8 +36,10 @@ import Animated, {
   withSequence,
   withTiming,
   withRepeat,
+  useReduceMotion,
   Easing,
 } from "react-native-reanimated";
+// useReduceMotion — respeta OS prefers-reduced-motion + setting interno (T-U1)
 import * as Haptics from "expo-haptics";
 import { SafeScreen, Typography } from "@/components/ui";
 
@@ -54,8 +57,9 @@ const GROUNDING_STEPS = [
 ];
 
 // ── Respiración guiada (Nivel 2) ───────────────────────────────────────────
-const CIRCLE_MIN = 100; // diámetro mínimo al exhalar (px)
-const CIRCLE_MAX = 200; // diámetro máximo al inhalar (px)
+const CIRCLE_MIN  = 100; // diámetro mínimo al exhalar (px)
+const CIRCLE_MAX  = 200; // diámetro máximo al inhalar (px)
+const CIRCLE_BASE = 150; // diámetro estático cuando useReduceMotion() = true (T-U1)
 const INHALE_MS  = 4000;
 const PAUSE_MS   = 2000;
 const EXHALE_MS  = 6000;
@@ -74,6 +78,14 @@ export default function RescueProtocolScreen() {
 
   // Parsear nivel (default 1 si el param es inválido)
   const level = (parseInt(levelParam ?? "1", 10) as CrisisLevel) || 1;
+
+  /**
+   * T-U1: Reducción de animaciones accesible.
+   * Respeta OS `prefers-reduced-motion` y la preferencia interna del usuario.
+   * FRONTEND_GUIDELINES §7: con shouldReduce=true, el círculo queda estático
+   * en CIRCLE_BASE. Timer y hápticos siguen activos (canal diferente, no visual).
+   */
+  const shouldReduce = useReduceMotion();
 
   // Colores adaptativos para dark mode — crisis debe ser legible siempre
   const primaryBtnBg   = isDark ? "#6A3E3E" : "#E8C4C4";
@@ -117,25 +129,34 @@ export default function RescueProtocolScreen() {
   const startBreathing = useCallback(() => {
     setBreathingStarted(true);
 
-    // ── Animación Reanimated (UI thread) ────────────────────────────────
-    circleSize.value = withRepeat(
-      withSequence(
-        // Inhalar: expandir a MAX en 4s
-        withTiming(CIRCLE_MAX, {
-          duration: INHALE_MS,
-          easing: Easing.inOut(Easing.ease),
-        }),
-        // Pausa: mantener en MAX por 2s
-        withTiming(CIRCLE_MAX, { duration: PAUSE_MS }),
-        // Exhalar: contraer a MIN en 6s
-        withTiming(CIRCLE_MIN, {
-          duration: EXHALE_MS,
-          easing: Easing.inOut(Easing.ease),
-        }),
-      ),
-      CYCLE_COUNT, // 4 repeticiones
-      false        // no revertir
-    );
+    // ── Animación Reanimated (UI thread) — T-U1: reducción de movimiento ──
+    if (shouldReduce) {
+      // Círculo estático: no anima, solo muestra tamaño base.
+      // El timer y hápticos siguen activos — son canales no visuales.
+      // FRONTEND_GUIDELINES §7: "breathing circle muestra el texto de la
+      // fase sin animación de escala cuando shouldReduce = true."
+      circleSize.value = CIRCLE_BASE;
+    } else {
+      // Animación completa: expand=inhala, pausa, contract=exhala
+      circleSize.value = withRepeat(
+        withSequence(
+          // Inhalar: expandir a MAX en 4s
+          withTiming(CIRCLE_MAX, {
+            duration: INHALE_MS,
+            easing: Easing.inOut(Easing.ease),
+          }),
+          // Pausa: mantener en MAX por 2s
+          withTiming(CIRCLE_MAX, { duration: PAUSE_MS }),
+          // Exhalar: contraer a MIN en 6s
+          withTiming(CIRCLE_MIN, {
+            duration: EXHALE_MS,
+            easing: Easing.inOut(Easing.ease),
+          }),
+        ),
+        CYCLE_COUNT, // 4 repeticiones
+        false        // no revertir
+      );
+    }
 
     // ── Tracking de fase en JS thread (para el label) ───────────────────
     //
@@ -173,7 +194,7 @@ export default function RescueProtocolScreen() {
         setBreathingComplete(true);
       }
     }, 80); // 80ms para labels más responsivos sin overhead significativo
-  }, [circleSize]);
+  }, [circleSize, shouldReduce]); // shouldReduce: T-U1
 
   // Limpiar timer al desmontar
   useEffect(() => {
