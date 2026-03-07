@@ -60,11 +60,11 @@ const supabaseAnonKey = process.env.EXPO_PUBLIC_SUPABASE_ANON_KEY!;
 export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
   auth: {
     storage,
-    // B-51 v2: ahora usamos Supabase Auth real via verifyOtp + Admin API.
-    // autoRefreshToken: true → Supabase renueva el access_token automáticamente
-    // usando el refresh_token retornado por verifyOtp(). Sin esto el token
-    // expira en ~1 hora y las queries RLS empiezan a fallar.
-    autoRefreshToken:   true,
+    // autoRefreshToken: false — Privy gestiona el ciclo de vida de la sesión.
+    // sync-privy-user genera un nuevo token en cada arranque de la app via
+    // generateLink + verifyOtp. No necesitamos que Supabase intente hacer
+    // refresh automático (podría intentar usar tokens viejos/inválidos de SecureStore).
+    autoRefreshToken:  false,
     persistSession:     true,  // Sesión persiste en SecureStore entre reinicios de app
     detectSessionInUrl: false,
   },
