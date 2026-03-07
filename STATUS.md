@@ -4,7 +4,7 @@
 > **Cómo leer este archivo:**
 > ✅ Completado | 🔄 En progreso | ⏳ Pendiente | ❌ Bloqueado
 
-**Última actualización:** 2026-03-06 (Auditoría completa; B-38→B-41 registrados; B-39/B-40/B-41 ✅ resueltos)  
+**Última actualización:** 2026-03-06 (Auditoría 2: B-42→B-48 encontrados; B-42/B-43/B-44/B-45/B-46/B-47/B-48 ✅ resueltos; ROOT CAUSE auth loop corregido)  
 **Semana actual:** 1  
 **Entrega próxima:** Lunes (MVP)
 
@@ -308,6 +308,13 @@ Algo falla → ambas atacan el bug → w4rw1ck confirma fix
 | B-39 | `Button` hardcodeaba `accessibilityLabel={title}` ignorando cualquier label custom pasado como prop — la interfaz TypeScript no aceptaba `accessibilityLabel`. Lectores de pantalla siempre leían el `title` corto aunque se pasara descripción extendida (detectado en `consent.tsx`). Fix: `accessibilityLabel?: string` agregado a `ButtonProps`; componente usa `accessibilityLabel ?? title`. Commit: `a4204fc` | 🟡 Media | audit | ✅ Resuelto |
 | B-40 | `result.tsx` navegaba silenciosamente a home aunque el INSERT en `checkins` fallara (por `supabaseUserId` null o error RLS). Usuario creía haber guardado su check-in cuando no. Fix: guard explícito antes del INSERT; dos Alert con opciones de reintentar + continuar sin guardar para error de null y error de red respectivamente. Commit: `1583d3b` | 🔴 Alta | audit | ✅ Resuelto |
 | B-41 | `profile.tsx` usaba `.update()` en vez de `.upsert()` — si la fila en `profiles` no existía (sync-privy-user falló), `.update()` hacía 0 rows affected silenciosamente. El usuario completaba el cuestionario y perdía todos sus datos sin saberlo. Fix: `.upsert({ user_id, ...data }, { onConflict: "user_id" })`. Commit: `87a4eab` | 🔴 Alta | audit | ✅ Resuelto |
+| B-42 | **ROOT CAUSE auth loop** — `sync-privy-user` hacía `.eq("privy_id", ...)` pero la columna en schema es `privy_user_id`. Cada llamada fallaba con "column privy_id does not exist" → usuarios nunca se creaban en Supabase → `supabaseUserId` siempre null → ciclo de auth. Fix: `privy_id` → `privy_user_id` en SELECT e INSERT. Commit: `3e27be5` | 🔴 Crítico | sync | ✅ Resuelto |
+| B-43 | `sync-privy-user` leía y escribía `onboarding_complete` en tabla `users` — pero el campo solo existe en `profiles` (schema.sql línea 39). SELECT siempre devolvía null, INSERT fallaba silenciosamente. Fix: leer `onboarding_complete` de `profiles` vía query separada. Commit: `3e27be5` | 🔴 Crítico | sync | ✅ Resuelto |
+| B-44 | `contacts.tsx` actualizaba `users.onboarding_complete = true` — columna inexistente en `users`. El onboarding nunca se marcaba como completo en Supabase → AuthGate siempre mandaba al usuario a onboarding en reinicios. Fix: actualizar `profiles.onboarding_complete`. Commit: `ae5f45b` | 🔴 Crítico | onboarding | ✅ Resuelto |
+| B-45 | `sync-privy-user` hacía `.update({ last_login: ... })` en `users` — columna `last_login` no existe en schema. Causa error silencioso en cada login de usuario existente. Fix: eliminado `last_login`, reemplazado por `updated_at`. Commit: `3e27be5` | 🟡 Media | sync | ✅ Resuelto |
+| B-46 | `profile.tsx` enviaba `display_name` a `profiles` table — pero `display_name` solo existe en `users`. Fix: `display_name` se actualiza en `users` por separado con `.update()`. Commit: `142104d` | 🟡 Media | onboarding | ✅ Resuelto |
+| B-47 | `profile.tsx` enviaba campo `age` a `profiles` — columna no existe en ninguna tabla del schema. Fix: campo eliminado del upsert (el form UI queda pero el dato no se intenta guardar hasta que se añada al schema). Commit: `142104d` | 🟡 Media | onboarding | ✅ Resuelto |
+| B-48 | `profile.tsx` enviaba `sensitivities: string[]` a `profiles.sensitivities JSONB` — schema diseñado como objeto `{}`, no array. Fix: `Object.fromEntries(selectedSensitivities.map(k => [k, true]))` convierte a `{ light: true, sound: true }`. Commit: `142104d` | 🟡 Media | onboarding | ✅ Resuelto |
 
 **B-01 — Fix:** Se eliminaron las columnas `hour_of_day` y `day_of_week` de `checkins`. `EXTRACT()` usable en queries. Commit: `864e435`.
 
