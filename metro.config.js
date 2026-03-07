@@ -46,11 +46,14 @@ config.resolver.extraNodeModules = {
  * extraNodeModules NO es suficiente porque no aplica a imports ESM en .mjs.
  */
 const path = require("path");
+// Resolver la ruta real de uuid en tiempo de inicio de Metro (evita hardcodear paths)
+const uuidCjsPath = require.resolve("uuid");
+
 config.resolver.resolveRequest = (context, moduleName, platform) => {
   if (moduleName === "uuid" || moduleName.startsWith("uuid/")) {
-    // Forzar SIEMPRE el build CJS — nunca wrapper.mjs
+    // Forzar SIEMPRE el build CJS resuelto por Node — nunca wrapper.mjs
     return {
-      filePath: path.resolve(__dirname, "node_modules/uuid/dist/cjs/index.js"),
+      filePath: uuidCjsPath,
       type: "sourceFile",
     };
   }
