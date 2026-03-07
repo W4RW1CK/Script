@@ -37,7 +37,7 @@ import { useColorScheme, View } from "react-native";
 import { SafeAreaProvider } from "react-native-safe-area-context";
 import { RescueFAB } from "@/components/rescue/RescueFAB";
 import { useAuthStore } from "@/stores/auth";
-import { supabase } from "@/lib/supabase";
+import { supabase, setSupabaseToken } from "@/lib/supabase"; // B-51
 
 // Re-exporta el ErrorBoundary de Expo Router para capturar errores en pantallas
 export { ErrorBoundary } from "expo-router";
@@ -117,6 +117,14 @@ function AuthGate({ children }: { children: React.ReactNode }) {
           setSupabaseUserId(data.user_id);
           if (data.onboarding_complete) {
             setOnboardingComplete(true);
+          }
+          // B-51 (Option A): restaurar sesión Supabase al reiniciar la app.
+          // sync-privy-user retorna access_token — lo activamos para que
+          // auth.uid() funcione y las RLS policies se resuelvan correctamente.
+          if (data.access_token) {
+            setSupabaseToken(data.access_token).catch((e) =>
+              console.warn("[AuthGate] setSupabaseToken failed:", e)
+            );
           }
         }
       })
