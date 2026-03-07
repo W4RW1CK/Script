@@ -41,7 +41,7 @@ import { supabase, setSupabaseToken } from "@/lib/supabase"; // B-51: setSupabas
  * Tiene timeout de 6s — si Privy no carga, muestra diagnóstico.
  * Causa más común: EXPO_PUBLIC_PRIVY_CLIENT_ID faltante en .env.local
  */
-function PrivyLoadingScreen({ isDark }: { isDark: boolean }) {
+function PrivyLoadingScreen({ isDark, onDevBypass }: { isDark: boolean; onDevBypass?: () => void }) {
   const [timedOut, setTimedOut] = useState(false);
 
   useEffect(() => {
@@ -57,18 +57,24 @@ function PrivyLoadingScreen({ isDark }: { isDark: boolean }) {
         <View className="flex-1 items-center justify-center gap-4 px-6">
           <Ionicons name="warning-outline" size={48} color="#F6464F" />
           <Typography variant="headingS" className="text-center">
-            Algo no está bien
+            Privy no inicializó
           </Typography>
           <Typography variant="body" className="text-center text-script-text-secondary dark:text-script-dark-text-secondary">
-            Privy no terminó de inicializar. Verifica que{"\n"}
-            <Typography variant="caption" className="font-mono">
-              EXPO_PUBLIC_PRIVY_CLIENT_ID
-            </Typography>
-            {"\n"}esté en tu archivo .env.local
+            El servicio de autenticación no respondió. Verifica tu conexión a internet o la configuración de Privy.
           </Typography>
-          <Typography variant="caption" className="text-center text-script-text-secondary dark:text-script-dark-text-secondary">
-            Luego reinicia con: npx expo start --clear
-          </Typography>
+          {/* DEV ONLY: bypass para probar la app sin Privy */}
+          {onDevBypass && (
+            <View className="mt-4 w-full gap-3">
+              <Typography variant="caption" className="text-center text-script-text-secondary dark:text-script-dark-text-secondary">
+                — Solo en desarrollo —
+              </Typography>
+              <Button
+                title="⚠️ Bypass dev (sin auth)"
+                variant="ghost"
+                onPress={onDevBypass}
+              />
+            </View>
+          )}
         </View>
       </SafeScreen>
     );
@@ -95,9 +101,18 @@ export default function AuthScreen() {
   const setOnboardingComplete = useAuthStore((s) => s.setOnboardingComplete);
 
   // Privy — fuente de verdad para auth
-  // `authenticated` es un boolean directo — más confiable que checar `user !== null`
-  // porque `user` puede ser null brevemente mientras la sesión se restaura de SecureStore
   const { user: privyUser, ready: privyReady, authenticated } = usePrivy();
+
+  /**
+   * DEV BYPASS — Solo visible en development (__DEV__ = true en Expo Go).
+   * Permite probar el resto de la app sin que Privy inicialice.
+   * NO aparece en producción. Eliminar antes del lanzamiento a usuarios reales.
+   */
+  const handleDevBypass = () => {
+    setUser({ privyId: "dev-bypass-user", email: "dev@script.app", supabaseUserId: null });
+    // No marcamos onboardingComplete para poder ver el onboarding
+    router.replace("/(onboarding)");
+  };
   const router = useRouter();
   const onboardingComplete = useAuthStore((s) => s.onboardingComplete);
 
@@ -291,11 +306,10 @@ export default function AuthScreen() {
    * 2. El useEffect de sesión redirige al destino correcto
    * 3. Mientras Privy carga, mostramos spinner neutral — sin flash de login form
    */
-  // Privy aún cargando — mostrar spinner neutro con timeout de diagnóstico
-  // Si después de 6s sigue cargando, probablemente falta EXPO_PUBLIC_PRIVY_CLIENT_ID
+  // Privy aún cargando — mostrar spinner neutro con timeout de diagnóstico y dev bypass
   if (!privyReady) {
     return (
-      <PrivyLoadingScreen isDark={isDark} />
+      <PrivyLoadingScreen isDark={isDark} onDevBypass={__DEV__ ? handleDevBypass : undefined} />
     );
   }
 
