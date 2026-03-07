@@ -170,12 +170,12 @@ export default function AuthScreen() {
           setOnboardingComplete(true);
           completedOnboarding = true;
         }
-        // B-51 (Option A): activar JWT en el cliente Supabase.
-        // sync-privy-user retorna access_token firmado con SUPABASE_JWT_SECRET.
-        // Con esto auth.uid() funciona → todas las RLS policies se resuelven correctamente.
+        // B-51 v2: activar sesión Supabase via verifyOtp con el token hash.
+        // sync-privy-user retorna otp_token_hash generado por Admin API generateLink.
+        // verifyOtp produce una sesión real → auth.uid() funciona → RLS resuelto.
         // fire-and-forget: si falla, la app sigue funcionando (solo scripts públicos sin auth)
-        if (data.access_token) {
-          setSupabaseToken(data.access_token).catch((e) =>
+        if (data.otp_token_hash) {
+          setSupabaseToken(data.otp_token_hash).catch((e) =>
             console.warn("[Auth] setSupabaseToken failed:", e)
           );
         }

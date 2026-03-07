@@ -60,36 +60,43 @@ const supabaseAnonKey = process.env.EXPO_PUBLIC_SUPABASE_ANON_KEY!;
 export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
   auth: {
     storage,
-    autoRefreshToken:  false, // B-51: no usamos Supabase Auth nativo — Privy maneja la sesión
-    persistSession:    true,  // El JWT minted se persiste en SecureStore para los reinicios
+    // B-51 v2: ahora usamos Supabase Auth real via verifyOtp + Admin API.
+    // autoRefreshToken: true → Supabase renueva el access_token automáticamente
+    // usando el refresh_token retornado por verifyOtp(). Sin esto el token
+    // expira en ~1 hora y las queries RLS empiezan a fallar.
+    autoRefreshToken:   true,
+    persistSession:     true,  // Sesión persiste en SecureStore entre reinicios de app
     detectSessionInUrl: false,
   },
 });
 
 /**
- * setSupabaseToken — Activa el JWT minted por sync-privy-user en el cliente.
+ * setSupabaseToken — Activa la sesión Supabase usando el OTP token hash
+ * generado por sync-privy-user via Admin API.
  *
- * B-51 (Option A): Después de cada llamada exitosa a sync-privy-user,
- * llamar esta función con el access_token recibido.
- * Esto hace que auth.uid() devuelva el UUID correcto → RLS policies funcionan.
+ * B-51 v2 (Admin API approach):
+ *   sync-privy-user ahora retorna `otp_token_hash` en lugar de `access_token`.
+ *   El token_hash proviene de auth.admin.generateLink({ type: 'magiclink' }).
+ *   Llamar verifyOtp con ese token produce una sesión real de Supabase Auth:
+ *   - access_token válido firmado por Supabase (no por nosotros)
+ *   - refresh_token para auto-renovación (autoRefreshToken: true lo usa)
+ *   - auth.uid() retorna el UUID del usuario → RLS policies funcionan
  *
- * El JWT se persiste en SecureStore automáticamente (persistSession: true).
- * En el próximo arranque de app, Supabase lo restaura si no ha expirado (30 días).
+ * Ya no se requiere SUPABASE_JWT_SECRET — el Admin API maneja todo internamente.
  *
- * @param accessToken - JWT firmado con SUPABASE_JWT_SECRET, sub = UUID del usuario
+ * @param tokenHash - hashed_token de la respuesta de generateLink (Admin API)
  */
-export async function setSupabaseToken(accessToken: string): Promise<void> {
+export async function setSupabaseToken(tokenHash: string): Promise<void> {
   try {
-    await supabase.auth.setSession({
-      access_token:  accessToken,
-      // Supabase requiere refresh_token aunque no lo usemos —
-      // pasamos el mismo token como placeholder (no hay flow de refresh real).
-      // El JWT tiene 30 días de validez; sync-privy-user re-minta al arrancar.
-      refresh_token: accessToken,
+    const { data, error } = await supabase.auth.verifyOtp({
+      token_hash: tokenHash,
+      type: "email", // 'email' es el tipo genérico para magic links via Admin API
     });
-    console.log("[Supabase] Sesión activada — RLS habilitada para este usuario");
+    if (error) throw error;
+    if (!data.session) throw new Error("verifyOtp no retornó sesión");
+    console.log("[Supabase] Sesión activada via verifyOtp — RLS habilitada");
   } catch (e) {
-    // No es crítico — la app funciona sin RLS en modo degradado (solo scripts públicos)
+    // No es crítico — la app funciona sin RLS en modo degradado (scripts públicos)
     console.warn("[Supabase] Error activando sesión:", e);
   }
 }

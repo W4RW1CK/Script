@@ -118,11 +118,11 @@ function AuthGate({ children }: { children: React.ReactNode }) {
           if (data.onboarding_complete) {
             setOnboardingComplete(true);
           }
-          // B-51 (Option A): restaurar sesión Supabase al reiniciar la app.
-          // sync-privy-user retorna access_token — lo activamos para que
-          // auth.uid() funcione y las RLS policies se resuelvan correctamente.
-          if (data.access_token) {
-            setSupabaseToken(data.access_token).catch((e) =>
+          // B-51 v2: restaurar sesión Supabase al reiniciar la app.
+          // sync-privy-user retorna otp_token_hash → verifyOtp genera sesión real.
+          // auth.uid() funciona → RLS policies se resuelven correctamente.
+          if (data.otp_token_hash) {
+            setSupabaseToken(data.otp_token_hash).catch((e) =>
               console.warn("[AuthGate] setSupabaseToken failed:", e)
             );
           }

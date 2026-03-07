@@ -1,16 +1,23 @@
 /**
  * sync-privy-user — Supabase Edge Function
  *
- * Sincroniza un usuario de Privy con la tabla `users` y devuelve un JWT
- * compatible con Supabase Auth para que las RLS policies funcionen (B-51).
+ * Sincroniza un usuario de Privy con la tabla `users` de Supabase y genera
+ * una sesión real de Supabase Auth para que las RLS policies funcionen.
  *
- * Flow completo (Option A — B-51):
+ * Flow (B-51 v2 — Admin API approach, no JWT secret needed):
  * 1. Recibe privy_user_id + email del cliente
  * 2. Busca/crea el usuario en tabla `users` (privy_user_id → UUID)
- * 3. Minta un JWT HS256 firmado con SUPABASE_JWT_SECRET, sub = UUID del usuario
- * 4. Retorna { user_id, onboarding_complete, access_token }
- * 5. Cliente llama supabase.auth.setSession({ access_token })
- * 6. auth.uid() ahora retorna el UUID → RLS policies funcionan
+ * 3. Crea/verifica el usuario en `auth.users` con el MISMO UUID via Admin API
+ * 4. Genera un magic link token (Admin API — NO envía email)
+ * 5. Retorna { user_id, onboarding_complete, otp_token_hash }
+ * 6. Cliente llama supabase.auth.verifyOtp({ token_hash }) → obtiene sesión real
+ * 7. auth.uid() ahora retorna el UUID → todas las RLS policies funcionan
+ *
+ * ¿Por qué este approach en lugar de JWT minting?
+ *   El nuevo dashboard de Supabase migró el Legacy JWT Secret a JWT Signing Keys
+ *   asimétricos y ya no expone el secret en la UI. En lugar de depender de un
+ *   secret manual, usamos el Admin API oficial de Supabase para crear sesiones.
+ *   Esto es más robusto y no requiere ningún secret adicional.
  *
  * Schema fixes incluidos:
  *   B-42: columna correcta es `privy_user_id` (no `privy_id`)
@@ -18,9 +25,8 @@
  *   B-45: eliminado `last_login` (no existe en schema)
  *
  * Requiere env vars:
- *   SUPABASE_URL                — URL del proyecto
- *   SUPABASE_SERVICE_ROLE_KEY   — para bypass RLS en operaciones de sync
- *   SUPABASE_JWT_SECRET         — para firmar el JWT (Dashboard → Settings → API)
+ *   SUPABASE_URL              — URL del proyecto (inyectado automáticamente)
+ *   SUPABASE_SERVICE_ROLE_KEY — para bypass RLS y acceso a Admin API (inyectado automáticamente)
  *
  * Deploy: supabase functions deploy sync-privy-user
  */
@@ -30,87 +36,14 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2.97.0";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
+  "Access-Control-Allow-Headers":
+    "authorization, x-client-info, apikey, content-type",
   "Content-Type": "application/json",
 };
 
-// ── JWT minting (B-51 — Option A) ──────────────────────────────────────────
-
-/**
- * Base64URL encode sin padding (estándar JWT — RFC 7515).
- * No usa Buffer (no disponible en Deno nativo).
- */
-function base64url(data: string | Uint8Array): string {
-  const bytes =
-    typeof data === "string" ? new TextEncoder().encode(data) : data;
-  const binary = Array.from(bytes, (b) => String.fromCharCode(b)).join("");
-  return btoa(binary)
-    .replace(/\+/g, "-")
-    .replace(/\//g, "_")
-    .replace(/=/g, "");
-}
-
-/**
- * Minta un JWT HS256 compatible con Supabase Auth.
- *
- * El campo `sub` es el UUID del usuario en nuestra tabla `users`.
- * auth.uid() en las RLS policies lee exactamente este campo.
- * Con `role: "authenticated"` las policies del tipo `auth.uid() = user_id` funcionan.
- *
- * @param userUuid   - UUID del usuario en `users.id`
- * @param userEmail  - Email del usuario (opcional, incluido en el payload)
- * @param jwtSecret  - SUPABASE_JWT_SECRET del proyecto
- * @param expiresIn  - Duración en segundos (default: 30 días)
- */
-async function mintSupabaseJWT(
-  userUuid: string,
-  userEmail: string | null,
-  jwtSecret: string,
-  expiresIn = 30 * 24 * 60 * 60 // 30 días para MVP (no hay refresh flow todavía)
-): Promise<string> {
-  const now = Math.floor(Date.now() / 1000);
-
-  // Header JWT estándar HS256
-  const header = { alg: "HS256", typ: "JWT" };
-
-  // Payload compatible con Supabase Auth (lo que espera auth.uid() y las RLS policies)
-  const payload = {
-    aud:   "authenticated",   // Requerido por Supabase
-    iss:   "supabase",        // Requerido por Supabase
-    sub:   userUuid,          // ← auth.uid() leerá este valor en RLS
-    role:  "authenticated",   // Requerido para que las policies apliquen
-    email: userEmail ?? "",
-    iat:   now,
-    exp:   now + expiresIn,
-  };
-
-  // Construir signing input: header.payload (ambos en base64url)
-  const headerB64  = base64url(JSON.stringify(header));
-  const payloadB64 = base64url(JSON.stringify(payload));
-  const signingInput = `${headerB64}.${payloadB64}`;
-
-  // Importar el secreto como clave HMAC-SHA256
-  const key = await crypto.subtle.importKey(
-    "raw",
-    new TextEncoder().encode(jwtSecret),
-    { name: "HMAC", hash: "SHA-256" },
-    false,
-    ["sign"]
-  );
-
-  // Firmar
-  const signatureBuffer = await crypto.subtle.sign(
-    "HMAC",
-    key,
-    new TextEncoder().encode(signingInput)
-  );
-
-  const signature = base64url(new Uint8Array(signatureBuffer));
-  return `${signingInput}.${signature}`;
-}
-
 // ── Handler principal ───────────────────────────────────────────────────────
 serve(async (req) => {
+  // Preflight CORS
   if (req.method === "OPTIONS") {
     return new Response("ok", { headers: corsHeaders });
   }
@@ -125,14 +58,15 @@ serve(async (req) => {
       );
     }
 
-    const supabaseUrl    = Deno.env.get("SUPABASE_URL")!;
-    const serviceKey     = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
-    const jwtSecret      = Deno.env.get("SUPABASE_JWT_SECRET");
+    const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
+    const serviceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
 
-    // Service role key para bypass RLS en operaciones de sync (server-side)
-    const supabase = createClient(supabaseUrl, serviceKey);
+    // Admin client con service_role — bypass RLS para operaciones de sync server-side
+    const supabase = createClient(supabaseUrl, serviceKey, {
+      auth: { persistSession: false, autoRefreshToken: false },
+    });
 
-    // ── Buscar usuario existente ──────────────────────────────────────────
+    // ── 1. Buscar/crear usuario en public.users ───────────────────────────
     // B-42: columna correcta es "privy_user_id" (schema.sql línea 9)
     const { data: existingUser } = await supabase
       .from("users")
@@ -141,18 +75,18 @@ serve(async (req) => {
       .single();
 
     let userId: string;
+    const isNew = !existingUser;
 
     if (existingUser) {
-      // ── Usuario existe: actualizar email + updated_at ─────────────────
+      // Usuario existe: actualizar email + updated_at
       // B-45: eliminado last_login — no existe en schema.sql
       await supabase
         .from("users")
         .update({ email, updated_at: new Date().toISOString() })
         .eq("id", existingUser.id);
-
       userId = existingUser.id;
     } else {
-      // ── Usuario nuevo: crear en users + profile vacío ─────────────────
+      // Usuario nuevo: crear en users + profile vacío
       // B-42: campo correcto es "privy_user_id"
       // B-43: onboarding_complete va en profiles, no aquí
       const { data: newUser, error: userError } = await supabase
@@ -164,12 +98,12 @@ serve(async (req) => {
       if (userError) throw userError;
 
       // Perfil vacío — onboarding_complete = false por DEFAULT del schema
-      await supabase.from("profiles").insert({ user_id: newUser.id });
+      await supabase.from("profiles").insert({ user_id: newUser!.id });
 
-      userId = newUser.id;
+      userId = newUser!.id;
     }
 
-    // ── Leer onboarding_complete de profiles (B-43) ───────────────────────
+    // ── 2. Leer onboarding_complete de profiles (B-43) ────────────────────
     // El campo está en profiles, NO en users (schema.sql línea 39)
     const { data: profile } = await supabase
       .from("profiles")
@@ -179,35 +113,93 @@ serve(async (req) => {
 
     const onboardingComplete = profile?.onboarding_complete ?? false;
 
-    // ── Minta JWT compatible con Supabase Auth (B-51 — Option A) ─────────
-    // Si no está configurado SUPABASE_JWT_SECRET, omitir el token (degradación graceful)
-    let accessToken: string | null = null;
-    if (jwtSecret) {
-      accessToken = await mintSupabaseJWT(
-        userId,
-        email ?? null,
-        jwtSecret
-      );
+    // ── 3. Asegurar que el usuario existe en auth.users con el MISMO UUID ─
+    //
+    // CRÍTICO para RLS: auth.uid() en las policies lee el `sub` del JWT de
+    // Supabase Auth. Si creamos el auth user con el mismo UUID que public.users.id,
+    // las policies `auth.uid() = user_id` funcionan sin ningún mapeo adicional.
+    //
+    // Usamos el userId (UUID de public.users) como email si no hay email real,
+    // garantizando que siempre tengamos un email válido y único.
+    const authEmail = email ?? `${userId}@privy.noemail`;
+
+    const { data: authUserData } = await supabase.auth.admin.getUserById(
+      userId
+    );
+
+    if (!authUserData?.user) {
+      // Primera vez: crear auth user con el UUID exacto del public.users.id
+      const { error: createError } = await supabase.auth.admin.createUser({
+        id: userId, // ← MISMO UUID que public.users.id → auth.uid() retorna este valor
+        email: authEmail,
+        email_confirm: true, // Marcar email como confirmado — no requiere flujo de verificación
+        user_metadata: { privy_user_id },
+      });
+
+      if (createError) {
+        // No lanzamos error — el usuario existe en public.users aunque auth falle
+        console.error(
+          "[sync] auth.admin.createUser error:",
+          createError.message
+        );
+      }
     } else {
+      // Auth user existe — actualizar metadata si cambió (fire-and-forget, no crítico)
+      supabase.auth.admin
+        .updateUserById(userId, {
+          email: email ?? undefined,
+          user_metadata: { privy_user_id },
+        })
+        .catch((e: Error) =>
+          console.warn("[sync] updateUserById failed:", e.message)
+        );
+    }
+
+    // ── 4. Generar magic link token (Admin API — NO envía email) ──────────
+    //
+    // generateLink con type 'magiclink' genera un hashed_token que el cliente
+    // puede usar para obtener una sesión real via supabase.auth.verifyOtp().
+    // El Admin API NO envía ningún email — solo retorna el token para que
+    // lo usemos directamente en el cliente.
+    //
+    // Este approach reemplaza el JWT minting manual (que requería SUPABASE_JWT_SECRET)
+    // con el mecanismo oficial de Supabase Auth. (B-51 v2)
+    const { data: linkData, error: linkError } =
+      await supabase.auth.admin.generateLink({
+        type: "magiclink",
+        email: authEmail,
+      });
+
+    if (linkError || !linkData?.properties?.hashed_token) {
+      // Degradar gracefully: retornar sin token.
+      // La app funciona pero sin RLS para operaciones cliente-directo.
       console.warn(
-        "[sync-privy-user] SUPABASE_JWT_SECRET no configurado — " +
-        "RLS no funcionará para operaciones cliente-directo (B-51)"
+        "[sync] generateLink failed — RLS no funcionará:",
+        linkError?.message
+      );
+      return new Response(
+        JSON.stringify({
+          user_id: userId,
+          onboarding_complete: onboardingComplete,
+          created: isNew,
+          otp_token_hash: null,
+        }),
+        { headers: corsHeaders }
       );
     }
 
+    // Retornar el hashed_token al cliente para que llame verifyOtp()
     return new Response(
       JSON.stringify({
-        user_id:             userId,
+        user_id: userId,
         onboarding_complete: onboardingComplete,
-        created:             !existingUser,
-        // B-51: JWT para que el cliente configure supabase.auth.setSession()
-        // null si SUPABASE_JWT_SECRET no está disponible en el entorno
-        access_token:        accessToken,
-        expires_in:          30 * 24 * 60 * 60, // 30 días en segundos
+        created: isNew,
+        // otp_token_hash: cliente llama supabase.auth.verifyOtp({ token_hash, type: 'email' })
+        // Esto genera una sesión real de Supabase → auth.uid() funciona → RLS resuelto
+        otp_token_hash: linkData.properties.hashed_token,
       }),
       { headers: corsHeaders }
     );
-
   } catch (error) {
     console.error("[sync-privy-user] Error:", error);
     return new Response(
