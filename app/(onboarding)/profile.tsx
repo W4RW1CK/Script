@@ -4,7 +4,9 @@
  * Formulario con react-hook-form + zod para recopilar datos básicos:
  * - Nombre, edad, intereses, sensibilidades, herramientas existentes
  *
- * Guarda en tabla `profiles` de Supabase vía upsert (B-41).
+ * Guarda en Supabase: datos de perfil → `profiles` (upsert B-41), display_name → `users` (B-46).
+ * Nota: campo `age` eliminado del upsert — no existe en schema (B-47).
+ * Nota: `sensitivities` convertido a JSONB object {key: boolean} (B-48).
  * Al completar: navega a contacts.tsx (S08).
  */
 import React, { useState } from "react";
@@ -75,30 +77,46 @@ export default function ProfileScreen() {
         console.warn("[Profile] supabaseUserId es null — saltando guardado en Supabase");
       } else {
         /**
-         * B-41: Usar upsert en vez de update.
+         * B-41: Usar upsert en vez de update (ya corregido).
          *
-         * Problema original: si sync-privy-user no creó la fila en `profiles`
-         * (sin conexión, Edge Function no deployada, etc.), `.update()` ejecuta
-         * 0 rows affected silenciosamente — el perfil del usuario se pierde.
+         * B-46 FIX: `display_name` pertenece a la tabla `users`, NO a `profiles`.
+         *   Schema.sql: users.display_name VARCHAR(100) — profiles no lo tiene.
+         *   Se actualiza en dos operaciones separadas.
          *
-         * upsert({ user_id, ...data }, { onConflict: 'user_id' }):
-         *   - Si existe fila con ese user_id → hace UPDATE
-         *   - Si no existe → hace INSERT
-         *   - Nunca falla silenciosamente por fila inexistente
+         * B-47 FIX: `age` no existe en ninguna tabla del schema. Eliminado.
+         *
+         * B-48 FIX: `sensitivities` es JSONB DEFAULT '{}' en profiles — diseñado
+         *   como objeto {key: boolean}, NO como array. Se convierte correctamente.
+         *   Antes: selectedSensitivities = ["light", "sound"] → JSONB array (incorrecto)
+         *   Ahora: { light: true, sound: true }             → JSONB object (correcto)
          */
+
+        // ── 1. Guardar datos de perfil en tabla `profiles` ──────────────────
         await supabase
           .from("profiles")
           .upsert(
             {
-              user_id: supabaseUserId,
-              display_name: data.name || null,
-              age: data.age ? parseInt(data.age, 10) : null,
-              interests: selectedInterests,
-              sensitivities: selectedSensitivities,
+              user_id:        supabaseUserId,
+              interests:      selectedInterests,
+              // B-48: sensitivities como objeto JSONB {key: boolean}
+              sensitivities:  Object.fromEntries(
+                selectedSensitivities.map((k) => [k, true])
+              ),
               existing_tools: selectedTools,
+              // display_name: va en users (B-46) — NO aquí
+              // age: no existe en schema (B-47) — eliminado
             },
             { onConflict: "user_id" }
           );
+
+        // ── 2. Actualizar display_name en tabla `users` (B-46) ──────────────
+        // display_name solo se actualiza si el usuario ingresó un nombre
+        if (data.name.trim()) {
+          await supabase
+            .from("users")
+            .update({ display_name: data.name.trim() })
+            .eq("id", supabaseUserId);
+        }
       }
     } catch (e) {
       console.warn("[Profile] Error guardando perfil:", e);
