@@ -33,7 +33,6 @@
     "expo-sms": "~55.0.8",
     "expo-splash-screen": "~55.0.10",
     "expo-status-bar": "~55.0.4",
-    "expo-symbols": "~55.0.4",
     "expo-web-browser": "~55.0.9",
     "nativewind": "^4.2.2",
     "openai": "^6.25.0",
