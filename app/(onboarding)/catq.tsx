@@ -88,16 +88,20 @@ export default function CATQScreen() {
       if (domain) subscores[domain] += value;
     }
 
-    // Guardar en profiles
+    // B-50 FIX: upsert en vez de update — si la fila no existe, crea el registro.
     if (supabaseUserId) {
       try {
         await supabase
           .from("profiles")
-          .update({
-            catq_total_score: totalScore,
-            catq_subscores: subscores,
-          })
-          .eq("user_id", supabaseUserId);
+          .upsert(
+            {
+              user_id: supabaseUserId,
+              catq_total_score: totalScore,
+              catq_subscores: subscores,
+              catq_completed_at: new Date().toISOString(),
+            },
+            { onConflict: "user_id" }
+          );
       } catch (e) {
         console.warn("[CAT-Q] Error guardando scores:", e);
       }

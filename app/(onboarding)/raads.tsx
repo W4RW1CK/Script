@@ -146,16 +146,20 @@ export default function RAADSScreen() {
       if (domain) domainScores[domain] += value;
     }
 
-    // Guardar en profiles
+    // B-50 FIX: upsert en vez de update — si la fila no existe, crea el registro.
     if (supabaseUserId) {
       try {
         await supabase
           .from("profiles")
-          .update({
-            raads_total_score: totalScore,
-            raads_domain_scores: domainScores,
-          })
-          .eq("user_id", supabaseUserId);
+          .upsert(
+            {
+              user_id: supabaseUserId,
+              raads_total_score: totalScore,
+              raads_domain_scores: domainScores,
+              raads_completed_at: new Date().toISOString(),
+            },
+            { onConflict: "user_id" }
+          );
       } catch (e) {
         console.warn("[RAADS-R] Error guardando scores:", e);
       }

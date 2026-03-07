@@ -136,16 +136,21 @@ export default function AQFullScreen() {
       }
     }
 
-    // Guardar en profiles
+    // B-50 FIX: upsert en vez de update — si la fila no existe (sync-privy-user falló),
+    // update hacía 0 rows affected silenciosamente. upsert crea la fila si es necesario.
     if (supabaseUserId) {
       try {
         await supabase
           .from("profiles")
-          .update({
-            aq_full_score: totalScore,
-            aq_full_domain_scores: domainScores,
-          })
-          .eq("user_id", supabaseUserId);
+          .upsert(
+            {
+              user_id: supabaseUserId,
+              aq_full_score: totalScore,
+              aq_full_domain_scores: domainScores,
+              aq_full_completed_at: new Date().toISOString(),
+            },
+            { onConflict: "user_id" }
+          );
       } catch (e) {
         console.warn("[AQ-Full] Error guardando scores:", e);
       }
