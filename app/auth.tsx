@@ -9,6 +9,7 @@
  * - Se extrae el user del RESULTADO de la función (no del hook usePrivy)
  *   para evitar stale closures en callbacks async
  * - Se llama a sync-privy-user Edge Function para crear/actualizar en Supabase
+ * - Si sync retorna access_token, se activa la sesión Supabase (B-51 — RLS)
  * - Se guarda en el Zustand auth store
  * - AuthGate en _layout.tsx redirige automáticamente según onboarding_complete
  *
@@ -33,7 +34,7 @@ WebBrowser.maybeCompleteAuthSession();
 import { Ionicons } from "@expo/vector-icons";
 import { SafeScreen, Typography, Button, TextInput } from "@/components/ui";
 import { useAuthStore } from "@/stores/auth";
-import { supabase } from "@/lib/supabase";
+import { supabase, setSupabaseToken } from "@/lib/supabase"; // B-51: setSupabaseToken activa RLS
 
 export default function AuthScreen() {
   const colorScheme = useColorScheme();
@@ -168,6 +169,15 @@ export default function AuthScreen() {
         if (data.onboarding_complete) {
           setOnboardingComplete(true);
           completedOnboarding = true;
+        }
+        // B-51 (Option A): activar JWT en el cliente Supabase.
+        // sync-privy-user retorna access_token firmado con SUPABASE_JWT_SECRET.
+        // Con esto auth.uid() funciona → todas las RLS policies se resuelven correctamente.
+        // fire-and-forget: si falla, la app sigue funcionando (solo scripts públicos sin auth)
+        if (data.access_token) {
+          setSupabaseToken(data.access_token).catch((e) =>
+            console.warn("[Auth] setSupabaseToken failed:", e)
+          );
         }
       }
 
