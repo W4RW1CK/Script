@@ -4,7 +4,7 @@
 > **Cómo leer este archivo:**
 > ✅ Completado | 🔄 En progreso | ⏳ Pendiente | ❌ Bloqueado
 
-**Última actualización:** 2026-03-06 (T-C1 ✅ T-C3 ✅ T-U1 ✅ — Ana; T-C2 ✅ T-U2 ✅ — Aibus)  
+**Última actualización:** 2026-03-06 (Auditoría completa; B-38→B-41 registrados; B-39/B-40/B-41 ✅ resueltos)  
 **Semana actual:** 1  
 **Entrega próxima:** Lunes (MVP)
 
@@ -304,6 +304,10 @@ Algo falla → ambas atacan el bug → w4rw1ck confirma fix
 | B-35 | `AuthScreen` no detectaba sesión existente de Privy al montarse — usuario ya logueado (sesión en SecureStore) veía pantalla de login y no podía loguearse de nuevo ("already logged in"). Safety net: `useEffect` en `auth.tsx` que llama `handlePostLogin(privyUser)` si Privy ya tiene sesión al abrir la pantalla | 🔴 Alta | 1.8 | ⚠️ Insuficiente — ver B-36 |
 | B-36 | Formulario de login seguía renderizando aunque Privy tuviera sesión activa — hooks `useLoginWithEmail`/`useLoginWithOAuth` fallaban con "already logged in" cuando el usuario presionaba botones. Fix: (1) early return en `auth.tsx` muestra spinner loading si `!privyReady \|\| privyUser` — formulario nunca se muestra con sesión activa; (2) `handlePostLogin` navega explícitamente via `router.replace` al terminar el sync, sin depender de `AuthGate` | 🔴 Alta | 1.8 | ⚠️ Parcial — ver B-37 |
 | B-37 | Spinner "Cargando tu sesión..." colgado indefinidamente — dos `useEffect` compitiendo: Aibus navegaba, pero el mío (B-35) llamaba `handlePostLogin` que hacía `await supabase.functions.invoke("sync-privy-user")`. Si la Edge Function no está desplegada o hay timeout de red, el `await` nunca resuelve y la navegación queda bloqueada. Fix: consolidar en un solo efecto que (1) setea `storeUser`, (2) navega INMEDIATAMENTE sin await, (3) sync en background fire-and-forget. También se agrega timeout de 5s a `handlePostLogin` via `Promise.race` para el caso OTP/OAuth | 🔴 Alta | 1.8 | ✅ Resuelto |
+| B-38 | `expo-symbols ~55.0.4` en `package.json` — B-07 prohíbe su uso (SF Symbols, solo iOS/web, falla en Android). Ningún .tsx lo importa, pero ocupa espacio en bundle. Fix pendiente: `npm uninstall expo-symbols` (requiere computadora w4rw1ck) | 🟡 Media | 1.1 | ⏳ Pendiente |
+| B-39 | `Button` hardcodeaba `accessibilityLabel={title}` ignorando cualquier label custom pasado como prop — la interfaz TypeScript no aceptaba `accessibilityLabel`. Lectores de pantalla siempre leían el `title` corto aunque se pasara descripción extendida (detectado en `consent.tsx`). Fix: `accessibilityLabel?: string` agregado a `ButtonProps`; componente usa `accessibilityLabel ?? title`. Commit: `a4204fc` | 🟡 Media | audit | ✅ Resuelto |
+| B-40 | `result.tsx` navegaba silenciosamente a home aunque el INSERT en `checkins` fallara (por `supabaseUserId` null o error RLS). Usuario creía haber guardado su check-in cuando no. Fix: guard explícito antes del INSERT; dos Alert con opciones de reintentar + continuar sin guardar para error de null y error de red respectivamente. Commit: `1583d3b` | 🔴 Alta | audit | ✅ Resuelto |
+| B-41 | `profile.tsx` usaba `.update()` en vez de `.upsert()` — si la fila en `profiles` no existía (sync-privy-user falló), `.update()` hacía 0 rows affected silenciosamente. El usuario completaba el cuestionario y perdía todos sus datos sin saberlo. Fix: `.upsert({ user_id, ...data }, { onConflict: "user_id" })`. Commit: `87a4eab` | 🔴 Alta | audit | ✅ Resuelto |
 
 **B-01 — Fix:** Se eliminaron las columnas `hour_of_day` y `day_of_week` de `checkins`. `EXTRACT()` usable en queries. Commit: `864e435`.
 
