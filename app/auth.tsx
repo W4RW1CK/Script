@@ -20,7 +20,7 @@ import React, { useState, useEffect, useCallback } from "react";
 import { View, Alert, ActivityIndicator, useColorScheme } from "react-native";
 // import * as Linking from "expo-linking"; // Reservado para magic link flow (Semana 3+)
 import * as WebBrowser from "expo-web-browser";
-import { useRouter } from "expo-router";
+import { useRouter, Redirect } from "expo-router";
 import { usePrivy, useLoginWithEmail, useLoginWithOAuth } from "@privy-io/expo";
 
 /**
@@ -51,30 +51,17 @@ export default function AuthScreen() {
   const onboardingComplete = useAuthStore((s) => s.onboardingComplete);
 
   /**
-   * Guard de sesión existente — B-37 (merged Aibus B-29 + Ana B-37).
+   * Sync de sesión en background — B-37 / B-29.
    *
-   * PROBLEMA: Privy restaura la sesión de SecureStore de forma async. Hay una
-   * ventana donde `ready=true` pero `user=null` aunque SÍ haya sesión guardada.
-   * `authenticated` refleja el estado real antes de que `user` esté disponible.
-   *
-   * SOLUCIÓN:
-   * 1. Usar `authenticated` (boolean) para detectar sesión — más rápido que `privyUser`
-   * 2. Navegar INMEDIATAMENTE (sin esperar Edge Function) — evita spinner colgado
-   * 3. Sync con Supabase en background, fire-and-forget — nunca bloquea navegación
+   * Cuando hay sesión activa (authenticated=true) y privyUser ya cargó,
+   * sincronizamos con Supabase para obtener supabaseUserId y onboarding_complete.
+   * La navegación ya la maneja el <Redirect> declarativo abajo — este efecto
+   * solo actualiza el store, no navega.
    */
   useEffect(() => {
-    if (!privyReady) return;           // Privy aún inicializando — esperar
-    if (!authenticated) return;        // Sin sesión — mostrar form normalmente
+    if (!privyReady || !authenticated || !privyUser) return;
+    if (useAuthStore.getState().user?.supabaseUserId) return; // ya sincronizado
 
-    // Sesión existente → navegar inmediatamente (no esperar sync)
-    if (onboardingComplete) {
-      router.replace("/(app)/home");
-    } else {
-      router.replace("/(onboarding)");
-    }
-
-    // Sync con Supabase en background (fire-and-forget, sin bloquear navegación)
-    if (!privyUser) return;
     const privyId = privyUser.id;
     const userEmail =
       (privyUser as any).email?.address ||
@@ -91,7 +78,7 @@ export default function AuthScreen() {
           setSupabaseUserId(data.user_id);
           if (data.onboarding_complete) {
             setOnboardingComplete(true);
-            router.replace("/(app)/home");
+            // El <Redirect> se re-evaluará automáticamente con el nuevo onboardingComplete
           }
         }
       })
@@ -99,7 +86,7 @@ export default function AuthScreen() {
         console.warn("[Auth] Background sync failed (non-blocking):", e);
       });
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [privyReady, authenticated, onboardingComplete]);
+  }, [privyReady, authenticated, privyUser]);
 
   // Estado local
   const [email, setEmail] = useState("");
@@ -253,28 +240,25 @@ export default function AuthScreen() {
    * 2. El useEffect de sesión redirige al destino correcto
    * 3. Mientras Privy carga, mostramos spinner neutral — sin flash de login form
    */
-  if (!privyReady || authenticated) {
+  // Privy aún cargando — mostrar spinner neutro, sin tomar decisiones
+  if (!privyReady) {
     return (
       <SafeScreen>
         <View className="flex-1 items-center justify-center gap-4">
-          <Ionicons
-            name="document-text-outline"
-            size={48}
-            color={isDark ? "#5A7E92" : "#A8C5DA"}
-          />
-          <ActivityIndicator
-            size="large"
-            color={isDark ? "#5A7E92" : "#A8C5DA"}
-          />
-          <Typography
-            variant="body"
-            className="text-center text-script-text-secondary dark:text-script-dark-text-secondary"
-          >
-            {privyUser ? "Cargando tu sesión..." : "Iniciando..."}
+          <Ionicons name="document-text-outline" size={48} color={isDark ? "#5A7E92" : "#A8C5DA"} />
+          <ActivityIndicator size="large" color={isDark ? "#5A7E92" : "#A8C5DA"} />
+          <Typography variant="body" className="text-center text-script-text-secondary dark:text-script-dark-text-secondary">
+            Iniciando...
           </Typography>
         </View>
       </SafeScreen>
     );
+  }
+
+  // Privy listo + sesión activa → Redirect síncrono (más confiable que router.replace en useEffect)
+  // Redirect de Expo Router es declarativo — no compite con AuthGate, no hay race condition
+  if (authenticated) {
+    return <Redirect href={onboardingComplete ? "/(app)/home" : "/(onboarding)"} />;
   }
 
   return (
