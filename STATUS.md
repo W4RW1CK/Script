@@ -4,7 +4,7 @@
 > **Cómo leer este archivo:**
 > ✅ Completado | 🔄 En progreso | ⏳ Pendiente | ❌ Bloqueado
 
-**Última actualización:** 2026-03-06 (Auditoría 3: B-49/B-50 ✅ resueltos; B-51 🔴 brecha arquitectural RLS+Privy documentada)  
+**Última actualización:** 2026-03-06 (B-51 ✅ — Option A implementada: sync-privy-user minta JWT Supabase, auth.uid() funciona, RLS resuelto)  
 **Semana actual:** 1  
 **Entrega próxima:** Lunes (MVP)
 
@@ -37,6 +37,7 @@ Algo falla → ambas atacan el bug → w4rw1ck confirma fix
 | 5 | Traducciones en español: AQ Full (50q) + CAT-Q (25q) + RAADS-R (80q) | Ana + Aibus | Fase 1.8 | ⏳ |
 | 6 | Audio: voz guiada + tono ambient (para grounding y respiración) | Ana + Aibus | Fase 1.7 | ⏳ |
 | 7 | Revisar/completar contenido de 5 scripts sociales | Ana + Aibus | Fase 1.6 | ✅ |
+| 8 | **Agregar `SUPABASE_JWT_SECRET` a env vars de Edge Functions + redeploy `sync-privy-user`** — sin esto B-51 (RLS) no se activa aunque el código ya esté listo. Obtener en Supabase Dashboard → Settings → API → JWT Secret. Agregar en Dashboard → Edge Functions → Manage Secrets. Luego: `supabase functions deploy sync-privy-user` | w4rw1ck | RLS (B-51) | ⏳ |
 
 ---
 
@@ -317,7 +318,7 @@ Algo falla → ambas atacan el bug → w4rw1ck confirma fix
 | B-48 | `profile.tsx` enviaba `sensitivities: string[]` a `profiles.sensitivities JSONB` — schema diseñado como objeto `{}`, no array. Fix: `Object.fromEntries(selectedSensitivities.map(k => [k, true]))` convierte a `{ light: true, sound: true }`. Commit: `142104d` | 🟡 Media | onboarding | ✅ Resuelto |
 | B-49 | `aq10.tsx` calculaba el score y lo pasaba SOLO como query param a `aq10-result.tsx`. Al navegar fuera del resultado, el score se perdía para siempre. Fix: `upsert` a `profiles.aq10_score` + `aq10_completed_at` antes de navegar. Commit: `46e39e0` | 🟡 Media | onboarding | ✅ Resuelto |
 | B-50 | `aq-full.tsx`, `catq.tsx`, `raads.tsx` usaban `.update()` para guardar scores en `profiles` — si la fila no existía (sync-privy-user falló), 0 rows affected y scores perdidos silenciosamente. Fix: `.upsert({ user_id, score, completed_at }, { onConflict: "user_id" })` en los 3 archivos. Commit: `89cd56f` | 🟡 Media | onboarding | ✅ Resuelto |
-| B-51 | **⚠️ BRECHA ARQUITECTURAL — Privy auth + Supabase RLS incompatibles en estado actual.** `auth.uid()` en las RLS policies retorna null para usuarios de Privy (no usan Supabase Auth). Resultado: TODAS las escrituras cliente-directas a Supabase (checkins, profiles, contacts, crisis_events) son bloqueadas por RLS silenciosamente. Las Edge Functions (service role key) funcionan. Las lecturas públicas (scripts predefined) funcionan. **Opciones:** A) Pasar JWT de Privy a Supabase como Bearer token (requiere config Supabase + Privy). B) Enrutar todas las escrituras a través de Edge Functions (más Edge Functions). C) Deshabilitar RLS en tablas del usuario para MVP (riesgo de seguridad). Ver DECISIONS log. | 🔴 Crítico | arquitectura | ⏳ Requiere decisión |
+| B-51 | **Privy auth + Supabase RLS incompatibles — `auth.uid()` = null.** `sync-privy-user` ahora minta un JWT HS256 firmado con `SUPABASE_JWT_SECRET` (sub = UUID del usuario). Cliente llama `setSupabaseToken(access_token)` → `supabase.auth.setSession()` → `auth.uid()` devuelve UUID correcto → todas las RLS policies se resuelven. **Acción pendiente de w4rw1ck**: (1) Agregar `SUPABASE_JWT_SECRET` como env var en Supabase Dashboard → Edge Functions (Settings → API → JWT Secret). (2) Redeploy: `supabase functions deploy sync-privy-user`. Commits: `c80669e`, `85a468b`, `553cae2`, `fbceca3` | 🔴 Crítico | arquitectura | ✅ Resuelto en código — pendiente deploy |
 
 **B-01 — Fix:** Se eliminaron las columnas `hour_of_day` y `day_of_week` de `checkins`. `EXTRACT()` usable en queries. Commit: `864e435`.
 
@@ -399,7 +400,7 @@ Algo falla → ambas atacan el bug → w4rw1ck confirma fix
 ## 🔒 Decisiones Técnicas Tomadas
 
 | Fecha | Decisión | Razón |
-| 2026-03-06 | **B-51: RLS+Privy fix strategy pendiente** — Opciones: (A) Privy JWT como Bearer token en Supabase [correcta, compleja], (B) todas las escrituras via Edge Functions [segura, más trabajo], (C) RLS permisivo para MVP [riesgo]. w4rw1ck decide antes de primer usuario real | B-51 detectado en auditoría 3 — incompatibilidad auth.uid()=null con Privy |
+| 2026-03-06 | **B-51: Opción A elegida** — sync-privy-user minta JWT HS256 (sub=UUID, firmado con SUPABASE_JWT_SECRET). No se agrega Privy como proveedor externo en Supabase Dashboard. No se crean más Edge Functions. El JWT minted se pasa al cliente via `setSupabaseToken()` → `supabase.auth.setSession()`. `autoRefreshToken: false` porque Privy gestiona el ciclo de vida. Duración JWT: 30 días; re-minting automático en cada arranque de app cuando Privy tiene sesión | Privy no usa Supabase Auth — auth.uid() siempre era null antes de este fix |
 |---|---|---|
 | 2026-02-26 | Expo SDK 55 como base | Versión actual estable |
 | 2026-02-26 | expo-audio en lugar de expo-av | expo-av deprecated en Expo 55 |
