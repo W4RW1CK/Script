@@ -105,18 +105,21 @@ export default function ContactsScreen() {
       }
 
       if (resolvedSupabaseId) {
-        // Marcar onboarding como completo en Supabase usando privy_user_id como fallback
-        const { error } = await supabase
-          .from("users")
+        /**
+         * B-44 FIX: onboarding_complete está en la tabla `profiles`, NO en `users`.
+         * Schema.sql línea 39: profiles.onboarding_complete BOOLEAN DEFAULT FALSE
+         * La tabla users NO tiene esta columna — .update() fallaba silenciosamente.
+         *
+         * Antes (incorrecto):
+         *   supabase.from("users").update({ onboarding_complete: true }).eq("id", ...)
+         *
+         * Ahora (correcto):
+         *   supabase.from("profiles").update({ onboarding_complete: true }).eq("user_id", ...)
+         */
+        await supabase
+          .from("profiles")
           .update({ onboarding_complete: true })
-          .eq("id", resolvedSupabaseId);
-        if (error) {
-          // Fallback: buscar por privy_user_id si el id no funcionó
-          await supabase
-            .from("users")
-            .update({ onboarding_complete: true })
-            .eq("privy_user_id", privyId);
-        }
+          .eq("user_id", resolvedSupabaseId); // profiles usa "user_id" como FK
       }
 
       // Actualizar el store — AuthGate redirigirá a /(app)/home
