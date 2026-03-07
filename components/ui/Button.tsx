@@ -22,6 +22,13 @@ interface ButtonProps {
   onPress: () => void;
   variant?: ButtonVariant;
   disabled?: boolean;
+  /**
+   * Label para lectores de pantalla. Si no se pasa, se usa `title`.
+   * Útil cuando el título es corto y se necesita contexto adicional
+   * (ej: "Entiendo y acepto" → "Entiendo y acepto los términos. Comenzar mi evaluación.")
+   * B-39: la prop existía pero no era parte de la interfaz — los lectores leían `title` siempre.
+   */
+  accessibilityLabel?: string;
   /** Texto adicional que los lectores de pantalla leen después del label */
   accessibilityHint?: string;
   /** Clases NativeWind adicionales (márgenes, padding externo, etc.) */
@@ -54,6 +61,7 @@ export function Button({
   onPress,
   variant = "primary",
   disabled = false,
+  accessibilityLabel,
   accessibilityHint,
   className = "",
 }: ButtonProps) {
@@ -64,7 +72,7 @@ export function Button({
       onPress={onPress}
       disabled={disabled}
       accessibilityRole="button"
-      accessibilityLabel={title}
+      accessibilityLabel={accessibilityLabel ?? title} // B-39: usar label custom si se pasa
       accessibilityHint={accessibilityHint}
       className={`w-full items-center justify-center rounded-2xl py-4 px-6 ${styles.container} ${
         disabled ? "opacity-50" : ""
