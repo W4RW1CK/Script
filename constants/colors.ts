@@ -28,6 +28,9 @@ export const Colors = {
       soft: "#E8C4C4",
     },
     border: "#E0DDD8",
+    // Semantic tokens (v1.4) — matches tailwind.config.js
+    accent:  "#10B981", // Emerald — positive confirmation, achievements
+    warning: "#F59E0B", // Amber — soft warning, attention (not alarm)
   },
   dark: {
     bg: {
@@ -52,6 +55,9 @@ export const Colors = {
       soft: "#6A3E3E",
     },
     border: "#3A3A44",
+    // Semantic tokens (v1.4)
+    accent:  "#059669", // Emerald dark
+    warning: "#D97706", // Amber dark
   },
 } as const;
 

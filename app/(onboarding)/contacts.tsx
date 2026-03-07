@@ -78,11 +78,30 @@ export default function ContactsScreen() {
     setRelationship("");
   };
 
-  /** Eliminar contacto de la lista */
+  /**
+   * Remove a contact from local state AND from Supabase.
+   * Matches by name+phone since we don't store the Supabase row id locally.
+   * Fire-and-forget: UI updates immediately; DB deletion runs in background.
+   */
   const removeContact = (index: number) => {
+    const contactToRemove = contacts[index];
     const updated = contacts.filter((_, i) => i !== index);
     setContacts(updated);
-    // TODO: también eliminar de Supabase si es necesario
+
+    // Persist deletion to Supabase (if user is authenticated)
+    if (supabaseUserId && contactToRemove) {
+      supabase
+        .from("trusted_contacts")
+        .delete()
+        .eq("user_id", supabaseUserId)
+        .eq("name", contactToRemove.name)
+        .eq("phone", contactToRemove.phone)
+        .then(({ error }) => {
+          if (error) {
+            console.warn("[Contacts] Error deleting contact from Supabase:", error.message);
+          }
+        });
+    }
   };
 
   /** Completar onboarding */

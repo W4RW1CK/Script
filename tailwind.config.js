@@ -68,6 +68,16 @@ module.exports = {
 
         // Bordes dark
         "script-dark-border": "#3A3A44", // Borde neutro dark
+
+        // ── Semantic tokens (v1.4) ────────────────────────────────────
+        // Positive action / success (green — NOT crisis-associated)
+        "script-accent":  "#10B981", // Emerald — confirmación positiva, logros
+        // Warning / attention (amber — NOT red, avoids alarm response in ASD)
+        "script-warning": "#F59E0B", // Amber — advertencia suave
+
+        // ── Dark semantic tokens (v1.4) ───────────────────────────────
+        "script-dark-accent":  "#059669", // Emerald dark
+        "script-dark-warning": "#D97706", // Amber dark
       },
     },
   },

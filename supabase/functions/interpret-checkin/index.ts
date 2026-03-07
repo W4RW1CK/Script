@@ -204,7 +204,7 @@ serve(async (req: Request) => {
         { role: "system", content: SYSTEM_PROMPT },
         { role: "user",   content: userMessage   },
       ],
-      temperature: 0.7,
+      temperature: 0.4, // TECH_STACK.md §T-2.9: lower temp = more consistent emotion labels
       max_tokens: 600,
       response_format: { type: "json_object" },
     });
