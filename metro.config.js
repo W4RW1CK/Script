@@ -23,19 +23,39 @@ const { withNativeWind } = require("nativewind/metro");
 const config = getDefaultConfig(__dirname);
 
 // Resolución de módulos desde la raíz del proyecto.
-// Evita problemas con paquetes anidados en node_modules de dependencias.
 config.resolver.extraNodeModules = {
   ...config.resolver.extraNodeModules,
-
-  // `buffer`: Metro trata "buffer" como módulo de Node stdlib (lo bloquea).
-  // Al apuntarlo al paquete npm `buffer`, Privy y otras libs pueden usarlo.
   buffer: require.resolve("buffer"),
-
-  // `uuid`: @privy-io/js-sdk-core tiene su propio uuid en node_modules anidados.
-  // Su wrapper.mjs hace `import { v1 } from 'uuid'` y Metro (con condición "browser")
-  // lo resuelve de vuelta al mismo wrapper.mjs → import circular → undefined.
-  // Al forzar la resolución al uuid raíz (CJS), rompemos el ciclo.
   uuid: require.resolve("uuid"),
+};
+
+/**
+ * FIX CRÍTICO — uuid/wrapper.mjs crash (B-39)
+ *
+ * PROBLEMA: @privy-io/js-sdk-core importa `uuid` desde archivos .mjs (ESM).
+ * Metro, al procesar imports ESM, evalúa el campo `exports` del package.json
+ * de uuid y puede seleccionar `wrapper.mjs` (condición "node").
+ * `wrapper.mjs` hace `require('crypto')` de Node.js que NO existe en Hermes/RN.
+ * Resultado: `uuid` es undefined → `uuid.v1` lanza TypeError → Privy nunca carga.
+ *
+ * SOLUCIÓN: `resolveRequest` intercepta TODA resolución de `uuid` antes de
+ * evaluar el campo `exports` y lo fuerza al build CJS puro (sin crypto de Node).
+ * El build CJS usa `Math.random()` como fallback si crypto no está disponible,
+ * y nuestro polyfill de expo-crypto garantiza que crypto SÍ esté disponible.
+ *
+ * extraNodeModules NO es suficiente porque no aplica a imports ESM en .mjs.
+ */
+const path = require("path");
+config.resolver.resolveRequest = (context, moduleName, platform) => {
+  if (moduleName === "uuid" || moduleName.startsWith("uuid/")) {
+    // Forzar SIEMPRE el build CJS — nunca wrapper.mjs
+    return {
+      filePath: path.resolve(__dirname, "node_modules/uuid/dist/cjs/index.js"),
+      type: "sourceFile",
+    };
+  }
+  // Para todo lo demás, usar el resolver por defecto
+  return context.resolveRequest(context, moduleName, platform);
 };
 
 // Envolver con NativeWind — apunta al archivo CSS global con los @tailwind directives
