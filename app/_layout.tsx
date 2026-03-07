@@ -234,7 +234,12 @@ function RootLayoutNav() {
   return (
     <PrivyProvider
       appId={process.env.EXPO_PUBLIC_PRIVY_APP_ID!}
-      clientId={process.env.EXPO_PUBLIC_PRIVY_CLIENT_ID!}
+      // clientId: requerido en dashboard nuevo de Privy para mobile.
+      // Si el valor es incorrecto/vacío, Privy nunca llega a ready=true.
+      // Pasarlo solo si existe y no está vacío:
+      {...(process.env.EXPO_PUBLIC_PRIVY_CLIENT_ID
+        ? { clientId: process.env.EXPO_PUBLIC_PRIVY_CLIENT_ID }
+        : {})}
     >
       <SafeAreaProvider>
         <ThemeProvider
