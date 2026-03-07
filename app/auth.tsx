@@ -36,6 +36,57 @@ import { SafeScreen, Typography, Button, TextInput } from "@/components/ui";
 import { useAuthStore } from "@/stores/auth";
 import { supabase, setSupabaseToken } from "@/lib/supabase"; // B-51: setSupabaseToken activa RLS
 
+/**
+ * Pantalla de carga mientras Privy inicializa.
+ * Tiene timeout de 6s — si Privy no carga, muestra diagnóstico.
+ * Causa más común: EXPO_PUBLIC_PRIVY_CLIENT_ID faltante en .env.local
+ */
+function PrivyLoadingScreen({ isDark }: { isDark: boolean }) {
+  const [timedOut, setTimedOut] = useState(false);
+
+  useEffect(() => {
+    const t = setTimeout(() => setTimedOut(true), 6000);
+    return () => clearTimeout(t);
+  }, []);
+
+  const color = isDark ? "#5A7E92" : "#A8C5DA";
+
+  if (timedOut) {
+    return (
+      <SafeScreen>
+        <View className="flex-1 items-center justify-center gap-4 px-6">
+          <Ionicons name="warning-outline" size={48} color="#F6464F" />
+          <Typography variant="headingS" className="text-center">
+            Algo no está bien
+          </Typography>
+          <Typography variant="body" className="text-center text-script-text-secondary dark:text-script-dark-text-secondary">
+            Privy no terminó de inicializar. Verifica que{"\n"}
+            <Typography variant="caption" className="font-mono">
+              EXPO_PUBLIC_PRIVY_CLIENT_ID
+            </Typography>
+            {"\n"}esté en tu archivo .env.local
+          </Typography>
+          <Typography variant="caption" className="text-center text-script-text-secondary dark:text-script-dark-text-secondary">
+            Luego reinicia con: npx expo start --clear
+          </Typography>
+        </View>
+      </SafeScreen>
+    );
+  }
+
+  return (
+    <SafeScreen>
+      <View className="flex-1 items-center justify-center gap-4">
+        <Ionicons name="document-text-outline" size={48} color={color} />
+        <ActivityIndicator size="large" color={color} />
+        <Typography variant="body" className="text-center text-script-text-secondary dark:text-script-dark-text-secondary">
+          Iniciando...
+        </Typography>
+      </View>
+    </SafeScreen>
+  );
+}
+
 export default function AuthScreen() {
   const colorScheme = useColorScheme();
   const isDark = colorScheme === "dark";
@@ -240,18 +291,11 @@ export default function AuthScreen() {
    * 2. El useEffect de sesión redirige al destino correcto
    * 3. Mientras Privy carga, mostramos spinner neutral — sin flash de login form
    */
-  // Privy aún cargando — mostrar spinner neutro, sin tomar decisiones
+  // Privy aún cargando — mostrar spinner neutro con timeout de diagnóstico
+  // Si después de 6s sigue cargando, probablemente falta EXPO_PUBLIC_PRIVY_CLIENT_ID
   if (!privyReady) {
     return (
-      <SafeScreen>
-        <View className="flex-1 items-center justify-center gap-4">
-          <Ionicons name="document-text-outline" size={48} color={isDark ? "#5A7E92" : "#A8C5DA"} />
-          <ActivityIndicator size="large" color={isDark ? "#5A7E92" : "#A8C5DA"} />
-          <Typography variant="body" className="text-center text-script-text-secondary dark:text-script-dark-text-secondary">
-            Iniciando...
-          </Typography>
-        </View>
-      </SafeScreen>
+      <PrivyLoadingScreen isDark={isDark} />
     );
   }
 
