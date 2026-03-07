@@ -8,7 +8,7 @@
  * cuando el usuario está "de acuerdo" (true) o "en desacuerdo" (false).
  * Esto es clave porque algunas preguntas son inversas (ej: pregunta 2).
  *
- * Al completar: calcula score total y navega a aq10-result con el score.
+ * Al completar: calcula score total, guarda en profiles (B-49) y navega a aq10-result.
  *
  * No hay botón "atrás" entre preguntas (para evitar over-thinking, per plan).
  *
@@ -18,6 +18,8 @@ import React, { useState } from "react";
 import { View } from "react-native";
 import { useRouter } from "expo-router";
 import { SafeScreen, Typography, Button, Card } from "@/components/ui";
+import { supabase } from "@/lib/supabase";
+import { useAuthStore } from "@/stores/auth"; // B-49: guardar score en profiles
 
 /** Definición de cada pregunta AQ-10 con dirección de scoring */
 interface AQ10Question {
@@ -53,6 +55,7 @@ const OPTIONS = [
 
 export default function AQ10Screen() {
   const router = useRouter();
+  const supabaseUserId = useAuthStore((s) => s.user?.supabaseUserId); // B-49
   const [currentIndex, setCurrentIndex] = useState(0);
   // Almacena el ÍNDICE de la opción seleccionada por pregunta (no el valor)
   const [answers, setAnswers] = useState<(number | null)[]>(
@@ -69,8 +72,8 @@ export default function AQ10Screen() {
     setAnswers(newAnswers);
   };
 
-  /** Avanzar a la siguiente pregunta o calcular resultado */
-  const handleNext = () => {
+  /** Avanzar a la siguiente pregunta o calcular resultado (async por el save a Supabase — B-49) */
+  const handleNext = async () => {
     if (selectedOptionIndex === null) return;
 
     if (currentIndex < QUESTIONS.length - 1) {
@@ -86,6 +89,30 @@ export default function AQ10Screen() {
         // Puntúa 1 si la respuesta coincide con la dirección de scoring
         if (q.scoreOnAgree && option.agree) score++;
         if (!q.scoreOnAgree && !option.agree) score++;
+      }
+
+      /**
+       * B-49 FIX: Guardar aq10_score en profiles antes de navegar.
+       * Antes: el score solo se pasaba como query param — se perdía al salir de aq10-result.
+       * Ahora: se persiste en Supabase inmediatamente al completar el test.
+       * upsert en lugar de update: tolera fila inexistente (si sync-privy-user aún no creó el perfil).
+       */
+      if (supabaseUserId) {
+        try {
+          await supabase
+            .from("profiles")
+            .upsert(
+              {
+                user_id: supabaseUserId,
+                aq10_score: score,
+                aq10_completed_at: new Date().toISOString(),
+              },
+              { onConflict: "user_id" }
+            );
+        } catch (e) {
+          console.warn("[AQ10] Error guardando score:", e);
+          // No bloqueamos la navegación — el score se puede recuperar si el usuario hace el test de nuevo
+        }
       }
 
       router.push({
