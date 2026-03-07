@@ -4,7 +4,7 @@
 > **Cómo leer este archivo:**
 > ✅ Completado | 🔄 En progreso | ⏳ Pendiente | ❌ Bloqueado
 
-**Última actualización:** 2026-03-06 (Auditoría 2: B-42→B-48 encontrados; B-42/B-43/B-44/B-45/B-46/B-47/B-48 ✅ resueltos; ROOT CAUSE auth loop corregido)  
+**Última actualización:** 2026-03-06 (Auditoría 3: B-49/B-50 ✅ resueltos; B-51 🔴 brecha arquitectural RLS+Privy documentada)  
 **Semana actual:** 1  
 **Entrega próxima:** Lunes (MVP)
 
@@ -315,6 +315,9 @@ Algo falla → ambas atacan el bug → w4rw1ck confirma fix
 | B-46 | `profile.tsx` enviaba `display_name` a `profiles` table — pero `display_name` solo existe en `users`. Fix: `display_name` se actualiza en `users` por separado con `.update()`. Commit: `142104d` | 🟡 Media | onboarding | ✅ Resuelto |
 | B-47 | `profile.tsx` enviaba campo `age` a `profiles` — columna no existe en ninguna tabla del schema. Fix: campo eliminado del upsert (el form UI queda pero el dato no se intenta guardar hasta que se añada al schema). Commit: `142104d` | 🟡 Media | onboarding | ✅ Resuelto |
 | B-48 | `profile.tsx` enviaba `sensitivities: string[]` a `profiles.sensitivities JSONB` — schema diseñado como objeto `{}`, no array. Fix: `Object.fromEntries(selectedSensitivities.map(k => [k, true]))` convierte a `{ light: true, sound: true }`. Commit: `142104d` | 🟡 Media | onboarding | ✅ Resuelto |
+| B-49 | `aq10.tsx` calculaba el score y lo pasaba SOLO como query param a `aq10-result.tsx`. Al navegar fuera del resultado, el score se perdía para siempre. Fix: `upsert` a `profiles.aq10_score` + `aq10_completed_at` antes de navegar. Commit: `46e39e0` | 🟡 Media | onboarding | ✅ Resuelto |
+| B-50 | `aq-full.tsx`, `catq.tsx`, `raads.tsx` usaban `.update()` para guardar scores en `profiles` — si la fila no existía (sync-privy-user falló), 0 rows affected y scores perdidos silenciosamente. Fix: `.upsert({ user_id, score, completed_at }, { onConflict: "user_id" })` en los 3 archivos. Commit: `89cd56f` | 🟡 Media | onboarding | ✅ Resuelto |
+| B-51 | **⚠️ BRECHA ARQUITECTURAL — Privy auth + Supabase RLS incompatibles en estado actual.** `auth.uid()` en las RLS policies retorna null para usuarios de Privy (no usan Supabase Auth). Resultado: TODAS las escrituras cliente-directas a Supabase (checkins, profiles, contacts, crisis_events) son bloqueadas por RLS silenciosamente. Las Edge Functions (service role key) funcionan. Las lecturas públicas (scripts predefined) funcionan. **Opciones:** A) Pasar JWT de Privy a Supabase como Bearer token (requiere config Supabase + Privy). B) Enrutar todas las escrituras a través de Edge Functions (más Edge Functions). C) Deshabilitar RLS en tablas del usuario para MVP (riesgo de seguridad). Ver DECISIONS log. | 🔴 Crítico | arquitectura | ⏳ Requiere decisión |
 
 **B-01 — Fix:** Se eliminaron las columnas `hour_of_day` y `day_of_week` de `checkins`. `EXTRACT()` usable en queries. Commit: `864e435`.
 
@@ -396,6 +399,7 @@ Algo falla → ambas atacan el bug → w4rw1ck confirma fix
 ## 🔒 Decisiones Técnicas Tomadas
 
 | Fecha | Decisión | Razón |
+| 2026-03-06 | **B-51: RLS+Privy fix strategy pendiente** — Opciones: (A) Privy JWT como Bearer token en Supabase [correcta, compleja], (B) todas las escrituras via Edge Functions [segura, más trabajo], (C) RLS permisivo para MVP [riesgo]. w4rw1ck decide antes de primer usuario real | B-51 detectado en auditoría 3 — incompatibilidad auth.uid()=null con Privy |
 |---|---|---|
 | 2026-02-26 | Expo SDK 55 como base | Versión actual estable |
 | 2026-02-26 | expo-audio en lugar de expo-av | expo-av deprecated en Expo 55 |
