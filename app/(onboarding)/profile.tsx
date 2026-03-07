@@ -4,7 +4,7 @@
  * Formulario con react-hook-form + zod para recopilar datos básicos:
  * - Nombre, edad, intereses, sensibilidades, herramientas existentes
  *
- * Guarda en tabla `profiles` de Supabase.
+ * Guarda en tabla `profiles` de Supabase vía upsert (B-41).
  * Al completar: navega a contacts.tsx (S08).
  */
 import React, { useState } from "react";
@@ -70,20 +70,35 @@ export default function ProfileScreen() {
     try {
       if (!supabaseUserId) {
         // M-04: supabaseUserId puede ser null si sync-privy-user falló (sin internet, etc.)
-        // En ese caso no intentamos el INSERT (fallaría con RLS error) y continuamos el flujo.
+        // En ese caso no intentamos el UPSERT (fallaría con RLS error) y continuamos el flujo.
         // El perfil se puede completar más tarde desde Ajustes.
         console.warn("[Profile] supabaseUserId es null — saltando guardado en Supabase");
       } else {
+        /**
+         * B-41: Usar upsert en vez de update.
+         *
+         * Problema original: si sync-privy-user no creó la fila en `profiles`
+         * (sin conexión, Edge Function no deployada, etc.), `.update()` ejecuta
+         * 0 rows affected silenciosamente — el perfil del usuario se pierde.
+         *
+         * upsert({ user_id, ...data }, { onConflict: 'user_id' }):
+         *   - Si existe fila con ese user_id → hace UPDATE
+         *   - Si no existe → hace INSERT
+         *   - Nunca falla silenciosamente por fila inexistente
+         */
         await supabase
           .from("profiles")
-          .update({
-            display_name: data.name || null,
-            age: data.age ? parseInt(data.age, 10) : null,
-            interests: selectedInterests,
-            sensitivities: selectedSensitivities,
-            existing_tools: selectedTools,
-          })
-          .eq("user_id", supabaseUserId);
+          .upsert(
+            {
+              user_id: supabaseUserId,
+              display_name: data.name || null,
+              age: data.age ? parseInt(data.age, 10) : null,
+              interests: selectedInterests,
+              sensitivities: selectedSensitivities,
+              existing_tools: selectedTools,
+            },
+            { onConflict: "user_id" }
+          );
       }
     } catch (e) {
       console.warn("[Profile] Error guardando perfil:", e);
