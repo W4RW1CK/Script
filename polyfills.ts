@@ -23,9 +23,25 @@
  */
 
 // 1. Polyfill de crypto — PRIMERO, antes de cualquier lib que use crypto
-//    Registra global.crypto.getRandomValues con implementación nativa.
-//    También expone global.crypto.subtle vía globalThis si Hermes lo tiene.
-import "react-native-get-random-values";
+//    expo-crypto está incluido en Expo Go y provee getRandomValues nativo.
+//    react-native-get-random-values es el fallback (requiere native module linkado).
+import * as ExpoCrypto from "expo-crypto";
+
+// Registrar crypto.getRandomValues de forma que uuid y Privy lo encuentren
+if (typeof global.crypto === "undefined" || typeof global.crypto.getRandomValues !== "function") {
+  // @ts-ignore — bridge entre expo-crypto y la interfaz Web Crypto
+  global.crypto = {
+    getRandomValues: <T extends ArrayBufferView>(array: T): T => {
+      const bytes = ExpoCrypto.getRandomBytes(array.byteLength);
+      new Uint8Array(array.buffer, array.byteOffset, array.byteLength).set(bytes);
+      return array;
+    },
+    // subtle está en globalThis.crypto en Hermes RN 0.83+
+    ...(typeof globalThis.crypto?.subtle !== "undefined"
+      ? { subtle: globalThis.crypto.subtle }
+      : {}),
+  };
+}
 
 // 2. Polyfill de Buffer — requerido por Privy/jose para encoding
 import { Buffer } from "buffer";
