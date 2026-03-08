@@ -121,6 +121,7 @@ podman run \
     echo '    Make sure your phone and server are on the same WiFi network.'
     echo ''
 
-    # Start Metro with cache cleared
-    npx expo start --clear --port 8081
+    # Start Metro — bind to 0.0.0.0 so port mapping works from host to container
+    # Without --host, Metro binds to localhost inside container and is unreachable
+    npx expo start --clear --port 8081 --host lan
   "
