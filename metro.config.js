@@ -46,18 +46,38 @@ config.resolver.extraNodeModules = {
  * extraNodeModules NO es suficiente porque no aplica a imports ESM en .mjs.
  */
 const path = require("path");
-// Resolver la ruta real de uuid en tiempo de inicio de Metro (evita hardcodear paths)
-const uuidCjsPath = require.resolve("uuid");
 
+// Pre-resolve module paths at Metro startup time (avoids hardcoding paths)
+const uuidCjsPath = require.resolve("uuid");
+const privyCjsPath = require.resolve("@privy-io/expo");
+
+/**
+ * resolveRequest — canonical module deduplication
+ *
+ * PROBLEM: unstable_conditionNames: ['browser', 'require', 'default'] causes Metro
+ * to resolve the same package to DIFFERENT files depending on how it's imported:
+ *   - ESM import  → 'browser' condition → ./dist/esm/index.js  (instance A)
+ *   - CJS require → 'require' condition → ./dist/index.js      (instance B)
+ *
+ * When @privy-io/expo loads as two different instances, PrivyProvider provides
+ * React context from instance A, but usePrivy() looks for context from instance B.
+ * No match → usePrivy() returns default values (ready: undefined, authenticated: undefined).
+ *
+ * FIX: intercept ALL resolutions of these packages and force them to one canonical
+ * file path. Metro then deduplicates by path — one module instance, one React context.
+ */
 config.resolver.resolveRequest = (context, moduleName, platform) => {
+  // Force uuid to CJS — never wrapper.mjs (uses Node crypto that doesn't exist in RN)
   if (moduleName === "uuid" || moduleName.startsWith("uuid/")) {
-    // Forzar SIEMPRE el build CJS resuelto por Node — nunca wrapper.mjs
-    return {
-      filePath: uuidCjsPath,
-      type: "sourceFile",
-    };
+    return { filePath: uuidCjsPath, type: "sourceFile" };
   }
-  // Para todo lo demás, usar el resolver por defecto
+
+  // Force @privy-io/expo to single CJS instance — prevents dual ESM+CJS context split
+  if (moduleName === "@privy-io/expo") {
+    return { filePath: privyCjsPath, type: "sourceFile" };
+  }
+
+  // Default resolver for everything else
   return context.resolveRequest(context, moduleName, platform);
 };
 
