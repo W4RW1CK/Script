@@ -1,39 +1,38 @@
 /**
- * lib/supabase.ts — Cliente de Supabase para Script
+ * lib/supabase.ts — Supabase client for Script
  *
- * Usa la anon key para queries públicas (scripts predefinidos, etc.).
- * Para operaciones protegidas por RLS, el cliente necesita un JWT válido
- * configurado con setSupabaseToken() (B-51 — Option A).
+ * Uses the anon key for public queries (predefined scripts, etc.).
+ * For RLS-protected operations, the client needs a valid JWT configured
+ * via setSupabaseToken() (B-51 v2 — Admin API approach).
  *
- * ¿Por qué autoRefreshToken: false?
- *   Usamos Privy como auth provider, no Supabase Auth.
- *   El refresh token de Supabase no aplica aquí — el JWT lo genera
- *   sync-privy-user cada vez que la app arranca y la sesión de Privy existe.
- *   Duración del JWT: 30 días. Si expira, la próxima carga de app re-minta
- *   automáticamente (ver AuthGate en _layout.tsx y handlePostLogin en auth.tsx).
+ * Why autoRefreshToken: false?
+ *   We use Privy as the auth provider, not Supabase Auth.
+ *   The Supabase refresh token does not apply here — the session token is
+ *   established via sync-privy-user (generateLink + verifyOtp) on every app start
+ *   when a Privy session exists. See AuthGate in _layout.tsx and handlePostLogin in auth.tsx.
  *
- * Almacenamiento de sesión:
- *   Supabase guarda el JWT (access_token) en nuestro storage (SecureStore en
- *   nativo, localStorage en web). En el próximo arranque, Supabase lo restaura
- *   automáticamente si no está expirado — sin llamada de red extra.
+ * Session storage:
+ *   Supabase stores the session token in our storage adapter (SecureStore on native,
+ *   localStorage on web). On next launch, Supabase restores it automatically
+ *   if not expired — no extra network call needed.
  */
 import { createClient } from "@supabase/supabase-js";
 import * as SecureStore from "expo-secure-store";
 import { Platform } from "react-native";
 
 /**
- * Adaptador de almacenamiento para la sesión de Supabase.
+ * Storage adapter for the Supabase session.
  *
- * En Android/iOS: usa SecureStore (encriptado en el dispositivo).
- * En web: usa localStorage (Expo dev tools corre un servidor web en paralelo;
- *         SecureStore no está disponible ahí y lanza getValueWithKeyAsync error).
+ * Android/iOS: SecureStore (device-encrypted).
+ * Web: localStorage (Expo dev tools runs a web server in parallel;
+ *      SecureStore is not available there and throws getValueWithKeyAsync errors).
  *
- * Esta distinción es necesaria porque `npx expo start` bundlea para web también
- * aunque la app sea mobile-only.
+ * This distinction is required because `npx expo start` bundles for web too,
+ * even though the app is mobile-only.
  */
 const storage = Platform.OS === "web"
   ? {
-      // Fallback para web — solo usado en Expo dev tools, no en producción
+      // Web fallback — only used in Expo dev tools, not in production
       getItem: (key: string) =>
         Promise.resolve(
           typeof localStorage !== "undefined" ? localStorage.getItem(key) : null
@@ -48,55 +47,62 @@ const storage = Platform.OS === "web"
       },
     }
   : {
-      // Nativo (Android/iOS) — SecureStore encriptado
+      // Native (Android/iOS) — encrypted SecureStore
       getItem:    (key: string) => SecureStore.getItemAsync(key),
       setItem:    (key: string, value: string) => SecureStore.setItemAsync(key, value),
       removeItem: (key: string) => SecureStore.deleteItemAsync(key),
     };
 
-const supabaseUrl    = process.env.EXPO_PUBLIC_SUPABASE_URL!;
+const supabaseUrl     = process.env.EXPO_PUBLIC_SUPABASE_URL!;
 const supabaseAnonKey = process.env.EXPO_PUBLIC_SUPABASE_ANON_KEY!;
 
 export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
   auth: {
     storage,
-    // autoRefreshToken: false — Privy gestiona el ciclo de vida de la sesión.
-    // sync-privy-user genera un nuevo token en cada arranque de la app via
-    // generateLink + verifyOtp. No necesitamos que Supabase intente hacer
-    // refresh automático (podría intentar usar tokens viejos/inválidos de SecureStore).
+    // autoRefreshToken: false — Privy manages the session lifecycle.
+    // sync-privy-user generates a new token on each app launch via
+    // generateLink + verifyOtp. We don't want Supabase attempting
+    // automatic refresh (it could try to use old/invalid tokens from SecureStore).
     autoRefreshToken:  false,
-    persistSession:     true,  // Sesión persiste en SecureStore entre reinicios de app
+    persistSession:     true,  // Session persists in SecureStore across app restarts
     detectSessionInUrl: false,
   },
 });
 
 /**
- * setSupabaseToken — Activa la sesión Supabase usando el OTP token hash
- * generado por sync-privy-user via Admin API.
+ * setSupabaseToken — Activates a Supabase session using the OTP token hash
+ * returned by sync-privy-user via the Admin API.
  *
  * B-51 v2 (Admin API approach):
- *   sync-privy-user ahora retorna `otp_token_hash` en lugar de `access_token`.
- *   El token_hash proviene de auth.admin.generateLink({ type: 'magiclink' }).
- *   Llamar verifyOtp con ese token produce una sesión real de Supabase Auth:
- *   - access_token válido firmado por Supabase (no por nosotros)
- *   - refresh_token para auto-renovación (autoRefreshToken: true lo usa)
- *   - auth.uid() retorna el UUID del usuario → RLS policies funcionan
+ *   sync-privy-user returns `otp_token_hash` generated by:
+ *     auth.admin.generateLink({ type: 'magiclink', email })
  *
- * Ya no se requiere SUPABASE_JWT_SECRET — el Admin API maneja todo internamente.
+ *   Calling verifyOtp with that hash produces a real Supabase Auth session:
+ *   - Valid access_token signed by Supabase (not by us)
+ *   - refresh_token for auto-renewal
+ *   - auth.uid() returns the user's UUID → RLS policies resolve correctly
  *
- * @param tokenHash - hashed_token de la respuesta de generateLink (Admin API)
+ *   No SUPABASE_JWT_SECRET required — the Admin API handles everything internally.
+ *
+ * B-60 FIX: type must be 'magiclink', NOT 'email'.
+ *   generateLink({ type: 'magiclink' }) produces a token that must be verified
+ *   with the matching type. Using 'email' caused a silent session failure:
+ *   verifyOtp returned an error, session was never established, and RLS
+ *   remained broken — with no visible error shown to the user.
+ *
+ * @param tokenHash - hashed_token from the Admin API generateLink response
  */
 export async function setSupabaseToken(tokenHash: string): Promise<void> {
   try {
     const { data, error } = await supabase.auth.verifyOtp({
       token_hash: tokenHash,
-      type: "email", // 'email' es el tipo genérico para magic links via Admin API
+      type: "magiclink", // B-60 FIX: must match generateLink({ type: 'magiclink' })
     });
     if (error) throw error;
-    if (!data.session) throw new Error("verifyOtp no retornó sesión");
-    console.log("[Supabase] Sesión activada via verifyOtp — RLS habilitada");
+    if (!data.session) throw new Error("verifyOtp returned no session");
+    console.log("[Supabase] Session activated via verifyOtp — RLS enabled");
   } catch (e) {
-    // No es crítico — la app funciona sin RLS en modo degradado (scripts públicos)
-    console.warn("[Supabase] Error activando sesión:", e);
+    // Non-critical — app works without RLS in degraded mode (public scripts still load)
+    console.warn("[Supabase] Error activating session:", e);
   }
 }
