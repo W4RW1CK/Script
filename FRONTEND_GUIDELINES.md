@@ -1,98 +1,98 @@
-# FRONTEND_GUIDELINES.md — Sistema de Diseño
-## Script — Compañero Digital para Adultos con TEA Nivel 1
+# FRONTEND_GUIDELINES.md — Design System
+## Script — Digital Companion for Adults with ASD Level 1
 
-**Versión:** 1.4  
-**Última actualización:** 2026-03-06  
-**Cambios v1.4:** §1.4 Sistema de color emocional agregado (7 emociones con bg/dot/text). Tokens `script-accent` y `script-warning` agregados. §2 Tipografía migrada a Atkinson Hyperlegible (reemplaza Inter — investigación empírica de accesibilidad). §4 Cards: shadows de doble capa. §4 Botones: gradiente mono-azul aprobado. §7 Animaciones: `useReduceMotion()` pattern canonizado. §12 Identidad Visual (nueva sección): decisiones del redesign 2026-03-06 (Aibus + Ana).  
-**Cambios v1.3:** §8 Iconografía actualizada — `expo-symbols` → `Ionicons` de `@expo/vector-icons` (B-07: SF Symbols no funciona en Android).  
-**Cambios v1.2:** Agregada §0 — Inspiración y Decisiones de Diseño por Pantalla (incl. deferimiento Compañero/Planta a Semana 3).  
-**Cambios v1.1:** Agregada tabla de mapeo NativeWind (§1.3); corregido template de pantalla con dark mode; agregado `expo-symbols` a §8.
+**Version:** 1.4  
+**Last updated:** 2026-03-06  
+**Changes v1.4:** §1.4 Emotional color system added (7 emotions with bg/dot/text). Tokens `script-accent` and `script-warning` added. §2 Typography migrated to Atkinson Hyperlegible (replaces Inter — empirical accessibility research). §4 Cards: double-layer shadows. §4 Buttons: approved mono-blue gradient. §7 Animations: `useReduceMotion()` pattern canonized. §12 Visual Identity (new section): 2026-03-06 redesign decisions (Aibus + Ana).  
+**Changes v1.3:** §8 Iconography updated — `expo-symbols` → `Ionicons` from `@expo/vector-icons` (B-07: SF Symbols does not work on Android).  
+**Changes v1.2:** Added §0 — Design Inspiration and Per-Screen Decisions (incl. deferral of Companion/Plant to Week 3).  
+**Changes v1.1:** Added NativeWind mapping table (§1.3); corrected screen template with dark mode; added `expo-symbols` to §8.
 
-> **Principio rector:** Ningún elemento de la UI puede ser un detonante sensorial. Cada decisión de diseño debe reducir la carga cognitiva y sensorial, no aumentarla.
+> **Guiding principle:** No UI element may be a sensory trigger. Every design decision must reduce cognitive and sensory load, not increase it.
 
 ---
 
-## 0. Inspiración y Decisiones de Diseño por Pantalla
+## 0. Design Inspiration and Per-Screen Decisions
 
-Esta tabla define el lenguaje UX de cada pantalla principal. Es la referencia canónica antes de diseñar cualquier layout nuevo.
+This table defines the UX language for each main screen. It is the canonical reference before designing any new layout.
 
-| # | Pantalla | Inspiración | Decisión de diseño |
+| # | Screen | Inspiration | Design decision |
 |---|---|---|---|
-| 1 | **Home** | Finch | Espacio cálido, saludo personalizado + datos de continuidad ("tu última emoción fue…"). Nunca vacío. |
-| 2 | **Check-in** | Daylio | Máximo 3 taps. Body map táctil interactivo. Tiles de emoción con color como señal primaria. |
-| 3 | **Scripts** | Daylio + Finch | Grid visual de tiles (no lista). Copy cálido al momento de ejecutar el script. |
-| 4 | **Historial** | Daylio | Cuadrícula mensual donde cada día es un color según la emoción registrada. Sin texto denso. |
-| 5 | **Crisis / Rescate** | — (diseño propio) | Ultra minimal: una instrucción a la vez, 28px mínimo, paleta propia (`color-crisis-*`). Cero decoración. |
-| 6 | **Compañero / Planta** | — | **Diferido a Semana 3.** MVP usa únicamente datos de continuidad (última emoción, racha de check-ins). No hay elemento visual tipo mascota/planta en v1. |
+| 1 | **Home** | Finch | Warm space, personalized greeting + continuity data ("your last emotion was…"). Never empty. |
+| 2 | **Check-in** | Daylio | Maximum 3 taps. Interactive tactile body map. Emotion tiles with color as primary signal. |
+| 3 | **Scripts** | Daylio + Finch | Visual grid of tiles (not a list). Warm copy at script execution time. |
+| 4 | **History** | Daylio | Monthly grid where each day is colored according to the recorded emotion. No dense text. |
+| 5 | **Crisis / Rescue** | — (custom design) | Ultra minimal: one instruction at a time, 28px minimum, custom palette (`color-crisis-*`). Zero decoration. |
+| 6 | **Companion / Plant** | — | **Deferred to Week 3.** MVP uses only continuity data (last emotion, check-in streak). No mascot/plant visual element in v1. |
 
-### Notas de decisión
+### Decision notes
 
-- **Compañero / Planta — sí, pero a partir de Semana 3.** La idea de un compañero visual (inspirado en Finch/Tamagotchi) está aprobada como feature de Semana 3. En el MVP (Semana 1–2) la pantalla Home muestra únicamente datos de continuidad textual/numérica; no hay avatar ni planta.
-- **Historial como cuadrícula de colores** (Daylio): cada celda del calendario = color del estado emocional dominante de ese día. Pantalla S19. Implementar en Fase 1.5+.
-- **Check-in: tiles de emoción** tienen fondo de color correspondiente al estado (verde calma, azul tristeza, naranja ansiedad, etc.) y se componen con el body map. Implementar en Fase 1.5.
-- **Crisis: diseño 100% propio** — ninguna referencia externa aplica. Ver §11 de este documento para las reglas que sobrescriben todo.
+- **Companion / Plant — yes, but starting Week 3.** The idea of a visual companion (inspired by Finch/Tamagotchi) is approved as a Week 3 feature. In MVP (Week 1–2) the Home screen shows only textual/numerical continuity data; no avatar or plant.
+- **History as color grid** (Daylio): each calendar cell = color of the dominant emotional state for that day. Screen S19. Implement in Phase 1.5+.
+- **Check-in: emotion tiles** have a background color corresponding to the state (green for calm, blue for sadness, orange for anxiety, etc.) and are composed with the body map. Implement in Phase 1.5.
+- **Crisis: 100% custom design** — no external reference applies. See §11 of this document for the rules that override everything else.
 
 ---
 
-## 1. Paleta de Colores
+## 1. Color Palette
 
-### Light Mode (Modo Claro — Pastel)
+### Light Mode (Pastel)
 
-| Token | Hex | Uso |
+| Token | Hex | Usage |
 |---|---|---|
-| `color-bg-primary` | `#F8F6F2` | Fondo principal (blanco cálido, no puro) |
-| `color-bg-secondary` | `#EFEFEA` | Fondos de tarjetas, inputs |
+| `color-bg-primary` | `#F8F6F2` | Main background (warm white, not pure white) |
+| `color-bg-secondary` | `#EFEFEA` | Card and input backgrounds |
 | `color-bg-elevated` | `#FFFFFF` | Modals, bottom sheets |
-| `color-text-primary` | `#2D2D2D` | Texto principal |
-| `color-text-secondary` | `#6B6B6B` | Texto secundario, hints |
-| `color-text-disabled` | `#ABABAB` | Elementos deshabilitados |
-| `color-accent-blue` | `#A8C5DA` | Acciones primarias, selección |
-| `color-accent-green` | `#B8DABC` | Confirmación, éxito, "me siento bien" |
-| `color-accent-peach` | `#F2C9B0` | Alertas suaves, scripts |
-| `color-accent-lavender` | `#C4B8DA` | Historial, diccionario emocional |
-| `color-accent-yellow` | `#F5E4A0` | Notas, recordatorios |
-| `color-crisis-bg` | `#F5EFEF` | Fondo pantalla de rescate |
-| `color-crisis-soft` | `#E8C4C4` | Elementos de crisis (suave, nunca rojo alarma) |
-| `color-border` | `#E0DDD8` | Bordes de tarjetas, separadores |
+| `color-text-primary` | `#2D2D2D` | Primary text |
+| `color-text-secondary` | `#6B6B6B` | Secondary text, hints |
+| `color-text-disabled` | `#ABABAB` | Disabled elements |
+| `color-accent-blue` | `#A8C5DA` | Primary actions, selection |
+| `color-accent-green` | `#B8DABC` | Confirmation, success, "I feel good" |
+| `color-accent-peach` | `#F2C9B0` | Soft alerts, scripts |
+| `color-accent-lavender` | `#C4B8DA` | History, emotional dictionary |
+| `color-accent-yellow` | `#F5E4A0` | Notes, reminders |
+| `color-crisis-bg` | `#F5EFEF` | Rescue screen background |
+| `color-crisis-soft` | `#E8C4C4` | Crisis elements (soft, never alarm red) |
+| `color-border` | `#E0DDD8` | Card borders, dividers |
 
-### Dark Mode (Modo Oscuro — Desaturado)
+### Dark Mode (Desaturated)
 
-| Token | Hex | Uso |
+| Token | Hex | Usage |
 |---|---|---|
-| `color-bg-primary` | `#1C1C22` | Fondo principal |
-| `color-bg-secondary` | `#26262E` | Fondos de tarjetas, inputs |
+| `color-bg-primary` | `#1C1C22` | Main background |
+| `color-bg-secondary` | `#26262E` | Card and input backgrounds |
 | `color-bg-elevated` | `#2F2F38` | Modals, bottom sheets |
-| `color-text-primary` | `#E8E8E8` | Texto principal |
-| `color-text-secondary` | `#9A9AA5` | Texto secundario |
-| `color-text-disabled` | `#55555E` | Elementos deshabilitados |
-| `color-accent-blue` | `#5A7E92` | Acciones primarias |
-| `color-accent-green` | `#5A7A5E` | Confirmación, éxito |
+| `color-text-primary` | `#E8E8E8` | Primary text |
+| `color-text-secondary` | `#9A9AA5` | Secondary text |
+| `color-text-disabled` | `#55555E` | Disabled elements |
+| `color-accent-blue` | `#5A7E92` | Primary actions |
+| `color-accent-green` | `#5A7A5E` | Confirmation, success |
 | `color-accent-peach` | `#8A6454` | Scripts |
-| `color-accent-lavender` | `#6A5E8A` | Historial |
-| `color-accent-yellow` | `#8A7A40` | Notas |
-| `color-crisis-bg` | `#221E1E` | Fondo pantalla de rescate |
-| `color-crisis-soft` | `#6A3E3E` | Elementos de crisis |
-| `color-border` | `#3A3A44` | Bordes |
+| `color-accent-lavender` | `#6A5E8A` | History |
+| `color-accent-yellow` | `#8A7A40` | Notes |
+| `color-crisis-bg` | `#221E1E` | Rescue screen background |
+| `color-crisis-soft` | `#6A3E3E` | Crisis elements |
+| `color-border` | `#3A3A44` | Borders |
 
-### 1.2.1 Tokens adicionales — Acento y Advertencia
+### 1.2.1 Additional Tokens — Accent and Warning
 
-Tokens que complementan la paleta pero no son parte del sistema emocional:
+Tokens that complement the palette but are not part of the emotional system:
 
-| Token | Hex Light | Hex Dark | NativeWind | Uso |
+| Token | Hex Light | Hex Dark | NativeWind | Usage |
 |---|---|---|---|---|
-| `color-accent` | `#10B981` | `#059669` | `bg-script-accent` / `text-script-accent` | Confirmación, éxito, "completado" |
-| `color-warning` | `#F59E0B` | `#D97706` | `bg-script-warning` / `text-script-warning` | Alerta suave, precaución (no crisis) |
+| `color-accent` | `#10B981` | `#059669` | `bg-script-accent` / `text-script-accent` | Confirmation, success, "completed" |
+| `color-warning` | `#F59E0B` | `#D97706` | `bg-script-warning` / `text-script-warning` | Soft alert, caution (not crisis) |
 
-> Diferencia con `color-crisis-*`: los colores de crisis son para el protocolo de rescate.  
-> `color-warning` es para feedback de UI normal (e.g., "campo incompleto", recordatorio).
+> Difference from `color-crisis-*`: crisis colors are for the rescue protocol.  
+> `color-warning` is for normal UI feedback (e.g., "incomplete field", reminder).
 
 ---
 
-### 1.3 Referencia de Tokens → Clases NativeWind
+### 1.3 Token → NativeWind Class Reference
 
-Los tokens semánticos de arriba se mapean a las clases de `tailwind.config.js` así. **Usar siempre la clase NativeWind, nunca el hex directo.**
+The semantic tokens above map to `tailwind.config.js` classes as follows. **Always use the NativeWind class, never the raw hex value.**
 
-| Token Semántico | Clase NativeWind (fondo) | Clase NativeWind (texto) | Clase NativeWind (borde) |
+| Semantic Token | NativeWind (background) | NativeWind (text) | NativeWind (border) |
 |---|---|---|---|
 | `color-bg-primary` | `bg-script-bg` | — | — |
 | `color-bg-secondary` | `bg-script-bg-secondary` | — | — |
@@ -111,54 +111,54 @@ Los tokens semánticos de arriba se mapean a las clases de `tailwind.config.js` 
 | `color-accent-blue` (dark) | `dark:bg-script-dark-blue` | `dark:text-script-dark-blue` | — |
 | `color-crisis-bg` (dark) | `dark:bg-script-dark-crisis` | — | — |
 
-> ✅ Ejemplo de uso correcto: `className="bg-script-bg dark:bg-script-dark-bg text-script-text"`  
-> ❌ Nunca: `className="bg-[#F8F6F2]"` (hardcoded, rompe dark mode)
+> ✅ Correct usage example: `className="bg-script-bg dark:bg-script-dark-bg text-script-text"`  
+> ❌ Never: `className="bg-[#F8F6F2]"` (hardcoded, breaks dark mode)
 
 ---
 
 ---
 
-### 1.4 Sistema de Color Emocional
+### 1.4 Emotional Color System
 
-> ⚠️ **DECISIÓN DE DISEÑO (2026-03-06):** Script adopta un sistema de color emocional inspirado en Daylio. Cada estado emocional tiene 3 valores: `bg` (fondo del card/pantalla), `dot` (acento/puntos en historial), `text` (texto legible sobre `bg`). Este sistema es la **identidad visual del producto** — no decoración.
+> ⚠️ **DESIGN DECISION (2026-03-06):** Script adopts an emotional color system inspired by Daylio. Each emotional state has 3 values: `bg` (card/screen background), `dot` (accent/dots in history), `text` (readable text on top of `bg`). This system is the **visual identity of the product** — not decoration.
 
-**Principio:** El color ES la emoción. El usuario aprende a reconocer su estado por el color, reduciendo la carga cognitiva de búsqueda textual (especialmente relevante en ASD).
+**Principle:** Color IS the emotion. The user learns to recognize their state by color, reducing the cognitive load of textual search (especially relevant in ASD).
 
 ```typescript
-// constants/colors.ts — agregar este bloque
+// constants/colors.ts — add this block
 export const EmotionColors = {
   calm: {
-    bg: '#D4EAD0',     // verde suave — paz, equilibrio
-    dot: '#6BAF6B',    // verde medio — confirmación
-    text: '#2D4A2D',   // verde oscuro — legible sobre bg
+    bg: '#D4EAD0',     // soft green — peace, balance
+    dot: '#6BAF6B',    // mid green — confirmation
+    text: '#2D4A2D',   // dark green — readable on bg
   },
   anxious: {
-    bg: '#FDE8C8',     // naranja suave — alerta sin alarma
-    dot: '#E8943A',    // naranja medio
+    bg: '#FDE8C8',     // soft orange — alert without alarm
+    dot: '#E8943A',    // mid orange
     text: '#5A3010',
   },
   sad: {
-    bg: '#D0DCF0',     // azul suave — calma profunda
-    dot: '#5A7EC8',    // azul medio
+    bg: '#D0DCF0',     // soft blue — deep calm
+    dot: '#5A7EC8',    // mid blue
     text: '#1C2E50',
   },
   overwhelm: {
-    bg: '#E8D4F0',     // lavanda — procesando demasiado
-    dot: '#9B6ABF',    // lavanda media
+    bg: '#E8D4F0',     // lavender — processing too much
+    dot: '#9B6ABF',    // mid lavender
     text: '#3A1A50',
   },
   joy: {
-    bg: '#FFF3C8',     // amarillo suave — calidez
-    dot: '#F0C040',    // amarillo medio
+    bg: '#FFF3C8',     // soft yellow — warmth
+    dot: '#F0C040',    // mid yellow
     text: '#4A3800',
   },
   tired: {
-    bg: '#E8E4D8',     // beige grisáceo — agotamiento neutral
-    dot: '#8A7E6A',    // gris cálido
+    bg: '#E8E4D8',     // grayish beige — neutral exhaustion
+    dot: '#8A7E6A',    // warm gray
     text: '#3A3020',
   },
   unnamed: {
-    bg: '#E8EAF0',     // azul gris neutro — lo que aún no tiene nombre
+    bg: '#E8EAF0',     // neutral blue-gray — what has no name yet
     dot: '#7A80A0',
     text: '#2A2E40',
   },
@@ -167,9 +167,9 @@ export const EmotionColors = {
 export type EmotionKey = keyof typeof EmotionColors;
 ```
 
-**Mapeo de labels GPT → EmotionKey** (canonical — normalizar en Edge Function):
+**GPT label → EmotionKey mapping** (canonical — normalize in Edge Function):
 
-| Label GPT (normalizado) | EmotionKey |
+| GPT Label (normalized) | EmotionKey |
 |---|---|
 | `Calma` | `calm` |
 | `Ansiedad` | `anxious` |
@@ -180,36 +180,36 @@ export type EmotionKey = keyof typeof EmotionColors;
 | `Cansancio` | `tired` |
 | `Algo que aún no tiene nombre` | `unnamed` |
 
-> ⚠️ La Edge Function `interpret-checkin` DEBE normalizar su output a uno de estos 8 labels exactos (sin variaciones, sin inglés). El frontend no debe hacer inferencias — recibe el label exacto y lo mapea.
+> ⚠️ The `interpret-checkin` Edge Function MUST normalize its output to one of these 8 exact labels (no variations, no English). The frontend must not make inferences — it receives the exact label and maps it.
 
-**Dónde aparecen los colores emocionales:**
+**Where emotional colors appear:**
 
-| Contexto | Qué muestra |
+| Context | What it shows |
 |---|---|
-| `reflect.tsx` — card seleccionado | `EmotionColors[key].bg` como fondo, `dot` como borde y círculo acento |
-| `result.tsx` — pantalla de resultado | Fondo full-screen con `EmotionColors[key].bg` |
-| `home.tsx` — card "última emoción" | Fondo del card con el color de la última emoción registrada |
-| `history.tsx` — S19 calendario | Dots de 36x36px con `EmotionColors[key].dot` por día |
-| Compañero visual (Semana 3) | Estado del compañero refleja la emoción del último check-in |
+| `reflect.tsx` — selected card | `EmotionColors[key].bg` as background, `dot` as border and accent circle |
+| `result.tsx` — result screen | Full-screen background with `EmotionColors[key].bg` |
+| `home.tsx` — "last emotion" card | Card background with the color of the last recorded emotion |
+| `history.tsx` — S19 calendar | 36x36px dots with `EmotionColors[key].dot` per day |
+| Visual companion (Week 3) | Companion state reflects the emotion from the last check-in |
 
 ---
 
-### Modo Crisis (se activa al entrar al protocolo de rescate)
+### Crisis Mode (activated when entering the rescue protocol)
 
-En modo crisis, la UI adopta automáticamente:
-- Fondo: `color-crisis-bg` del modo activo
-- Reducción de contraste: todos los colores de acento se desaturan 30%
-- Modo oscuro forzado si el sistema está en modo claro (reduce estimulación)
+In crisis mode, the UI automatically adopts:
+- Background: `color-crisis-bg` of the active mode
+- Contrast reduction: all accent colors desaturated by 30%
+- Forced dark mode if the system is in light mode (reduces stimulation)
 
 ---
 
-## 2. Tipografía
+## 2. Typography
 
-> **DECISIÓN (2026-03-06):** Script migra de Inter a **Atkinson Hyperlegible**. Atkinson fue diseñada con investigación empírica de accesibilidad para máxima legibilidad — cada carácter tiene formas distintas que reducen confusión. Para usuarios ASD donde puede coexistir dislexia y procesamiento visual atípico, esto tiene impacto clínico real. Inter era genérica y válida; Atkinson es la elección correcta para este producto.
+> **DECISION (2026-03-06):** Script migrates from Inter to **Atkinson Hyperlegible**. Atkinson was designed with empirical accessibility research for maximum legibility — each character has distinct shapes that reduce confusion. For ASD users where dyslexia and atypical visual processing may coexist, this has real clinical impact. Inter was generic and valid; Atkinson is the right choice for this product.
 >
-> ⚠️ Atkinson Hyperlegible solo tiene **Regular (400)** y **Bold (700)** — no hay SemiBold. Los elementos que usaban SemiBold migran a Bold. El resultado es más carácter, no menos.
+> ⚠️ Atkinson Hyperlegible only has **Regular (400)** and **Bold (700)** — there is no SemiBold. Elements that used SemiBold migrate to Bold. The result is more character, not less.
 
-| Rol | Familia | Peso | Tamaño | Line Height |
+| Role | Family | Weight | Size | Line Height |
 |---|---|---|---|---|
 | Heading XL | Atkinson Hyperlegible | 700 (Bold) | 32px | 40px |
 | Heading L | Atkinson Hyperlegible | 700 (Bold) | 24px | 32px |
@@ -221,33 +221,33 @@ En modo crisis, la UI adopta automáticamente:
 | Crisis Text | Atkinson Hyperlegible | 700 (Bold) | 28px | 36px |
 | Button | Atkinson Hyperlegible | 700 (Bold) | 16px | — |
 
-**Instalación:**
+**Installation:**
 ```bash
 npx expo install @expo-google-fonts/atkinson-hyperlegible
 ```
 
-**Import en `_layout.tsx`:**
+**Import in `_layout.tsx`:**
 ```typescript
 import {
   useFonts,
   AtkinsonHyperlegible_400Regular,
   AtkinsonHyperlegible_700Bold,
 } from '@expo-google-fonts/atkinson-hyperlegible';
-// Reemplazar las importaciones de @expo-google-fonts/inter
+// Replace @expo-google-fonts/inter imports
 ```
 
-**Reglas:**
-- Tamaño mínimo de texto: 14px (nunca menor)
-- Sin itálica en contenido principal (dificulta lectura en dislexia)
-- Letra tracking: normal (no tight, no wide)
-- En pantalla de crisis: solo Body Large (18px) y Crisis Text (28px)
-- **No usar Inter directamente** — es la fuente del sistema como fallback si Atkinson no carga
+**Rules:**
+- Minimum text size: 14px (never smaller)
+- No italics in main content (makes reading harder for dyslexia)
+- Letter tracking: normal (not tight, not wide)
+- On the crisis screen: only Body Large (18px) and Crisis Text (28px)
+- **Do not use Inter directly** — it is the system font as a fallback if Atkinson fails to load
 
 ---
 
-## 3. Espaciado (Spacing Scale)
+## 3. Spacing Scale
 
-Usar múltiplos de 4px. NativeWind map:
+Use multiples of 4px. NativeWind map:
 
 | Token | px | NativeWind |
 |---|---|---|
@@ -261,89 +261,89 @@ Usar múltiplos de 4px. NativeWind map:
 | `space-10` | 40px | `p-10`, `m-10` |
 | `space-12` | 48px | `p-12`, `m-12` |
 
-**Padding estándar de pantalla:** `px-5` (20px horizontal)  
-**Gap entre elementos de lista:** `gap-3` (12px)  
-**Gap entre secciones:** `gap-6` (24px)
+**Standard screen padding:** `px-5` (20px horizontal)  
+**Gap between list elements:** `gap-3` (12px)  
+**Gap between sections:** `gap-6` (24px)
 
 ---
 
-## 4. Componentes Core
+## 4. Core Components
 
-### Botones
+### Buttons
 
 ```
 Primary Button
-├── Fondo: gradiente linear 135° de color-accent-blue (#A8C5DA) → #8BAEC4
-│   (mono-azul — profundidad sin introducir nuevos hues)
-│   Fallback flat: color-accent-blue (si no hay soporte de gradiente)
-├── Texto: blanco, Atkinson Bold 16px
+├── Background: linear gradient 135° from color-accent-blue (#A8C5DA) → #8BAEC4
+│   (mono-blue — depth without introducing new hues)
+│   Flat fallback: color-accent-blue (if gradient is not supported)
+├── Text: white, Atkinson Bold 16px
 ├── Padding: py-4 px-6 (16px vertical, 24px horizontal)
 ├── Border radius: rounded-2xl (16px)
-├── Tamaño mínimo: ancho completo (w-full) en mobile
-└── Estado pressed: opacidad 0.85, sin scale
+├── Minimum size: full width (w-full) on mobile
+└── Pressed state: opacity 0.85, no scale
 
 Secondary Button  
-├── Fondo: transparente
-├── Borde: 1.5px color-accent-blue
-├── Texto: color-accent-blue, Inter SemiBold 16px
-└── Resto igual que primary
+├── Background: transparent
+├── Border: 1.5px color-accent-blue
+├── Text: color-accent-blue, Inter SemiBold 16px
+└── Everything else same as primary
 
 Danger Button
-├── Fondo: color-crisis-soft
-├── Texto: color-text-primary
-└── Solo usar para acciones destructivas (eliminar, desconectar)
+├── Background: color-crisis-soft
+├── Text: color-text-primary
+└── Only use for destructive actions (delete, disconnect)
 
 Ghost Button
-├── Sin fondo, sin borde
-├── Texto: color-text-secondary
-└── Para acciones secundarias (omitir, cancelar)
+├── No background, no border
+├── Text: color-text-secondary
+└── For secondary actions (skip, cancel)
 ```
 
-**Tamaño mínimo de tap target:** 44x44px (WCAG / Apple HIG)
+**Minimum tap target size:** 44x44px (WCAG / Apple HIG)
 
-### Tarjetas
+### Cards
 
 ```
 Card
-├── Fondo: color-bg-secondary
+├── Background: color-bg-secondary
 ├── Border radius: rounded-3xl (24px)
-├── Padding: p-5 (20px todos los lados)
-├── Sombra: shadow-card (doble capa — ver tokens en tailwind.config.js)
-└── Sin borde (el fondo diferencia suficiente)
+├── Padding: p-5 (20px all sides)
+├── Shadow: shadow-card (double layer — see tokens in tailwind.config.js)
+└── No border (background provides sufficient differentiation)
 
 Card Elevated (variant="elevated")
-├── Sombra: shadow-card-elevated
-└── Resto igual
+├── Shadow: shadow-card-elevated
+└── Everything else same
 
-Card Pressed (estado al presionar)
-├── Sombra: shadow-card-pressed (inset — efecto de hundimiento)
+Card Pressed (state when pressing)
+├── Shadow: shadow-card-pressed (inset — sunken effect)
 └── Scale: 0.97 (100ms easeOut)
 ```
 
-**Tokens de sombra en `tailwind.config.js`:**
+**Shadow tokens in `tailwind.config.js`:**
 ```javascript
 boxShadow: {
-  // Light mode — sombras de doble capa para profundidad táctil
+  // Light mode — double-layer shadows for tactile depth
   'card':          '0 2px 8px rgba(0,0,0,0.06), 0 1px 3px rgba(0,0,0,0.04)',
   'card-elevated': '0 4px 16px rgba(0,0,0,0.10), 0 2px 6px rgba(0,0,0,0.06)',
   'card-pressed':  'inset 0 1px 4px rgba(0,0,0,0.08)',
-  // Dark mode — sombras más tenues (la oscuridad ya hace el trabajo)
+  // Dark mode — subtler shadows (darkness already does the work)
   'card-dark':     '0 2px 8px rgba(0,0,0,0.20), 0 1px 3px rgba(0,0,0,0.14)',
 }
 ```
 
-> **Por qué doble capa:** Las sombras de una sola capa se ven planas a resoluciones altas. La capa exterior da "elevación" y la interior da "borde". El resultado se percibe como una superficie físicamente presente — más predecible e intuitiva para usuarios con procesamiento visual-táctil diferente.
+> **Why double layer:** Single-layer shadows look flat at high resolutions. The outer layer provides "elevation" and the inner one provides a "border". The result is perceived as a physically present surface — more predictable and intuitive for users with different visual-tactile processing.
 
-### Inputs de Texto
+### Text Inputs
 
 ```
 TextInput
-├── Fondo: color-bg-primary
-├── Borde: 1.5px color-border
-├── Borde focused: 1.5px color-accent-blue
+├── Background: color-bg-primary
+├── Border: 1.5px color-border
+├── Focused border: 1.5px color-accent-blue
 ├── Border radius: rounded-2xl (16px)
 ├── Padding: p-4 (16px)
-├── Texto: Inter Regular 16px, color-text-primary
+├── Text: Inter Regular 16px, color-text-primary
 ├── Placeholder: color-text-disabled
 └── Min height: 44px (single line) / 120px (multiline)
 ```
@@ -351,262 +351,262 @@ TextInput
 ### Chips / Tags
 
 ```
-Chip (zona corporal seleccionada, categoría de script)
-├── Fondo: color-accent-blue con 20% opacidad
-├── Texto: color-accent-blue, Inter SemiBold 14px
+Chip (selected body zone, script category)
+├── Background: color-accent-blue at 20% opacity
+├── Text: color-accent-blue, Inter SemiBold 14px
 ├── Padding: py-1 px-3
 ├── Border radius: rounded-full
-└── Con ícono opcional a la izquierda
+└── Optional icon on the left
 ```
 
 ### Bottom Navigation
 
 ```
 Bottom Nav
-├── Fondo: color-bg-elevated
-├── 5 tabs: Home, Check-in, Scripts, Historial, Settings
-├── Tab activo: ícono + label con color-accent-blue
-├── Tab inactivo: ícono + label con color-text-disabled
-├── Altura: 64px + safe area inset
-└── Sin borde superior (separación por sombra sutil)
+├── Background: color-bg-elevated
+├── 5 tabs: Home, Check-in, Scripts, History, Settings
+├── Active tab: icon + label with color-accent-blue
+├── Inactive tab: icon + label with color-text-disabled
+├── Height: 64px + safe area inset
+└── No top border (separation via subtle shadow)
 ```
 
 ---
 
-## 5. Componente: Silueta Corporal (Body Map)
+## 5. Component: Body Silhouette (Body Map)
 
 ```
 SVG Body Map
-├── Dimensiones: 200px ancho × 400px alto (escalable)
-├── Fondo: transparente
-├── Silueta base: color-border con fill suave
-└── 6 zonas táctiles:
-    ├── Cabeza/Ojos/Mandíbula: elipse superior
-    ├── Garganta/Cuello: rectángulo central superior
-    ├── Pecho/Corazón: zona torácica
-    ├── Estómago/Abdomen: zona media
-    ├── Manos/Brazos: zonas laterales
-    └── Piernas/Pies: zona inferior
+├── Dimensions: 200px wide × 400px tall (scalable)
+├── Background: transparent
+├── Base silhouette: color-border with soft fill
+└── 6 touch zones:
+    ├── Head/Eyes/Jaw: upper ellipse
+    ├── Throat/Neck: upper central rectangle
+    ├── Chest/Heart: thoracic zone
+    ├── Stomach/Abdomen: mid zone
+    ├── Hands/Arms: lateral zones
+    └── Legs/Feet: lower zone
 
-Estados de zona:
+Zone states:
 ├── Default: fill color-bg-secondary, stroke color-border
-├── Hover/Press: fill color-accent-blue 30% opacidad
-├── Seleccionada: fill color-accent-blue 60% opacidad, stroke color-accent-blue
-└── Animación de selección: scale 1.0 → 1.05 → 1.0 (100ms, solo si animaciones activas)
+├── Hover/Press: fill color-accent-blue 30% opacity
+├── Selected: fill color-accent-blue 60% opacity, stroke color-accent-blue
+└── Selection animation: scale 1.0 → 1.05 → 1.0 (100ms, only if animations active)
 ```
 
 ---
 
-## 6. Componente: Círculo de Respiración
+## 6. Component: Breathing Circle
 
 ```
-Breathing Circle (SVG animado)
-├── Radio base: 80px
-├── Radio máximo (inhalar): 120px
-├── Radio mínimo (exhalar): 60px
-├── Color: color-accent-blue con gradiente radial a color-accent-lavender
-├── Opacidad: 0.7 base, 0.9 en máximo
-├── Animación: react-native-reanimated withTiming
-│   ├── Inhalar (4s): radius 80→120, opacity 0.7→0.9
-│   ├── Pausa (2s): sin cambio
-│   └── Exhalar (6s): radius 120→60, opacity 0.9→0.6
-├── Label interior: "Inhala" / "Pausa" / "Exhala" (Inter Bold 16px, blanco)
-└── Fondo pantalla: color-crisis-bg, sin otros elementos
+Breathing Circle (animated SVG)
+├── Base radius: 80px
+├── Maximum radius (inhale): 120px
+├── Minimum radius (exhale): 60px
+├── Color: color-accent-blue with radial gradient to color-accent-lavender
+├── Opacity: 0.7 base, 0.9 at maximum
+├── Animation: react-native-reanimated withTiming
+│   ├── Inhale (4s): radius 80→120, opacity 0.7→0.9
+│   ├── Hold (2s): no change
+│   └── Exhale (6s): radius 120→60, opacity 0.9→0.6
+├── Inner label: "Inhala" / "Pausa" / "Exhala" (Inter Bold 16px, white)
+└── Screen background: color-crisis-bg, no other elements
 ```
 
 ---
 
-## 7. Animaciones
+## 7. Animations
 
-**Filosofía:** Las animaciones comunican estado, no decoran. Deben ser predecibles.
+**Philosophy:** Animations communicate state, they don't decorate. They must be predictable.
 
-| Animación | Duración | Curva | Cuándo |
+| Animation | Duration | Curve | When |
 |---|---|---|---|
-| Page transition | 200ms | easeInOut | Entre pantallas |
-| Card press | 100ms | easeOut | Feedback de tap |
-| Modal enter | 300ms | easeOut | Bottom sheet aparece |
-| Zone selection | 100ms | easeOut | Zona corporal tocada |
-| Breathing circle | 4000/6000ms | easeInOut | Solo en protocolo |
-| Chip add/remove | 150ms | easeOut | Agregar/quitar chip |
+| Page transition | 200ms | easeInOut | Between screens |
+| Card press | 100ms | easeOut | Tap feedback |
+| Modal enter | 300ms | easeOut | Bottom sheet appears |
+| Zone selection | 100ms | easeOut | Body zone touched |
+| Breathing circle | 4000/6000ms | easeInOut | Protocol only |
+| Chip add/remove | 150ms | easeOut | Adding/removing chip |
 
-**Modo reducción de animaciones — OBLIGATORIO (T-U1):**
+**Reduced motion mode — MANDATORY (T-U1):**
 
-> ⚠️ `useReduceMotion()` de `react-native-reanimated` debe verificarse en TODOS los componentes que animan. Respeta tanto la preferencia del OS (`prefers-reduced-motion`) como el setting interno de usuario en Settings. Para ASD con sensibilidad sensorial, este control no es opcional.
+> ⚠️ `useReduceMotion()` from `react-native-reanimated` must be checked in ALL components that animate. It respects both the OS preference (`prefers-reduced-motion`) and the internal user setting in Settings. For ASD users with sensory sensitivity, this control is not optional.
 
 ```typescript
-// Patrón obligatorio en todo componente con animaciones:
+// Mandatory pattern in every component with animations:
 import { useReduceMotion } from 'react-native-reanimated';
 
 function BreathingCircle() {
   const shouldReduce = useReduceMotion();
 
-  // Si shouldReduce → mostrar estado final estático, sin withRepeat/withSequence
+  // If shouldReduce → show final static state, no withRepeat/withSequence
   const animatedStyle = useAnimatedStyle(() => ({
     width: shouldReduce
-      ? CIRCLE_BASE                                    // estático
-      : circleSize.value,                             // animado
+      ? CIRCLE_BASE                                    // static
+      : circleSize.value,                             // animated
   }));
 }
 ```
 
-**Niveles de reducción:**
-1. **`useReduceMotion() = true`** (OS preference): Skip toda animación — mostrar estado final
-2. **Crisis mode** (`/rescue/*`): Breathing circle sí anima (es terapéutica), todo lo demás no
-3. **Settings usuario** (`reduce_motion: true` en Zustand): Equivalente a nivel 1
+**Reduction levels:**
+1. **`useReduceMotion() = true`** (OS preference): Skip all animations — show final state
+2. **Crisis mode** (`/rescue/*`): Breathing circle does animate (it's therapeutic), everything else does not
+3. **User Settings** (`reduce_motion: true` in Zustand): Equivalent to level 1
 
-Cuando el usuario activa reducción:
-- TODAS las animaciones de UI se desactivan (transiciones, cards, chips)
-- La breathing circle muestra el texto de la fase ("Inhala / Pausa / Exhala") sin animación de escala
-- Haptics permanecen activos (canal diferente — no visual)
+When the user activates reduction:
+- ALL UI animations are disabled (transitions, cards, chips)
+- The breathing circle shows the phase text ("Inhala / Pausa / Exhala") without scale animation
+- Haptics remain active (different channel — not visual)
 
 ---
 
-## 8. Iconografía
+## 8. Iconography
 
-> ⚠️ **REGLA OBLIGATORIA (B-07):** NUNCA usar `expo-symbols` en Script.  
-> `expo-symbols` usa SF Symbols de Apple — solo funciona en iOS y web.  
-> En Android Expo Go no renderiza absolutamente nada.  
-> **Siempre usar `Ionicons` de `@expo/vector-icons`.**
+> ⚠️ **MANDATORY RULE (B-07):** NEVER use `expo-symbols` in Script.  
+> `expo-symbols` uses Apple's SF Symbols — only works on iOS and web.  
+> On Android Expo Go it renders absolutely nothing.  
+> **Always use `Ionicons` from `@expo/vector-icons`.**
 
-**Librería:** `Ionicons` de `@expo/vector-icons` — multiplataforma iOS / Android / web
+**Library:** `Ionicons` from `@expo/vector-icons` — cross-platform iOS / Android / web
 
 **Import:**
 ```tsx
 import { Ionicons } from "@expo/vector-icons";
 
-// Uso:
+// Usage:
 <Ionicons name="heart" size={24} color="#A8C5DA" />
 ```
 
-**`@expo/vector-icons` ya viene incluido con Expo** — no requiere instalación adicional.
+**`@expo/vector-icons` is already included with Expo** — no additional installation required.
 
-| Uso | Ícono Ionicons |
+| Usage | Ionicons icon |
 |---|---|
 | Home | `home` |
 | Check-in | `body` |
 | Scripts | `chatbubbles` |
-| Historial | `bar-chart` |
+| History | `bar-chart` |
 | Settings | `settings` |
-| Rescate (FAB) | `heart` |
-| Agregar | `add-circle` |
-| Eliminar | `trash` |
-| Editar | `pencil` |
-| Compartir | `share-social` |
-| Volver | `arrow-back` |
-| Cerrar | `close` |
+| Rescue (FAB) | `heart` |
+| Add | `add-circle` |
+| Delete | `trash` |
+| Edit | `pencil` |
+| Share | `share-social` |
+| Back | `arrow-back` |
+| Close | `close` |
 | Crisis flag | `flag.fill` |
-| Persona confianza | `person.2.fill` |
-| Terapeuta | `stethoscope` |
+| Trusted person | `person.2.fill` |
+| Therapist | `stethoscope` |
 
-**Tamaños:**
+**Sizes:**
 - Navigation icon: 24px
 - Action icon: 20px
 - Inline icon: 16px
 
 ---
 
-## 9. Layout y Responsive
+## 9. Layout and Responsive
 
-**Ancho máximo de contenido:** 480px (centrado en tablets/web)  
-**Safe areas:** Usar `SafeAreaView` o padding con `useSafeAreaInsets()`  
-**Orientación:** Portrait locked (sin soporte landscape en v1)  
-**Densidad mínima soportada:** 320px de ancho (iPhone SE)
+**Maximum content width:** 480px (centered on tablets/web)  
+**Safe areas:** Use `SafeAreaView` or padding with `useSafeAreaInsets()`  
+**Orientation:** Portrait locked (no landscape support in v1)  
+**Minimum supported density:** 320px wide (iPhone SE)
 
 ```typescript
-// Template de pantalla estándar
+// Standard screen template
 <SafeAreaView className="flex-1 bg-script-bg dark:bg-script-dark-bg">
   <ScrollView 
     className="flex-1 px-5"
     showsVerticalScrollIndicator={false}
   >
-    {/* contenido */}
+    {/* content */}
   </ScrollView>
 </SafeAreaView>
 ```
 
 ---
 
-## 10. Accesibilidad
+## 10. Accessibility
 
-- `accessibilityLabel` en todos los botones e íconos interactivos
-- `accessibilityHint` en acciones no obvias
-- Contraste de texto: mínimo 4.5:1 (WCAG AA)
-- Contraste en modo crisis: mínimo 3:1 (reducido intencionalmente para alivio sensorial)
-- `accessibilityRole` correcto en todos los elementos (`button`, `text`, `image`)
-- `accessible={true}` en zonas del body map con `accessibilityLabel` por zona
-
----
-
-## 11. Pantalla de Crisis — Reglas Especiales
-
-Estas reglas **sobrescriben** todas las demás cuando se está en `/rescue/*`:
-
-1. ❌ Sin padding top decorativo
-2. ❌ Sin bottom navigation visible
-3. ❌ Sin animaciones excepto el círculo de respiración
-4. ❌ Sin más de 5 palabras en cualquier instrucción
-5. ✅ Texto mínimo 28px
-6. ✅ Botones mínimo 64px de alto
-7. ✅ Fondo siempre `color-crisis-bg`
-8. ✅ Contraste reducido (no eliminado)
-9. ✅ Botón "← Salir" siempre visible arriba a la izquierda
-10. ✅ Un solo punto focal por pantalla
+- `accessibilityLabel` on all interactive buttons and icons
+- `accessibilityHint` on non-obvious actions
+- Text contrast: minimum 4.5:1 (WCAG AA)
+- Contrast in crisis mode: minimum 3:1 (intentionally reduced for sensory relief)
+- Correct `accessibilityRole` on all elements (`button`, `text`, `image`)
+- `accessible={true}` on body map zones with `accessibilityLabel` per zone
 
 ---
 
-## 12. Identidad Visual — Decisiones de Redesign (2026-03-06)
+## 11. Crisis Screen — Special Rules
 
-> **Contexto:** Análisis de identidad visual realizado por Aibus Dumbleclaw (commit `fdcadd2`) usando `nextlevelbuilder/ui-ux-pro-max-skill`. Revisado y aprobado por Ana Banana. Implementación dividida por especialidad.
+These rules **override** all others when inside `/rescue/*`:
+
+1. ❌ No decorative top padding
+2. ❌ No visible bottom navigation
+3. ❌ No animations except the breathing circle
+4. ❌ No more than 5 words in any instruction
+5. ✅ Minimum text size 28px
+6. ✅ Buttons minimum 64px tall
+7. ✅ Background always `color-crisis-bg`
+8. ✅ Reduced contrast (not eliminated)
+9. ✅ "← Exit" button always visible at top left
+10. ✅ One single focal point per screen
+
+---
+
+## 12. Visual Identity — Redesign Decisions (2026-03-06)
+
+> **Context:** Visual identity analysis performed by Aibus Dumbleclaw (commit `fdcadd2`) using `nextlevelbuilder/ui-ux-pro-max-skill`. Reviewed and approved by Ana Banana. Implementation divided by specialty.
 >
-> **Diagnóstico:** El problema de versiones anteriores no era la paleta (bien elegida) sino que todo vivía en el mismo plano visual — fondo gris → card gris ligeramente diferente → texto. Sin jerarquía de profundidad, sin personalidad táctil, sin el sistema de colores emocionales que es el corazón de la propuesta de valor.
+> **Diagnosis:** The problem with previous versions was not the palette (well chosen) but that everything lived on the same visual plane — gray background → slightly different gray card → text. No depth hierarchy, no tactile personality, no emotional color system that is the heart of the value proposition.
 
-### 12.1 Principios de Identidad
+### 12.1 Identity Principles
 
-| Principio | Fuente | Cómo se aplica |
+| Principle | Source | How it applies |
 |---|---|---|
-| **Color = emoción** | Daylio | El color emocional es la señal primaria, no el texto |
-| **Calidez de espacio propio** | Finch | Fondos que se sienten como una habitación, no una clínica |
-| **Profundidad táctil** | Soft UI Evolution (skill) | Cards con sombras doble capa — presionables, con peso |
-| **Anti-pattern mental health** | ui-ux-pro-max-skill §15 | Cero neon, cero motion overload, cero AI purple/pink |
+| **Color = emotion** | Daylio | Emotional color is the primary signal, not text |
+| **Warmth of one's own space** | Finch | Backgrounds that feel like a room, not a clinic |
+| **Tactile depth** | Soft UI Evolution (skill) | Cards with double-layer shadows — pressable, with weight |
+| **Anti-pattern mental health** | ui-ux-pro-max-skill §15 | Zero neon, zero motion overload, zero AI purple/pink |
 
-### 12.2 Decisiones Aprobadas
+### 12.2 Approved Decisions
 
-| Item | Decisión | Implementa |
+| Item | Decision | Implements |
 |---|---|---|
-| Sistema de color emocional | ✅ Aprobado — 7 emociones (§1.4) | Ana — Semana 2 |
-| Atkinson Hyperlegible | ✅ Aprobado — reemplaza Inter (§2) | Aibus — Semana 2 |
-| Sombras de doble capa | ✅ Aprobado — `shadow-card` tokens (§4) | Aibus — Semana 2 |
-| Gradiente botón mono-azul | ✅ Aprobado — azul → azul más profundo (§4) | Aibus — Semana 2 |
-| Emotion cards en `reflect.tsx` | ✅ Aprobado — color bg + dot + borde | Ana — Semana 2 |
-| `result.tsx` fondo emocional | ✅ Aprobado — full-screen color de emoción | Ana — Semana 2 |
-| Home S09 redesign (Finch) | ✅ Aprobado — saludo + última emoción + dots 7 días | Ana — Semana 2 |
-| Calendario S19 dots emocionales | ✅ Aprobado — 36x36px, color del día | Aibus — Semana 2/3 |
+| Emotional color system | ✅ Approved — 7 emotions (§1.4) | Ana — Week 2 |
+| Atkinson Hyperlegible | ✅ Approved — replaces Inter (§2) | Aibus — Week 2 |
+| Double-layer shadows | ✅ Approved — `shadow-card` tokens (§4) | Aibus — Week 2 |
+| Mono-blue button gradient | ✅ Approved — blue → deeper blue (§4) | Aibus — Week 2 |
+| Emotion cards in `reflect.tsx` | ✅ Approved — color bg + dot + border | Ana — Week 2 |
+| `result.tsx` emotional background | ✅ Approved — full-screen emotion color | Ana — Week 2 |
+| Home S09 redesign (Finch) | ✅ Approved — greeting + last emotion + 7-day dots | Ana — Week 2 |
+| Calendar S19 emotional dots | ✅ Approved — 36x36px, day color | Aibus — Week 2/3 |
 
-### 12.3 Decisiones Rechazadas
+### 12.3 Rejected Decisions
 
-| Item | Razón |
+| Item | Reason |
 |---|---|
-| Paleta lavanda (#8B5CF6) | Script no es app de meditación — el azul grisáceo es clínicamente más adecuado para ASD |
-| Gradiente lavanda en botón | Introduce hue ajeno a la paleta; usar mono-azul en su lugar |
-| Dot pattern de fondo (SVG) | `backgroundImage` no es nativo en React Native sin `react-native-svg`; relación costo-beneficio no justifica la dependencia |
-| Neumorphism como estilo base | Problemas de contraste en WCAG AAA; el "Soft UI" actual es más seguro |
+| Lavender palette (#8B5CF6) | Script is not a meditation app — grayish blue is clinically more appropriate for ASD |
+| Lavender gradient on button | Introduces a hue foreign to the palette; use mono-blue instead |
+| Background dot pattern (SVG) | `backgroundImage` is not native in React Native without `react-native-svg`; cost-benefit ratio does not justify the dependency |
+| Neumorphism as base style | WCAG AAA contrast issues; the current "Soft UI" is safer |
 
-### 12.4 Decisiones Diferidas
+### 12.4 Deferred Decisions
 
-| Item | Cuándo | Razón |
+| Item | When | Reason |
 |---|---|---|
-| Body map con colores emocionales contextuales | Semana 3 | Requiere el sistema emocional + datos históricos en producción primero |
-| Compañero visual (mascota/planta) | Semana 3 | Ya confirmado en v1.2 |
+| Body map with contextual emotional colors | Week 3 | Requires the emotional system + historical data in production first |
+| Visual companion (mascot/plant) | Week 3 | Already confirmed in v1.2 |
 
-### 12.5 Paleta de Referencia vs. Alternativas Evaluadas
+### 12.5 Reference Palette vs. Evaluated Alternatives
 
-| Opción evaluada | Decisión | Justificación |
+| Evaluated option | Decision | Justification |
 |---|---|---|
-| Paleta lavanda (skill §Mental Health) | ❌ Rechazada | Para ASD, el azul grisáceo es más estable emocionalmente que la lavanda |
-| Paleta azul-verde (skill §Healthcare) | ✅ Compatible | `script-accent: #10B981` cubre el verde de confirmación |
-| Paleta actual `script-blue: #A8C5DA` | ✅ Mantenida | Validada clínicamente — azul no alarma, no es asociado con error |
+| Lavender palette (skill §Mental Health) | ❌ Rejected | For ASD, grayish blue is emotionally more stable than lavender |
+| Blue-green palette (skill §Healthcare) | ✅ Compatible | `script-accent: #10B981` covers the confirmation green |
+| Current palette `script-blue: #A8C5DA` | ✅ Kept | Clinically validated — blue does not alarm, not associated with error |
 
 ---
 
-**→ Cross-references:** §1.4 (colores emocionales), §2 (Atkinson), §4 (shadows + gradiente), §7 (reducción de animaciones)  
-**→ Ver también:** STATUS.md tickets T-V1 a T-V8, IMPLEMENTATION_PLAN.md §Semana 2
+**→ Cross-references:** §1.4 (emotional colors), §2 (Atkinson), §4 (shadows + gradient), §7 (animation reduction)  
+**→ See also:** STATUS.md tickets T-V1 to T-V8, IMPLEMENTATION_PLAN.md §Week 2

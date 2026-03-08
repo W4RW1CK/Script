@@ -1,327 +1,327 @@
 # PRD.md — Product Requirements Document
-## Script — Compañero Digital para Adultos con TEA Nivel 1
+## Script — Digital Companion for Adults with ASD Level 1
 
-**Versión:** 1.4  
-**Última actualización:** 2026-02-27  
-**Cambios v1.4:** §3.4 Nivel 1 (grounding 5-4-3-2-1) actualizado a multimodal (visual + audio/voz + háptico) — decisión confirmada en sesión de planning 2026-02-27.  
-**Cambios v1.3:** §3.1 Fase Profunda — aclarado que Settings access es Semana 1 (Phase 1.8). §4 Semana 2 — tests de screening removidos (son Semana 1). §4 Semana 5 — "offline completo" acotado para no confundir con offline-first base de Semana 1.  
-**Cambios v1.2:** RAADS-R domain counts corregidos (Apéndice E). §3.4 notificaciones acotadas a nivel 3. §4 Semana 2 auth redundante eliminada. §6 Principio 6 alineado con APP_FLOW.md (1 tap, no 2).  
-**Cambios v1.1:** Agregadas preguntas AQ-10 en Apéndice A, guidance de body map SVG en Apéndice B.
+**Version:** 1.4  
+**Last updated:** 2026-02-27  
+**Changes v1.4:** §3.4 Level 1 (grounding 5-4-3-2-1) updated to multimodal (visual + audio/voice + haptic) — decision confirmed in planning session 2026-02-27.  
+**Changes v1.3:** §3.1 Deep Phase — clarified that Settings access is Week 1 (Phase 1.8). §4 Week 2 — screening tests removed (they are Week 1). §4 Week 5 — "fully offline" scoped to avoid confusion with offline-first base of Week 1.  
+**Changes v1.2:** RAADS-R domain counts corrected (Appendix E). §3.4 notifications scoped to level 3. §4 Week 2 redundant auth removed. §6 Principle 6 aligned with APP_FLOW.md (1 tap, not 2).  
+**Changes v1.1:** AQ-10 questions added in Appendix A, body map SVG guidance added in Appendix B.
 **Owner:** W4RW1CK  
-**Estado:** MVP en desarrollo
+**Status:** MVP in development
 
 ---
 
-## 1. Resumen del Producto
+## 1. Product Summary
 
-Script es una aplicación móvil (Android-first, web-compatible) que actúa como compañero digital para adultos con Trastorno del Espectro Autista (TEA) Nivel 1. No es un terapeuta ni un sistema de diagnóstico. Es una herramienta de autoconocimiento, regulación emocional y apoyo en crisis.
+Script is a mobile application (Android-first, web-compatible) that acts as a digital companion for adults with Autism Spectrum Disorder (ASD) Level 1. It is not a therapist or a diagnostic system. It is a tool for self-knowledge, emotional regulation, and crisis support.
 
-**Problema central:** Los adultos con TEA Nivel 1 frecuentemente no pueden identificar ni nombrar lo que sienten (alexitimia), experimentan sobrecarga sensorial sin herramientas para manejarla, y navegan situaciones sociales sin guías adaptadas a su forma de procesar el mundo.
+**Core problem:** Adults with ASD Level 1 frequently cannot identify or name what they feel (alexithymia), experience sensory overload without tools to manage it, and navigate social situations without guides adapted to their way of processing the world.
 
-**Solución:** Script ofrece tres pilares:
-1. **Conocerse** — check-ins corporales + diccionario emocional personal
-2. **Prepararse** — scripts sociales adaptados para situaciones desafiantes
-3. **Sobrevivir la crisis** — protocolo de rescate multimodal + red de apoyo
-
----
-
-## 2. Usuarios
-
-### Usuario Primario: Adulto con TEA Nivel 1
-- **Edad objetivo:** 18–25 (diseño extensible a todas las edades)
-- **Diagnóstico:** Preferentemente diagnosticado formalmente. La app alienta a quienes no tienen diagnóstico a buscarlo.
-- **Género:** Diseño neutral. Prioridad estadística en hombres, sin descuidar mujeres (subdiagnosticadas).
-- **Geografía:** Latinoamérica hispanohablante. Español como idioma principal.
-- **Contexto:** Trabaja, estudia o socializa. Por fuera "funciona". Por dentro carga una máscara.
-
-### Usuario Secundario: Persona de Confianza
-- Familiar, amigo cercano o pareja del usuario primario
-- Recibe alertas de crisis y tiene instrucciones de cómo apoyar
-- No necesita la app para recibir notificaciones (push nativo / SMS fallback)
-- Puede tener acceso limitado a la app con permisos específicos
-
-### Usuario Terciario: Terapeuta
-- Profesional de salud mental con acceso autorizado por el usuario
-- Ve reportes de check-ins, patrones detectados, y scripts del paciente
-- Puede crear y modificar scripts para su paciente
-- Recibe reportes automáticos según configuración del usuario
+**Solution:** Script offers three pillars:
+1. **Know yourself** — body check-ins + personal emotional dictionary
+2. **Prepare** — social scripts adapted for challenging situations
+3. **Survive the crisis** — multimodal rescue protocol + support network
 
 ---
 
-## 3. Features — MVP (Semana 1, entrega lunes)
+## 2. Users
+
+### Primary User: Adult with ASD Level 1
+- **Target age:** 18–25 (design extensible to all ages)
+- **Diagnosis:** Preferably formally diagnosed. The app encourages those without a diagnosis to seek one.
+- **Gender:** Neutral design. Statistical priority on men, without neglecting women (underdiagnosed).
+- **Geography:** Spanish-speaking Latin America. Spanish as the primary language.
+- **Context:** Works, studies, or socializes. On the outside "functions." On the inside carries a mask.
+
+### Secondary User: Trusted Person
+- Family member, close friend, or partner of the primary user
+- Receives crisis alerts and has instructions on how to provide support
+- Does not need the app to receive notifications (native push / SMS fallback)
+- May have limited access to the app with specific permissions
+
+### Tertiary User: Therapist
+- Mental health professional with access authorized by the user
+- Views check-in reports, detected patterns, and patient scripts
+- Can create and modify scripts for their patient
+- Receives automatic reports according to user configuration
+
+---
+
+## 3. Features — MVP (Week 1, delivery Monday)
 
 ### 3.1 Onboarding
 
-El onboarding tiene dos fases: **rápida** (obligatoria, ~3 min) y **profunda** (opcional, ~15-30 min).
+Onboarding has two phases: **quick** (mandatory, ~3 min) and **deep** (optional, ~15-30 min).
 
-#### Fase Rápida — Obligatoria
-- **Pantalla de bienvenida** con opción "Modo Calma" (bypass directo a crisis si se necesita)
-- **Test AQ-10** (Autism Quotient-10): 10 preguntas, resultado orientativo, no diagnóstico
-  - Score ≥6: perfil semilla pre-configurado + recomienda AQ completo
-  - Score <6: perfil semilla base + recomienda CAT-Q (detecta enmascaramiento)
-- **Cuestionario personal:** nombre, intereses, sensibilidades, herramientas que ya usa (5–8 preguntas)
-- **Configuración de personas de confianza** (opcional, omitible)
+#### Quick Phase — Mandatory
+- **Welcome screen** with "Calm Mode" option (direct bypass to crisis if needed)
+- **AQ-10 test** (Autism Quotient-10): 10 questions, indicative result, not a diagnosis
+  - Score ≥6: pre-configured seed profile + recommends full AQ
+  - Score <6: base seed profile + recommends CAT-Q (detects masking)
+- **Personal questionnaire:** name, interests, sensitivities, tools already in use (5–8 questions)
+- **Trusted contacts setup** (optional, skippable)
 
-#### Fase Profunda — Opcional (disponible post AQ-10)
-Tests adicionales que **alimentan el perfil semilla** con mayor precisión. El usuario puede:
-- Hacerlos todos durante el onboarding (flujo S04 → S05 → S06)
-- Retomarlos en cualquier momento desde Configuración → "Completar mi perfil" (S21) — **disponible desde Semana 2** (Fase 2.1 — las pantallas S04–S06 existen desde Semana 1, el entry point en Settings se construye en Semana 2)
-- Saltarlos completamente (sin penalización)
+#### Deep Phase — Optional (available after AQ-10)
+Additional tests that **feed the seed profile** with greater precision. The user can:
+- Complete all of them during onboarding (flow S04 → S05 → S06)
+- Resume them at any time from Settings → "Complete my profile" (S21) — **available from Week 2** (Phase 2.1 — screens S04–S06 exist from Week 1, the entry point in Settings is built in Week 2)
+- Skip them entirely (no penalty)
 
-**Test 2: AQ Completo (Autism Quotient — 50 preguntas)**
-- Solo recomendado si AQ-10 score ≥6
-- Mismo formato que AQ-10 (Totalmente de acuerdo → Totalmente en desacuerdo)
-- 5 dominios: Habilidades sociales, Cambio de atención, Atención al detalle, Comunicación, Imaginación
-- Score ≥32/50 → perfil semilla con mayor sensibilidad a patrones TEA
-- Fuente: Baron-Cohen et al. (2001). Ver Apéndice C para las 50 preguntas.
+**Test 2: Full AQ (Autism Quotient — 50 questions)**
+- Only recommended if AQ-10 score ≥6
+- Same format as AQ-10 (Strongly agree → Strongly disagree)
+- 5 domains: Social skills, Attention switching, Attention to detail, Communication, Imagination
+- Score ≥32/50 → seed profile with greater sensitivity to ASD patterns
+- Source: Baron-Cohen et al. (2001). See Appendix C for the 50 questions.
 
-**Test 3: CAT-Q (Camouflaging Autistic Traits Questionnaire — 25 preguntas)**
-- Especialmente recomendado si AQ-10 score <6 (detecta autistas que "pasan desapercibidos")
-- Mide 3 dimensiones: Asimilación, Compensación, Enmascaramiento
-- Escala 1–7 (Totalmente en desacuerdo → Totalmente de acuerdo)
-- Score alto en Enmascaramiento → app enfatiza herramientas de expresión auténtica y reduce presión social
-- Fuente: Hull et al. (2019). Ver Apéndice D para las 25 preguntas.
+**Test 3: CAT-Q (Camouflaging Autistic Traits Questionnaire — 25 questions)**
+- Especially recommended if AQ-10 score <6 (detects autistics who "go unnoticed")
+- Measures 3 dimensions: Assimilation, Compensation, Masking
+- Scale 1–7 (Strongly disagree → Strongly agree)
+- High Masking score → app emphasizes authentic expression tools and reduces social pressure
+- Source: Hull et al. (2019). See Appendix D for the 25 questions.
 
-**Test 4: RAADS–R (Ritvo Autism Asperger Diagnostic Scale-Revised — 80 preguntas)**
-- Diseñado específicamente para adultos que "escapan el diagnóstico" por presentación subcrítica
-- 4 dominios: Relaciones sociales, Lenguaje, Intereses circunscritos, Motor sensorial
-- Escala 0–3 por ítem
-- Los scores por dominio alimentan el perfil sensorial del usuario en la app
-- Fuente: Ritvo et al. (2011). Ver Apéndice E para estructura y preguntas.
+**Test 4: RAADS–R (Ritvo Autism Asperger Diagnostic Scale-Revised — 80 questions)**
+- Designed specifically for adults who "escape diagnosis" due to subcritical presentation
+- 4 domains: Social relatedness, Language, Circumscribed interests, Sensory motor
+- Scale 0–3 per item
+- Domain scores feed the user's sensory profile in the app
+- Source: Ritvo et al. (2011). See Appendix E for structure and questions.
 
-**Impacto de los tests en el perfil semilla:**
+**Impact of tests on the seed profile:**
 
-| Test | Qué cambia en la app |
+| Test | What changes in the app |
 |---|---|
-| AQ-10 alto | Scripts de socialización aparecen primero; más énfasis en zona "cabeza/mandíbula" en check-in |
-| CAT-Q alto en Enmascaramiento | App refuerza mensajes de autenticidad; recordatorio sutil de "no tienes que actuar aquí" |
-| CAT-Q alto en Compensación | Más scripts de "estrategias de navegación social" |
-| RAADS-R alto en Motor sensorial | Perfil sensorial pre-populado con sensibilidades auditivas/táctiles |
-| RAADS-R alto en Relaciones sociales | Scripts de interacción social marcados como prioritarios |
+| High AQ-10 | Socialization scripts appear first; more emphasis on "head/jaw" zone in check-in |
+| High CAT-Q Masking | App reinforces authenticity messages; subtle reminder of "you don't have to perform here" |
+| High CAT-Q Compensation | More scripts for "social navigation strategies" |
+| High RAADS-R Sensory Motor | Sensory profile pre-populated with auditory/tactile sensitivities |
+| High RAADS-R Social Relatedness | Social interaction scripts marked as priority |
 
-**Criterio de éxito:** Usuario completa fase rápida en menos de 5 minutos. Fase profunda es voluntaria y no bloquea el uso de la app.
-
----
-
-### 3.2 Check-in Corporal
-**Descripción:** El corazón del producto. El usuario identifica sensaciones físicas como puerta de entrada a la conciencia emocional.
-
-**Flujo:**
-1. Usuario abre check-in
-2. Ve silueta corporal SVG interactiva con 6 zonas:
-   - Cabeza / Ojos / Mandíbula
-   - Garganta / Cuello
-   - Pecho / Corazón
-   - Estómago / Abdomen
-   - Manos / Brazos
-   - Piernas / Pies
-3. Toca una o varias zonas → zona(s) se iluminan
-4. Campo de texto libre: "¿Qué percibes ahí?"
-5. IA presenta 3–5 opciones de emoción: "¿Podría ser algo como esto?"
-6. Usuario confirma, descarta, o escribe su propia palabra
-7. App sugiere script o técnica de regulación según emoción identificada
-8. Resultado guardado en historial + diccionario emocional personal
-
-**Duración objetivo:** ~5 minutos  
-**Frecuencia:** Diaria (incentivada, no obligatoria)  
-**Offline:** Check-in funciona offline. Sincroniza al reconectarse.
-
-**Criterio de éxito:** Usuario identifica o se acerca a una emoción en el 80% de los check-ins.
+**Success criterion:** User completes the quick phase in less than 5 minutes. Deep phase is voluntary and does not block app use.
 
 ---
 
-### 3.3 Scripts Sociales
-**Descripción:** Guías paso a paso para navegar situaciones sociales desafiantes.
+### 3.2 Body Check-in
+**Description:** The heart of the product. The user identifies physical sensations as a gateway to emotional awareness.
 
-**Estructura de cada script:**
+**Flow:**
+1. User opens check-in
+2. Sees interactive SVG body silhouette with 6 zones:
+   - Head / Eyes / Jaw
+   - Throat / Neck
+   - Chest / Heart
+   - Stomach / Abdomen
+   - Hands / Arms
+   - Legs / Feet
+3. Taps one or more zones → zone(s) light up
+4. Free text field: "What do you perceive there?"
+5. AI presents 3–5 emotion options: "Could it be something like this?"
+6. User confirms, discards, or writes their own word
+7. App suggests script or regulation technique based on identified emotion
+8. Result saved in history + personal emotional dictionary
+
+**Target duration:** ~5 minutes  
+**Frequency:** Daily (incentivized, not mandatory)  
+**Offline:** Check-in works offline. Syncs upon reconnection.
+
+**Success criterion:** User identifies or approaches an emotion in 80% of check-ins.
+
+---
+
+### 3.3 Social Scripts
+**Description:** Step-by-step guides for navigating challenging social situations.
+
+**Structure of each script:**
 ```
-[Apertura] → [Reconocimiento del Contexto] → [Petición/Acción] → [Salida opcional]
+[Opening] → [Context Recognition] → [Request/Action] → [Optional Exit]
 ```
-Cada bloque tiene 2–3 opciones de lenguaje. El usuario elige en el momento, no memoriza.
+Each block has 2–3 language options. The user chooses in the moment, does not memorize.
 
-**5 scripts predefinidos para MVP:**
-1. Interrumpir o unirse a una conversación
-2. Pedir algo en lugar público (restaurante, tienda, transporte)
-3. Situación de sobrecarga sensorial en público (pedir salir / espacio)
-4. Primera reunión o entrevista de trabajo
-5. Conflicto o malentendido con alguien
+**5 predefined scripts for MVP:**
+1. Interrupting or joining a conversation
+2. Asking for something in a public place (restaurant, store, transport)
+3. Sensory overload situation in public (asking to leave / for space)
+4. First meeting or job interview
+5. Conflict or misunderstanding with someone
 
-**Dos modos:**
-- **Modo Preparación:** Lees el script antes del evento. Repasa los bloques, practica mentalmente.
-- **Modo Ejecución:** Usas el script en tiempo real. Pantalla mínima, un bloque visible a la vez, avanzas con tap.
+**Two modes:**
+- **Preparation Mode:** Read the script before the event. Review the blocks, mentally rehearse.
+- **Execution Mode:** Use the script in real time. Minimal screen, one block visible at a time, advance with tap.
 
-**Scripts personalizados (semana 2+):** Usuario crea sus propios scripts. IA ayuda a refinar.
+**Custom scripts (week 2+):** User creates their own scripts. AI helps refine them.
 
-**Criterio de éxito:** Usuario puede ejecutar un script durante una situación real sin detenerse.
-
----
-
-### 3.4 Botón de Rescate (Crisis)
-**Descripción:** Acceso en un tap desde cualquier pantalla. Protocolo de calma + activación de red de apoyo.
-
-**Flujo al presionar:**
-1. Pantalla de transición inmediata: fondo neutro, reducción de contraste, animación mínima
-2. Evaluación rápida (1 pregunta, escala 1–3): "¿Qué tan intenso se siente esto?"
-   - 1 = Incómodo / 2 = Difícil / 3 = No puedo
-3. Según nivel, inicia protocolo:
-   - **Nivel 1:** Técnica de grounding 5-4-3-2-1 con guía **multimodal (visual + audio + háptico)** — misma filosofía que niveles 2 y 3; ningún canal es indispensable
-   - **Nivel 2:** Respiración guiada (visual + audio + háptico) — sin notificación
-   - **Nivel 3:** Respiración guiada + notificación automática a red de confianza
-4. **Secuencia de calma multimodal:**
-   - Visual: círculo que expande/contrae al ritmo de respiración
-   - Audio: tono suave al ritmo (activable/desactivable)
-   - Háptico: vibración sutil al ritmo (si dispositivo lo permite)
-5. **Notificación a red de confianza (nivel 3 únicamente):**
-   - Si online: push notification nativa con ubicación + contexto breve
-   - Si offline: SMS nativo pre-formateado como fallback
-   - Mensajes a todos los contactos en paralelo
-6. Opciones al finalizar: "Me siento mejor" / "Necesito más ayuda" / "Llamar a alguien"
-
-**En crisis real (nivel 3):** Instrucciones mínimas de 2–3 palabras. Sin texto largo.
-
-**Criterio de éxito:** Usuario puede activar el protocolo con una mano, en oscuridad, bajo estrés.
+**Success criterion:** User can execute a script during a real situation without stopping.
 
 ---
 
-## 4. Features — Post-MVP (Semanas 2–5)
+### 3.4 Rescue Button (Crisis)
+**Description:** One-tap access from any screen. Calming protocol + activation of support network.
 
-### Semana 2
-- Historial de check-ins con visualización de patrones básicos (S19)
-- Diccionario emocional personal (vocabulario que crece con uso) (S20)
-- Personalización: modo claro/oscuro, paleta de colores, animaciones on/off (S21)
+**Flow when pressed:**
+1. Immediate transition screen: neutral background, reduced contrast, minimal animation
+2. Quick assessment (1 question, scale 1–3): "How intense does this feel?"
+   - 1 = Uncomfortable / 2 = Difficult / 3 = I can't
+3. According to level, initiates protocol:
+   - **Level 1:** 5-4-3-2-1 grounding technique with **multimodal guidance (visual + audio + haptic)** — same philosophy as levels 2 and 3; no channel is indispensable
+   - **Level 2:** Guided breathing (visual + audio + haptic) — no notification
+   - **Level 3:** Guided breathing + automatic notification to trusted network
+4. **Multimodal calming sequence:**
+   - Visual: circle that expands/contracts to the breathing rhythm
+   - Audio: soft tone to the rhythm (enable/disable)
+   - Haptic: subtle vibration to the rhythm (if device allows)
+5. **Notification to trusted network (level 3 only):**
+   - If online: native push notification with location + brief context
+   - If offline: pre-formatted native SMS as fallback
+   - Messages to all contacts in parallel
+6. Options at the end: "I feel better" / "I need more help" / "Call someone"
 
-> ℹ️ **Nota:** Los tests AQ Full (S04), CAT-Q (S05) y RAADS-R (S06) están implementados desde **Semana 1** (Phase 1.8) y son accesibles desde el onboarding y desde Configuración → "Completar mi perfil".
+**In real crisis (level 3):** Minimum instructions of 2–3 words. No long text.
 
-### Semana 3
-- Red de confianza completa (agregar contactos, configurar qué ven, comunicación bilateral)
-- Notificaciones configurables (hora, frecuencia, tono)
-- Sistema de "Insights desbloqueados" (después de 3, 7, 15 check-ins)
-- Telegram Bot para personas de confianza sin app
-
-### Semana 4
-- Integración IA (OpenAI GPT-4o) para detección de patrones y recomendaciones
-- Vista terapeuta (reportes automáticos, acceso a scripts, anotaciones)
-- Scripts personalizados con asistencia de IA
-- Botón "🚩 Esto no se siente bien" para supervisión clínica
-
-### Semana 5
-- EAS consent attestations: consentimiento clínico paciente→terapeuta en cadena (inmutable, verificable independientemente de la app)
-- Token-gating de features premium: decidir arquitectura post-Semana 5 (w4rw1ck tiene plan)
-- Sincronización inteligente avanzada (resolución de conflictos, queue de pendientes, background sync) — las funciones core ya son offline-first desde Semana 1
-- Reducción sensorial automática en crisis (contraste, animaciones)
-- Build APK para Android
-- Polish sensorial y accesibilidad completa
+**Success criterion:** User can activate the protocol with one hand, in darkness, under stress.
 
 ---
 
-## 5. Fuera de Alcance (Explícito)
+## 4. Features — Post-MVP (Weeks 2–5)
 
-- ❌ Diagnóstico clínico de ningún tipo
-- ❌ Reemplazo de terapia profesional
-- ❌ Rastreo de ubicación continuo (solo en crisis, con consentimiento)
-- ❌ Venta o monetización de datos del usuario
-- ❌ Gamificación punitiva (sin "perdiste tu racha")
-- ❌ Soporte para TEA Nivel 2 o 3 en v1
-- ❌ iOS App Store en v1 (APK Android primero)
-- ❌ Contenido generado por IA sin validación del usuario
-- ❌ Notificaciones push sin consentimiento explícito
+### Week 2
+- Check-in history with basic pattern visualization (S19)
+- Personal emotional dictionary (vocabulary that grows with use) (S20)
+- Customization: light/dark mode, color palette, animations on/off (S21)
+
+> ℹ️ **Note:** The Full AQ (S04), CAT-Q (S05), and RAADS-R (S06) tests are implemented from **Week 1** (Phase 1.8) and are accessible from onboarding and from Settings → "Complete my profile".
+
+### Week 3
+- Complete trusted network (add contacts, configure what they see, bilateral communication)
+- Configurable notifications (time, frequency, tone)
+- "Unlocked Insights" system (after 3, 7, 15 check-ins)
+- Telegram Bot for trusted contacts without the app
+
+### Week 4
+- AI integration (OpenAI GPT-4o) for pattern detection and recommendations
+- Therapist view (automatic reports, access to scripts, annotations)
+- Custom scripts with AI assistance
+- "🚩 This doesn't feel right" button for clinical supervision
+
+### Week 5
+- EAS consent attestations: clinical patient→therapist consent on-chain (immutable, independently verifiable)
+- Premium feature token-gating: decide post-Week 5 architecture (w4rw1ck has a plan)
+- Advanced intelligent sync (conflict resolution, pending queue, background sync) — core functions are already offline-first from Week 1
+- Automatic sensory reduction in crisis (contrast, animations)
+- APK build for Android
+- Full sensory polish and accessibility
 
 ---
 
-## 6. Principios de Diseño (No Negociables)
+## 5. Out of Scope (Explicit)
 
-1. **Sensory-first:** Ningún elemento de la UI puede ser un detonante sensorial
-2. **Control total del usuario:** El usuario decide qué se guarda, qué se comparte y con quién
-3. **Sin juicio:** La app nunca evalúa, corrige ni califica las emociones del usuario
-4. **Lenguaje de exploración:** La IA propone, el usuario confirma. Nunca "tú sientes X"
-5. **Offline-ready:** Las funciones core funcionan sin internet
-6. **Acceso de emergencia:** El botón de rescate (→ S17) es alcanzable en **máximo 1 tap** desde cualquier pantalla de la app (FAB siempre visible)
+- ❌ Clinical diagnosis of any kind
+- ❌ Replacement for professional therapy
+- ❌ Continuous location tracking (only in crisis, with consent)
+- ❌ Sale or monetization of user data
+- ❌ Punitive gamification (no "you lost your streak")
+- ❌ Support for ASD Level 2 or 3 in v1
+- ❌ iOS App Store in v1 (Android APK first)
+- ❌ AI-generated content without user validation
+- ❌ Push notifications without explicit consent
 
 ---
 
-## 7. Métricas de Éxito
+## 6. Design Principles (Non-Negotiable)
 
-| Métrica | Objetivo MVP | Objetivo v1 |
+1. **Sensory-first:** No UI element can be a sensory trigger
+2. **Full user control:** The user decides what is saved, what is shared, and with whom
+3. **No judgment:** The app never evaluates, corrects, or grades the user's emotions
+4. **Exploratory language:** The AI proposes, the user confirms. Never "you feel X"
+5. **Offline-ready:** Core functions work without internet
+6. **Emergency access:** The rescue button (→ S17) is reachable in **at most 1 tap** from any screen in the app (FAB always visible)
+
+---
+
+## 7. Success Metrics
+
+| Metric | MVP Goal | v1 Goal |
 |---|---|---|
-| Onboarding completado | >80% de usuarios que abren la app | >90% |
-| Check-ins por semana (usuarios activos) | ≥3 | ≥5 |
-| Uso del botón de rescate (con protocolo completado) | 100% completan el protocolo | 100% |
-| Scripts usados en modo ejecución | Al menos 1 por usuario en primera semana | ≥3 |
-| Retención a 7 días | >40% | >60% |
+| Onboarding completed | >80% of users who open the app | >90% |
+| Check-ins per week (active users) | ≥3 | ≥5 |
+| Rescue button use (with completed protocol) | 100% complete the protocol | 100% |
+| Scripts used in execution mode | At least 1 per user in first week | ≥3 |
+| 7-day retention | >40% | >60% |
 
 ---
 
-## 8. Dependencias y Riesgos
+## 8. Dependencies and Risks
 
-| Riesgo | Probabilidad | Mitigación |
+| Risk | Probability | Mitigation |
 |---|---|---|
-| IA hace interpretación emocional incorrecta | Media | Sistema de confirmación por usuario + botón de reporte |
-| Persona de confianza sin app ni Telegram | Alta | SMS nativo como fallback siempre disponible |
-| Burnout del usuario ante check-ins diarios | Media | Sin obligación, insights como motivación, no streaks |
-| Dato sensible expuesto | Baja | Encriptación en reposo, RLS en Supabase, on-chain en v2 |
-| App se convierte en detonante en crisis | Baja | Modo reducción sensorial automático en crisis |
+| AI makes incorrect emotional interpretation | Medium | User confirmation system + report button |
+| Trusted person without app or Telegram | High | Native SMS always available as fallback |
+| User burnout from daily check-ins | Medium | No obligation, insights as motivation, no streaks |
+| Sensitive data exposed | Low | Encryption at rest, RLS in Supabase, on-chain in v2 |
+| App becomes a trigger in crisis | Low | Automatic sensory reduction mode in crisis |
 
 ---
 
-## Apéndice A — Preguntas AQ-10 (Autism Quotient-10)
+## Appendix A — AQ-10 Questions (Autism Quotient-10)
 
-> Estas son las 10 preguntas oficiales del AQ-10 (versión adultos). Deben aparecer **exactamente así** en la pantalla S02. No inventar ni modificar las preguntas.
+> These are the 10 official questions of the AQ-10 (adult version). They must appear **exactly as shown** on screen S02. Do not invent or modify the questions.
 
-**Instrucciones para el usuario (mostrar antes de empezar):**
-> "Estas preguntas no son un diagnóstico. Son una forma de conocerte mejor. Responde según cómo te sientes habitualmente, no en situaciones de estrés específicas. No hay respuestas correctas o incorrectas."
+**Instructions for the user (show before starting):**
+> "These questions are not a diagnosis. They are a way to get to know yourself better. Answer according to how you usually feel, not in specific stressful situations. There are no right or wrong answers."
 
-**Escala de respuesta (la misma para todas las preguntas):**
-- Totalmente de acuerdo → **1 punto**
-- Ligeramente de acuerdo → **1 punto**
-- Ligeramente en desacuerdo → **0 puntos**
-- Totalmente en desacuerdo → **0 puntos**
+**Response scale (the same for all questions):**
+- Strongly agree → **1 point**
+- Slightly agree → **1 point**
+- Slightly disagree → **0 points**
+- Strongly disagree → **0 points**
 
-**Las 10 preguntas:**
+**The 10 questions:**
 
-| # | Pregunta | Puntúa con 1 cuando... |
+| # | Question | Scores 1 when... |
 |---|---|---|
-| 1 | A menudo noto pequeños sonidos que otros no escuchan. | De acuerdo |
-| 2 | Por lo general me concentro más en el todo que en los pequeños detalles. | En desacuerdo |
-| 3 | En grupos sociales, puedo seguir varias conversaciones a la vez fácilmente. | En desacuerdo |
-| 4 | Si algo me interrumpe, puedo volver a lo que estaba haciendo muy rápidamente. | En desacuerdo |
-| 5 | No me cuesta saber si alguien que está escuchándome se está aburriendo. | En desacuerdo |
-| 6 | Cuando estoy leyendo un relato, me resulta difícil determinar las intenciones de los personajes. | De acuerdo |
-| 7 | Me gustan los eventos sociales y de reunión con varias personas. | En desacuerdo |
-| 8 | Cuando hablo por teléfono, no siempre estoy seguro/a de cuándo es mi turno para hablar. | De acuerdo |
-| 9 | Me gustan coleccionar información sobre categorías de cosas (tipos de coches, pájaros, trenes, plantas, etc.) | De acuerdo |
-| 10 | Me resulta difícil saber cómo terminar una conversación. | De acuerdo |
+| 1 | I often notice small sounds that others do not. | Agree |
+| 2 | I usually concentrate more on the whole picture rather than small details. | Disagree |
+| 3 | In social groups, I can easily keep track of several different conversations at once. | Disagree |
+| 4 | If something interrupts me, I can return to what I was doing very quickly. | Disagree |
+| 5 | I find it easy to tell if someone listening to me is getting bored. | Disagree |
+| 6 | When I'm reading a story, I find it difficult to work out the characters' intentions. | Agree |
+| 7 | I enjoy social occasions and group gatherings with several people. | Disagree |
+| 8 | When I'm on the phone, I'm not always sure when it's my turn to speak. | Agree |
+| 9 | I like collecting information about categories of things (types of cars, birds, trains, plants, etc.) | Agree |
+| 10 | I find it difficult to know how to end a conversation. | Agree |
 
-**Interpretación del score (mostrar al usuario al terminar):**
+**Score interpretation (show to user when finished):**
 
-| Score | Mensaje en pantalla |
+| Score | On-screen message |
 |---|---|
-| 0 – 5 | "Tu perfil no muestra señales claras de TEA. Si te identificas con estas experiencias de otras formas, considera hablar con un especialista. Script puede ser útil para cualquiera." |
-| 6 – 10 | "Muchas personas con TEA se identifican con estas respuestas. Este resultado no es un diagnóstico — solo un especialista puede darlo. Script está diseñado pensando en personas como tú." |
+| 0 – 5 | "Your profile does not show clear signs of ASD. If you identify with these experiences in other ways, consider speaking with a specialist. Script can be useful for anyone." |
+| 6 – 10 | "Many people with ASD identify with these answers. This result is not a diagnosis — only a specialist can provide one. Script is designed with people like you in mind." |
 
-> ⚠️ **Nunca usar las palabras "positivo" o "negativo" para el resultado.** El lenguaje debe ser neutro y de apoyo, nunca alarmista.
+> ⚠️ **Never use the words "positive" or "negative" for the result.** Language must be neutral and supportive, never alarmist.
 
 ---
 
-## Apéndice B — Body Map SVG: Guía de Implementación
+## Appendix B — Body Map SVG: Implementation Guide
 
-El componente `BodyMap.tsx` necesita una silueta humana SVG con 6 zonas táctiles. El AI agent que lo implemente debe seguir estas especificaciones:
+The `BodyMap.tsx` component needs a human SVG silhouette with 6 touch zones. The AI agent implementing it must follow these specifications:
 
-**Dimensiones del canvas SVG:** `viewBox="0 0 200 400"`
+**SVG canvas dimensions:** `viewBox="0 0 200 400"`
 
-**Las 6 zonas y sus áreas aproximadas en el SVG:**
+**The 6 zones and their approximate areas in the SVG:**
 
-| Zona | ID | Área aproximada (x, y, width, height) |
+| Zone | ID | Approximate area (x, y, width, height) |
 |---|---|---|
-| Cabeza / Ojos / Mandíbula | `zone-head` | Círculo: cx=100, cy=45, r=35 |
-| Garganta / Cuello | `zone-throat` | Rect: x=85, y=78, w=30, h=25 |
-| Pecho / Corazón | `zone-chest` | Ellipse: cx=100, cy=140, rx=45, ry=35 |
-| Estómago / Abdomen | `zone-abdomen` | Ellipse: cx=100, cy=200, rx=38, ry=30 |
-| Manos / Brazos | `zone-arms` | Dos paths laterales — aprox x=25-65 y x=135-175, y=120-220 |
-| Piernas / Pies | `zone-legs` | Rect dividido: x=70, y=240, w=60, h=140 |
+| Head / Eyes / Jaw | `zone-head` | Circle: cx=100, cy=45, r=35 |
+| Throat / Neck | `zone-throat` | Rect: x=85, y=78, w=30, h=25 |
+| Chest / Heart | `zone-chest` | Ellipse: cx=100, cy=140, rx=45, ry=35 |
+| Stomach / Abdomen | `zone-abdomen` | Ellipse: cx=100, cy=200, rx=38, ry=30 |
+| Hands / Arms | `zone-arms` | Two lateral paths — approx x=25-65 and x=135-175, y=120-220 |
+| Legs / Feet | `zone-legs` | Split rect: x=70, y=240, w=60, h=140 |
 
-**Comportamiento de cada zona:**
+**Behavior of each zone:**
 ```typescript
-// Props que debe aceptar el componente
+// Props the component must accept
 type BodyZone = 'head' | 'throat' | 'chest' | 'abdomen' | 'arms' | 'legs'
 
 interface BodyMapProps {
@@ -330,51 +330,51 @@ interface BodyMapProps {
   disabled?: boolean
 }
 
-// Estados visuales (con NativeWind / SVG fill):
+// Visual states (with NativeWind / SVG fill):
 // Default: fill="#EFEFEA" stroke="#E0DDD8" strokeWidth={1.5}
 // Selected: fill="#A8C5DA" stroke="#A8C5DA" strokeWidth={2} opacity={0.8}
-// Pressed: fill="#A8C5DA" opacity={0.4} (feedback visual inmediato)
+// Pressed: fill="#A8C5DA" opacity={0.4} (immediate visual feedback)
 ```
 
-**Etiquetas de zona (mostrar como chips debajo del SVG):**
+**Zone labels (display as chips below the SVG):**
 ```typescript
 const ZONE_LABELS: Record<BodyZone, string> = {
-  head: 'Cabeza / Ojos / Mandíbula',
-  throat: 'Garganta / Cuello',
-  chest: 'Pecho / Corazón',
-  abdomen: 'Estómago / Abdomen',
-  arms: 'Manos / Brazos',
-  legs: 'Piernas / Pies',
+  head: 'Head / Eyes / Jaw',
+  throat: 'Throat / Neck',
+  chest: 'Chest / Heart',
+  abdomen: 'Stomach / Abdomen',
+  arms: 'Hands / Arms',
+  legs: 'Legs / Feet',
 }
 ```
 
 ---
 
-## Apéndice C — AQ Completo (Autism Quotient — 50 preguntas)
+## Appendix C — Full AQ (Autism Quotient — 50 questions)
 
-> ⚠️ **Instrucción para AI agents:** Las 50 preguntas deben obtenerse de la fuente oficial:
+> ⚠️ **Instruction for AI agents:** The 50 questions must be obtained from the official source:
 > Baron-Cohen, S., Wheelwright, S., Skinner, R., Martin, J., & Clubley, E. (2001).
-> El cuestionario completo está disponible públicamente en: https://www.autismresearchcentre.com/arc_tests
-> No generar preguntas de memoria — usar la fuente.
+> The complete questionnaire is publicly available at: https://www.autismresearchcentre.com/arc_tests
+> Do not generate questions from memory — use the source.
 
-**Estructura:** 50 preguntas, misma escala que AQ-10 (4 opciones)
+**Structure:** 50 questions, same scale as AQ-10 (4 options)
 
-**5 dominios (10 preguntas cada uno):**
+**5 domains (10 questions each):**
 
-| Dominio | Qué mide | Score máx |
+| Domain | What it measures | Max score |
 |---|---|---|
-| Habilidades sociales | Dificultad en interacción social | 10 |
-| Cambio de atención | Rigidez / dificultad para cambiar de foco | 10 |
-| Atención al detalle | Preferencia por detalles locales sobre globales | 10 |
-| Comunicación | Dificultades pragmáticas del lenguaje | 10 |
-| Imaginación | Dificultad con ficción, perspectivas ajenas | 10 |
+| Social skills | Difficulty in social interaction | 10 |
+| Attention switching | Rigidity / difficulty shifting focus | 10 |
+| Attention to detail | Preference for local over global details | 10 |
+| Communication | Pragmatic language difficulties | 10 |
+| Imagination | Difficulty with fiction, others' perspectives | 10 |
 
 **Scoring:**
-- Score total: 0–50
-- Umbral orientativo: ≥32 (no diagnóstico, solo indicativo)
-- Score por dominio: guardado en `aq_full_domain_scores` (JSONB)
+- Total score: 0–50
+- Indicative threshold: ≥32 (not a diagnosis, only indicative)
+- Score per domain: saved in `aq_full_domain_scores` (JSONB)
 
-**Qué guarda la app:**
+**What the app saves:**
 ```json
 {
   "aq_full_score": 38,
@@ -390,43 +390,43 @@ const ZONE_LABELS: Record<BodyZone, string> = {
 
 ---
 
-## Apéndice D — CAT-Q (Camouflaging Autistic Traits Questionnaire — 25 preguntas)
+## Appendix D — CAT-Q (Camouflaging Autistic Traits Questionnaire — 25 questions)
 
-> ⚠️ **Instrucción para AI agents:** Las 25 preguntas deben obtenerse de:
+> ⚠️ **Instruction for AI agents:** The 25 questions must be obtained from:
 > Hull, L., Mandy, W., Lai, M. C., Baron-Cohen, S., Allison, C., Smith, P., & Petrides, K. V. (2019).
 > Development and validation of the Camouflaging Autistic Traits Questionnaire (CAT-Q).
 > Journal of Autism and Developmental Disorders, 49(3), 819-833.
-> El cuestionario completo está disponible en el supplementary material del paper.
+> The complete questionnaire is available in the supplementary material of the paper.
 > DOI: 10.1007/s10803-018-3792-6
 
-**Estructura:** 25 preguntas, escala Likert 1–7
+**Structure:** 25 questions, Likert scale 1–7
 
-| Valor | Etiqueta |
+| Value | Label |
 |---|---|
-| 1 | Totalmente en desacuerdo |
-| 2 | Bastante en desacuerdo |
-| 3 | Ligeramente en desacuerdo |
-| 4 | Ni de acuerdo ni en desacuerdo |
-| 5 | Ligeramente de acuerdo |
-| 6 | Bastante de acuerdo |
-| 7 | Totalmente de acuerdo |
+| 1 | Strongly disagree |
+| 2 | Mostly disagree |
+| 3 | Slightly disagree |
+| 4 | Neither agree nor disagree |
+| 5 | Slightly agree |
+| 6 | Mostly agree |
+| 7 | Strongly agree |
 
-**3 subescalas:**
+**3 subscales:**
 
-| Subescala | # ítems | Score | Qué mide |
+| Subscale | # items | Score | What it measures |
 |---|---|---|---|
-| Asimilación | 9 | 9–63 | Aprender y copiar comportamientos de otros para encajar |
-| Compensación | 12 | 12–84 | Estrategias activas para ocultar dificultades sociales |
-| Enmascaramiento | 4 | 4–28 | Suprimir características autistas, presentar persona "normal" |
+| Assimilation | 9 | 9–63 | Learning and copying others' behaviors to fit in |
+| Compensation | 12 | 12–84 | Active strategies to hide social difficulties |
+| Masking | 4 | 4–28 | Suppressing autistic traits, presenting a "normal" persona |
 
-**Score total:** 25–175 (suma de todos los ítems)
+**Total score:** 25–175 (sum of all items)
 
-**Impacto en el perfil de Script:**
-- Enmascaramiento alto (≥20): app refuerza mensajes de autenticidad, reduce presión social
-- Compensación alta (≥60): más scripts de estrategias de navegación social
-- Asimilación alta (≥45): scripts con observación e imitación explícitas
+**Impact on Script profile:**
+- High Masking (≥20): app reinforces authenticity messages, reduces social pressure
+- High Compensation (≥60): more social navigation strategy scripts
+- High Assimilation (≥45): scripts with explicit observation and imitation
 
-**Qué guarda la app:**
+**What the app saves:**
 ```json
 {
   "catq_total_score": 142,
@@ -440,51 +440,51 @@ const ZONE_LABELS: Record<BodyZone, string> = {
 
 ---
 
-## Apéndice E — RAADS–R (Ritvo Autism Asperger Diagnostic Scale-Revised — 80 preguntas)
+## Appendix E — RAADS–R (Ritvo Autism Asperger Diagnostic Scale-Revised — 80 questions)
 
-> ⚠️ **Instrucción para AI agents:** Las 80 preguntas deben obtenerse de:
+> ⚠️ **Instruction for AI agents:** The 80 questions must be obtained from:
 > Ritvo, R. A., Ritvo, E. R., Guthrie, D., Ritvo, M. J., Hufnagel, D. H., McMahon, W., ... & Eloff, J. (2011).
 > The Ritvo Autism Asperger Diagnostic Scale-Revised (RAADS-R).
 > Journal of Autism and Developmental Disorders, 41(8), 1076-1089.
 > DOI: 10.1007/s10803-010-1133-5
 
-**Estructura:** 80 preguntas, escala 0–3
+**Structure:** 80 questions, scale 0–3
 
-| Valor | Etiqueta |
+| Value | Label |
 |---|---|
-| 0 | Nunca es verdad |
-| 1 | Verdad solo cuando era joven (hasta los 16 años), no ahora |
-| 2 | Verdad solo ahora, no cuando era joven |
-| 3 | Verdad ahora y cuando era joven |
+| 0 | Never true |
+| 1 | True only when I was young (up to age 16), not now |
+| 2 | True only now, not when I was young |
+| 3 | True now and when I was young |
 
-**4 dominios:**
+**4 domains:**
 
-| Dominio | # ítems | Score máx | Qué mide |
+| Domain | # items | Max score | What it measures |
 |---|---|---|---|
-| Relaciones sociales | 39 | 117 | Dificultades de reciprocidad social |
-| Lenguaje | 7 | 21 | Uso y comprensión del lenguaje |
-| Intereses circunscritos | 14 | 42 | Intereses intensos y repetitivos |
-| Motor sensorial | 20 | 60 | Procesamiento sensorial y control motor |
+| Social relatedness | 39 | 117 | Social reciprocity difficulties |
+| Language | 7 | 21 | Language use and comprehension |
+| Circumscribed interests | 14 | 42 | Intense and repetitive interests |
+| Sensory motor | 20 | 60 | Sensory processing and motor control |
 
-**Score total:** 0–240
-- Umbral orientativo TEA: ≥65
+**Total score:** 0–240
+- Indicative ASD threshold: ≥65
 
-**Soporte de pausa — OBLIGATORIO:**
-Con 80 preguntas, el test debe poder pausarse y retomarse:
-- Guardar progreso en `expo-secure-store` después de cada respuesta
-- Al abrir de nuevo: preguntar "¿Continuar donde lo dejaste?"
-- Mostrar: "Completaste 34 de 80 preguntas"
+**Pause support — MANDATORY:**
+With 80 questions, the test must be pausable and resumable:
+- Save progress in `expo-secure-store` after each answer
+- On reopening: ask "Continue where you left off?"
+- Show: "You completed 34 of 80 questions"
 
-**Impacto en el perfil de Script:**
+**Impact on Script profile:**
 
-| Score alto en... | Impacto en la app |
+| High score in... | Impact on the app |
 |---|---|
-| Relaciones sociales | Scripts de interacción social marcados como prioritarios |
-| Lenguaje | Scripts incluyen más opciones de frase literal/directa |
-| Intereses circunscritos | Check-in incluye nota sobre actividades de interés especial |
-| Motor sensorial | Perfil sensorial pre-populado con sensibilidades auditivas/táctiles/propioceptivas |
+| Social relatedness | Social interaction scripts marked as priority |
+| Language | Scripts include more literal/direct phrasing options |
+| Circumscribed interests | Check-in includes note about special interest activities |
+| Sensory motor | Sensory profile pre-populated with auditory/tactile/proprioceptive sensitivities |
 
-**Qué guarda la app:**
+**What the app saves:**
 ```json
 {
   "raads_total_score": 134,

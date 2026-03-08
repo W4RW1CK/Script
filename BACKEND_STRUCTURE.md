@@ -1,39 +1,39 @@
-# BACKEND_STRUCTURE.md — Arquitectura de Backend y Base de Datos
-## Script — Compañero Digital para Adultos con TEA Nivel 1
+# BACKEND_STRUCTURE.md — Backend and Database Architecture
+## Script — Digital Companion for Adults with ASD Level 1
 
-**Versión:** 1.3  
-**Última actualización:** 2026-02-27  
-**Cambios v1.3:** §4 interpret-checkin trigger corregido S11→S12 (la edge function se llama desde reflect.tsx). §4 send-crisis-notification corregido "nivel 2-3" → "nivel 3 únicamente" (consistente con PRD/APP_FLOW/IMPLEMENTATION_PLAN). §5 Storage: nota de audio bundleado en assets para offline; nombres de archivo estandarizados.  
-**Cambios v1.2:** RAADS-R domain counts corregidos (64→80 items). RLS con WITH CHECK en todas las tablas. RLS agregado para emotional_dictionary, script_executions, therapist_patients. sync-privy-user documentado en §4. Referencia de pantalla S07→S11.
+**Version:** 1.3  
+**Last updated:** 2026-02-27  
+**Changes v1.3:** §4 interpret-checkin trigger corrected S11→S12 (the edge function is called from reflect.tsx). §4 send-crisis-notification corrected "level 2-3" → "level 3 only" (consistent with PRD/APP_FLOW/IMPLEMENTATION_PLAN). §5 Storage: note about audio bundled in assets for offline; filenames standardized.  
+**Changes v1.2:** RAADS-R domain counts corrected (64→80 items). RLS with WITH CHECK on all tables. RLS added for emotional_dictionary, script_executions, therapist_patients. sync-privy-user documented in §4. Screen reference S07→S11.
 
 ---
 
-## 1. Arquitectura General
+## 1. General Architecture
 
 ```
-Cliente (Expo App)
+Client (Expo App)
      │
      ├── Supabase JS Client ──────→ Supabase Cloud
-     │                               ├── PostgreSQL (datos)
-     │                               ├── Auth (sesiones)
+     │                               ├── PostgreSQL (data)
+     │                               ├── Auth (sessions)
      │                               ├── Storage (audio)
-     │                               └── Edge Functions (IA, notificaciones)
+     │                               └── Edge Functions (AI, notifications)
      │
      ├── Privy SDK ───────────────→ Privy Cloud
-     │                               ├── Auth embebido
-     │                               └── Wallet custodial (Semana 5 — EAS attestations)
+     │                               ├── Embedded auth
+     │                               └── Custodial wallet (Week 5 — EAS attestations)
      │
      └── expo-secure-store ───────→ Local (offline)
-                                     ├── Scripts cacheados
-                                     ├── Check-ins pendientes sync
-                                     └── Tokens de sesión
+                                     ├── Cached scripts
+                                     ├── Pending sync check-ins
+                                     └── Session tokens
 ```
 
 ---
 
-## 2. Esquema de Base de Datos (PostgreSQL — Supabase)
+## 2. Database Schema (PostgreSQL — Supabase)
 
-### Tabla: `users`
+### Table: `users`
 ```sql
 CREATE TABLE users (
   id            UUID PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -47,33 +47,33 @@ CREATE TABLE users (
 );
 ```
 
-### Tabla: `profiles`
-Perfil sensorial y personal del usuario principal.
+### Table: `profiles`
+Sensory and personal profile of the main user.
 ```sql
 CREATE TABLE profiles (
   id                  UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   user_id             UUID REFERENCES users(id) ON DELETE CASCADE,
-  -- Tests de screening (ver PRD §3.1 y Apéndices A-E)
+  -- Screening tests (see PRD §3.1 and Appendices A-E)
   aq10_score          INTEGER CHECK (aq10_score BETWEEN 0 AND 10),
   aq10_completed_at   TIMESTAMPTZ,
-  -- AQ Completo (50 preguntas, score 0-50, umbral clínico ≥32)
+  -- Full AQ (50 questions, score 0-50, clinical threshold ≥32)
   aq_full_score       INTEGER CHECK (aq_full_score BETWEEN 0 AND 50),
   aq_full_domain_scores JSONB,  -- {"social": 0-10, "attention_switching": 0-10, "attention_detail": 0-10, "communication": 0-10, "imagination": 0-10}
   aq_full_completed_at TIMESTAMPTZ,
-  -- CAT-Q (25 preguntas, score 25-175, 3 subescalas)
+  -- CAT-Q (25 questions, score 25-175, 3 subscales)
   catq_total_score    INTEGER CHECK (catq_total_score BETWEEN 25 AND 175),
   catq_subscores      JSONB,   -- {"assimilation": 9-63, "compensation": 12-84, "masking": 4-28}
   catq_completed_at   TIMESTAMPTZ,
-  -- RAADS-R (80 preguntas, score 0-240, 4 dominios)
-  -- Dominios: social_relatedness 39 items, language 7, circumscribed_interests 14, sensory_motor 20 → total 80 ✓
+  -- RAADS-R (80 questions, score 0-240, 4 domains)
+  -- Domains: social_relatedness 39 items, language 7, circumscribed_interests 14, sensory_motor 20 → total 80 ✓
   raads_total_score   INTEGER CHECK (raads_total_score BETWEEN 0 AND 240),
   raads_domain_scores JSONB,   -- {"social_relatedness": 0-117, "language": 0-21, "circumscribed_interests": 0-42, "sensory_motor": 0-60}
   raads_completed_at  TIMESTAMPTZ,
-  -- Cuestionario personal
+  -- Personal questionnaire
   interests           TEXT[],                -- ["música", "programación", "anime"]
   sensitivities       JSONB DEFAULT '{}',    -- {"luz": true, "sonido": true, "texturas": false, "multitudes": true}
   existing_tools      TEXT[],               -- ["journaling", "terapia"]
-  -- Preferencias UI
+  -- UI preferences
   theme               VARCHAR(10) DEFAULT 'system' CHECK (theme IN ('light', 'dark', 'system')),
   color_palette       VARCHAR(20) DEFAULT 'blue',  -- 'blue', 'green', 'peach', 'lavender', 'yellow'
   reduce_motion       BOOLEAN DEFAULT FALSE,
@@ -85,46 +85,46 @@ CREATE TABLE profiles (
 );
 ```
 
-### Tabla: `checkins`
-Registro de cada check-in corporal.
+### Table: `checkins`
+Record of each body check-in.
 ```sql
 CREATE TABLE checkins (
   id                UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   user_id           UUID REFERENCES users(id) ON DELETE CASCADE,
-  -- Input del usuario
+  -- User input
   body_zones        TEXT[] NOT NULL,         -- ["chest", "stomach", "hands"]
-  free_text         TEXT,                    -- Texto libre escrito
-  -- Resultado
-  emotion_confirmed VARCHAR(100),            -- Emoción que el usuario confirmó
-  emotion_options   JSONB,                   -- Array de opciones que presentó la IA
-  ai_interpretation TEXT,                   -- Respuesta raw de la IA
-  flagged_for_review BOOLEAN DEFAULT FALSE,  -- 🚩 botón
-  -- Contexto
+  free_text         TEXT,                    -- Written free text
+  -- Result
+  emotion_confirmed VARCHAR(100),            -- Emotion the user confirmed
+  emotion_options   JSONB,                   -- Array of options presented by the AI
+  ai_interpretation TEXT,                   -- Raw AI response
+  flagged_for_review BOOLEAN DEFAULT FALSE,  -- 🚩 button
+  -- Context
   checkin_at        TIMESTAMPTZ DEFAULT NOW(),
   hour_of_day       INTEGER GENERATED ALWAYS AS (EXTRACT(HOUR FROM checkin_at)) STORED,
   day_of_week       INTEGER GENERATED ALWAYS AS (EXTRACT(DOW FROM checkin_at)) STORED,
-  -- Estado offline
+  -- Offline state
   synced            BOOLEAN DEFAULT TRUE,
   created_offline_at TIMESTAMPTZ,
-  -- Script sugerido
+  -- Suggested script
   suggested_script_id UUID REFERENCES scripts(id)
 );
 
--- Índices
+-- Indexes
 CREATE INDEX idx_checkins_user_id ON checkins(user_id);
 CREATE INDEX idx_checkins_checkin_at ON checkins(checkin_at DESC);
 ```
 
-### Tabla: `emotional_dictionary`
-Vocabulario emocional personal del usuario.
+### Table: `emotional_dictionary`
+User's personal emotional vocabulary.
 ```sql
 CREATE TABLE emotional_dictionary (
   id          UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   user_id     UUID REFERENCES users(id) ON DELETE CASCADE,
-  word        VARCHAR(100) NOT NULL,         -- La palabra que el usuario usa
-  description TEXT,                          -- Descripción personal
-  color       VARCHAR(7),                    -- Color hex personal (#A8C5DA)
-  frequency   INTEGER DEFAULT 1,             -- Cuántas veces la ha usado
+  word        VARCHAR(100) NOT NULL,         -- The word the user uses
+  description TEXT,                          -- Personal description
+  color       VARCHAR(7),                    -- Personal hex color (#A8C5DA)
+  frequency   INTEGER DEFAULT 1,             -- How many times it has been used
   source      VARCHAR(20) DEFAULT 'confirmed' CHECK (source IN ('confirmed', 'custom')),
   created_at  TIMESTAMPTZ DEFAULT NOW(),
   updated_at  TIMESTAMPTZ DEFAULT NOW(),
@@ -132,34 +132,34 @@ CREATE TABLE emotional_dictionary (
 );
 ```
 
-### Tabla: `scripts`
-Scripts sociales (predefinidos y personalizados).
+### Table: `scripts`
+Social scripts (predefined and custom).
 ```sql
 CREATE TABLE scripts (
   id            UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  -- Autoría
-  created_by    UUID REFERENCES users(id),   -- NULL = predefinido del sistema
-  owner_user_id UUID REFERENCES users(id),   -- A quién pertenece (puede ser diferente al creador si terapeuta lo hizo)
-  -- Contenido
+  -- Authorship
+  created_by    UUID REFERENCES users(id),   -- NULL = system predefined
+  owner_user_id UUID REFERENCES users(id),   -- Who it belongs to (can differ from creator if therapist made it)
+  -- Content
   title         VARCHAR(200) NOT NULL,
   description   TEXT,
   category      VARCHAR(50) CHECK (category IN (
     'conversacion', 'lugar_publico', 'trabajo_estudio', 'crisis', 'personalizado'
   )),
-  -- Bloques del script (JSONB para flexibilidad)
+  -- Script blocks (JSONB for flexibility)
   blocks        JSONB NOT NULL,
-  -- Ejemplo de blocks:
+  -- Example blocks:
   -- [
   --   {"type": "apertura", "options": ["Disculpa, ¿puedo interrumpir?", "Perdón, ¿tienes un momento?"]},
   --   {"type": "contexto", "text": "Estás en una reunión o conversación grupal"},
   --   {"type": "accion", "options": ["Necesito hacer una pregunta", "Quiero agregar algo"]},
   --   {"type": "salida", "options": ["Gracias", "Ya terminé"], "optional": true}
   -- ]
-  -- Metadatos
+  -- Metadata
   is_predefined BOOLEAN DEFAULT FALSE,
   estimated_duration_seconds INTEGER,
   is_active     BOOLEAN DEFAULT TRUE,
-  -- Estadísticas
+  -- Statistics
   times_used    INTEGER DEFAULT 0,
   last_used_at  TIMESTAMPTZ,
   -- Timestamps
@@ -171,8 +171,8 @@ CREATE INDEX idx_scripts_owner ON scripts(owner_user_id);
 CREATE INDEX idx_scripts_category ON scripts(category);
 ```
 
-### Tabla: `script_executions`
-Registro de uso de scripts.
+### Table: `script_executions`
+Record of script usage.
 ```sql
 CREATE TABLE script_executions (
   id          UUID PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -180,80 +180,80 @@ CREATE TABLE script_executions (
   script_id   UUID REFERENCES scripts(id),
   mode        VARCHAR(15) CHECK (mode IN ('preparation', 'execution')),
   completed   BOOLEAN DEFAULT FALSE,
-  outcome     INTEGER CHECK (outcome BETWEEN 1 AND 3),  -- 1=Bien, 2=Regular, 3=Difícil
+  outcome     INTEGER CHECK (outcome BETWEEN 1 AND 3),  -- 1=Good, 2=Fair, 3=Difficult
   notes       TEXT,
   executed_at TIMESTAMPTZ DEFAULT NOW()
 );
 ```
 
-### Tabla: `trusted_contacts`
-Personas de confianza configuradas por el usuario.
+### Table: `trusted_contacts`
+Trusted contacts configured by the user.
 ```sql
 CREATE TABLE trusted_contacts (
   id              UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   user_id         UUID REFERENCES users(id) ON DELETE CASCADE,
-  -- Datos del contacto
+  -- Contact data
   name            VARCHAR(100) NOT NULL,
-  phone           VARCHAR(20),               -- Para SMS fallback
+  phone           VARCHAR(20),               -- For SMS fallback
   relationship    VARCHAR(50),              -- "mamá", "amigo", "pareja", "terapeuta"
-  -- Configuración
+  -- Configuration
   notification_channel VARCHAR(20) DEFAULT 'push' CHECK (
     notification_channel IN ('push', 'sms', 'telegram', 'both')
   ),
-  telegram_chat_id BIGINT,                  -- Para bot de Telegram (semana 3+)
-  -- Permisos de visibilidad
+  telegram_chat_id BIGINT,                  -- For Telegram bot (week 3+)
+  -- Visibility permissions
   can_see_location    BOOLEAN DEFAULT TRUE,
   can_see_context     BOOLEAN DEFAULT TRUE,
   can_see_checkins    BOOLEAN DEFAULT FALSE,
-  -- Estado
+  -- Status
   is_active       BOOLEAN DEFAULT TRUE,
   last_notified_at TIMESTAMPTZ,
   created_at      TIMESTAMPTZ DEFAULT NOW()
 );
 ```
 
-### Tabla: `crisis_events`
-Registro de eventos de crisis (botón de rescate).
+### Table: `crisis_events`
+Record of crisis events (rescue button).
 ```sql
 CREATE TABLE crisis_events (
   id                  UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   user_id             UUID REFERENCES users(id) ON DELETE CASCADE,
-  -- Evaluación inicial
+  -- Initial assessment
   intensity_level     INTEGER NOT NULL CHECK (intensity_level BETWEEN 1 AND 3),
-  -- Ubicación (si se otorgó permiso)
+  -- Location (if permission was granted)
   latitude            DECIMAL(10,8),
   longitude           DECIMAL(11,8),
   location_address    TEXT,                  -- Reverse geocoded
-  -- Protocolo
+  -- Protocol
   protocol_completed  BOOLEAN DEFAULT FALSE,
-  contacts_notified   INTEGER DEFAULT 0,     -- Cuántos contactos se notificaron
+  contacts_notified   INTEGER DEFAULT 0,     -- How many contacts were notified
   notification_method VARCHAR(10),           -- 'push', 'sms', 'none'
-  -- Contexto del checkin previo (si existe)
+  -- Context from prior check-in (if exists)
   prior_checkin_id    UUID REFERENCES checkins(id),
-  -- Resolución
+  -- Resolution
   outcome             VARCHAR(20) CHECK (outcome IN ('better', 'needs_more', 'called_someone', 'ongoing')),
-  duration_seconds    INTEGER,               -- Cuánto duró el protocolo
+  duration_seconds    INTEGER,               -- How long the protocol lasted
   -- Timestamps
   started_at          TIMESTAMPTZ DEFAULT NOW(),
   resolved_at         TIMESTAMPTZ
 );
 ```
 
-### Tabla: `therapist_patients`
-Relación terapeuta ↔ paciente.
+### Table: `therapist_patients`
+Therapist ↔ patient relationship.
 ```sql
 CREATE TABLE therapist_patients (
   id                  UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   therapist_id        UUID REFERENCES users(id),
   patient_id          UUID REFERENCES users(id),
-  -- Permisos (paciente controla)
+  -- Permissions (patient controls)
   can_see_checkins    BOOLEAN DEFAULT TRUE,
   can_see_crisis      BOOLEAN DEFAULT FALSE,
   can_see_scripts     BOOLEAN DEFAULT TRUE,
   can_edit_scripts    BOOLEAN DEFAULT TRUE,
   can_see_patterns    BOOLEAN DEFAULT TRUE,
-  share_data_until    TIMESTAMPTZ,           -- NULL = indefinido
-  -- Estado
+  share_data_until    TIMESTAMPTZ,           -- NULL = indefinite
+  -- Status
   status              VARCHAR(20) DEFAULT 'active' CHECK (status IN ('pending', 'active', 'paused', 'ended')),
   created_at          TIMESTAMPTZ DEFAULT NOW(),
   UNIQUE(therapist_id, patient_id)
@@ -265,9 +265,9 @@ CREATE TABLE therapist_patients (
 ## 3. Row Level Security (RLS)
 
 ```sql
--- REGLA MAESTRA: cada usuario solo ve y modifica sus propios datos
--- ⚠️ CRÍTICO: WITH CHECK es obligatorio para que INSERT funcione en Supabase.
---    Sin WITH CHECK, los INSERT fallan silenciosamente aunque el USING pase.
+-- MASTER RULE: each user can only see and modify their own data
+-- ⚠️ CRITICAL: WITH CHECK is mandatory for INSERT to work in Supabase.
+--    Without WITH CHECK, INSERTs fail silently even if the USING clause passes.
 
 -- users
 ALTER TABLE users ENABLE ROW LEVEL SECURITY;
@@ -286,7 +286,7 @@ ALTER TABLE checkins ENABLE ROW LEVEL SECURITY;
 CREATE POLICY "checkins_own_data" ON checkins
   FOR ALL USING (auth.uid() = user_id)
   WITH CHECK (auth.uid() = user_id);
--- Excepción: terapeuta puede ver checkins si tiene permiso activo
+-- Exception: therapist can view check-ins if they have active permission
 CREATE POLICY "checkins_therapist_view" ON checkins
   FOR SELECT USING (
     EXISTS (
@@ -299,20 +299,20 @@ CREATE POLICY "checkins_therapist_view" ON checkins
     )
   );
 
--- emotional_dictionary: solo el usuario
+-- emotional_dictionary: user only
 ALTER TABLE emotional_dictionary ENABLE ROW LEVEL SECURITY;
 CREATE POLICY "dictionary_own_data" ON emotional_dictionary
   FOR ALL USING (auth.uid() = user_id)
   WITH CHECK (auth.uid() = user_id);
 
--- scripts: predefinidos son públicos (solo lectura), personalizados son privados
+-- scripts: predefined are public (read-only), custom are private
 ALTER TABLE scripts ENABLE ROW LEVEL SECURITY;
 CREATE POLICY "scripts_predefined_read" ON scripts
   FOR SELECT USING (is_predefined = TRUE);
 CREATE POLICY "scripts_own_data" ON scripts
   FOR ALL USING (auth.uid() = owner_user_id)
   WITH CHECK (auth.uid() = owner_user_id);
--- Excepción: terapeuta puede ver scripts de su paciente si tiene permiso
+-- Exception: therapist can view their patient's scripts if they have permission
 CREATE POLICY "scripts_therapist_view" ON scripts
   FOR SELECT USING (
     EXISTS (
@@ -325,25 +325,25 @@ CREATE POLICY "scripts_therapist_view" ON scripts
     )
   );
 
--- script_executions: solo el usuario
+-- script_executions: user only
 ALTER TABLE script_executions ENABLE ROW LEVEL SECURITY;
 CREATE POLICY "executions_own_data" ON script_executions
   FOR ALL USING (auth.uid() = user_id)
   WITH CHECK (auth.uid() = user_id);
 
--- trusted_contacts: solo el usuario
+-- trusted_contacts: user only
 ALTER TABLE trusted_contacts ENABLE ROW LEVEL SECURITY;
 CREATE POLICY "contacts_own_data" ON trusted_contacts
   FOR ALL USING (auth.uid() = user_id)
   WITH CHECK (auth.uid() = user_id);
 
--- crisis_events: solo el usuario
+-- crisis_events: user only
 ALTER TABLE crisis_events ENABLE ROW LEVEL SECURITY;
 CREATE POLICY "crisis_own_data" ON crisis_events
   FOR ALL USING (auth.uid() = user_id)
   WITH CHECK (auth.uid() = user_id);
 
--- therapist_patients: terapeuta y paciente pueden ver la relación; solo el paciente controla permisos
+-- therapist_patients: therapist and patient can view the relationship; only the patient controls permissions
 ALTER TABLE therapist_patients ENABLE ROW LEVEL SECURITY;
 CREATE POLICY "tp_therapist_view" ON therapist_patients
   FOR SELECT USING (auth.uid() = therapist_id OR auth.uid() = patient_id);
@@ -357,7 +357,7 @@ CREATE POLICY "tp_patient_manage" ON therapist_patients
 ## 4. Edge Functions (Supabase)
 
 ### `sync-privy-user`
-**Trigger:** POST desde el cliente inmediatamente después de que Privy completa el login  
+**Trigger:** POST from the client immediately after Privy completes login  
 **Input:**
 ```typescript
 {
@@ -366,36 +366,36 @@ CREATE POLICY "tp_patient_manage" ON therapist_patients
   wallet_address?: string
 }
 ```
-**Proceso:** Busca o crea usuario en tabla `users`. Si es nuevo, crea registro vacío en `profiles`. Genera y retorna Supabase session token.  
+**Process:** Finds or creates a user in the `users` table. If new, creates an empty record in `profiles`. Generates and returns a Supabase session token.  
 **Output:**
 ```typescript
 {
   supabase_token: string,
   user_id: string,
-  is_new_user: boolean  // true = redirigir a onboarding
+  is_new_user: boolean  // true = redirect to onboarding
 }
 ```
 
 ---
 
 ### `interpret-checkin`
-**Trigger:** POST desde el cliente al cargar S12 (checkin/reflect.tsx — el usuario completó S11 y navegó a la pantalla de interpretación)  
+**Trigger:** POST from the client when loading S12 (checkin/reflect.tsx — the user completed S11 and navigated to the interpretation screen)  
 **Input:**
 ```typescript
 {
   body_zones: string[],
   free_text: string,
   user_id: string,
-  recent_checkins?: CheckinSummary[]  // últimos 3-5
+  recent_checkins?: CheckinSummary[]  // last 3-5
 }
 ```
-**Proceso:** Llama a OpenAI GPT-4o con system prompt de TEA + perfil del usuario  
+**Process:** Calls OpenAI GPT-4o with an ASD system prompt + user profile  
 **Output:**
 ```typescript
 {
   options: Array<{
-    label: string,          // "Ansiedad social"
-    description: string,    // "Tensión ante expectativas de interacción"
+    label: string,          // "Social anxiety"
+    description: string,    // "Tension around expectations of social interaction"
     confidence: number      // 0-1
   }>,
   suggested_script_id?: string
@@ -403,7 +403,7 @@ CREATE POLICY "tp_patient_manage" ON therapist_patients
 ```
 
 ### `send-crisis-notification`
-**Trigger:** POST desde el cliente al activar protocolo **nivel 3 únicamente** (nivel 1 y 2 no notifican — ver PRD §3.4)  
+**Trigger:** POST from the client when activating the **level 3 protocol only** (levels 1 and 2 do not notify — see PRD §3.4)  
 **Input:**
 ```typescript
 {
@@ -414,44 +414,44 @@ CREATE POLICY "tp_patient_manage" ON therapist_patients
   context_text?: string
 }
 ```
-**Proceso:** Busca trusted_contacts, envía push via Expo Push API + Telegram bot si configurado  
+**Process:** Finds trusted_contacts, sends push via Expo Push API + Telegram bot if configured  
 **Output:** `{ notified: number, method: string }`
 
-### `generate-report` (Semana 4+)
-**Trigger:** POST del terapeuta  
+### `generate-report` (Week 4+)
+**Trigger:** POST from therapist  
 **Input:** `{ patient_id, date_from, date_to, sections: string[] }`  
-**Output:** JSON estructurado con patrones, check-ins resumidos, scripts usados
+**Output:** Structured JSON with patterns, summarized check-ins, scripts used
 
 ---
 
 ## 5. Storage (Supabase Storage)
 
 ### Bucket: `calming-audio`
-- Acceso: **público** (archivos de audio no son sensitivos)
-- Contenido: archivos `.mp3` de tonos de guía de respiración
+- Access: **public** (audio files are not sensitive)
+- Contents: `.mp3` files of breathing guidance tones
 - Naming: `tone-inhale.mp3`, `tone-exhale.mp3`, `tone-ambient.mp3`, `tone-grounding-voice.mp3`
 
-> ⚠️ **MVP — Audio offline-first:** El protocolo de respiración y grounding (S18) debe funcionar sin internet. Para Semana 1, los archivos de audio deben estar **bundleados en el app** en `assets/audio/` con los mismos nombres:
-> - `tone-inhale.mp3` — tono de inhalación (Nivel 2/3 respiración)
-> - `tone-exhale.mp3` — tono de exhalación (Nivel 2/3 respiración)
-> - `tone-ambient.mp3` — tono ambiente de fondo (todos los niveles)
-> - `tone-grounding-voice.mp3` — voz guiada para Grounding 5-4-3-2-1 (Nivel 1)
+> ⚠️ **MVP — Audio offline-first:** The breathing and grounding protocol (S18) must work without internet. For Week 1, audio files must be **bundled in the app** under `assets/audio/` with the same names:
+> - `tone-inhale.mp3` — inhalation tone (Level 2/3 breathing)
+> - `tone-exhale.mp3` — exhalation tone (Level 2/3 breathing)
+> - `tone-ambient.mp3` — background ambient tone (all levels)
+> - `tone-grounding-voice.mp3` — guided voice for Grounding 5-4-3-2-1 (Level 1)
 >
-> Este bucket de Supabase Storage es para contenido extendido en Semana 3+. Usar siempre `require()` local en la implementación:
+> This Supabase Storage bucket is for extended content in Week 3+. Always use local `require()` in the implementation:
 > ```typescript
 > const voice = useAudioPlayer(require('../../assets/audio/tone-grounding-voice.mp3'))
 > const ambient = useAudioPlayer(require('../../assets/audio/tone-ambient.mp3'))
 > ```
 
 ### Bucket: `user-avatars`
-- Acceso: **privado** (solo el usuario puede ver su avatar)
+- Access: **private** (only the user can see their avatar)
 - Naming: `{user_id}/avatar.jpg`
 
 ---
 
-## 6. Datos Predefinidos (Seed)
+## 6. Predefined Data (Seed)
 
-### Scripts predefinidos iniciales (5 para MVP)
+### Initial predefined scripts (5 for MVP)
 
 ```sql
 INSERT INTO scripts (title, description, category, is_predefined, blocks, estimated_duration_seconds) VALUES
@@ -521,21 +521,21 @@ INSERT INTO scripts (title, description, category, is_predefined, blocks, estima
 
 ---
 
-## 7. Estrategia Offline
+## 7. Offline Strategy
 
-**Lo que siempre funciona sin conexión:**
-- Leer scripts (cacheados en AsyncStorage al primer fetch)
-- Realizar check-in (guardado en SecureStore con `synced: false`)
-- Ejecutar protocolo de crisis (secuencia local)
+**What always works without a connection:**
+- Reading scripts (cached in AsyncStorage on first fetch)
+- Performing a check-in (saved in SecureStore with `synced: false`)
+- Executing the crisis protocol (local sequence)
 
-**Al reconectarse:**
-1. App detecta items con `synced: false` en SecureStore
-2. Los sube a Supabase en orden cronológico
-3. Llama a edge function `interpret-checkin` para los check-ins pendientes
-4. Actualiza UI con resultados
+**Upon reconnection:**
+1. App detects items with `synced: false` in SecureStore
+2. Uploads them to Supabase in chronological order
+3. Calls the `interpret-checkin` edge function for pending check-ins
+4. Updates UI with results
 
 ```typescript
-// Sync logic en lib/offline-sync.ts
+// Sync logic in lib/offline-sync.ts
 export const syncPendingCheckins = async () => {
   const pending = await SecureStore.getItemAsync('pending_checkins')
   if (!pending) return
@@ -545,35 +545,35 @@ export const syncPendingCheckins = async () => {
     const { data } = await supabase
       .from('checkins')
       .insert({ ...checkin, synced: true })
-    // Limpiar de SecureStore después de sync exitoso
+    // Clear from SecureStore after successful sync
   }
 }
 ```
 
 ---
 
-## 8. Autenticación — Flujo Completo
+## 8. Authentication — Full Flow
 
 ```
-Usuario → Privy SDK (email/social login)
+User → Privy SDK (email/social login)
   │
-  ├── Privy retorna: { privy_user_id, email, wallet_address? }
+  ├── Privy returns: { privy_user_id, email, wallet_address? }
   │
-  └── App llama Supabase Edge Function: `sync-privy-user`
-      ├── Busca user por privy_user_id
-      ├── Si no existe: crea user + profile vacío
-      ├── Retorna Supabase session token
-      └── App almacena token en SecureStore
+  └── App calls Supabase Edge Function: `sync-privy-user`
+      ├── Finds user by privy_user_id
+      ├── If not found: creates user + empty profile
+      ├── Returns Supabase session token
+      └── App stores token in SecureStore
 ```
 
 ---
 
-## 9. Variables de Entorno Requeridas en Supabase
+## 9. Required Environment Variables in Supabase
 
-Configurar en Supabase Dashboard → Settings → Edge Functions → Secrets:
+Configure in Supabase Dashboard → Settings → Edge Functions → Secrets:
 
 ```
 OPENAI_API_KEY=sk-...
-EXPO_PUSH_TOKEN_SECRET=...  (para verificar tokens)
-TELEGRAM_BOT_TOKEN=...      (semana 3+)
+EXPO_PUSH_TOKEN_SECRET=...  (to verify tokens)
+TELEGRAM_BOT_TOKEN=...      (week 3+)
 ```

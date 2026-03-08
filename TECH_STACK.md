@@ -1,94 +1,94 @@
-# TECH_STACK.md — Stack Tecnológico
-## Script — Compañero Digital para Adultos con TEA Nivel 1
+# TECH_STACK.md — Technology Stack
+## Script — Digital Companion for Adults with ASD Level 1
 
-**Versión:** 1.4  
-**Última actualización:** 2026-03-06  
-**Cambios v1.4:** `@expo-google-fonts/inter` → `@expo-google-fonts/atkinson-hyperlegible` (T-U3 — fuente accesible para ASD). Ref: FRONTEND_GUIDELINES.md §2.  
-**Cambios v1.3:** Eliminado `expo-symbols` (SF Symbols solo funciona en iOS/web — B-07); estándar de íconos actualizado a `@expo/vector-icons` (Ionicons), que ya viene incluido con Expo.  
-**Cambios v1.2:** Agregado `expo-symbols` a Estilos y UI y al comando de instalación (requerido por FRONTEND_GUIDELINES §8).  
-**Cambios v1.1:** Versiones verificadas contra npm registry. Expo 52→55, React 18→19, Reanimated 3→4, openai 4→6, zod 3→4, expo-av→expo-audio, todas las versiones de paquetes expo actualizadas.
+**Version:** 1.4  
+**Last updated:** 2026-03-06  
+**Changes v1.4:** `@expo-google-fonts/inter` → `@expo-google-fonts/atkinson-hyperlegible` (T-U3 — accessible font for ASD). Ref: FRONTEND_GUIDELINES.md §2.  
+**Changes v1.3:** Removed `expo-symbols` (SF Symbols only works on iOS/web — B-07); icon standard updated to `@expo/vector-icons` (Ionicons), already bundled with Expo.  
+**Changes v1.2:** Added `expo-symbols` to Styles and UI and to the install command (required by FRONTEND_GUIDELINES §8).  
+**Changes v1.1:** Versions verified against npm registry. Expo 52→55, React 18→19, Reanimated 3→4, openai 4→6, zod 3→4, expo-av→expo-audio, all expo package versions updated.
 
-> ⚠️ **Regla de oro:** No instales ningún paquete que no esté en este documento sin actualizar este archivo primero. La consistencia de versiones previene el 80% de los bugs de setup.
-
----
-
-## Plataforma Base
-
-| Herramienta | Versión | Propósito |
-|---|---|---|
-| **Expo SDK** | **55.0.2** | Framework principal — web + Android desde un codebase |
-| **React Native** | **0.79.x** | (incluido en Expo 55) |
-| **React** | **19.2.x** | (incluido en Expo 55) — **React 19, no 18** |
-| **TypeScript** | **5.3.x** | Tipado estricto — obligatorio en todo el proyecto |
-| **Node.js** | **20.x (LTS)** | Runtime de desarrollo |
-
-> ⚠️ **Nota React 19:** React 19 trae cambios en `use`, `useActionState`, y manejo de refs. Los AI agents deben generar código React 19-compatible. No usar patrones deprecated de React 17/18.
+> ⚠️ **Golden rule:** Do not install any package not listed in this document without updating this file first. Version consistency prevents 80% of setup bugs.
 
 ---
 
-## Routing y Navegación
+## Base Platform
 
-| Herramienta | Versión | Propósito |
+| Tool | Version | Purpose |
 |---|---|---|
-| **expo-router** | **55.0.2** | Routing basado en archivos (Expo 55 usa su propia versión sincronizada) |
+| **Expo SDK** | **55.0.2** | Main framework — web + Android from a single codebase |
+| **React Native** | **0.79.x** | (included in Expo 55) |
+| **React** | **19.2.x** | (included in Expo 55) — **React 19, not 18** |
+| **TypeScript** | **5.3.x** | Strict typing — mandatory throughout the project |
+| **Node.js** | **20.x (LTS)** | Development runtime |
 
-**Estructura de rutas:**
+> ⚠️ **React 19 Note:** React 19 introduces changes to `use`, `useActionState`, and ref handling. AI agents must generate React 19-compatible code. Do not use deprecated React 17/18 patterns.
+
+---
+
+## Routing and Navigation
+
+| Tool | Version | Purpose |
+|---|---|---|
+| **expo-router** | **55.0.2** | File-based routing (Expo 55 uses its own synchronized version) |
+
+**Route structure:**
 ```
 app/
 ├── (onboarding)/
 │   ├── index.tsx          → S01 Welcome
-│   ├── aq10.tsx           → S02 AQ-10 Test (10 preguntas)
-│   ├── aq10-result.tsx    → S03 AQ-10 Resultado + decisión de continuar
-│   ├── aq-full.tsx        → S04 AQ Completo (50 preguntas, opcional)
-│   ├── catq.tsx           → S05 CAT-Q (25 preguntas, opcional)
-│   ├── raads.tsx          → S06 RAADS-R (80 preguntas, opcional)
-│   ├── profile.tsx        → S07 Cuestionario Personal
-│   └── contacts.tsx       → S08 Setup Contactos de Confianza
+│   ├── aq10.tsx           → S02 AQ-10 Test (10 questions)
+│   ├── aq10-result.tsx    → S03 AQ-10 Result + decision to continue
+│   ├── aq-full.tsx        → S04 Full AQ (50 questions, optional)
+│   ├── catq.tsx           → S05 CAT-Q (25 questions, optional)
+│   ├── raads.tsx          → S06 RAADS-R (80 questions, optional)
+│   ├── profile.tsx        → S07 Personal Questionnaire
+│   └── contacts.tsx       → S08 Trusted Contacts Setup
 ├── (app)/
-│   ├── _layout.tsx        → Layout con bottom navigation (5 tabs)
+│   ├── _layout.tsx        → Layout with bottom navigation (5 tabs)
 │   ├── home.tsx           → S09 Home
 │   ├── checkin/
-│   │   ├── body.tsx       → S10 Mapa Corporal
-│   │   ├── notes.tsx      → S11 Texto Libre
-│   │   ├── reflect.tsx    → S12 Interpretación IA
-│   │   └── result.tsx     → S13 Resultado Check-in
+│   │   ├── body.tsx       → S10 Body Map
+│   │   ├── notes.tsx      → S11 Free Text
+│   │   ├── reflect.tsx    → S12 AI Interpretation
+│   │   └── result.tsx     → S13 Check-in Result
 │   ├── scripts/
-│   │   ├── index.tsx      → S14 Biblioteca de Scripts
-│   │   ├── [id].tsx       → S15 Script Detalle
-│   │   └── [id]/execute.tsx → S16 Script Ejecución
+│   │   ├── index.tsx      → S14 Script Library
+│   │   ├── [id].tsx       → S15 Script Detail
+│   │   └── [id]/execute.tsx → S16 Script Execution
 │   ├── rescue/
-│   │   ├── assess.tsx     → S17 Evaluación de Crisis
-│   │   └── protocol.tsx   → S18 Protocolo de Rescate
-│   ├── history.tsx        → S19 Historial
-│   ├── dictionary.tsx     → S20 Diccionario Emocional
+│   │   ├── assess.tsx     → S17 Crisis Assessment
+│   │   └── protocol.tsx   → S18 Rescue Protocol
+│   ├── history.tsx        → S19 History
+│   ├── dictionary.tsx     → S20 Emotional Dictionary
 │   └── settings/
-│       ├── index.tsx      → S21 Configuración
-│       └── contacts.tsx   → S22 Gestión Contactos
+│       ├── index.tsx      → S21 Settings
+│       └── contacts.tsx   → S22 Contact Management
 ├── therapist/
-│   └── index.tsx          → S23 Vista Terapeuta
+│   └── index.tsx          → S23 Therapist View
 └── auth.tsx               → S24 Login / Auth
 ```
 
 ---
 
-## Estilos y UI
+## Styles and UI
 
-| Herramienta | Versión | Propósito |
+| Tool | Version | Purpose |
 |---|---|---|
-| **nativewind** | **4.2.2** | Tailwind CSS para React Native |
-| **tailwindcss** | **3.4.x** | Requerido por NativeWind 4 (≥3.3.0) |
-| **react-native-svg** | **15.15.3** | Silueta corporal interactiva + círculo de respiración |
-| **react-native-reanimated** | **4.2.2** | Animaciones fluidas |
-| **react-native-worklets** | **0.7.4** | ⚠️ NUEVO — Peer dependency requerida por Reanimated 4 |
-| **@expo-google-fonts/atkinson-hyperlegible** | **latest** | Fuente Atkinson Hyperlegible (reemplaza Inter — diseñada para accesibilidad) |
-| **expo-font** | **13.x** | Carga de fuentes custom |
-| **@expo/vector-icons** (Ionicons) | incluido con Expo | Íconos multiplataforma iOS/Android/web — estándar del proyecto. ⚠️ NUNCA usar `expo-symbols` (solo iOS/web) |
+| **nativewind** | **4.2.2** | Tailwind CSS for React Native |
+| **tailwindcss** | **3.4.x** | Required by NativeWind 4 (≥3.3.0) |
+| **react-native-svg** | **15.15.3** | Interactive body silhouette + breathing circle |
+| **react-native-reanimated** | **4.2.2** | Smooth animations |
+| **react-native-worklets** | **0.7.4** | ⚠️ NEW — Peer dependency required by Reanimated 4 |
+| **@expo-google-fonts/atkinson-hyperlegible** | **latest** | Atkinson Hyperlegible font (replaces Inter — designed for accessibility) |
+| **expo-font** | **13.x** | Custom font loading |
+| **@expo/vector-icons** (Ionicons) | bundled with Expo | Cross-platform icons iOS/Android/web — project standard. ⚠️ NEVER use `expo-symbols` (iOS/web only) |
 
-> ⚠️ **Cambio importante — Reanimated 4:** La versión 4.x usa una nueva arquitectura de worklets. El API de `useAnimatedStyle`, `withTiming`, etc. se mantiene, pero ahora requiere `react-native-worklets` instalado. Sin esta dependencia la app crashea en runtime.
+> ⚠️ **Important change — Reanimated 4:** Version 4.x uses a new worklets architecture. The `useAnimatedStyle`, `withTiming`, etc. API remains the same, but now requires `react-native-worklets` to be installed. Without this dependency the app crashes at runtime.
 
-> ⚠️ **Nota NativeWind:** Requiere configuración específica en `babel.config.js` y `tailwind.config.js`. Ver sección de configuración abajo.
+> ⚠️ **NativeWind Note:** Requires specific configuration in `babel.config.js` and `tailwind.config.js`. See configuration section below.
 
-**`tailwind.config.js` — OBLIGATORIO:**
+**`tailwind.config.js` — REQUIRED:**
 ```javascript
 /** @type {import('tailwindcss').Config} */
 module.exports = {
@@ -142,12 +142,12 @@ module.exports = function (api) {
 
 ## Backend — Supabase
 
-| Herramienta | Versión | Propósito |
+| Tool | Version | Purpose |
 |---|---|---|
-| **@supabase/supabase-js** | **2.97.0** | Cliente JS para todo: DB, auth, storage, realtime |
-| **Supabase** (servicio) | — | PostgreSQL + Auth + Storage + Edge Functions |
+| **@supabase/supabase-js** | **2.97.0** | JS client for everything: DB, auth, storage, realtime |
+| **Supabase** (service) | — | PostgreSQL + Auth + Storage + Edge Functions |
 
-**Configuración:**
+**Configuration:**
 ```typescript
 // lib/supabase.ts
 import { createClient } from '@supabase/supabase-js'
@@ -175,31 +175,31 @@ export const supabase = createClient(
 
 ---
 
-## Autenticación y Wallet
+## Authentication and Wallet
 
-| Herramienta | Versión | Propósito |
+| Tool | Version | Purpose |
 |---|---|---|
-| **@privy-io/expo** | **0.63.6** | Auth multi-método: email, Google, Apple, wallet embedded |
-| **Privy** (servicio) | — | Gestión de sesiones + wallets custodiales |
+| **@privy-io/expo** | **0.63.6** | Multi-method auth: email, Google, Apple, embedded wallet |
+| **Privy** (service) | — | Session management + custodial wallets |
 
-**Métodos de login habilitados:**
+**Enabled login methods:**
 1. Email (magic link)
 2. Google OAuth
-3. Wallet embedded (para EAS attestations en Semana 5)
+3. Embedded wallet (for EAS attestations in Week 5)
 
 ---
 
-## Inteligencia Artificial
+## Artificial Intelligence
 
-| Herramienta | Versión | Propósito |
+| Tool | Version | Purpose |
 |---|---|---|
-| **openai** | **6.25.0** | SDK oficial OpenAI |
-| **GPT-4o** | latest | Interpretación emocional + sugerencias de scripts |
+| **openai** | **6.25.0** | Official OpenAI SDK |
+| **GPT-4o** | latest | Emotional interpretation + script suggestions |
 
-> ⚠️ **Cambio importante — openai v6:** El SDK de OpenAI cambió su API entre v4 y v6. Usar siempre la sintaxis de v6:
+> ⚠️ **Important change — openai v6:** The OpenAI SDK changed its API between v4 and v6. Always use v6 syntax:
 
 ```typescript
-// ✅ Correcto — openai v6
+// ✅ Correct — openai v6
 import OpenAI from 'openai'
 const client = new OpenAI({ apiKey: process.env.OPENAI_API_KEY })
 const response = await client.chat.completions.create({
@@ -208,26 +208,26 @@ const response = await client.chat.completions.create({
   response_format: { type: 'json_object' },
 })
 
-// ❌ Incorrecto — sintaxis vieja v4
-import { Configuration, OpenAIApi } from 'openai' // No existe en v6
+// ❌ Incorrect — old v4 syntax
+import { Configuration, OpenAIApi } from 'openai' // Does not exist in v6
 ```
 
-**Solo en Supabase Edge Functions (server-side). NUNCA en el cliente.**
+**Only in Supabase Edge Functions (server-side). NEVER on the client.**
 
 ---
 
-## Audio y Sensores
+## Audio and Sensors
 
-| Herramienta | Versión | Propósito |
+| Tool | Version | Purpose |
 |---|---|---|
-| **expo-audio** | **55.0.8** | ✅ Reemplazo moderno de expo-av para audio |
-| **expo-haptics** | **55.0.8** | Retroalimentación háptica en protocolo de respiración |
-| **expo-location** | **55.1.2** | Ubicación en alertas de crisis (con permiso explícito) |
-| **expo-sms** | **55.0.8** | SMS nativo fallback para alertas offline |
+| **expo-audio** | **55.0.8** | ✅ Modern replacement for expo-av for audio |
+| **expo-haptics** | **55.0.8** | Haptic feedback in the breathing protocol |
+| **expo-location** | **55.1.2** | Location in crisis alerts (with explicit permission) |
+| **expo-sms** | **55.0.8** | Native SMS fallback for offline alerts |
 
-> ⚠️ **expo-av está deprecated:** No usar expo-av en proyectos nuevos con Expo 55. Usar `expo-audio` para reproducción de audio.
+> ⚠️ **expo-av is deprecated:** Do not use expo-av in new projects with Expo 55. Use `expo-audio` for audio playback.
 
-**Uso de expo-audio para tonos de calma:**
+**Using expo-audio for calm tones:**
 ```typescript
 import { useAudioPlayer } from 'expo-audio'
 
@@ -238,66 +238,66 @@ player.pause()
 
 ---
 
-## Notificaciones Push
+## Push Notifications
 
-| Herramienta | Versión | Propósito |
+| Tool | Version | Purpose |
 |---|---|---|
-| **expo-notifications** | **55.0.10** | Push notifications locales y remotas |
-| **expo-device** | **7.x** | Detectar si es dispositivo real (required para push) |
-| **Firebase Cloud Messaging (FCM)** | — | Backend para entrega de notificaciones Android |
+| **expo-notifications** | **55.0.10** | Local and remote push notifications |
+| **expo-device** | **7.x** | Detect if it's a real device (required for push) |
+| **Firebase Cloud Messaging (FCM)** | — | Backend for Android notification delivery |
 
 ---
 
-## Estado y Datos
+## State and Data
 
-| Herramienta | Versión | Propósito |
+| Tool | Version | Purpose |
 |---|---|---|
-| **zustand** | **5.0.11** | Estado global cliente (sesión, preferencias, estado de crisis) |
-| **@tanstack/react-query** | **5.90.x** | Estado del servidor (fetch, cache, sincronización) |
-| **expo-secure-store** | **55.0.8** | Almacenamiento local encriptado (datos offline, tokens) |
-| **@react-native-async-storage/async-storage** | **2.x** | Storage no sensitivo offline (scripts cacheados) |
+| **zustand** | **5.0.11** | Client global state (session, preferences, crisis state) |
+| **@tanstack/react-query** | **5.90.x** | Server state (fetch, cache, synchronization) |
+| **expo-secure-store** | **55.0.8** | Encrypted local storage (offline data, tokens) |
+| **@react-native-async-storage/async-storage** | **2.x** | Non-sensitive offline storage (cached scripts) |
 
 ---
 
-## Formularios y Validación
+## Forms and Validation
 
-| Herramienta | Versión | Propósito |
+| Tool | Version | Purpose |
 |---|---|---|
-| **react-hook-form** | **7.55.x** | Manejo de formularios (AQ-10, cuestionario, scripts) |
-| **@hookform/resolvers** | **5.2.2** | Integración con schema validators |
-| **zod** | **4.3.6** | Validación de schemas |
+| **react-hook-form** | **7.55.x** | Form handling (AQ-10, questionnaire, scripts) |
+| **@hookform/resolvers** | **5.2.2** | Integration with schema validators |
+| **zod** | **4.3.6** | Schema validation |
 
-> ⚠️ **Zod 4 — cambios de API:** Zod 4 tiene cambios importantes vs Zod 3. Usar siempre la sintaxis de Zod 4:
+> ⚠️ **Zod 4 — API changes:** Zod 4 has significant changes vs Zod 3. Always use Zod 4 syntax:
 
 ```typescript
-// ✅ Correcto — Zod 4
+// ✅ Correct — Zod 4
 import { z } from 'zod'
 const schema = z.object({
   name: z.string().min(1),
   score: z.number().int().min(0).max(10),
 })
-// La inferencia de tipos funciona igual: z.infer<typeof schema>
+// Type inference works the same: z.infer<typeof schema>
 
-// ❌ Zod 3 tenía z.string().nonempty() — en Zod 4 usar .min(1)
+// ❌ Zod 3 had z.string().nonempty() — in Zod 4 use .min(1)
 ```
 
 ---
 
-## Utilidades
+## Utilities
 
-| Herramienta | Versión | Propósito |
+| Tool | Version | Purpose |
 |---|---|---|
-| **date-fns** | **4.1.0** | Manejo de fechas en historial y patrones |
+| **date-fns** | **4.1.0** | Date handling for history and patterns |
 
 ---
 
-## Build y Deploy
+## Build and Deploy
 
-| Herramienta | Versión | Propósito |
+| Tool | Version | Purpose |
 |---|---|---|
-| **EAS Build** | latest | Build de APK y IPA en la nube |
-| **EAS Update** | latest | OTA updates sin pasar por la tienda |
-| **Expo Go** | latest | Testing en dispositivo físico durante desarrollo |
+| **EAS Build** | latest | APK and IPA cloud builds |
+| **EAS Update** | latest | OTA updates without going through the store |
+| **Expo Go** | latest | Testing on a physical device during development |
 
 **`eas.json`:**
 ```json
@@ -317,44 +317,44 @@ const schema = z.object({
 }
 ```
 
-**Comando de build APK:**
+**APK build command:**
 ```bash
 eas build --platform android --profile preview
 ```
 
 ---
 
-## Variables de Entorno
+## Environment Variables
 
-Archivo: `.env.local` (nunca commitear — agregar a `.gitignore`)
+File: `.env.local` (never commit — add to `.gitignore`)
 
 ```bash
 # Supabase
-EXPO_PUBLIC_SUPABASE_URL=https://[proyecto].supabase.co
+EXPO_PUBLIC_SUPABASE_URL=https://[project].supabase.co
 EXPO_PUBLIC_SUPABASE_ANON_KEY=[anon-key]
 
 # Privy
 EXPO_PUBLIC_PRIVY_APP_ID=[privy-app-id]
 
-# OpenAI — SOLO en Supabase Edge Functions, NUNCA como EXPO_PUBLIC_
+# OpenAI — ONLY in Supabase Edge Functions, NEVER as EXPO_PUBLIC_
 OPENAI_API_KEY=[openai-key]
 
-# Telegram (semana 3+)
+# Telegram (week 3+)
 TELEGRAM_BOT_TOKEN=[bot-token]
 ```
 
-> ⚠️ `OPENAI_API_KEY` NUNCA va como `EXPO_PUBLIC_`. Exponer esta key en el cliente compromete la seguridad y genera costos no controlados. Solo vive en Supabase Edge Functions.
+> ⚠️ `OPENAI_API_KEY` NEVER goes as `EXPO_PUBLIC_`. Exposing this key on the client compromises security and generates uncontrolled costs. It only lives in Supabase Edge Functions.
 
 ---
 
-## Comando de Instalación Completo (Semana 1)
+## Full Installation Command (Week 1)
 
 ```bash
-# 1. Crear proyecto
+# 1. Create project
 npx create-expo-app@latest script-app --template tabs
 cd script-app
 
-# 2. Paquetes de Expo (usa npx expo install para compatibilidad garantizada)
+# 2. Expo packages (use npx expo install for guaranteed compatibility)
 npx expo install expo-router
 npx expo install react-native-svg
 npx expo install react-native-reanimated react-native-worklets
@@ -362,10 +362,10 @@ npx expo install expo-audio expo-haptics expo-location expo-sms
 npx expo install expo-notifications expo-device
 npx expo install expo-secure-store @react-native-async-storage/async-storage
 npx expo install expo-font @expo-google-fonts/atkinson-hyperlegible
-# @expo/vector-icons ya viene incluido con Expo — no requiere instalación adicional
-# expo-symbols fue eliminado (B-07): SF Symbols solo funciona en iOS/web
+# @expo/vector-icons is already bundled with Expo — no additional installation required
+# expo-symbols was removed (B-07): SF Symbols only works on iOS/web
 
-# 3. Paquetes npm (versiones fijas)
+# 3. npm packages (fixed versions)
 npm install @supabase/supabase-js@2.97.0
 npm install @privy-io/expo@0.63.6
 npm install openai@6.25.0
@@ -379,36 +379,34 @@ npm install react-hook-form@7.55.0 @hookform/resolvers@5.2.2
 npm install nativewind@4.2.2 tailwindcss@3.4.0
 ```
 
-> ✅ Usar `npx expo install` (no `npm install`) para paquetes de Expo garantiza compatibilidad con el SDK instalado.
+> ✅ Using `npx expo install` (not `npm install`) for Expo packages guarantees compatibility with the installed SDK.
 
 ---
 
-## Reglas de Código (Para AI Agents)
+## Code Rules (For AI Agents)
 
-1. **TypeScript estricto siempre.** Sin `any`. Tipar todo.
-2. **NativeWind para estilos.** No StyleSheet salvo animaciones/SVG.
-3. **Supabase para toda la persistencia remota.** No fetch directo a APIs propias.
-4. **OpenAI v6 API.** No usar sintaxis de versiones anteriores.
-5. **Zod 4 API.** No usar `.nonempty()` ni otras APIs deprecadas de Zod 3.
-6. **expo-audio, no expo-av.** expo-av está deprecated en Expo 55.
-7. **react-native-worklets instalado** antes de react-native-reanimated.
-8. **OpenAI solo en server-side** (Supabase Edge Functions). Nunca en el cliente.
-9. **Zustand para estado global.** No prop drilling de más de 2 niveles.
-10. **React Query para datos del servidor.** No useState para datos remotos.
-11. **Expo Router para navegación.** No React Navigation directamente.
-12. **Offline-first:** Toda escritura va a SecureStore primero, luego sincroniza.
-13. **Sin console.log en producción.** Usar un logger wrapper.
-14. **React 19 patterns.** No usar APIs deprecated de React 18.
+1. **Strict TypeScript always.** No `any`. Type everything.
+2. **NativeWind for styles.** No StyleSheet except for animations/SVG.
+3. **Supabase for all remote persistence.** No direct fetch to your own APIs.
+4. **OpenAI v6 API.** Do not use syntax from older versions.
+5. **Zod 4 API.** Do not use `.nonempty()` or other deprecated Zod 3 APIs.
+6. **expo-audio, not expo-av.** expo-av is deprecated in Expo 55.
+7. **react-native-worklets installed** before react-native-reanimated.
+8. **OpenAI only server-side** (Supabase Edge Functions). Never on the client.
+9. **Zustand for global state.** No prop drilling more than 2 levels deep.
+10. **React Query for server data.** No useState for remote data.
+11. **Expo Router for navigation.** Not React Navigation directly.
+12. **Offline-first:** Every write goes to SecureStore first, then syncs.
+13. **No console.log in production.** Use a logger wrapper.
+14. **React 19 patterns.** Do not use deprecated React 18 APIs.
 
 ---
 
-## 📚 Recursos de Investigación (Dev Tools)
+## 📚 Research Resources (Dev Tools)
 
-Herramientas para que los agentes consulten literatura científica durante el desarrollo.
-**No son dependencias de la app** — son recursos para tomar mejores decisiones de diseño.
+Tools for agents to consult scientific literature during development.
+**Not app dependencies** — these are resources for making better design decisions.
 
-| Recurso | URL | Uso en Script |
+| Resource | URL | Use in Script |
 |---|---|---|
-| **paper-search-mcp** | https://github.com/openags/paper-search-mcp | MCP server para buscar papers en arXiv/PubMed/bioRxiv — validar umbrales de tests (AQ ≥6/≥32, RAADS-R), informar contenido de scripts con evidencia clínica, consultar literatura sobre TEA y enmascaramiento |
-
-
+| **paper-search-mcp** | https://github.com/openags/paper-search-mcp | MCP server for searching papers on arXiv/PubMed/bioRxiv — validate test thresholds (AQ ≥6/≥32, RAADS-R), inform script content with clinical evidence, consult literature on ASD and masking |

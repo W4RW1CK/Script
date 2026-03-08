@@ -1,621 +1,622 @@
-# STATUS.md — Estado del Proyecto
-## Script — Compañero Digital para Adultos con TEA Nivel 1
+# STATUS.md — Project Status
+## Script — Digital Companion for Adults with Level 1 ASD
 
-> **Cómo leer este archivo:**
-> ✅ Completado | 🔄 En progreso | ⏳ Pendiente | ❌ Bloqueado
+> **How to read this file:**
+> ✅ Complete | 🔄 In progress | ⏳ Pending | ❌ Blocked
 
-**Última actualización:** 2026-03-06 (B-51 ✅ — Option A implementada: sync-privy-user minta JWT Supabase, auth.uid() funciona, RLS resuelto)  
-**Semana actual:** 1  
-**Entrega próxima:** Lunes (MVP)
+**Last updated:** 2026-03-06 (B-51 ✅ — Option A implemented: sync-privy-user mints Supabase JWT, auth.uid() works, RLS resolved)  
+**Current week:** 1  
+**Next delivery:** Monday (MVP)
 
 ---
 
-## 👥 Equipo
+## 👥 Team
 
-| Rol | Quién | Responsabilidades |
+| Role | Who | Responsibilities |
 |---|---|---|
-| Product Owner / Ejecutor | w4rw1ck | Corre comandos, prueba en dispositivo, valida producto, aprende |
-| Tech Lead / PMO | Aibus Dumbleclaw | Genera código Fases 1.1-1.3, 1.8 · Trackea progreso |
-| Arquitectura / Features Core | Ana Banana 🍌 | Genera código Fases 1.4-1.7 · Revisa PRs · Guarda docs canónicos |
+| Product Owner / Executor | w4rw1ck | Runs commands, tests on device, validates product, learns |
+| Tech Lead / PMO | Aibus Dumbleclaw | Generates code Phases 1.1-1.3, 1.8 · Tracks progress |
+| Architecture / Core Features | Ana Banana 🍌 | Generates code Phases 1.4-1.7 · Reviews PRs · Stores canonical docs |
 
-**Flujo de trabajo:**
+**Workflow:**
 ```
-Agente genera y pushea código → w4rw1ck revisa en GitHub / prueba en Expo Go
-Algo falla → ambas atacan el bug → w4rw1ck confirma fix
+Agent generates and pushes code → w4rw1ck reviews on GitHub / tests in Expo Go
+Something fails → both attack the bug → w4rw1ck confirms fix
 ```
 
 ---
 
-## 🚧 Bloqueadores — Resolver ANTES de codear
+## 🚧 Blockers — Resolve BEFORE coding
 
-| # | Pendiente | Quién | Bloquea | Estado |
+| # | Pending | Who | Blocks | Status |
 |---|---|---|---|---|
-| 1 | Crear proyecto nuevo en Supabase | w4rw1ck | Fase 1.2 | ✅ |
-| 2 | Crear App ID nuevo en Privy | w4rw1ck | Fase 1.8 | ⏳ |
-| 3 | Referencias UI sensory-safe (3-5 opciones) | Ana + Aibus | Fase 1.3 | ✅ |
-| 4 | Validar/ajustar paleta de colores TEA | Ana + Aibus | Fase 1.3 | ✅ |
-| 5 | Traducciones en español: AQ Full (50q) + CAT-Q (25q) + RAADS-R (80q) | Ana + Aibus | Fase 1.8 | ⏳ |
-| 6 | Audio: voz guiada + tono ambient (para grounding y respiración) | Ana + Aibus | Fase 1.7 | ⏳ |
-| 7 | Revisar/completar contenido de 5 scripts sociales | Ana + Aibus | Fase 1.6 | ✅ |
-| 8 | **Agregar `SUPABASE_JWT_SECRET` a env vars de Edge Functions + redeploy `sync-privy-user`** — sin esto B-51 (RLS) no se activa aunque el código ya esté listo. Obtener en Supabase Dashboard → Settings → API → JWT Secret. Agregar en Dashboard → Edge Functions → Manage Secrets. Luego: `supabase functions deploy sync-privy-user` | w4rw1ck | RLS (B-51) | ⏳ |
+| 1 | Create new project in Supabase | w4rw1ck | Phase 1.2 | ✅ |
+| 2 | Create new App ID in Privy | w4rw1ck | Phase 1.8 | ⏳ |
+| 3 | Sensory-safe UI references (3-5 options) | Ana + Aibus | Phase 1.3 | ✅ |
+| 4 | Validate/adjust ASD color palette | Ana + Aibus | Phase 1.3 | ✅ |
+| 5 | Spanish translations: AQ Full (50q) + CAT-Q (25q) + RAADS-R (80q) | Ana + Aibus | Phase 1.8 | ⏳ |
+| 6 | Audio: guided voice + ambient tone (for grounding and breathing) | Ana + Aibus | Phase 1.7 | ⏳ |
+| 7 | Review/complete content for 5 social scripts | Ana + Aibus | Phase 1.6 | ✅ |
+| 8 | **Add `SUPABASE_JWT_SECRET` to Edge Functions env vars + redeploy `sync-privy-user`** — without this B-51 (RLS) won't activate even though the code is ready. Obtain in Supabase Dashboard → Settings → API → JWT Secret. Add in Dashboard → Edge Functions → Manage Secrets. Then: `supabase functions deploy sync-privy-user` | w4rw1ck | RLS (B-51) | ⏳ |
 
 ---
 
-## 📊 Progreso General
+## 📊 Overall Progress
 
-| Semana | Descripción | Estado | Completado |
+| Week | Description | Status | Completed |
 |---|---|---|---|
-| Pre-implementación | Documentación + audit de los 6 docs canónicos | ✅ | PR #3 listo para merge |
-| Semana 1 | MVP: Setup + Check-in + Scripts + Rescate + Auth | 🔄 | Código 8/8 fases completo · Verificación funcional pendiente (Privy setup — ver Bloqueador #2) |
-| Semana 2 | Historial + Diccionario + Personalización + Identidad Visual | ⏳ | Sprints 2.A (Fundación Visual) y 2.B (Pantallas) agregados |
-| Semana 3 | Red de Confianza + Notificaciones | ⏳ | — |
-| Semana 4 | IA + Vista Terapeuta | ⏳ | — |
-| Semana 5 | EAS Attestations + Polish + APK | ⏳ | — |
+| Pre-implementation | Documentation + audit of 6 canonical docs | ✅ | PR #3 ready to merge |
+| Week 1 | MVP: Setup + Check-in + Scripts + Rescue + Auth | 🔄 | Code 8/8 phases complete · Functional verification pending (Privy setup — see Blocker #2) |
+| Week 2 | History + Dictionary + Customization + Visual Identity | ⏳ | Sprints 2.A (Visual Foundation) and 2.B (Screens) added |
+| Week 3 | Trust Network + Notifications | ⏳ | — |
+| Week 4 | AI + Therapist View | ⏳ | — |
+| Week 5 | EAS Attestations + Polish + APK | ⏳ | — |
 
 ---
 
-## 📁 Documentación (Pre-implementación)
+## 📁 Documentation (Pre-implementation)
 
-| Doc | Versión | Estado | Cambios clave |
+| Doc | Version | Status | Key changes |
 |---|---|---|---|
-| `PRD.md` | v1.4 | ✅ | Tests movidos a Semana 1; offline clarificado; Settings timing corregido; tagline restaurada |
-| `APP_FLOW.md` | v1.3 | ✅ | Screen IDs S01–S24; Flujo 5 agregado; Nivel 1 crisis = multimodal (visual+voz+háptico) |
-| `TECH_STACK.md` | **v1.4** | ✅ | Inter → Atkinson Hyperlegible (T-U3); expo-symbols eliminado (B-07) |
-| `FRONTEND_GUIDELINES.md` | **v1.4** | ✅ | §1.4 color emocional; §2 Atkinson; §4 shadows+gradiente; §7 useReduceMotion; §12 Identidad Visual |
-| `BACKEND_STRUCTURE.md` | v1.3 | ✅ | RAADS-R domain counts corregidos; RLS policies completadas; tone-grounding-voice.mp3 agregado |
-| `IMPLEMENTATION_PLAN.md` | **v1.7** | ✅ | Semana 2 sprints 2.A/2.B identidad visual; T-U1 a T-V9 integrados en plan |
-| `REFERENCES.md` | v1.0 | ✅ | PMID AQ-10 corregido (22366774→22397989); fuentes clínicas + tests (AQ, CAT-Q, RAADS-R) |
+| `PRD.md` | v1.4 | ✅ | Tests moved to Week 1; offline clarified; Settings timing corrected; tagline restored |
+| `APP_FLOW.md` | v1.3 | ✅ | Screen IDs S01–S24; Flow 5 added; Level 1 crisis = multimodal (visual+voice+haptic) |
+| `TECH_STACK.md` | **v1.4** | ✅ | Inter → Atkinson Hyperlegible (T-U3); expo-symbols removed (B-07) |
+| `FRONTEND_GUIDELINES.md` | **v1.4** | ✅ | §1.4 emotional color; §2 Atkinson; §4 shadows+gradient; §7 useReduceMotion; §12 Visual Identity |
+| `BACKEND_STRUCTURE.md` | v1.3 | ✅ | RAADS-R domain counts corrected; RLS policies completed; tone-grounding-voice.mp3 added |
+| `IMPLEMENTATION_PLAN.md` | **v1.7** | ✅ | Week 2 sprints 2.A/2.B visual identity; T-U1 to T-V9 integrated into plan |
+| `REFERENCES.md` | v1.0 | ✅ | AQ-10 PMID corrected (22366774→22397989); clinical sources + tests (AQ, CAT-Q, RAADS-R) |
 
 ---
 
-## 🗓️ Semana 1 — MVP
+## 🗓️ Week 1 — MVP
 
-### Fase 1.1 — Setup del Proyecto ✅ COMPLETA
-| Paso | Descripción | Estado | Notas |
+### Phase 1.1 — Project Setup ✅ COMPLETE
+| Step | Description | Status | Notes |
 |---|---|---|---|
-| 1.1.1 | Crear proyecto Expo 55 con template | ✅ | |
-| 1.1.2 | Limpiar template innecesario | ✅ | Bug fix: imports de componentes borrados reparados (Ana) |
-| 1.1.3 | Instalar todas las dependencias (incl. expo-symbols) | ✅ | |
-| 1.1.4 | Configurar NativeWind (tailwind.config.js + babel.config.js) | ✅ | |
-| 1.1.5 | Configurar estructura de carpetas | ✅ | |
-| **Verificación** | `npx expo start` sin errores, Expo Go conecta | ✅ | Confirmado en dispositivo físico Android 2026-02-28 |
+| 1.1.1 | Create Expo 55 project with template | ✅ | |
+| 1.1.2 | Clean unnecessary template | ✅ | Bug fix: deleted component imports repaired (Ana) |
+| 1.1.3 | Install all dependencies (incl. expo-symbols) | ✅ | |
+| 1.1.4 | Configure NativeWind (tailwind.config.js + babel.config.js) | ✅ | |
+| 1.1.5 | Configure folder structure | ✅ | |
+| **Verification** | `npx expo start` without errors, Expo Go connects | ✅ | Confirmed on physical Android device 2026-02-28 |
 
-### Fase 1.2 — Configuración de Variables y Supabase ✅ COMPLETA
-| Paso | Descripción | Estado | Notas |
+### Phase 1.2 — Variable and Supabase Configuration ✅ COMPLETE
+| Step | Description | Status | Notes |
 |---|---|---|---|
-| 1.2.1 | Crear .env.local con variables | ✅ | |
-| 1.2.2 | Crear lib/supabase.ts | ✅ | |
-| 1.2.3 | Ejecutar SQL en Supabase (9 tablas) | ✅ | Bug: ERROR 42P17 en columnas GENERATED — ver tabla de bugs |
-| 1.2.4 | Activar auth por email en Supabase | ✅ | Ya habilitado por defecto en proyecto nuevo |
-| 1.2.5 | Ejecutar RLS policies | ✅ | |
-| 1.2.6 | Seed de 5 scripts predefinidos | ✅ | |
-| **Verificación** | 9 tablas visibles en Table Editor + 5 scripts en tabla `scripts` | ✅ | Confirmado en Supabase Dashboard 2026-03-01 |
+| 1.2.1 | Create .env.local with variables | ✅ | |
+| 1.2.2 | Create lib/supabase.ts | ✅ | |
+| 1.2.3 | Run SQL in Supabase (9 tables) | ✅ | Bug: ERROR 42P17 on GENERATED columns — see bug table |
+| 1.2.4 | Enable email auth in Supabase | ✅ | Already enabled by default in new project |
+| 1.2.5 | Run RLS policies | ✅ | |
+| 1.2.6 | Seed 5 predefined scripts | ✅ | |
+| **Verification** | 9 tables visible in Table Editor + 5 scripts in `scripts` table | ✅ | Confirmed in Supabase Dashboard 2026-03-01 |
 
-### Fase 1.3 — Sistema de Temas y Componentes Base ✅ COMPLETA
-| Paso | Descripción | Estado | Notas |
+### Phase 1.3 — Theme System and Base Components ✅ COMPLETE
+| Step | Description | Status | Notes |
 |---|---|---|---|
-| 1.3.1 | constants/colors.ts (tokens light + dark) | ✅ | |
+| 1.3.1 | constants/colors.ts (light + dark tokens) | ✅ | |
 | 1.3.2 | constants/typography.ts | ✅ | |
 | 1.3.3 | constants/spacing.ts | ✅ | |
 | 1.3.4 | hooks/useTheme.ts | ✅ | |
 | 1.3.5a | components/ui/Button.tsx | ✅ | |
 | 1.3.5b | components/ui/Card.tsx | ✅ | |
-| 1.3.5c | components/ui/TextInput.tsx | ✅ | Bugs B-02 y B-03 corregidos en audit (Ana) |
+| 1.3.5c | components/ui/TextInput.tsx | ✅ | Bugs B-02 and B-03 fixed in audit (Ana) |
 | 1.3.5d | components/ui/Chip.tsx | ✅ | |
 | 1.3.5e | components/ui/Typography.tsx | ✅ | |
 | 1.3.6 | components/ui/SafeScreen.tsx | ✅ | |
-| **+Extra** | components/ui/index.ts (barrel export) | ✅ | Agregado en audit |
-| **Verificación** | Componentes renderizados en claro y oscuro | ✅ | Pendiente confirmar en dispositivo — fuentes Inter cargando |
+| **+Extra** | components/ui/index.ts (barrel export) | ✅ | Added in audit |
+| **Verification** | Components rendered in light and dark mode | ✅ | Pending device confirmation — Inter fonts loading |
 
-### Fase 1.4 — Bottom Navigation y Layout ✅ COMPLETA
-| Paso | Descripción | Estado | Notas |
+### Phase 1.4 — Bottom Navigation and Layout ✅ COMPLETE
+| Step | Description | Status | Notes |
 |---|---|---|---|
-| 1.4.1 | app/(app)/_layout.tsx con Tab Navigator | ✅ | Ionicons, colores tokens, height 64px |
-| 1.4.2 | 5 tabs con íconos (Ionicons) | ✅ | Placeholders con SafeScreen/Typography; (tabs) eliminado |
-| 1.4.3 | Botón de Rescate flotante (FAB) → /rescue/assess | ✅ | RescueFAB circular 56px, color crisis-soft, bottom:84px |
-| 1.4.4 | app/(app)/home.tsx (S09) básico | ✅ | CTA check-in, accesos rápidos, estado vacío último check-in |
-| **Verificación** | Navegación entre tabs + FAB navega a /rescue/assess | ✅ | Confirmado en dispositivo físico Android 2026-03-02 (post fix metro.config.js) |
+| 1.4.1 | app/(app)/_layout.tsx with Tab Navigator | ✅ | Ionicons, token colors, height 64px |
+| 1.4.2 | 5 tabs with icons (Ionicons) | ✅ | Placeholders with SafeScreen/Typography; (tabs) removed |
+| 1.4.3 | Floating Rescue Button (FAB) → /rescue/assess | ✅ | RescueFAB circular 56px, crisis-soft color, bottom:84px |
+| 1.4.4 | app/(app)/home.tsx (S09) basic | ✅ | Check-in CTA, quick access, empty state last check-in |
+| **Verification** | Navigation between tabs + FAB navigates to /rescue/assess | ✅ | Confirmed on physical Android device 2026-03-02 (post metro.config.js fix) |
 
-### Fase 1.5 — Check-in Corporal (Feature Core #1) ✅ COMPLETA
-| Paso | Descripción | Estado | Notas |
+### Phase 1.5 — Body Check-in (Core Feature #1) ✅ COMPLETE
+| Step | Description | Status | Notes |
 |---|---|---|---|
-| 1.5.1 | components/body-map/BodyMap.tsx (SVG 6 zonas) | ✅ | Commit `2b4059a` |
-| 1.5.2 | app/(app)/checkin/body.tsx **(S10)** | ✅ | Commit `b19603a` — index.tsx redirige aquí |
+| 1.5.1 | components/body-map/BodyMap.tsx (SVG 6 zones) | ✅ | Commit `2b4059a` |
+| 1.5.2 | app/(app)/checkin/body.tsx **(S10)** | ✅ | Commit `b19603a` — index.tsx redirects here |
 | 1.5.3 | app/(app)/checkin/notes.tsx **(S11)** | ✅ | Commit `1d377a1` |
-| 1.5.4 | app/(app)/checkin/reflect.tsx **(S12)** | ✅ | Commit `2c5b198` — mock IA (TODO: reemplazar con edge fn real en 1.5.6) |
-| 1.5.5 | app/(app)/checkin/result.tsx **(S13)** | ✅ | Commit `7160977` — INSERT falla silenciosamente sin auth (esperado) |
-| 1.5.6 | Supabase Edge Function: interpret-checkin | ✅ | Commit `8657889` — GPT-4o-mini, OPENAI_API_KEY solo en Supabase env |
-| **Verificación** | Check-in completo S10→S11→S12→S13, dato guardado en Supabase | ✅ | Verificado en dispositivo físico Android (Expo Go) por w4rw1ck — 2026-03-02. Sin auth: INSERT falla silenciosamente (esperado). |
+| 1.5.4 | app/(app)/checkin/reflect.tsx **(S12)** | ✅ | Commit `2c5b198` — mock AI (TODO: replace with real edge fn in 1.5.6) |
+| 1.5.5 | app/(app)/checkin/result.tsx **(S13)** | ✅ | Commit `7160977` — INSERT fails silently without auth (expected) |
+| 1.5.6 | Supabase Edge Function: interpret-checkin | ✅ | Commit `8657889` — GPT-4o-mini, OPENAI_API_KEY only in Supabase env |
+| **Verification** | Full check-in S10→S11→S12→S13, data saved in Supabase | ✅ | Verified on physical Android device (Expo Go) by w4rw1ck — 2026-03-02. Without auth: INSERT fails silently (expected). |
 
-### Fase 1.6 — Scripts Sociales (Feature Core #2) ✅ COMPLETA
-| Paso | Descripción | Estado | Notas |
+### Phase 1.6 — Social Scripts (Core Feature #2) ✅ COMPLETE
+| Step | Description | Status | Notes |
 |---|---|---|---|
-| 1.6.1 | app/(app)/scripts/index.tsx **(S14)** | ✅ | Commit `583cf7d` — fetch Supabase, chips categoría, cards táctiles |
-| 1.6.2 | app/(app)/scripts/[id].tsx **(S15)** — Detalle | ✅ | Commit `46d88bf` — vista previa bloques, CTA ejecutar |
-| 1.6.3 | app/(app)/scripts/execute.tsx **(S16)** — Ejecución | ✅ | Commit `064a6fc` — paso a paso, barra progreso, opciones, celebración |
-| **Verificación** | 5 scripts navegables y ejecutables | ⏳ | Pendiente prueba en dispositivo (w4rw1ck) |
+| 1.6.1 | app/(app)/scripts/index.tsx **(S14)** | ✅ | Commit `583cf7d` — Supabase fetch, category chips, tactile cards |
+| 1.6.2 | app/(app)/scripts/[id].tsx **(S15)** — Detail | ✅ | Commit `46d88bf` — block preview, execute CTA |
+| 1.6.3 | app/(app)/scripts/execute.tsx **(S16)** — Execution | ✅ | Commit `064a6fc` — step by step, progress bar, options, celebration |
+| **Verification** | 5 scripts navigable and executable | ⏳ | Pending device test (w4rw1ck) |
 
-### Fase 1.7 — Botón de Rescate (Feature Core #3) ✅ COMPLETA
-| Paso | Descripción | Estado | Notas |
+### Phase 1.7 — Rescue Button (Core Feature #3) ✅ COMPLETE
+| Step | Description | Status | Notes |
 |---|---|---|---|
-| 1.7.1 | app/(app)/rescue/assess.tsx **(S17)** | ✅ | Commit `3687e29` — §11 completo, 3 niveles, StyleSheet crítico |
-| 1.7.2 | app/(app)/rescue/protocol.tsx **(S18)** — niveles 1/2/3 | ✅ | Commit `ecea6f2` — grounding+háptico, círculo Reanimated, SAPTEL |
-| **Verificación** | Protocolo completo (1, 2, 3) | ✅ | Verificado en dispositivo físico Android por w4rw1ck — 2026-03-05. Bugs B-11 a B-14 encontrados y corregidos. Audio pendiente (assets/audio/) |
+| 1.7.1 | app/(app)/rescue/assess.tsx **(S17)** | ✅ | Commit `3687e29` — §11 complete, 3 levels, critical StyleSheet |
+| 1.7.2 | app/(app)/rescue/protocol.tsx **(S18)** — levels 1/2/3 | ✅ | Commit `ecea6f2` — grounding+haptic, Reanimated circle, SAPTEL |
+| **Verification** | Full protocol (1, 2, 3) | ✅ | Verified on physical Android device by w4rw1ck — 2026-03-05. Bugs B-11 to B-14 found and fixed. Audio pending (assets/audio/) |
 
-### Fase 1.8 — Auth Básico + Onboarding Completo ✅ CÓDIGO COMPLETO
-| Paso | Descripción | Estado | Notas |
+### Phase 1.8 — Basic Auth + Complete Onboarding ✅ CODE COMPLETE
+| Step | Description | Status | Notes |
 |---|---|---|---|
-| 1.8.1 | PrivyProvider en app/_layout.tsx | ✅ | AuthGate integrado |
-| 1.8.2 | app/auth.tsx **(S24)** (email + Google) | ✅ | B-15/B-16 corregidos |
-| 1.8.3 | Edge Function: sync-privy-user | ✅ | CORS incluido (B-17) |
-| 1.8.4 | Redirect lógica post-auth | ✅ | AuthGate en _layout.tsx |
-| 1.8.5 | app/(onboarding)/index.tsx **(S01 Welcome)** | ✅ | Tagline + "Necesito ayuda ahora" → S17 |
-| 1.8.6 | app/(onboarding)/aq10.tsx **(S02)** — 10 preguntas, 1 por pantalla | ✅ | scoreOnAgree por pregunta |
-| 1.8.7 | app/(onboarding)/aq10-result.tsx **(S03)** — Score + decisión | ✅ | Sin palabras "positivo/negativo" |
-| 1.8.8 | Componente reutilizable TestScreen | ✅ | Selección por índice, pausa con SecureStore |
-| 1.8.9 | app/(onboarding)/aq-full.tsx **(S04)** — AQ 50 preguntas | ✅ | scoreOnAgree por pregunta (M-03 aprendizaje) |
-| 1.8.10 | app/(onboarding)/catq.tsx **(S05)** — 25 preguntas, escala 1-7 | ✅ | |
-| 1.8.11 | app/(onboarding)/raads.tsx **(S06)** — 80 preguntas, con pausa | ✅ | |
-| 1.8.12 | lib/profile-seed.ts — sintetiza scores en perfil semilla | ✅ | Runtime-only, no persiste en Supabase |
-| 1.8.13 | app/(onboarding)/profile.tsx **(S07)** — Cuestionario personal | ✅ | Guard para supabaseUserId null (B-19) |
-| 1.8.14 | app/(onboarding)/contacts.tsx **(S08)** — Setup contactos | ✅ | Usa "relationship" (schema correcto) |
-| **Verificación** | Flujo completo S01→S02→S03→S07→S08→S24→S09. Email login funciona. Profile en Supabase. | ❌ | Bloqueado por B-13 — Privy App ID pendiente de w4rw1ck |
+| 1.8.1 | PrivyProvider in app/_layout.tsx | ✅ | AuthGate integrated |
+| 1.8.2 | app/auth.tsx **(S24)** (email + Google) | ✅ | B-15/B-16 fixed |
+| 1.8.3 | Edge Function: sync-privy-user | ✅ | CORS included (B-17) |
+| 1.8.4 | Post-auth redirect logic | ✅ | AuthGate in _layout.tsx |
+| 1.8.5 | app/(onboarding)/index.tsx **(S01 Welcome)** | ✅ | Tagline + "I need help now" → S17 |
+| 1.8.6 | app/(onboarding)/aq10.tsx **(S02)** — 10 questions, 1 per screen | ✅ | scoreOnAgree per question |
+| 1.8.7 | app/(onboarding)/aq10-result.tsx **(S03)** — Score + decision | ✅ | No "positive/negative" wording |
+| 1.8.8 | Reusable TestScreen component | ✅ | Selection by index, pause with SecureStore |
+| 1.8.9 | app/(onboarding)/aq-full.tsx **(S04)** — AQ 50 questions | ✅ | scoreOnAgree per question (M-03 learning) |
+| 1.8.10 | app/(onboarding)/catq.tsx **(S05)** — 25 questions, scale 1-7 | ✅ | |
+| 1.8.11 | app/(onboarding)/raads.tsx **(S06)** — 80 questions, with pause | ✅ | |
+| 1.8.12 | lib/profile-seed.ts — synthesizes scores into seed profile | ✅ | Runtime-only, not persisted in Supabase |
+| 1.8.13 | app/(onboarding)/profile.tsx **(S07)** — Personal questionnaire | ✅ | Guard for null supabaseUserId (B-19) |
+| 1.8.14 | app/(onboarding)/contacts.tsx **(S08)** — Contact setup | ✅ | Uses "relationship" (correct schema) |
+| **Verification** | Full flow S01→S02→S03→S07→S08→S24→S09. Email login works. Profile in Supabase. | ❌ | Blocked by B-13 — Privy App ID pending from w4rw1ck |
 
 ---
 
-## 🔴 Tickets Críticos — Antes de Usuarios Reales
+## 🔴 Critical Tickets — Before Real Users
 
-> Identificados en auditoría clínica de Aibus Dumbleclaw (2026-03-06, commit base `fdcadd2`).
-> Estos items NO son opcionales. Deben resolverse antes de compartir la app con cualquier usuario real.
+> Identified in clinical audit by Aibus Dumbleclaw (2026-03-06, base commit `fdcadd2`).
+> These items are NOT optional. They must be resolved before sharing the app with any real user.
 
-| Ticket | Descripción | Severidad | Responsable | Estado |
+| Ticket | Description | Severity | Owner | Status |
 |---|---|---|---|---|
-| T-C1 | **Safety screening de ideación suicida en S17** — `assess.tsx` debe incluir una pregunta de screening ("¿Estás teniendo pensamientos de hacerte daño?") con flujo diferenciado. Si la respuesta es sí: mostrar directamente Línea de la Vida (México: 800 911-2000, 24h gratuita), sin pasar por los 3 niveles estándar. Fundamento: Cassidy et al. (2018) — 66% adultos con ASD reportan ideación suicida; Hirvikoski et al. (2016) — mortalidad por suicidio 9x mayor en ASD | 🔴 Crítico | Ana | ✅ `88c7b5e` |
-| T-C2 | **Safety filter en output de GPT-4o-mini** — Edge Function `interpret-checkin/index.ts` debe post-procesar las opciones de emoción antes de enviarlas al cliente. Si algún label cae en categorías de alerta (desesperanza, vacío, no querer estar aquí, etc.), el response debe incluir `crisis_flag: true` y la app escalar a flujo de rescate en lugar de continuar el check-in normal | 🔴 Crítico | Aibus | ✅ `aaaa6a7` |
-| T-C3 | **Pantalla de consentimiento informado en onboarding** — Nueva pantalla antes de S02 (o como overlay en S01) que explique con lenguaje simple: qué datos se procesan, para qué, que Script no es un dispositivo médico, y que no reemplaza atención profesional. Requisito: LFPDPPP México (Ley Federal de Protección de Datos Personales). Consentimiento debe ser explícito (botón "Entiendo y acepto") antes de empezar cualquier test | 🔴 Crítico | Ana | ✅ `6e300b6` |
-| T-U1 | **`useReduceMotion()` en todos los componentes de animación** — `prefers-reduced-motion` del OS no está implementado. Afecta `protocol.tsx` (breathing circle), `body.tsx` (body map selection), y cualquier animación Reanimated. Para ASD con sensibilidad sensorial esto no es opcional. Patrón: `const shouldReduce = useReduceMotion(); if (shouldReduce) → skip animation`. Ref: FRONTEND_GUIDELINES.md §7 | 🔴 Crítico | Ana | ✅ `b350f0a` |
-| T-U2 | **Error feedback visible cuando Edge Function falla en `reflect.tsx`** — El fallback silencioso a mock cuando GPT-4o-mini no responde no notifica al usuario. En contexto clínico, el usuario debe saber si la interpretación es aproximada o falló. Agregar texto visible (no solo console.warn) cuando `interpret-checkin` retorna error/timeout | 🔴 Crítico | Aibus | ✅ `ef16c22` |
+| T-C1 | **Suicidal ideation safety screening in S17** — `assess.tsx` must include a screening question ("Are you having thoughts of hurting yourself?") with a differentiated flow. If the answer is yes: show Línea de la Vida directly (México: 800 911-2000, 24h free), bypassing the 3 standard levels. Rationale: Cassidy et al. (2018) — 66% of adults with ASD report suicidal ideation; Hirvikoski et al. (2016) — suicide mortality 9x higher in ASD | 🔴 Critical | Ana | ✅ `88c7b5e` |
+| T-C2 | **Safety filter on GPT-4o-mini output** — Edge Function `interpret-checkin/index.ts` must post-process emotion options before sending them to the client. If any label falls into alert categories (hopelessness, emptiness, not wanting to be here, etc.), the response must include `crisis_flag: true` and the app must escalate to rescue flow instead of continuing the normal check-in | 🔴 Critical | Aibus | ✅ `aaaa6a7` |
+| T-C3 | **Informed consent screen in onboarding** — New screen before S02 (or as overlay in S01) that explains in plain language: what data is processed, what for, that Script is not a medical device, and that it does not replace professional care. Requirement: LFPDPPP México (Federal Law on Protection of Personal Data). Consent must be explicit (button "I understand and accept") before starting any test | 🔴 Critical | Ana | ✅ `6e300b6` |
+| T-U1 | **`useReduceMotion()` in all animation components** — OS `prefers-reduced-motion` is not implemented. Affects `protocol.tsx` (breathing circle), `body.tsx` (body map selection), and any Reanimated animation. For ASD with sensory sensitivity this is not optional. Pattern: `const shouldReduce = useReduceMotion(); if (shouldReduce) → skip animation`. Ref: FRONTEND_GUIDELINES.md §7 | 🔴 Critical | Ana | ✅ `b350f0a` |
+| T-U2 | **Visible error feedback when Edge Function fails in `reflect.tsx`** — The silent fallback to mock when GPT-4o-mini doesn't respond does not notify the user. In a clinical context, the user must know if the interpretation is approximate or failed. Add visible text (not just console.warn) when `interpret-checkin` returns error/timeout | 🔴 Critical | Aibus | ✅ `ef16c22` |
 
 ---
 
-## 🗓️ Semana 2 — Historial, Diccionario y Personalización
+## 🗓️ Week 2 — History, Dictionary and Customization
 
-| Paso | Descripción | Estado | Notas |
+| Step | Description | Status | Notes |
 |---|---|---|---|
-| 2.1 | Settings → "Completar mi perfil" (S04, S05, S06 desde Settings) | ⏳ | S04-S06 ya existen; agregar entry point |
+| 2.1 | Settings → "Complete my profile" (S04, S05, S06 from Settings) | ⏳ | S04-S06 already exist; add entry point |
 | 2.2 | app/(app)/history.tsx **(S19)** | ⏳ | |
 | 2.3 | app/(app)/dictionary.tsx **(S20)** | ⏳ | |
-| 2.4 | app/(app)/settings/index.tsx **(S21)** — tema + paleta | ⏳ | |
-| 2.5 | "Insights desbloqueados" (3, 7, 15 check-ins) | ⏳ | |
-| 2.6 | **Persistencia de progreso en script** (S16) | ⏳ | Si el usuario sale a mitad de un script y vuelve, actualmente reinicia desde el bloque 1. Opciones: (a) Zustand en memoria (persiste mientras la app no se cierra); (b) tabla `script_sessions` en Supabase para persistencia entre cierres. MVP usa (a) — decidir en sprint de Semana 2 |
-| 2.7 | **Persistir scores de tests en Supabase inmediatamente** | ⏳ | `profile-seed.ts` es runtime-only — si el usuario cierra la app post-onboarding, pierde los resultados del AQ/CAT-Q/RAADS-R. Fix: INSERT en `profiles` al completar cada test individual, no al final del onboarding. Impacto: pérdida de 30 min de trabajo del usuario (Aibus) |
-| 2.8 | **INSERT `crisis_events` en `protocol.tsx`** | ⏳ | La tabla `crisis_events` existe en el schema pero nunca se escribe. Registrar: `user_id`, `level` (1/2/3), `started_at`, `completed_at`, `resolved` (boolean). Datos críticos para el módulo de terapeuta en Semana 4 (Ana) |
-| 2.9 | **Reducir temperatura GPT 0.7 → 0.4 en `interpret-checkin`** | ⏳ | Temperatura alta en contexto clínico produce outputs inconsistentes. 0.4 da más determinismo sin perder variedad. Menor que 0.3 puede ser demasiado rígido (Aibus) |
-| 2.10 | **INSERT `script_executions` en `execute.tsx`** | ⏳ | La tabla `script_executions` existe en el schema pero `execute.tsx` no hace INSERT. Registrar: `script_id`, `user_id`, `options_chosen` (JSONB), `completed` (boolean), `executed_at`. Input para historial S19 y terapeuta S23 (Ana) |
-| 2.11 | **Corregir PMID del AQ-10 en `REFERENCES.md`** | ✅ | PMID `22366774` → `22397989` (Allison et al., 2012, Arch Dis Child). Commit `1116147`. (Ana) |
-| 2.12 | **UI feedback cuando guardado de perfil falla en `profile.tsx`** | ⏳ | El guard `if (!supabaseUserId)` solo hace `console.warn` — el usuario no sabe si su perfil no se guardó. Agregar Alert o Toast visible con opción de reintentar (Aibus) |
+| 2.4 | app/(app)/settings/index.tsx **(S21)** — theme + palette | ⏳ | |
+| 2.5 | "Unlocked insights" (3, 7, 15 check-ins) | ⏳ | |
+| 2.6 | **Script progress persistence** (S16) | ⏳ | If user exits mid-script and returns, currently restarts from block 1. Options: (a) Zustand in memory (persists while app is not closed); (b) `script_sessions` table in Supabase for persistence across closes. MVP uses (a) — decide in Week 2 sprint |
+| 2.7 | **Persist test scores in Supabase immediately** | ⏳ | `profile-seed.ts` is runtime-only — if user closes the app post-onboarding, AQ/CAT-Q/RAADS-R results are lost. Fix: INSERT into `profiles` when each individual test is completed, not at the end of onboarding. Impact: loss of 30 min of user work (Aibus) |
+| 2.8 | **INSERT `crisis_events` in `protocol.tsx`** | ⏳ | The `crisis_events` table exists in the schema but is never written to. Record: `user_id`, `level` (1/2/3), `started_at`, `completed_at`, `resolved` (boolean). Critical data for the therapist module in Week 4 (Ana) |
+| 2.9 | **Reduce GPT temperature 0.7 → 0.4 in `interpret-checkin`** | ⏳ | High temperature in a clinical context produces inconsistent outputs. 0.4 gives more determinism without losing variety. Below 0.3 may be too rigid (Aibus) |
+| 2.10 | **INSERT `script_executions` in `execute.tsx`** | ⏳ | The `script_executions` table exists in the schema but `execute.tsx` does not INSERT. Record: `script_id`, `user_id`, `options_chosen` (JSONB), `completed` (boolean), `executed_at`. Input for history S19 and therapist S23 (Ana) |
+| 2.11 | **Fix AQ-10 PMID in `REFERENCES.md`** | ✅ | PMID `22366774` → `22397989` (Allison et al., 2012, Arch Dis Child). Commit `1116147`. (Ana) |
+| 2.12 | **UI feedback when profile save fails in `profile.tsx`** | ⏳ | The guard `if (!supabaseUserId)` only does `console.warn` — the user doesn't know if their profile wasn't saved. Add visible Alert or Toast with retry option (Aibus) |
 
 ---
 
-## 🎨 Tickets UI/UX + Identidad Visual — Semana 2
+## 🎨 UI/UX Tickets + Visual Identity — Week 2
 
-> Fuentes: Auditoría `nextlevelbuilder/ui-ux-pro-max-skill` + análisis de identidad visual (Aibus, 2026-03-06). Revisado y aprobado por Ana.
+> Sources: `nextlevelbuilder/ui-ux-pro-max-skill` audit + visual identity analysis (Aibus, 2026-03-06). Reviewed and approved by Ana.
 > **Cross-ref:** FRONTEND_GUIDELINES.md §7/§1.4/§4/§12, IMPLEMENTATION_PLAN.md sprints 2.A/2.B.
-> ℹ️ T-U1/T-U2 están en la sección **Críticos** arriba. T-U7/T-U8/T-V9 están en las secciones de **Semana 3 y 4** abajo.
+> ℹ️ T-U1/T-U2 are in the **Critical** section above. T-U7/T-U8/T-V9 are in the **Week 3 and 4** sections below.
 
-### 🟡 Semana 2 — UX (Sprint 2.B)
+### 🟡 Week 2 — UX (Sprint 2.B)
 
-| Ticket | Descripción | Responsable | Estado |
+| Ticket | Description | Owner | Status |
 |---|---|---|---|
-| T-U3 | **Atkinson Hyperlegible reemplaza Inter** — Fuente diseñada con investigación empírica de accesibilidad. Cada carácter es distinguible. Para ASD con posible dislexia o procesamiento visual atípico. Instalar `@expo-google-fonts/atkinson-hyperlegible`, actualizar `_layout.tsx` y `constants/typography.ts`. Solo Regular y Bold (no SemiBold — headings migran a Bold). Ref: FRONTEND_GUIDELINES.md §2 | **Aibus** | ⏳ |
-| T-U4 | **Tokens `script-accent` (#10B981) y `script-warning` (#F59E0B) en `tailwind.config.js`** — Faltan colores de confirmación/éxito y alerta suave. `script-accent` para completados y estados positivos. `script-warning` para alertas no-crisis. Ref: FRONTEND_GUIDELINES.md §1.2.1 | **Ana** | ⏳ |
-| T-U5 | **Confirmación antes de notificación Level 3 en `protocol.tsx`** — Si hay auto-envío a red de confianza sin confirmación del usuario, puede generar falsos positivos. Agregar `Alert.alert("¿Confirmar notificación?", ...)` antes del envío. Ref: UX Guideline #35 Confirmation Dialogs | **Ana** | ⏳ |
-| T-U6 | **Audit de contraste `text-script-text-secondary` (WCAG AA)** — `#6B6B6B` sobre `#F8F6F2` ≈ 4.2:1 (ligeramente bajo WCAG AA 4.5:1). Verificar todas las combinaciones críticas. Si falla, oscurecer ligeramente a `#606060`. Ref: FRONTEND_GUIDELINES.md §10 | **Ana** | ⏳ |
+| T-U3 | **Atkinson Hyperlegible replaces Inter** — Font designed with empirical accessibility research. Each character is distinguishable. For ASD with possible dyslexia or atypical visual processing. Install `@expo-google-fonts/atkinson-hyperlegible`, update `_layout.tsx` and `constants/typography.ts`. Regular and Bold only (no SemiBold — headings migrate to Bold). Ref: FRONTEND_GUIDELINES.md §2 | **Aibus** | ⏳ |
+| T-U4 | **Tokens `script-accent` (#10B981) and `script-warning` (#F59E0B) in `tailwind.config.js`** — Missing confirmation/success and soft alert colors. `script-accent` for completed states and positive states. `script-warning` for non-crisis alerts. Ref: FRONTEND_GUIDELINES.md §1.2.1 | **Ana** | ⏳ |
+| T-U5 | **Confirmation before Level 3 notification in `protocol.tsx`** — If there is auto-sending to trust network without user confirmation, it may generate false positives. Add `Alert.alert("Confirm notification?", ...)` before sending. Ref: UX Guideline #35 Confirmation Dialogs | **Ana** | ⏳ |
+| T-U6 | **Contrast audit `text-script-text-secondary` (WCAG AA)** — `#6B6B6B` on `#F8F6F2` ≈ 4.2:1 (slightly below WCAG AA 4.5:1). Verify all critical combinations. If it fails, darken slightly to `#606060`. Ref: FRONTEND_GUIDELINES.md §10 | **Ana** | ⏳ |
 
-### 🟡 Semana 2 — Identidad Visual (Sprint 2.A + 2.B)
+### 🟡 Week 2 — Visual Identity (Sprint 2.A + 2.B)
 
-| Ticket | Descripción | Responsable | Estado |
+| Ticket | Description | Owner | Status |
 |---|---|---|---|
-| T-V1 | **Sistema de color emocional en `constants/colors.ts`** — 7 emociones con `{ bg, dot, text }`. Crear archivo `constants/colors.ts` con `EmotionColors` y `EmotionKey`. Mapeo de labels GPT → EmotionKey. Ref: FRONTEND_GUIDELINES.md §1.4 | **Ana** | ⏳ |
-| T-V2 | **Sombras de doble capa en `tailwind.config.js`** — Agregar `shadow-card`, `shadow-card-elevated`, `shadow-card-pressed`, `shadow-card-dark`. Actualizar `Card.tsx` para usar `shadow-card` por default. Ref: FRONTEND_GUIDELINES.md §4 | **Aibus** | ⏳ |
-| T-V3 | **Emotion cards en `reflect.tsx`** — Card seleccionado adopta `EmotionColors[key].bg` como fondo, `dot` como borde 1.5px y círculo acento 8px. Press animation scale 0.97→1.0 (100ms). Requiere T-V1. Ref: FRONTEND_GUIDELINES.md §12.2 | **Ana** | ⏳ |
-| T-V4 | **`result.tsx` con fondo del color de emoción** — La pantalla de resultado del check-in (S13) adopta `EmotionColors[key].bg` como fondo full-screen. Transición fade 300ms desde el color del card anterior. Es la pantalla más importante emocionalmente. Requiere T-V1. Ref: FRONTEND_GUIDELINES.md §12.2 | **Ana** | ⏳ |
-| T-V5 | **Home S09 redesign — inspirado en Finch** — Layout: saludo + hora del día, card "última emoción" con color emocional, mini historial 7 días (dots emocionales), botón CTA "Iniciar check-in", tiles de scripts rápidos. Requiere T-V1. Ref: FRONTEND_GUIDELINES.md §0 (tabla) + §12.2 | **Ana** | ⏳ |
-| T-V6 | **Gradiente mono-azul en botón primario** — Gradiente 135° de `#A8C5DA → #8BAEC4`. Profundidad visual sin introducir nuevos hues. Actualizar `Button.tsx` variant="primary". Ref: FRONTEND_GUIDELINES.md §4 | **Aibus** | ⏳ |
-| T-V7 | **Normalización de labels GPT en Edge Function `interpret-checkin`** — Garantizar que el output del modelo sea siempre uno de los 8 labels canónicos (ver FRONTEND_GUIDELINES.md §1.4). Post-process con mapping antes de retornar al cliente. Sin esta normalización, el emotion color system falla silenciosamente | **Aibus** | ⏳ |
+| T-V1 | **Emotional color system in `constants/colors.ts`** — 7 emotions with `{ bg, dot, text }`. Create file `constants/colors.ts` with `EmotionColors` and `EmotionKey`. GPT label → EmotionKey mapping. Ref: FRONTEND_GUIDELINES.md §1.4 | **Ana** | ⏳ |
+| T-V2 | **Double-layer shadows in `tailwind.config.js`** — Add `shadow-card`, `shadow-card-elevated`, `shadow-card-pressed`, `shadow-card-dark`. Update `Card.tsx` to use `shadow-card` by default. Ref: FRONTEND_GUIDELINES.md §4 | **Aibus** | ⏳ |
+| T-V3 | **Emotion cards in `reflect.tsx`** — Selected card adopts `EmotionColors[key].bg` as background, `dot` as 1.5px border and 8px accent circle. Press animation scale 0.97→1.0 (100ms). Requires T-V1. Ref: FRONTEND_GUIDELINES.md §12.2 | **Ana** | ⏳ |
+| T-V4 | **`result.tsx` with emotional color background** — The check-in result screen (S13) adopts `EmotionColors[key].bg` as full-screen background. 300ms fade transition from the previous card color. This is the most emotionally significant screen. Requires T-V1. Ref: FRONTEND_GUIDELINES.md §12.2 | **Ana** | ⏳ |
+| T-V5 | **Home S09 redesign — inspired by Finch** — Layout: greeting + time of day, "last emotion" card with emotional color, 7-day mini history (emotional dots), "Start check-in" CTA button, quick script tiles. Requires T-V1. Ref: FRONTEND_GUIDELINES.md §0 (table) + §12.2 | **Ana** | ⏳ |
+| T-V6 | **Mono-blue gradient on primary button** — 135° gradient from `#A8C5DA → #8BAEC4`. Visual depth without introducing new hues. Update `Button.tsx` variant="primary". Ref: FRONTEND_GUIDELINES.md §4 | **Aibus** | ⏳ |
+| T-V7 | **GPT label normalization in Edge Function `interpret-checkin`** — Ensure model output is always one of the 8 canonical labels (see FRONTEND_GUIDELINES.md §1.4). Post-process with mapping before returning to client. Without this normalization, the emotion color system fails silently | **Aibus** | ⏳ |
 
 ---
 
-## 🗓️ Semana 3 — Red de Confianza + Notificaciones
+## 🗓️ Week 3 — Trust Network + Notifications
 
-> Ver IMPLEMENTATION_PLAN.md §Semana 3 para el plan de features completo. Esta tabla incluye: features principales, deuda técnica de auditoría clínica y tickets de UX polish.
+> See IMPLEMENTATION_PLAN.md §Week 3 for the full feature plan. This table includes: main features, clinical audit technical debt, and UX polish tickets.
 
-| Paso | Descripción | Estado | Notas |
+| Step | Description | Status | Notes |
 |---|---|---|---|
-| 3.1 | Gestión completa de contactos de confianza (S22) | ⏳ | CRUD + permisos por contacto. Ver IMPLEMENTATION_PLAN.md §3.1 |
-| 3.2 | Sistema de notificaciones completo | ⏳ | Expo Push + notificaciones locales. Ver IMPLEMENTATION_PLAN.md §3.2 |
-| 3.3 | Telegram Bot para personas de confianza | ⏳ | Ver IMPLEMENTATION_PLAN.md §3.3 |
-| 3.4 | Respuesta bilateral en crisis | ⏳ | Contacto puede responder notificación push. Ver IMPLEMENTATION_PLAN.md §3.4 |
-| 3.5 | SMS fallback offline | ⏳ | expo-sms para cuando no hay conexión. Ver IMPLEMENTATION_PLAN.md §3.5 |
-| T-3.1 | **Rate limiting en `interpret-checkin`** | ⏳ | Límite por `user_id` vía `rate_limits` en Supabase o Upstash Redis. 10 llamadas/hora MVP (Aibus) |
-| T-3.2 | **Logging de outputs de IA** | ⏳ | `ai_logs` table: `user_id`, `input_hash` (no raw — privacidad), `output`, `timestamp`, `flagged` (Aibus) |
-| T-U7 | **Active/pressed state en emotion cards** — feedback visual inmediato al presionar (antes de selección). UX Guideline #30 | **Ana** | ⏳ |
-| T-U8 | **Focus rings audit en `Card` y `Pressable`** — `focus:ring-2` visible en todos los elementos interactivos. UX Guideline #28 | **Aibus** | ⏳ |
-| T-V8 | **Calendario S19 Year in Pixels** — dots 36x36px con `EmotionColors[key].dot`. Tap → bottom sheet. Requiere T-V1 (ya en Semana 2) | **Aibus** | ⏳ |
+| 3.1 | Full trusted contact management (S22) | ⏳ | CRUD + permissions per contact. See IMPLEMENTATION_PLAN.md §3.1 |
+| 3.2 | Full notifications system | ⏳ | Expo Push + local notifications. See IMPLEMENTATION_PLAN.md §3.2 |
+| 3.3 | Telegram Bot for trusted persons | ⏳ | See IMPLEMENTATION_PLAN.md §3.3 |
+| 3.4 | Bilateral response in crisis | ⏳ | Contact can respond to push notification. See IMPLEMENTATION_PLAN.md §3.4 |
+| 3.5 | SMS offline fallback | ⏳ | expo-sms for when there is no connection. See IMPLEMENTATION_PLAN.md §3.5 |
+| T-3.1 | **Rate limiting in `interpret-checkin`** | ⏳ | Per `user_id` limit via `rate_limits` in Supabase or Upstash Redis. 10 calls/hour MVP (Aibus) |
+| T-3.2 | **AI output logging** | ⏳ | `ai_logs` table: `user_id`, `input_hash` (not raw — privacy), `output`, `timestamp`, `flagged` (Aibus) |
+| T-U7 | **Active/pressed state on emotion cards** — immediate visual feedback on press (before selection). UX Guideline #30 | **Ana** | ⏳ |
+| T-U8 | **Focus rings audit on `Card` and `Pressable`** — `focus:ring-2` visible on all interactive elements. UX Guideline #28 | **Aibus** | ⏳ |
+| T-V8 | **S19 Calendar Year in Pixels** — 36x36px dots with `EmotionColors[key].dot`. Tap → bottom sheet. Requires T-V1 (already in Week 2) | **Aibus** | ⏳ |
 
 ---
 
-## 🗓️ Semana 4 — IA Avanzada + Vista Terapeuta
+## 🗓️ Week 4 — Advanced AI + Therapist View
 
-> Ver IMPLEMENTATION_PLAN.md §Semana 4 para el plan de features completo. Esta tabla incluye: mejoras de IA, mejoras clínicas y tickets diferidos de Semana 3.
+> See IMPLEMENTATION_PLAN.md §Week 4 for the full feature plan. This table includes: AI improvements, clinical improvements, and deferred tickets from Week 3.
 
-| Paso | Descripción | Estado | Notas |
+| Step | Description | Status | Notes |
 |---|---|---|---|
-| 4.1 | Mejorar `interpret-checkin` con contexto completo | ⏳ | Últimos 5 check-ins + perfil sensorial en el prompt. Ver IMPLEMENTATION_PLAN.md §4.1 |
-| 4.2 | Detección de patrones — Edge Function `analyze-patterns` | ⏳ | Top zonas, emociones, horarios trigger. Ver IMPLEMENTATION_PLAN.md §4.2 |
-| 4.3 | Scripts personalizados con IA (S15/S16 expandido) | ⏳ | GPT genera bloques de script adaptados. Ver IMPLEMENTATION_PLAN.md §4.3 |
-| 4.4 | Vista Terapeuta completa (S23) | ⏳ | Dashboard historial + patrones + scripts + reporte. Ver IMPLEMENTATION_PLAN.md §4.4 |
-| 4.5 | Botón 🚩 y supervisión clínica | ⏳ | Terapeuta ve interpretaciones marcadas. Ver IMPLEMENTATION_PLAN.md §4.5 |
-| 4.6 | EAS Consent Attestations — Semana 5 prep | ⏳ | Ver IMPLEMENTATION_PLAN.md §5.1 |
-| T-4.1 | **Script fading mechanism** | ⏳ | Generalización de scripts: fade-out gradual. Literatura: Gray, Krantz & McClannahan (Ana) |
-| T-4.2 | **Validar zonas corporales con protocolo Mahler** | ⏳ | 8 señales interoceptivas vs 6 zonas geográficas actuales. Bajo impacto en MVP; profundidad clínica en v2 (Ana) |
-| T-4.3 | **Supervisión clínica mapeo test→perfil** | ⏳ | Sesión con psicólogo/psiquiatra ASD antes del lanzamiento público. w4rw1ck coordina |
-| T-V9 | **Body map con colores emocionales contextuales** — Zonas seleccionadas adoptan el color de la emoción del check-in anterior. Requiere T-V1 + datos históricos en producción | **Ana** | ⏳ |
+| 4.1 | Improve `interpret-checkin` with full context | ⏳ | Last 5 check-ins + sensory profile in prompt. See IMPLEMENTATION_PLAN.md §4.1 |
+| 4.2 | Pattern detection — Edge Function `analyze-patterns` | ⏳ | Top zones, emotions, trigger times. See IMPLEMENTATION_PLAN.md §4.2 |
+| 4.3 | AI-personalized scripts (S15/S16 expanded) | ⏳ | GPT generates adapted script blocks. See IMPLEMENTATION_PLAN.md §4.3 |
+| 4.4 | Full Therapist View (S23) | ⏳ | History dashboard + patterns + scripts + report. See IMPLEMENTATION_PLAN.md §4.4 |
+| 4.5 | 🚩 Button and clinical supervision | ⏳ | Therapist sees flagged interpretations. See IMPLEMENTATION_PLAN.md §4.5 |
+| 4.6 | EAS Consent Attestations — Week 5 prep | ⏳ | See IMPLEMENTATION_PLAN.md §5.1 |
+| T-4.1 | **Script fading mechanism** | ⏳ | Script generalization: gradual fade-out. Literature: Gray, Krantz & McClannahan (Ana) |
+| T-4.2 | **Validate body zones with Mahler protocol** | ⏳ | 8 interoceptive signals vs 6 current geographic zones. Low impact in MVP; clinical depth in v2 (Ana) |
+| T-4.3 | **Clinical supervision of test→profile mapping** | ⏳ | Session with ASD psychologist/psychiatrist before public launch. w4rw1ck coordinates |
+| T-V9 | **Body map with contextual emotional colors** — Selected zones adopt the color of the previous check-in emotion. Requires T-V1 + historical data in production | **Ana** | ⏳ |
 
 ---
 
-## 🐛 Bugs Conocidos
+## 🐛 Known Bugs
 
-| ID | Descripción | Severidad | Fase | Estado |
+| ID | Description | Severity | Phase | Status |
 |---|---|---|---|---|
-| B-01 | `ERROR 42P17: generation expression is not immutable` al ejecutar schema.sql — `EXTRACT()` sobre `TIMESTAMPTZ` no es inmutable en PostgreSQL, prohibido en columnas `GENERATED ALWAYS AS` | 🔴 Alta | 1.2.3 | ✅ Resuelto |
-| B-02 | Inter fonts instaladas pero NO cargadas en `_layout.tsx` — `useFonts` solo tenía SpaceMono; Typography constants con `Inter_*Bold/SemiBold/Regular` fallaban silenciosamente | 🟡 Media | 1.3 | ✅ Resuelto |
-| B-03 | `text-top` en `TextInput.tsx` no es clase NativeWind válida — `textAlignVertical:'top'` se ignoraba en multiline inputs | 🟡 Media | 1.3.5c | ✅ Resuelto |
-| B-04 | NativeWind no aplicaba ningún estilo — todos los `className` se ignoraban; la UI se veía como HTML sin CSS | 🔴 Alta | 1.4 | ✅ Resuelto |
-| B-05 | RescueFAB invisible en Android físico (Expo Go) — visible en devtools/web pero no en dispositivo nativo | 🔴 Alta | 1.4.3 | ✅ Resuelto |
-| B-06 | Tab "rescue" aparecía en la barra de navegación — Expo Router auto-descubre todas las carpetas en `(app)/` incluyendo `rescue/` | 🟡 Media | 1.4.1 | ✅ Resuelto |
-| B-07 | `expo-symbols` usa SF Symbols de Apple — solo funciona en iOS/web, en Android Expo Go no renderiza nada. Root cause real de: íconos invisibles en tab bar + FAB invisible | 🔴 Alta | 1.4 | ✅ Resuelto |
-| B-08 | `Card` no tenía `variant` ni `onPress` — en S12 (reflect.tsx) las opciones de emoción no eran tocables ni mostraban estado "seleccionada". Flujo de check-in bloqueado | 🔴 Alta | 1.5 | ✅ Resuelto |
-| B-09 | result.tsx usaba `raw_text` y `confirmed_emotion` en el INSERT de Supabase, pero el schema real tiene `free_text` y `emotion_confirmed` — los check-ins no se habrían guardado correctamente | 🔴 Alta | 1.5 | ✅ Resuelto |
-| B-10 | `TextInput` no aceptaba `numberOfLines` ni `accessibilityHint` — `numberOfLines={6}` en notes.tsx se ignoraba silenciosamente; la altura del input quedaba fija en 120px mínimo | 🟡 Media | 1.5 | ✅ Resuelto |
-| B-11 | Número de SAPTEL incorrecto (800 290-0024) — el número real verificado en saptel.org.mx es (55) 5259-8121 | 🔴 Alta | 1.7 | ✅ Resuelto |
-| B-12 | Pantallas de crisis (assess.tsx + protocol.tsx) ilegibles en dark mode — botones rosa claro (#E8C4C4) y texto oscuro (#2D2D2D) invisibles contra fondo oscuro | 🔴 Alta | 1.7 | ✅ Resuelto |
-| B-13 | Label de respiración (Inhala/Pausa/Exhala) desincronizado con círculo animado — `setInterval` acumulaba drift vs animación Reanimated en UI thread | 🟡 Media | 1.7 | ✅ Resuelto |
-| B-14 | Respiración guiada (Nivel 2) sin feedback háptico — Nivel 1 (grounding) tenía háptico pero Nivel 2 no, a pesar de la decisión de diseño multimodal | 🟡 Media | 1.7 | ✅ Resuelto |
-| B-15 | `auth.tsx` — campo de código de verificación sin `value`/`onChangeText` — texto invisible en Android físico + no hay botón para verificar explícitamente | 🔴 Alta | 1.8 | ✅ Resuelto |
-| B-16 | `auth.tsx` — `handleVerifyCode` tragaba el error silenciosamente; el `catch` bajaba el loading sin mostrar al usuario que el código era incorrecto | 🔴 Alta | 1.8 | ✅ Resuelto |
-| B-17 | `sync-privy-user` Edge Function sin CORS headers — preflight OPTIONS falla, respuestas sin `Access-Control-Allow-*` | 🟡 Media | 1.8 | ✅ Resuelto |
-| B-18 | `contacts.tsx` — `useRouter` importado y `router` instanciado pero nunca usado (AuthGate maneja la redirección post-onboarding automáticamente) | 🟢 Baja | 1.8 | ✅ Resuelto |
-| B-19 | `profile.tsx` — guard `if (supabaseUserId)` existía pero sin log ni comentario — si sync falló, el guardado falla silenciosamente sin contexto | 🟡 Media | 1.8 | ✅ Resuelto |
-| B-20 | `VIABILITY_TEST.md` (311 líneas) trackeado en git — documento de análisis ajeno al proyecto | 🟢 Baja | 1.8 | ✅ Resuelto |
-| B-21 | `Typography.tsx` sin variants `headingS` / `heading` — `aq10-result.tsx` y otras pantallas de Fase 1.8 las usan y fallaban silenciosamente | 🔴 Alta | 1.8 | ✅ Resuelto |
-| B-22 | `AuthGate` bloqueaba el protocolo de rescate sin auth — usuario en crisis redirigido a `/auth` al presionar FAB desde pantalla de login o onboarding | 🔴 Alta | 1.8 | ✅ Resuelto |
-| B-23 | Token NativeWind inválido `script-surface` / `script-dark-surface` — no existe en `tailwind.config.js`; barras de progreso en tests y tarjeta de contactos se renderizaban sin fondo | 🟡 Media | 1.8 | ✅ Resuelto |
-| B-24 | `Button` no aceptaba `className` prop — `className="mt-3"` en botones de `aq10-result.tsx` era ignorado silenciosamente; sin margen superior en botones dentro de Cards | 🟡 Media | 1.8 | ✅ Resuelto |
-| B-25 | `import { Buffer } from "buffer"` fallaba al bundlear — Metro trataba `buffer` como módulo de Node stdlib en lugar de npm package | 🔴 Alta | 1.8 | ✅ Resuelto |
-| B-26 | `ExpoSecureStore.getValueWithKeyAsync is not a function` — `expo-secure-store` no existe en web; Metro bundlea para web en paralelo al arrancar con `expo start` | 🔴 Alta | 1.8 | ✅ Resuelto |
-| B-27 | `ReferenceError: Property 'crypto' doesn't exist` — Hermes lanza ReferenceError (no retorna undefined) al acceder a `global.crypto` inexistente; `globalThis.crypto` también undefined en el dispositivo de w4rw1ck | 🔴 Alta | 1.8 | ✅ Resuelto |
-| B-28 | `ReferenceError: localStorage is not defined` — Metro SSR renderer corre en Node.js donde `localStorage` no existe aunque `Platform.OS === "web"` sea verdadero | 🟡 Media | 1.8 | ✅ Resuelto |
-| B-29 | `Cannot read properties of undefined (reading 'v1')` — `@privy-io/js-sdk-core` tiene `uuid` anidado; su `wrapper.mjs` hace `import { v1 } from 'uuid'` y Metro (condición "browser") lo resuelve circularmente al mismo `wrapper.mjs` → `undefined` | 🔴 Alta | 1.8 | ✅ Resuelto |
-| B-30 | `Native app ID host.exp.exponent has not been set as an allowed app identifier` — Privy requiere `clientId` explícito en PrivyProvider cuando corre en Expo Go (host.exp.exponent); sin él bloquea todo intento de auth. ⚠️ Nota: commit original de Aibus usa ID "B-27" (colisión — B-27 ya estaba asignado a crypto polyfill) | 🔴 Alta | 1.8 | ✅ Resuelto |
-| B-31 | `Redirect URL scheme is not allowed` (intento 1) — Aibus agregó `redirectUrl: Linking.createURL('/auth')` a `sendCode()`. El scheme `exp://` de Expo Go no estaba en la lista de Privy, causando error | 🔴 Alta | 1.8 | ⚠️ Parcial — ver B-32 |
-| B-32 | `Redirect URL scheme is not allowed` (intento 2, raíz real) — `sendCode()` NO necesita `redirectUrl` en flujo OTP (código de 6 dígitos). `redirectUrl` solo se requiere para magic link clickeable. Pasar `exp://` a Privy en modo OTP causaba el error. Fix: eliminar `redirectUrl` de `sendCode()` | 🔴 Alta | 1.8 | ✅ Resuelto |
-| B-33 | Google OAuth no resuelve — browser de Google abre pero nunca regresa a la app. `WebBrowser.maybeCompleteAuthSession()` faltaba en `auth.tsx`. Sin esta llamada a nivel módulo, Expo no puede completar el callback del OAuth cuando Google redirige de vuelta | 🔴 Alta | 1.8 | ✅ Resuelto |
-| B-34 | `Already logged in, if trying to link an OAuth account use useLinkWithOAuth` — `AuthGate` usaba `useAuthStore().user` (Zustand, en memoria) como fuente de verdad para auth. Zustand se resetea en cada reinicio de app, pero Privy persiste la sesión en SecureStore. Resultado: usuario ya autenticado en Privy sigue viendo `/auth` en cada arranque frío | 🔴 Alta | 1.8 | ✅ Resuelto |
-| B-35 | `AuthScreen` no detectaba sesión existente de Privy al montarse — usuario ya logueado (sesión en SecureStore) veía pantalla de login y no podía loguearse de nuevo ("already logged in"). Safety net: `useEffect` en `auth.tsx` que llama `handlePostLogin(privyUser)` si Privy ya tiene sesión al abrir la pantalla | 🔴 Alta | 1.8 | ⚠️ Insuficiente — ver B-36 |
-| B-36 | Formulario de login seguía renderizando aunque Privy tuviera sesión activa — hooks `useLoginWithEmail`/`useLoginWithOAuth` fallaban con "already logged in" cuando el usuario presionaba botones. Fix: (1) early return en `auth.tsx` muestra spinner loading si `!privyReady \|\| privyUser` — formulario nunca se muestra con sesión activa; (2) `handlePostLogin` navega explícitamente via `router.replace` al terminar el sync, sin depender de `AuthGate` | 🔴 Alta | 1.8 | ⚠️ Parcial — ver B-37 |
-| B-37 | Spinner "Cargando tu sesión..." colgado indefinidamente — dos `useEffect` compitiendo: Aibus navegaba, pero el mío (B-35) llamaba `handlePostLogin` que hacía `await supabase.functions.invoke("sync-privy-user")`. Si la Edge Function no está desplegada o hay timeout de red, el `await` nunca resuelve y la navegación queda bloqueada. Fix: consolidar en un solo efecto que (1) setea `storeUser`, (2) navega INMEDIATAMENTE sin await, (3) sync en background fire-and-forget. También se agrega timeout de 5s a `handlePostLogin` via `Promise.race` para el caso OTP/OAuth | 🔴 Alta | 1.8 | ✅ Resuelto |
-| B-38 | `expo-symbols ~55.0.4` en `package.json` — B-07 prohíbe su uso (SF Symbols, solo iOS/web, falla en Android). Ningún .tsx lo importa, pero ocupa espacio en bundle. Fix pendiente: `npm uninstall expo-symbols` (requiere computadora w4rw1ck) | 🟡 Media | 1.1 | ⏳ Pendiente |
-| B-39 | `Button` hardcodeaba `accessibilityLabel={title}` ignorando cualquier label custom pasado como prop — la interfaz TypeScript no aceptaba `accessibilityLabel`. Lectores de pantalla siempre leían el `title` corto aunque se pasara descripción extendida (detectado en `consent.tsx`). Fix: `accessibilityLabel?: string` agregado a `ButtonProps`; componente usa `accessibilityLabel ?? title`. Commit: `a4204fc` | 🟡 Media | audit | ✅ Resuelto |
-| B-40 | `result.tsx` navegaba silenciosamente a home aunque el INSERT en `checkins` fallara (por `supabaseUserId` null o error RLS). Usuario creía haber guardado su check-in cuando no. Fix: guard explícito antes del INSERT; dos Alert con opciones de reintentar + continuar sin guardar para error de null y error de red respectivamente. Commit: `1583d3b` | 🔴 Alta | audit | ✅ Resuelto |
-| B-41 | `profile.tsx` usaba `.update()` en vez de `.upsert()` — si la fila en `profiles` no existía (sync-privy-user falló), `.update()` hacía 0 rows affected silenciosamente. El usuario completaba el cuestionario y perdía todos sus datos sin saberlo. Fix: `.upsert({ user_id, ...data }, { onConflict: "user_id" })`. Commit: `87a4eab` | 🔴 Alta | audit | ✅ Resuelto |
-| B-42 | **ROOT CAUSE auth loop** — `sync-privy-user` hacía `.eq("privy_id", ...)` pero la columna en schema es `privy_user_id`. Cada llamada fallaba con "column privy_id does not exist" → usuarios nunca se creaban en Supabase → `supabaseUserId` siempre null → ciclo de auth. Fix: `privy_id` → `privy_user_id` en SELECT e INSERT. Commit: `3e27be5` | 🔴 Crítico | sync | ✅ Resuelto |
-| B-43 | `sync-privy-user` leía y escribía `onboarding_complete` en tabla `users` — pero el campo solo existe en `profiles` (schema.sql línea 39). SELECT siempre devolvía null, INSERT fallaba silenciosamente. Fix: leer `onboarding_complete` de `profiles` vía query separada. Commit: `3e27be5` | 🔴 Crítico | sync | ✅ Resuelto |
-| B-44 | `contacts.tsx` actualizaba `users.onboarding_complete = true` — columna inexistente en `users`. El onboarding nunca se marcaba como completo en Supabase → AuthGate siempre mandaba al usuario a onboarding en reinicios. Fix: actualizar `profiles.onboarding_complete`. Commit: `ae5f45b` | 🔴 Crítico | onboarding | ✅ Resuelto |
-| B-45 | `sync-privy-user` hacía `.update({ last_login: ... })` en `users` — columna `last_login` no existe en schema. Causa error silencioso en cada login de usuario existente. Fix: eliminado `last_login`, reemplazado por `updated_at`. Commit: `3e27be5` | 🟡 Media | sync | ✅ Resuelto |
-| B-46 | `profile.tsx` enviaba `display_name` a `profiles` table — pero `display_name` solo existe en `users`. Fix: `display_name` se actualiza en `users` por separado con `.update()`. Commit: `142104d` | 🟡 Media | onboarding | ✅ Resuelto |
-| B-47 | `profile.tsx` enviaba campo `age` a `profiles` — columna no existe en ninguna tabla del schema. Fix: campo eliminado del upsert (el form UI queda pero el dato no se intenta guardar hasta que se añada al schema). Commit: `142104d` | 🟡 Media | onboarding | ✅ Resuelto |
-| B-48 | `profile.tsx` enviaba `sensitivities: string[]` a `profiles.sensitivities JSONB` — schema diseñado como objeto `{}`, no array. Fix: `Object.fromEntries(selectedSensitivities.map(k => [k, true]))` convierte a `{ light: true, sound: true }`. Commit: `142104d` | 🟡 Media | onboarding | ✅ Resuelto |
-| B-49 | `aq10.tsx` calculaba el score y lo pasaba SOLO como query param a `aq10-result.tsx`. Al navegar fuera del resultado, el score se perdía para siempre. Fix: `upsert` a `profiles.aq10_score` + `aq10_completed_at` antes de navegar. Commit: `46e39e0` | 🟡 Media | onboarding | ✅ Resuelto |
-| B-50 | `aq-full.tsx`, `catq.tsx`, `raads.tsx` usaban `.update()` para guardar scores en `profiles` — si la fila no existía (sync-privy-user falló), 0 rows affected y scores perdidos silenciosamente. Fix: `.upsert({ user_id, score, completed_at }, { onConflict: "user_id" })` en los 3 archivos. Commit: `89cd56f` | 🟡 Media | onboarding | ✅ Resuelto |
-| B-51 | **Privy auth + Supabase RLS incompatibles — `auth.uid()` = null.** `sync-privy-user` ahora minta un JWT HS256 firmado con `SUPABASE_JWT_SECRET` (sub = UUID del usuario). Cliente llama `setSupabaseToken(access_token)` → `supabase.auth.setSession()` → `auth.uid()` devuelve UUID correcto → todas las RLS policies se resuelven. **Acción pendiente de w4rw1ck**: (1) Agregar `SUPABASE_JWT_SECRET` como env var en Supabase Dashboard → Edge Functions (Settings → API → JWT Secret). (2) Redeploy: `supabase functions deploy sync-privy-user`. Commits: `c80669e`, `85a468b`, `553cae2`, `fbceca3` | 🔴 Crítico | arquitectura | ✅ Resuelto en código — pendiente deploy |
+| B-01 | `ERROR 42P17: generation expression is not immutable` when running schema.sql — `EXTRACT()` on `TIMESTAMPTZ` is not immutable in PostgreSQL, forbidden in `GENERATED ALWAYS AS` columns | 🔴 High | 1.2.3 | ✅ Resolved |
+| B-02 | Inter fonts installed but NOT loaded in `_layout.tsx` — `useFonts` only had SpaceMono; Typography constants with `Inter_*Bold/SemiBold/Regular` failed silently | 🟡 Medium | 1.3 | ✅ Resolved |
+| B-03 | `text-top` in `TextInput.tsx` is not a valid NativeWind class — `textAlignVertical:'top'` was ignored in multiline inputs | 🟡 Medium | 1.3.5c | ✅ Resolved |
+| B-04 | NativeWind was not applying any styles — all `className` were ignored; UI looked like HTML without CSS | 🔴 High | 1.4 | ✅ Resolved |
+| B-05 | RescueFAB invisible on physical Android (Expo Go) — visible in devtools/web but not on native device | 🔴 High | 1.4.3 | ✅ Resolved |
+| B-06 | "rescue" tab appeared in navigation bar — Expo Router auto-discovers all folders in `(app)/` including `rescue/` | 🟡 Medium | 1.4.1 | ✅ Resolved |
+| B-07 | `expo-symbols` uses Apple SF Symbols — only works on iOS/web, on Android Expo Go renders nothing. Real root cause of: invisible icons in tab bar + invisible FAB | 🔴 High | 1.4 | ✅ Resolved |
+| B-08 | `Card` had no `variant` or `onPress` — in S12 (reflect.tsx) emotion options were not tappable nor showed "selected" state. Check-in flow blocked | 🔴 High | 1.5 | ✅ Resolved |
+| B-09 | result.tsx used `raw_text` and `confirmed_emotion` in the Supabase INSERT, but the real schema has `free_text` and `emotion_confirmed` — check-ins would not have been saved correctly | 🔴 High | 1.5 | ✅ Resolved |
+| B-10 | `TextInput` did not accept `numberOfLines` or `accessibilityHint` — `numberOfLines={6}` in notes.tsx was silently ignored; input height was fixed at 120px minimum | 🟡 Medium | 1.5 | ✅ Resolved |
+| B-11 | Incorrect SAPTEL number (800 290-0024) — the real verified number at saptel.org.mx is (55) 5259-8121 | 🔴 High | 1.7 | ✅ Resolved |
+| B-12 | Crisis screens (assess.tsx + protocol.tsx) unreadable in dark mode — light pink buttons (#E8C4C4) and dark text (#2D2D2D) invisible against dark background | 🔴 High | 1.7 | ✅ Resolved |
+| B-13 | Breathing label (Inhale/Pause/Exhale) out of sync with animated circle — `setInterval` accumulated drift vs Reanimated animation on UI thread | 🟡 Medium | 1.7 | ✅ Resolved |
+| B-14 | Guided breathing (Level 2) without haptic feedback — Level 1 (grounding) had haptics but Level 2 did not, despite the multimodal design decision | 🟡 Medium | 1.7 | ✅ Resolved |
+| B-15 | `auth.tsx` — verification code field without `value`/`onChangeText` — invisible text on physical Android + no explicit verify button | 🔴 High | 1.8 | ✅ Resolved |
+| B-16 | `auth.tsx` — `handleVerifyCode` swallowed the error silently; the `catch` lowered loading without showing the user that the code was incorrect | 🔴 High | 1.8 | ✅ Resolved |
+| B-17 | `sync-privy-user` Edge Function without CORS headers — preflight OPTIONS fails, responses without `Access-Control-Allow-*` | 🟡 Medium | 1.8 | ✅ Resolved |
+| B-18 | `contacts.tsx` — `useRouter` imported and `router` instantiated but never used (AuthGate handles post-onboarding redirection automatically) | 🟢 Low | 1.8 | ✅ Resolved |
+| B-19 | `profile.tsx` — guard `if (supabaseUserId)` existed but without log or comment — if sync failed, the save fails silently without context | 🟡 Medium | 1.8 | ✅ Resolved |
+| B-20 | `VIABILITY_TEST.md` (311 lines) tracked in git — analysis document unrelated to the project | 🟢 Low | 1.8 | ✅ Resolved |
+| B-21 | `Typography.tsx` without variants `headingS` / `heading` — `aq10-result.tsx` and other Phase 1.8 screens use them and failed silently | 🔴 High | 1.8 | ✅ Resolved |
+| B-22 | `AuthGate` blocked the rescue protocol without auth — user in crisis redirected to `/auth` when pressing FAB from login screen or onboarding | 🔴 High | 1.8 | ✅ Resolved |
+| B-23 | Invalid NativeWind token `script-surface` / `script-dark-surface` — does not exist in `tailwind.config.js`; progress bars in tests and contacts card rendered without background | 🟡 Medium | 1.8 | ✅ Resolved |
+| B-24 | `Button` did not accept `className` prop — `className="mt-3"` in `aq10-result.tsx` buttons was silently ignored; no top margin on buttons inside Cards | 🟡 Medium | 1.8 | ✅ Resolved |
+| B-25 | `import { Buffer } from "buffer"` failed when bundling — Metro treated `buffer` as a Node stdlib module instead of npm package | 🔴 High | 1.8 | ✅ Resolved |
+| B-26 | `ExpoSecureStore.getValueWithKeyAsync is not a function` — `expo-secure-store` doesn't exist on web; Metro bundles for web in parallel when starting with `expo start` | 🔴 High | 1.8 | ✅ Resolved |
+| B-27 | `ReferenceError: Property 'crypto' doesn't exist` — Hermes throws ReferenceError (does not return undefined) when accessing non-existent `global.crypto`; `globalThis.crypto` also undefined on w4rw1ck's device | 🔴 High | 1.8 | ✅ Resolved |
+| B-28 | `ReferenceError: localStorage is not defined` — Metro SSR renderer runs in Node.js where `localStorage` doesn't exist even though `Platform.OS === "web"` is true | 🟡 Medium | 1.8 | ✅ Resolved |
+| B-29 | `Cannot read properties of undefined (reading 'v1')` — `@privy-io/js-sdk-core` has nested `uuid`; its `wrapper.mjs` does `import { v1 } from 'uuid'` and Metro (with "browser" condition) resolves it circularly back to the same `wrapper.mjs` → `undefined` | 🔴 High | 1.8 | ✅ Resolved |
+| B-30 | `Native app ID host.exp.exponent has not been set as an allowed app identifier` — Privy requires explicit `clientId` in PrivyProvider when running in Expo Go (host.exp.exponent); without it blocks all auth attempts. ⚠️ Note: original Aibus commit uses ID "B-27" (collision — B-27 was already assigned to crypto polyfill) | 🔴 High | 1.8 | ✅ Resolved |
+| B-31 | `Redirect URL scheme is not allowed` (attempt 1) — Aibus added `redirectUrl: Linking.createURL('/auth')` to `sendCode()`. The `exp://` Expo Go scheme was not in Privy's list, causing an error | 🔴 High | 1.8 | ⚠️ Partial — see B-32 |
+| B-32 | `Redirect URL scheme is not allowed` (attempt 2, real root) — `sendCode()` does NOT need `redirectUrl` in OTP flow (6-digit code). `redirectUrl` is only required for clickable magic links. Passing `exp://` to Privy in OTP mode caused the error. Fix: remove `redirectUrl` from `sendCode()` | 🔴 High | 1.8 | ✅ Resolved |
+| B-33 | Google OAuth doesn't resolve — Google browser opens but never returns to the app. `WebBrowser.maybeCompleteAuthSession()` was missing from `auth.tsx`. Without this module-level call, Expo cannot complete the OAuth callback when Google redirects back | 🔴 High | 1.8 | ✅ Resolved |
+| B-34 | `Already logged in, if trying to link an OAuth account use useLinkWithOAuth` — `AuthGate` used `useAuthStore().user` (Zustand, in memory) as the source of truth for auth. Zustand resets on every app restart, but Privy persists the session in SecureStore. Result: already authenticated user keeps seeing `/auth` on every cold start | 🔴 High | 1.8 | ✅ Resolved |
+| B-35 | `AuthScreen` did not detect existing Privy session on mount — already logged-in user (session in SecureStore) saw login screen and couldn't log in again ("already logged in"). Safety net: `useEffect` in `auth.tsx` that calls `handlePostLogin(privyUser)` if Privy already has a session when the screen opens | 🔴 High | 1.8 | ⚠️ Insufficient — see B-36 |
+| B-36 | Login form kept rendering even though Privy had an active session — `useLoginWithEmail`/`useLoginWithOAuth` hooks failed with "already logged in" when user pressed buttons. Fix: (1) early return in `auth.tsx` shows loading spinner if `!privyReady \|\| privyUser` — form never renders with active session; (2) `handlePostLogin` now explicitly navigates via `router.replace` when sync finishes, without relying on `AuthGate` | 🔴 High | 1.8 | ⚠️ Partial — see B-37 |
+| B-37 | "Loading your session..." spinner hanging indefinitely — two competing `useEffect`s: Aibus navigated, but mine (B-35) called `handlePostLogin` which did `await supabase.functions.invoke("sync-privy-user")`. If the Edge Function was not deployed or there was a network timeout, the `await` never resolved and navigation stayed blocked. Fix: consolidate into a single effect that (1) sets `storeUser`, (2) navigates IMMEDIATELY without await, (3) sync in background fire-and-forget. Also adds 5s timeout to `handlePostLogin` via `Promise.race` for the OTP/OAuth case | 🔴 High | 1.8 | ✅ Resolved |
+| B-38 | `expo-symbols ~55.0.4` in `package.json` — B-07 prohibits its use (SF Symbols, iOS/web only, fails on Android). No .tsx imports it, but it takes up bundle space. Pending fix: `npm uninstall expo-symbols` (requires w4rw1ck's computer) | 🟡 Medium | 1.1 | ⏳ Pending |
+| B-39 | `Button` hardcoded `accessibilityLabel={title}` ignoring any custom label passed as prop — TypeScript interface did not accept `accessibilityLabel`. Screen readers always read the short `title` even when an extended description was passed (detected in `consent.tsx`). Fix: `accessibilityLabel?: string` added to `ButtonProps`; component uses `accessibilityLabel ?? title`. Commit: `a4204fc` | 🟡 Medium | audit | ✅ Resolved |
+| B-40 | `result.tsx` silently navigated to home even if the INSERT into `checkins` failed (due to null `supabaseUserId` or RLS error). User believed they had saved their check-in when they had not. Fix: explicit guard before INSERT; two Alerts with retry + continue without saving options for null error and network error respectively. Commit: `1583d3b` | 🔴 High | audit | ✅ Resolved |
+| B-41 | `profile.tsx` used `.update()` instead of `.upsert()` — if the row in `profiles` didn't exist (sync-privy-user failed), `.update()` did 0 rows affected silently. User completed the questionnaire and lost all their data without knowing. Fix: `.upsert({ user_id, ...data }, { onConflict: "user_id" })`. Commit: `87a4eab` | 🔴 High | audit | ✅ Resolved |
+| B-42 | **ROOT CAUSE auth loop** — `sync-privy-user` did `.eq("privy_id", ...)` but the schema column is `privy_user_id`. Every call failed with "column privy_id does not exist" → users were never created in Supabase → `supabaseUserId` always null → auth cycle. Fix: `privy_id` → `privy_user_id` in SELECT and INSERT. Commit: `3e27be5` | 🔴 Critical | sync | ✅ Resolved |
+| B-43 | `sync-privy-user` read and wrote `onboarding_complete` in the `users` table — but the field only exists in `profiles` (schema.sql line 39). SELECT always returned null, INSERT failed silently. Fix: read `onboarding_complete` from `profiles` via separate query. Commit: `3e27be5` | 🔴 Critical | sync | ✅ Resolved |
+| B-44 | `contacts.tsx` updated `users.onboarding_complete = true` — non-existent column in `users`. Onboarding was never marked as complete in Supabase → AuthGate always sent user to onboarding on restarts. Fix: update `profiles.onboarding_complete`. Commit: `ae5f45b` | 🔴 Critical | onboarding | ✅ Resolved |
+| B-45 | `sync-privy-user` did `.update({ last_login: ... })` in `users` — `last_login` column does not exist in schema. Causes silent error on every existing user login. Fix: `last_login` removed, replaced by `updated_at`. Commit: `3e27be5` | 🟡 Medium | sync | ✅ Resolved |
+| B-46 | `profile.tsx` sent `display_name` to `profiles` table — but `display_name` only exists in `users`. Fix: `display_name` is updated in `users` separately with `.update()`. Commit: `142104d` | 🟡 Medium | onboarding | ✅ Resolved |
+| B-47 | `profile.tsx` sent `age` field to `profiles` — column does not exist in any schema table. Fix: field removed from upsert (UI form remains but data won't be saved until added to schema). Commit: `142104d` | 🟡 Medium | onboarding | ✅ Resolved |
+| B-48 | `profile.tsx` sent `sensitivities: string[]` to `profiles.sensitivities JSONB` — schema designed as object `{}`, not array. Fix: `Object.fromEntries(selectedSensitivities.map(k => [k, true]))` converts to `{ light: true, sound: true }`. Commit: `142104d` | 🟡 Medium | onboarding | ✅ Resolved |
+| B-49 | `aq10.tsx` calculated the score and passed it ONLY as a query param to `aq10-result.tsx`. When navigating away from the result, the score was lost forever. Fix: `upsert` to `profiles.aq10_score` + `aq10_completed_at` before navigating. Commit: `46e39e0` | 🟡 Medium | onboarding | ✅ Resolved |
+| B-50 | `aq-full.tsx`, `catq.tsx`, `raads.tsx` used `.update()` to save scores in `profiles` — if the row didn't exist (sync-privy-user failed), 0 rows affected and scores silently lost. Fix: `.upsert({ user_id, score, completed_at }, { onConflict: "user_id" })` in all 3 files. Commit: `89cd56f` | 🟡 Medium | onboarding | ✅ Resolved |
+| B-51 | **Privy auth + Supabase RLS incompatible — `auth.uid()` = null.** `sync-privy-user` now mints an HS256 JWT signed with `SUPABASE_JWT_SECRET` (sub = user UUID). Client calls `setSupabaseToken(access_token)` → `supabase.auth.setSession()` → `auth.uid()` returns correct UUID → all RLS policies resolve. **Pending action from w4rw1ck**: (1) Add `SUPABASE_JWT_SECRET` as env var in Supabase Dashboard → Edge Functions (Settings → API → JWT Secret). (2) Redeploy: `supabase functions deploy sync-privy-user`. Commits: `c80669e`, `85a468b`, `553cae2`, `fbceca3` | 🔴 Critical | architecture | ✅ Resolved in code — deploy pending |
 
-**B-01 — Fix:** Se eliminaron las columnas `hour_of_day` y `day_of_week` de `checkins`. `EXTRACT()` usable en queries. Commit: `864e435`.
+**B-01 — Fix:** Columns `hour_of_day` and `day_of_week` removed from `checkins`. `EXTRACT()` usable in queries. Commit: `864e435`.
 
-**B-02 — Fix:** `_layout.tsx` ahora importa y registra `Inter_400Regular`, `Inter_600SemiBold`, `Inter_700Bold` via `@expo-google-fonts/inter`. Commit: `1edc8c6`.
+**B-02 — Fix:** `_layout.tsx` now imports and registers `Inter_400Regular`, `Inter_600SemiBold`, `Inter_700Bold` via `@expo-google-fonts/inter`. Commit: `1edc8c6`.
 
-**B-03 — Fix:** Reemplazado `text-top` por `style={{ textAlignVertical: 'top' }}` como prop nativo. También eliminado `dark:border-[#3A3A44]` hardcodeado → token `dark:border-script-dark-border`. Commit: `1edc8c6`.
+**B-03 — Fix:** Replaced `text-top` with `style={{ textAlignVertical: 'top' }}` as native prop. Also removed hardcoded `dark:border-[#3A3A44]` → token `dark:border-script-dark-border`. Commit: `1edc8c6`.
 
-**B-04 — Fix:** Creado `metro.config.js` con `withNativeWind(config, { input: './global.css' })`. NativeWind v4 requiere este archivo para procesar el CSS de Tailwind — `babel.config.js` solo hace el transform JSX; el procesamiento CSS es responsabilidad de Metro. Sin `metro.config.js`, todos los `className` se ignoran. Commit: `30fec72`.
+**B-04 — Fix:** Created `metro.config.js` with `withNativeWind(config, { input: './global.css' })`. NativeWind v4 requires this file to process Tailwind CSS — `babel.config.js` only does the JSX transform; CSS processing is Metro's responsibility. Without `metro.config.js`, all `className` are ignored. Commit: `30fec72`.
 
-**B-05 — Fix v1 (insuficiente):** Agregado `zIndex: 999` y aumentado `elevation: 6→10` en el StyleSheet de `RescueFAB.tsx`. Commit: `b7e9b6e`.
-**B-05 — Fix v2 (definitivo):** `RescueFAB` movido de `app/(app)/_layout.tsx` a `app/_layout.tsx` (raíz). Renderizarlo dentro del Tab Navigator causa que Android lo oculte bajo su propia capa de UI independientemente del `zIndex`. Al estar en la raíz del árbol — fuera de Stack y Tab Navigator — ninguna capa de navegación puede taparlo. Commit: `6562449`.
+**B-05 — Fix v1 (insufficient):** Added `zIndex: 999` and increased `elevation: 6→10` in `RescueFAB.tsx` StyleSheet. Commit: `b7e9b6e`.
+**B-05 — Fix v2 (definitive):** `RescueFAB` moved from `app/(app)/_layout.tsx` to `app/_layout.tsx` (root). Rendering it inside the Tab Navigator causes Android to hide it under its own UI layer regardless of `zIndex`. By being at the root of the tree — outside Stack and Tab Navigator — no navigation layer can cover it. Commit: `6562449`.
 
-**B-06 — Fix:** Agregado `<Tabs.Screen name="rescue" options={{ href: null }} />` en `app/(app)/_layout.tsx`. Expo Router auto-descubre todas las carpetas en `(app)/`; sin este Screen con `href: null`, la carpeta `rescue/` aparecía como un 6to tab en la barra de navegación. Commit: `7ccfd0f`.
+**B-06 — Fix:** Added `<Tabs.Screen name="rescue" options={{ href: null }} />` in `app/(app)/_layout.tsx`. Expo Router auto-discovers all folders in `(app)/`; without this Screen with `href: null`, the `rescue/` folder appeared as a 6th tab in the navigation bar. Commit: `7ccfd0f`.
 
-**B-07 — Fix:** Reemplazado `expo-symbols` → `Ionicons` de `@expo/vector-icons` en todos los archivos del proyecto. SF Symbols es una tecnología exclusiva de Apple que no funciona en Android. Adicionalmente: FAB rediseñado con `View` overlay (`StyleSheet.absoluteFillObject` + `pointerEvents="box-none"` + flexbox) y círculo visual separado como `View` con `borderRadius` (en Android, `Pressable` no renderiza `borderRadius+backgroundColor` correctamente). Commits: `485284c`, `0698ac2`, `cdff16c`, `3d9801e`, `7b9d9a2`.
+**B-07 — Fix:** Replaced `expo-symbols` → `Ionicons` from `@expo/vector-icons` in all project files. SF Symbols is an Apple-exclusive technology that does not work on Android. Additionally: FAB redesigned with `View` overlay (`StyleSheet.absoluteFillObject` + `pointerEvents="box-none"` + flexbox) and visual circle separated as `View` with `borderRadius` (on Android, `Pressable` does not render `borderRadius+backgroundColor` correctly). Commits: `485284c`, `0698ac2`, `cdff16c`, `3d9801e`, `7b9d9a2`.
 
-**B-08 — Fix:** `Card.tsx` actualizado con props `variant` ("default"|"elevated") y `onPress` (Pressable con `opacity:0.85`). Variante "elevated" usa `bg-elevated + shadow-md + border script-blue`. Retrocompatible. `reflect.tsx` corregido: `ActivityIndicator` usa `useColorScheme()` para el color (#A8C5DA light / #5A7E92 dark). Commit: `c157bdb`. Encontrado por Aibus en auditoría.
+**B-08 — Fix:** `Card.tsx` updated with `variant` ("default"|"elevated") and `onPress` (Pressable with `opacity:0.85`) props. "elevated" variant uses `bg-elevated + shadow-md + border script-blue`. Backward compatible. `reflect.tsx` corrected: `ActivityIndicator` uses `useColorScheme()` for color (#A8C5DA light / #5A7E92 dark). Commit: `c157bdb`. Found by Aibus in audit.
 
-**B-09 — Fix:** `result.tsx` — corregidos nombres de campo en INSERT de Supabase: `raw_text→free_text`, `confirmed_emotion→emotion_confirmed`. Verificados contra `supabase/schema.sql`. Commit: `a1f5aab`.
+**B-09 — Fix:** `result.tsx` — corrected field names in Supabase INSERT: `raw_text→free_text`, `confirmed_emotion→emotion_confirmed`. Verified against `supabase/schema.sql`. Commit: `a1f5aab`.
 
-**B-10 — Fix:** `TextInput.tsx` — agregados `numberOfLines?: number` y `accessibilityHint?: string` a la interface; ambos forwardeados a `RNTextInput`. `numberOfLines` solo aplica cuando `multiline=true`. Commit: `a1f5aab`.
+**B-10 — Fix:** `TextInput.tsx` — added `numberOfLines?: number` and `accessibilityHint?: string` to interface; both forwarded to `RNTextInput`. `numberOfLines` only applies when `multiline=true`. Commit: `a1f5aab`.
 
-**B-11 — Fix:** `protocol.tsx` — número de teléfono de SAPTEL corregido de `800 290-0024` a `(55) 5259-8121`. Verificado directamente en saptel.org.mx. Afectaba `Linking.openURL("tel:...")` y el texto mostrado al usuario en Nivel 3 (Emergencia). Detectado por w4rw1ck. Commit: `e974d66`.
+**B-11 — Fix:** `protocol.tsx` — SAPTEL phone number corrected from `800 290-0024` to `(55) 5259-8121`. Verified directly at saptel.org.mx. Affected `Linking.openURL("tel:...")` and text shown to user in Level 3 (Emergency). Detected by w4rw1ck. Commit: `e974d66`.
 
-**B-12 — Fix:** `assess.tsx` + `protocol.tsx` — todos los colores hardcodeados para light mode ahora se calculan dinámicamente con `useColorScheme()`. Botones: `#6A3E3E` (dark) / `#E8C4C4` (light). Texto: `#F0D0D0` (dark) / `#2D2D2D` (light). Aplicado en todas las pantallas de crisis: assess, grounding, breathing, emergency, y pantalla de cierre. StyleSheet mantiene tamaños/layout (críticos §11); solo los colores son dinámicos. Detectado por w4rw1ck en dispositivo Android. Commit: `a2f3d41`.
+**B-12 — Fix:** `assess.tsx` + `protocol.tsx` — all hardcoded light mode colors are now dynamically calculated with `useColorScheme()`. Buttons: `#6A3E3E` (dark) / `#E8C4C4` (light). Text: `#F0D0D0` (dark) / `#2D2D2D` (light). Applied on all crisis screens: assess, grounding, breathing, emergency, and closing screen. StyleSheet maintains sizes/layout (critical §11); only colors are dynamic. Detected by w4rw1ck on Android device. Commit: `a2f3d41`.
 
-**B-13 — Fix:** `protocol.tsx` — reemplazado `elapsed += 100` (drift acumulativo) por `Date.now() - startTime` (timestamp real). `setInterval` en JS thread no es preciso (cada tick puede tardar 100-115ms); después de ~10s el label ya iba desfasado del círculo Reanimated (UI thread, preciso). Con timestamps reales el label siempre refleja el momento exacto. Interval reducido a 80ms para labels más responsivos. Detectado por w4rw1ck en dispositivo Android. Commit: `67bb9d5`.
+**B-13 — Fix:** `protocol.tsx` — replaced `elapsed += 100` (cumulative drift) with `Date.now() - startTime` (real timestamp). `setInterval` on JS thread is not precise (each tick can take 100-115ms); after ~10s the label was already out of sync with the Reanimated circle (UI thread, precise). With real timestamps the label always reflects the exact moment. Interval reduced to 80ms for more responsive labels. Detected by w4rw1ck on Android device. Commit: `67bb9d5`.
 
-**B-14 — Fix:** `protocol.tsx` — agregado `Haptics.impactAsync(Light)` en cada transición de fase (Inhala↔Pausa↔Exhala). Solo vibra cuando la fase cambia, no en cada tick. Vibración `notificationAsync(Success)` al completar los 4 ciclos. 12 vibraciones sutiles + 1 final por sesión completa. Commit: `cf3db00`.
+**B-14 — Fix:** `protocol.tsx` — added `Haptics.impactAsync(Light)` on each phase transition (Inhale↔Pause↔Exhale). Only vibrates when phase changes, not on every tick. `notificationAsync(Success)` vibration when completing 4 cycles. 12 subtle vibrations + 1 final per complete session. Commit: `cf3db00`.
 
-**B-15 — Fix:** `auth.tsx` — campo de código ahora tiene `value={code}` + `onChangeText={setCode}` (estado local). Agregado botón "Verificar código" explícito con `disabled` cuando el campo está vacío. El campo de solo `onSubmitEditing` no funciona confiablemente en Android físico. Commit: `57d4947`.
+**B-15 — Fix:** `auth.tsx` — code field now has `value={code}` + `onChangeText={setCode}` (local state). Added explicit "Verify code" button with `disabled` when field is empty. Field with only `onSubmitEditing` does not work reliably on physical Android. Commit: `57d4947`.
 
-**B-16 — Fix:** `auth.tsx` — `handleVerifyCode` ahora muestra `Alert` con el mensaje de error cuando el código es incorrecto. El `catch` previo bajaba `isLoading` sin feedback al usuario. Commit: `57d4947`.
+**B-16 — Fix:** `auth.tsx` — `handleVerifyCode` now shows `Alert` with error message when the code is incorrect. The previous `catch` lowered `isLoading` without user feedback. Commit: `57d4947`.
 
-**B-17 — Fix:** `sync-privy-user/index.ts` — agregados `corsHeaders` con `Access-Control-Allow-Origin: *` y `Access-Control-Allow-Headers`. Todas las respuestas JSON usan `corsHeaders`. Preflight `OPTIONS` responde con `200 ok`. Commit: `fe855c2`.
+**B-17 — Fix:** `sync-privy-user/index.ts` — added `corsHeaders` with `Access-Control-Allow-Origin: *` and `Access-Control-Allow-Headers`. All JSON responses use `corsHeaders`. Preflight `OPTIONS` responds with `200 ok`. Commit: `fe855c2`.
 
-**B-18 — Fix:** `contacts.tsx` — removido `import { useRouter }` y `const router = useRouter()` que nunca se usaban. La navegación post-onboarding la maneja `AuthGate` en `_layout.tsx` automáticamente al detectar `onboardingComplete=true`. Commit: `8372e4e`.
+**B-18 — Fix:** `contacts.tsx` — removed `import { useRouter }` and `const router = useRouter()` that were never used. Post-onboarding navigation is handled automatically by `AuthGate` in `_layout.tsx` when it detects `onboardingComplete=true`. Commit: `8372e4e`.
 
-**B-19 — Fix:** `profile.tsx` — guard `if (!supabaseUserId)` con `console.warn` explícito y comentario documentando que el perfil se puede completar desde Ajustes en Semana 2. El usuario siempre puede continuar el onboarding aunque el guardado falle. Commit: `fa66ce1`.
+**B-19 — Fix:** `profile.tsx` — guard `if (!supabaseUserId)` with explicit `console.warn` and comment documenting that the profile can be completed from Settings in Week 2. User can always continue onboarding even if save fails. Commit: `fa66ce1`.
 
-**B-20 — Fix:** `VIABILITY_TEST.md` eliminado del repo con `git rm`. Era un documento de análisis ajeno al proyecto que fue trackeado accidentalmente. Commit: `6eaae73`.
+**B-20 — Fix:** `VIABILITY_TEST.md` removed from repo with `git rm`. It was an analysis document unrelated to the project that was accidentally tracked. Commit: `6eaae73`.
 
-**B-21 — Fix:** `Typography.tsx` — agregados variants `headingS` (18px semibold) y `heading` (alias de headingL). Usados en `aq10-result.tsx` y otras pantallas de Fase 1.8. Sin estos variants, el componente fallaba silenciosamente mostrando `undefined` como clases CSS. Commit: `523e50a`.
+**B-21 — Fix:** `Typography.tsx` — added variants `headingS` (18px semibold) and `heading` (alias for headingL). Used in `aq10-result.tsx` and other Phase 1.8 screens. Without these variants, the component failed silently showing `undefined` as CSS classes. Commit: `523e50a`.
 
-**B-22 — Fix:** `_layout.tsx` — `AuthGate` ahora incluye excepción explícita para rutas de rescue (`segments[0] === "(app)" && segments[1] === "rescue"`). Si el usuario está en rescue, el guard retorna sin redirigir — independientemente del estado de auth. Regla: la crisis nunca puede ser bloqueada por un wall de autenticación. Commit: `05fb4e8`.
+**B-22 — Fix:** `_layout.tsx` — `AuthGate` now includes explicit exception for rescue routes (`segments[0] === "(app)" && segments[1] === "rescue"`). If the user is on rescue, the guard returns without redirecting — regardless of auth state. Rule: crisis must never be blocked by an authentication wall. Commit: `05fb4e8`.
 
-**B-23 — Fix:** `aq10.tsx`, `TestScreen.tsx`, `contacts.tsx` — reemplazado token inexistente `bg-script-surface dark:bg-script-dark-surface` por `bg-script-bg-secondary dark:bg-script-dark-secondary` (tokens válidos definidos en `tailwind.config.js`). Afectaba la barra de progreso de los tests y la tarjeta de contactos. Commit: `38bfacb`.
+**B-23 — Fix:** `aq10.tsx`, `TestScreen.tsx`, `contacts.tsx` — replaced non-existent token `bg-script-surface dark:bg-script-dark-surface` with `bg-script-bg-secondary dark:bg-script-dark-secondary` (valid tokens defined in `tailwind.config.js`). Affected progress bar in tests and contacts card. Commit: `38bfacb`.
 
-**B-24 — Fix:** `components/ui/Button.tsx` — agregado `className?: string` a `ButtonProps` e interpolado en el `className` del `Pressable`. Permite pasar márgenes externos (`mt-3`, `mb-4`, etc.) desde el componente padre. Retrocompatible — valor por defecto `""`. Commit: `f733e23`.
+**B-24 — Fix:** `components/ui/Button.tsx` — added `className?: string` to `ButtonProps` and interpolated in `Pressable`'s `className`. Allows passing external margins (`mt-3`, `mb-4`, etc.) from the parent component. Backward compatible — default value `""`. Commit: `f733e23`.
 
-**B-25 — Fix:** `package.json` + `metro.config.js` — agregado `"buffer": "^6.0.3"` a dependencies; `metro.config.js` añade `buffer: require.resolve("buffer")` a `extraNodeModules`. Metro ya no trata `buffer` como módulo de Node stdlib. Requiere `npm install` en el proyecto del usuario. Commits: `aac43e1`.
+**B-25 — Fix:** `package.json` + `metro.config.js` — added `"buffer": "^6.0.3"` to dependencies; `metro.config.js` adds `buffer: require.resolve("buffer")` to `extraNodeModules`. Metro no longer treats `buffer` as a Node stdlib module. Requires `npm install` in user's project. Commits: `aac43e1`.
 
-**B-26 — Fix:** `lib/supabase.ts` — agregado adaptador condicional por `Platform.OS`. En web usa `localStorage`; en nativo (Android/iOS) usa `SecureStore`. El adaptador de web no lanza errores aunque SecureStore no exista en ese entorno. Commits: `aac43e1`.
+**B-26 — Fix:** `lib/supabase.ts` — added conditional adapter by `Platform.OS`. On web uses `localStorage`; on native (Android/iOS) uses `SecureStore`. The web adapter does not throw errors even if SecureStore doesn't exist in that environment. Commits: `aac43e1`.
 
-**B-27 — Fix:** `polyfills.ts` + `package.json` — agregado `react-native-get-random-values ~1.11.0`; importado como primer import en polyfills.ts. Este paquete inyecta `global.crypto.getRandomValues` usando la API nativa de RN y registra `global.crypto` de forma segura. Evita el ReferenceError de Hermes que ocurre al acceder a propiedades globales inexistentes. Requiere `npm install` en el proyecto del usuario. Commit: `d9e562c`.
+**B-27 — Fix:** `polyfills.ts` + `package.json` — added `react-native-get-random-values ~1.11.0`; imported as first import in polyfills.ts. This package injects `global.crypto.getRandomValues` using the native RN API and safely registers `global.crypto`. Avoids the Hermes ReferenceError that occurs when accessing non-existent global properties. Requires `npm install` in user's project. Commit: `d9e562c`.
 
-**B-28 — Fix:** `lib/supabase.ts` — todos los accesos a `localStorage` ahora están guardados con `typeof localStorage !== "undefined"`. El Metro SSR renderer corre en Node.js donde `localStorage` no existe aunque `Platform.OS === "web"`. Sin el guard, el proceso de Metro crasheaba al inicializar. Commit: `f80d5e0`.
+**B-28 — Fix:** `lib/supabase.ts` — all `localStorage` accesses are now guarded with `typeof localStorage !== "undefined"`. The Metro SSR renderer runs in Node.js where `localStorage` doesn't exist even though `Platform.OS === "web"`. Without the guard, the Metro process crashed on initialization. Commit: `f80d5e0`.
 
-**B-29 — Fix:** `metro.config.js` + `package.json` — instalado `uuid ^9.0.1`; agregado `uuid: require.resolve("uuid")` a `extraNodeModules`. Con la condición "browser" activa, Metro resolvía `import 'uuid'` (desde dentro de `wrapper.mjs`) de vuelta al mismo `wrapper.mjs` — import circular que produce `undefined`. Forzar resolución al CJS raíz rompe el ciclo. Requiere `npm install`. Commit: `c29f4c6`.
+**B-29 — Fix:** `metro.config.js` + `package.json` — installed `uuid ^9.0.1`; added `uuid: require.resolve("uuid")` to `extraNodeModules`. With the "browser" condition active, Metro resolved `import 'uuid'` (from inside `wrapper.mjs`) back to the same `wrapper.mjs` — circular import that produces `undefined`. Forcing resolution to the CJS root breaks the cycle. Requires `npm install`. Commit: `c29f4c6`.
 
-**B-30 — Fix:** `app/_layout.tsx` + `.env.local.example` — agregada prop `clientId={process.env.EXPO_PUBLIC_PRIVY_CLIENT_ID}` a `<PrivyProvider>`. Privy Expo en modo nativo requiere un Client ID separado del App ID para identificar la instancia correcta en Expo Go (bundle ID `host.exp.exponent`). w4rw1ck debe crear un Client en Privy Dashboard → Clients tab y agregar `EXPO_PUBLIC_PRIVY_CLIENT_ID` a `.env.local`. Commit: `120b10d`. ⚠️ Commit original etiquetado "B-27" (colisión de numeración — renombrado B-30 en STATUS.md).
+**B-30 — Fix:** `app/_layout.tsx` + `.env.local.example` — added prop `clientId={process.env.EXPO_PUBLIC_PRIVY_CLIENT_ID}` to `<PrivyProvider>`. Privy Expo in native mode requires a separate Client ID from the App ID to identify the correct instance in Expo Go (bundle ID `host.exp.exponent`). w4rw1ck must create a Client in Privy Dashboard → Clients tab and add `EXPO_PUBLIC_PRIVY_CLIENT_ID` to `.env.local`. Commit: `120b10d`. ⚠️ Original commit labeled "B-27" (numbering collision — renamed B-30 in STATUS.md).
 
-**B-31 — Fix (parcial):** `app/auth.tsx` — Aibus agregó `redirectUrl: Linking.createURL('/auth')` a `sendCode()`. El problema de fondo es que Privy no acepta el scheme `exp://` de Expo Go. Ver B-32 para la solución real. Commits: `fdbde71` + `f9011b2`. ⚠️ Commits originales etiquetados "B-28" (colisión — renombrado B-31 en STATUS.md).
+**B-31 — Fix (partial):** `app/auth.tsx` — Aibus added `redirectUrl: Linking.createURL('/auth')` to `sendCode()`. The underlying problem is that Privy doesn't accept Expo Go's `exp://` scheme. See B-32 for the real solution. Commits: `fdbde71` + `f9011b2`. ⚠️ Original commits labeled "B-28" (collision — renamed B-31 in STATUS.md).
 
-**B-32 — Fix:** `app/auth.tsx` — eliminado `redirectUrl` de `sendCode()` y `import * as Linking`. En el flujo OTP (código de 6 dígitos), Privy NO necesita `redirectUrl` — ese param es solo para el flujo de magic link clickeable donde el usuario es redirigido al app desde el email. Al pasarlo con scheme `exp://`, Privy lo validaba contra su lista de allowed schemes y fallaba. Sin `redirectUrl`, el email solo contiene el código numérico y el flujo funciona sin configuración adicional en el dashboard. Commit: `297ca72`.
+**B-32 — Fix:** `app/auth.tsx` — removed `redirectUrl` from `sendCode()` and `import * as Linking`. In OTP flow (6-digit code), Privy does NOT need `redirectUrl` — that param is only for clickable magic link flow where the user is redirected to the app from the email. By passing it with scheme `exp://`, Privy validated it against its allowed schemes list and failed. Without `redirectUrl`, the email only contains the numeric code and the flow works without additional configuration in the dashboard. Commit: `297ca72`.
 
-**B-37 — Fix:** `app/auth.tsx` — consolidación del guard de sesión existente. Un solo `useEffect` que: (1) extrae `privyId/userEmail` del `privyUser`; (2) llama `setUser(...)` síncronamente; (3) navega con `router.replace` ANTES de cualquier await; (4) sync con Supabase en background via `.then()/.catch()` — nunca bloquea. Eliminado el `useEffect` de B-35 que llamaba `handlePostLogin` con await. En `handlePostLogin` (para nuevos logins OTP/OAuth) se agrega `Promise.race([supabase.functions.invoke(...), timeout5s])` — si la Edge Function no responde en 5s, navega igual. Commit: `5e5e87a`.
+**B-37 — Fix:** `app/auth.tsx` — consolidation of existing session guard. A single `useEffect` that: (1) extracts `privyId/userEmail` from `privyUser`; (2) calls `setUser(...)` synchronously; (3) navigates with `router.replace` BEFORE any await; (4) syncs with Supabase in background via `.then()/.catch()` — never blocks. Removed the `useEffect` from B-35 that called `handlePostLogin` with await. In `handlePostLogin` (for new OTP/OAuth logins) adds `Promise.race([supabase.functions.invoke(...), timeout5s])` — if Edge Function doesn't respond in 5s, navigates anyway. Commit: `5e5e87a`.
 
-**B-36 — Fix:** `app/auth.tsx` — dos cambios principales: (1) Early return con spinner `ActivityIndicator` cuando `!privyReady || privyUser`. Mientras Privy carga o ya hay sesión, el formulario de login nunca se renderiza — imposible tocar `sendCode`/`loginWithOAuth` en ese estado. (2) `handlePostLogin` ahora navega explícitamente al terminar el sync: `router.replace("/(app)/home")` si `onboarding_complete` es true, `router.replace("/(onboarding)")` si no. El catch también navega a `/(onboarding)` como fallback (Edge Function puede fallar). Sin depender exclusivamente de `AuthGate`. `router` agregado al `useCallback` dependency array. Commit: `325e400`.
+**B-36 — Fix:** `app/auth.tsx` — two main changes: (1) Early return with `ActivityIndicator` spinner when `!privyReady || privyUser`. While Privy loads or there's already a session, the login form never renders — impossible to touch `sendCode`/`loginWithOAuth` in that state. (2) `handlePostLogin` now explicitly navigates when sync finishes: `router.replace("/(app)/home")` if `onboarding_complete` is true, `router.replace("/(onboarding)")` if not. The catch also navigates to `/(onboarding)` as fallback (Edge Function may fail). Without relying exclusively on `AuthGate`. `router` added to `useCallback` dependency array. Commit: `325e400`.
 
-**B-35 — Fix:** `app/auth.tsx` — agregados `useEffect` + `useCallback` + `usePrivy()`. Al montarse `AuthScreen`, si `privyReady=true` y `privyUser` existe (sesión en SecureStore), llama automáticamente a `handlePostLogin(privyUser)` para sincronizar con Supabase y actualizar Zustand → `AuthGate` detecta el usuario y redirige a `/(onboarding)` o `/(app)/home`. `handlePostLogin` envuelto en `useCallback` para estabilizar la referencia en el dependency array de `useEffect`. Safety net por si `AuthGate` no redirige a tiempo. Commit: `ffacd2d`.
+**B-35 — Fix:** `app/auth.tsx` — added `useEffect` + `useCallback` + `usePrivy()`. When `AuthScreen` mounts, if `privyReady=true` and `privyUser` exists (session in SecureStore), automatically calls `handlePostLogin(privyUser)` to sync with Supabase and update Zustand → `AuthGate` detects the user and redirects to `/(onboarding)` or `/(app)/home`. `handlePostLogin` wrapped in `useCallback` to stabilize the reference in the `useEffect` dependency array. Safety net in case `AuthGate` doesn't redirect in time. Commit: `ffacd2d`.
 
-**B-34 — Fix:** `app/_layout.tsx` — `AuthGate` refactorizado para usar `usePrivy()` como fuente de verdad de autenticación. Dos cambios clave: (1) `{ user: privyUser, ready: privyReady } = usePrivy()` — la presencia de `privyUser` (no `storeUser`) determina si hay sesión; (2) efecto de sincronización al arranque: si Privy tiene sesión pero Zustand está vacío (reinicio de app), llama automáticamente a `sync-privy-user` Edge Function para restaurar `user` y `onboardingComplete` sin re-login. `privyReady` evita flashes de redirección mientras Privy carga. También importado `supabase` en `_layout.tsx`. Commit: `d30290d`.
+**B-34 — Fix:** `app/_layout.tsx` — `AuthGate` refactored to use `usePrivy()` as the source of truth for authentication. Two key changes: (1) `{ user: privyUser, ready: privyReady } = usePrivy()` — the presence of `privyUser` (not `storeUser`) determines if there is a session; (2) sync effect on startup: if Privy has a session but Zustand is empty (app restart), automatically calls `sync-privy-user` Edge Function to restore `user` and `onboardingComplete` without re-login. `privyReady` prevents redirect flashes while Privy loads. Also imported `supabase` in `_layout.tsx`. Commit: `d30290d`.
 
-**B-33 — Fix:** `app/auth.tsx` — agregado `import * as WebBrowser from 'expo-web-browser'` y llamada a `WebBrowser.maybeCompleteAuthSession()` a nivel módulo. Esta función es obligatoria en Expo para completar el OAuth flow: cuando Google redirige de vuelta a la app tras el login, Expo Web Browser necesita saber que la sesión OAuth terminó y puede cerrar el browser. Sin esta llamada, el browser queda abierto o cuelga y `useLoginWithOAuth` nunca recibe el callback. Commit: `5f4bad5`.
+**B-33 — Fix:** `app/auth.tsx` — added `import * as WebBrowser from 'expo-web-browser'` and call to `WebBrowser.maybeCompleteAuthSession()` at module level. This function is mandatory in Expo to complete the OAuth flow: when Google redirects back to the app after login, Expo Web Browser needs to know the OAuth session has ended and can close the browser. Without this call, the browser stays open or hangs and `useLoginWithOAuth` never receives the callback. Commit: `5f4bad5`.
 
 ---
 
-## 🔒 Decisiones Técnicas Tomadas
+## 🔒 Technical Decisions Made
 
-| Fecha | Decisión | Razón |
-| 2026-03-06 | **B-51: Opción A elegida** — sync-privy-user minta JWT HS256 (sub=UUID, firmado con SUPABASE_JWT_SECRET). No se agrega Privy como proveedor externo en Supabase Dashboard. No se crean más Edge Functions. El JWT minted se pasa al cliente via `setSupabaseToken()` → `supabase.auth.setSession()`. `autoRefreshToken: false` porque Privy gestiona el ciclo de vida. Duración JWT: 30 días; re-minting automático en cada arranque de app cuando Privy tiene sesión | Privy no usa Supabase Auth — auth.uid() siempre era null antes de este fix |
+| Date | Decision | Reason |
+
+| 2026-03-06 | **B-51: Option A chosen** — sync-privy-user mints HS256 JWT (sub=UUID, signed with SUPABASE_JWT_SECRET). Privy not added as external provider in Supabase Dashboard. No additional Edge Functions created. The minted JWT is passed to client via `setSupabaseToken()` → `supabase.auth.setSession()`. `autoRefreshToken: false` because Privy manages the lifecycle. JWT duration: 30 days; automatic re-minting on each app startup when Privy has session | Privy does not use Supabase Auth — auth.uid() was always null before this fix |
 |---|---|---|
-| 2026-02-26 | Expo SDK 55 como base | Versión actual estable |
-| 2026-02-26 | expo-audio en lugar de expo-av | expo-av deprecated en Expo 55 |
-| 2026-02-26 | Zod 4.x | Versión actual, API compatible con hookform resolvers 5.x |
-| 2026-02-26 | openai SDK v6 | Versión actual con API estable |
-| 2026-02-26 | On-chain: solo si involucra transferencia de valor trustless o compromiso permanente | Principio arquitectural — evitar on-chain innecesario que añade fricción sin beneficio real |
-| 2026-02-26 | SMS nativo como fallback offline en crisis | Funciona sin internet ni app del contacto |
-| 2026-02-26 | Screen IDs S01–S24 (re-numerados) | Onboarding expandido con tests opcionales AQ/CAT-Q/RAADS-R |
-| 2026-02-26 | Settings entry para tests en Semana 2 (no 1) | settings/index.tsx se construye en Fase 2.4 |
-| 2026-02-27 | Grounding nivel 1 = multimodal (visual + voz + háptico) | Misma filosofía que niveles 2-3; ningún canal es indispensable |
-| 2026-02-27 | Timer de auto-avance en Grounding = 10s (canónico) | APP_FLOW.md es fuente de verdad; IMPLEMENTATION_PLAN corregido de 12s |
-| 2026-02-27 | w4rw1ck = ejecutor y aprendiz | Quiere aprender, no solo ejecutar — todo se explica |
-| 2026-02-27 | Audio grounding: voz guiada + tono ambient | Confirmado por w4rw1ck en sesión de planning |
-| 2026-02-27 | npm (no bun) como package manager | EAS Build requiere npm/yarn; bun es experimental en Expo |
-| 2026-03-01 | No usar columnas GENERATED con TIMESTAMPTZ en PostgreSQL | EXTRACT() sobre TIMESTAMPTZ no es inmutable; usar queries en su lugar |
-| 2026-03-01 | `hour_of_day` y `day_of_week` eliminados de tabla `checkins` | Calculables con EXTRACT en queries; no necesitan persistirse (B-01) |
-| 2026-03-02 | `metro.config.js` con `withNativeWind` es obligatorio para NativeWind v4 | Sin él, el procesamiento de CSS no ocurre y todos los className se ignoran (B-04) |
-| 2026-03-02 | Ningún agente inicia una fase sin instrucción explícita de w4rw1ck | Orden y control del sprint en manos del PO |
-| 2026-03-02 | FABs globales deben renderizarse en el root `_layout.tsx`, fuera de cualquier navegador | `zIndex` solo no es suficiente en Android nativo — el Tab Navigator crea su propia capa de UI que tapa elementos hijos (B-05 v2) |
-| 2026-03-02 | **NUNCA usar `expo-symbols` en Script** — siempre `Ionicons` de `@expo/vector-icons` | SF Symbols es exclusivo de Apple (iOS/macOS). En Android Expo Go no renderiza nada (B-07) |
-| 2026-03-02 | FAB overlay: `StyleSheet.absoluteFillObject` + `pointerEvents="box-none"` + flexbox | `position:absolute` con `bottom/right` no funciona correctamente en Android dentro de flex containers (B-07) |
-| 2026-03-02 | Círculo FAB: usar `View` wrapper, NO `Pressable` para `borderRadius+backgroundColor` | En Android, `Pressable` no renderiza `borderRadius+backgroundColor` correctamente — separar visual (`View`) de interacción (`Pressable`) (B-07) |
-| 2026-03-02 | Rutas ocultas requieren `Tabs.Screen href:null` en Expo Router | Expo Router auto-descubre todas las carpetas — rescue/ debe ocultarse explícitamente (B-06) |
-| 2026-03-02 | `Card` con `onPress`: Pressable directo con `opacity:0.85` al presionar | No se usa `TouchableOpacity` (deprecado). Pressable permite `style` como función con `pressed` state |
-| 2026-03-02 | `Card` variant "elevated": borde `script-blue` como indicador visual de selección | Solo el borde de color es suficiente — mantiene tono calmado del app |
-| 2026-03-05 | SAPTEL: (55) 5259-8121 (verificado en saptel.org.mx) | El número 800-290-0024 era incorrecto — en una app de crisis esto es crítico |
-| 2026-03-05 | Pantallas de crisis: colores dinámicos con `useColorScheme()`, layout en StyleSheet | Los tamaños son críticos (§11) y no deben variar, pero los colores deben adaptarse a dark mode para ser legibles |
-| 2026-03-05 | Tracking de fases en breathing: `Date.now()` en vez de `elapsed += interval` | `setInterval` en JS thread no es preciso; drift acumulado desincroniza con animaciones Reanimated (UI thread nativo) |
-| 2026-03-05 | Háptico en breathing: Light en transiciones + Success al completar | Consistente con la decisión de diseño multimodal; solo vibra en cambios de fase (no spam) |
-| 2026-03-06 | Campos de input controlados (value+onChangeText) obligatorios en auth flows | `onSubmitEditing` sin estado local no funciona confiablemente en Android físico — siempre usar inputs controlados |
-| 2026-03-06 | CORS headers en todas las Edge Functions de Supabase | Buena práctica aunque RN no sea browser; facilita testing desde web y evita errores de preflight |
-| 2026-03-06 | AQ-10 usa `.agree` booleano; TestScreen usa `.value` numérico | AQ-10 es binario (sí/no); AQ-Full/CAT-Q/RAADS-R son escalas multi-punto — patrones diferentes para propósitos diferentes |
-| 2026-03-06 | `AuthGate` en `_layout.tsx` maneja toda la redirección post-auth | No duplicar lógica de navegación en pantallas individuales — una sola fuente de verdad |
-| 2026-03-06 | EAS consent attestations reemplaza on-chain access control en Semana 5 | `grantAccess()/revokeAccess()` on-chain es mutable y no pasa el filtro; EAS emite consentimiento clínico como compromiso permanente e irrevocable |
-| 2026-03-06 | Token-gating de features premium: arquitectura pendiente, post-Semana 5 | w4rw1ck tiene un plan — se define cuando llegue el momento |
-| 2026-03-06 | SBTs de progreso descartados | Gamificar hitos de salud mental con tokens permanentes públicos es éticamente problemático para usuarios TEA — fijación, estigma, rigidez |
-| 2026-03-06 | Mapeo test→perfil semilla es decisión de diseño informado por clínica, NO protocolo clínico validado | Las reglas en `profile-seed.ts` (ej: AQ-10 alto → más scripts de socialización) son razonables pero no tienen publicación peer-reviewed que las respalde directamente. Documentado así en PRD para evitar escrutinio médico erróneo. Supervisión clínica recomendada antes de lanzamiento público (ver T-4.3) |
-| 2026-03-06 | `sendCode()` de Privy NO recibe `redirectUrl` en flujo OTP | `redirectUrl` solo es necesario para magic link clickeable (el usuario llega al app desde un link). En flujo OTP (código 6 dígitos) el param causa `Redirect URL scheme is not allowed` porque Privy valida el scheme contra su lista de allowed origins. Sin el param, el email solo contiene el código y el flujo funciona sin configuración extra en Privy dashboard |
-| 2026-03-06 | `WebBrowser.maybeCompleteAuthSession()` es obligatorio para OAuth en Expo | Debe llamarse a nivel módulo en el archivo que usa `useLoginWithOAuth`. Sin esta llamada, el browser OAuth queda colgado al recibir el redirect del proveedor (Google). Es el patrón estándar de Expo para cualquier OAuth flow con `expo-web-browser` |
-| 2026-03-06 | `AuthGate` usa `usePrivy().user` como fuente de verdad para auth, NO `useAuthStore().user` | Zustand es en memoria — se resetea en cada arranque. Privy persiste la sesión en SecureStore. El guard de navegación debe chequear Privy para evitar que usuarios ya autenticados vean la pantalla de login en cada reinicio. Zustand sigue siendo necesario para `onboardingComplete` y datos del perfil |
-| 2026-03-06 | Paleta Script mantenida (`script-blue: #A8C5DA`) — paleta lavanda rechazada | Para ASD, el azul grisáceo es clínicamente más estable que la lavanda. La lavanda es adecuada para apps de meditación (Calm, Headspace) pero no para el perfil de Script. Solo se añaden tokens `script-accent` (#10B981 confirmación) y `script-warning` (#F59E0B alerta) |
-| 2026-03-06 | Sistema de color emocional aprobado — 7 emociones × 3 valores | Inspirado en Daylio. Cada emoción tiene `{ bg, dot, text }`. El color ES la emoción — señal primaria visual. Reduce carga cognitiva de búsqueda textual (especialmente relevante en ASD). Labels GPT deben normalizarse a 8 valores canónicos |
-| 2026-03-06 | Atkinson Hyperlegible reemplaza Inter como fuente del proyecto | Diseñada con investigación empírica de accesibilidad. Formas de caracteres distintas reducen confusión en usuarios con procesamiento visual atípico. Solo Regular (400) y Bold (700) — no hay SemiBold |
-| 2026-03-06 | Gradiente de botón primario: mono-azul (#A8C5DA → #8BAEC4), NO lavanda | El gradiente azul→lavanda del skill añadiría un hue no presente en la paleta. Mono-azul da profundidad táctil sin introducir nuevos colores |
-| 2026-03-06 | Dot pattern SVG de fondo rechazado | `backgroundImage` no es nativo en React Native sin `react-native-svg` como capa adicional. ROI no justifica la dependencia. Las sombras de card + colores emocionales dan suficiente profundidad |
-| 2026-03-06 | Neumorphism rechazado como estilo base | Problemas de contraste en WCAG AAA. El "Soft UI" actual + shadows doble capa es más seguro y accesible |
-| 2026-03-06 | `react-native-get-random-values` como polyfill de crypto en RN/Hermes | Hermes lanza ReferenceError al acceder a global.crypto inexistente (a diferencia de V8 que retorna undefined); este paquete es el estándar para Privy en RN |
-| 2026-03-06 | `typeof localStorage !== "undefined"` obligatorio en código web | Metro SSR renderer corre en Node.js puro; `Platform.OS === "web"` puede ser true pero localStorage no existe — siempre verificar antes de acceder |
-| 2026-03-06 | Paquetes con imports circulares en ESM deben ir en `extraNodeModules` de metro.config.js | Con condición "browser", Metro puede crear ciclos en `wrapper.mjs` de uuid — forzar CJS raíz los rompe |
+| 2026-02-26 | Expo SDK 55 as base | Current stable version |
+| 2026-02-26 | expo-audio instead of expo-av | expo-av deprecated in Expo 55 |
+| 2026-02-26 | Zod 4.x | Current version, API compatible with hookform resolvers 5.x |
+| 2026-02-26 | openai SDK v6 | Current version with stable API |
+| 2026-02-26 | On-chain: only if it involves trustless value transfer or permanent commitment | Architectural principle — avoid unnecessary on-chain that adds friction without real benefit |
+| 2026-02-26 | Native SMS as offline fallback in crisis | Works without internet or contact's app |
+| 2026-02-26 | Screen IDs S01–S24 (re-numbered) | Expanded onboarding with optional tests AQ/CAT-Q/RAADS-R |
+| 2026-02-26 | Settings entry for tests in Week 2 (not 1) | settings/index.tsx is built in Phase 2.4 |
+| 2026-02-27 | Level 1 grounding = multimodal (visual + voice + haptic) | Same philosophy as levels 2-3; no channel is indispensable |
+| 2026-02-27 | Auto-advance timer in Grounding = 10s (canonical) | APP_FLOW.md is the source of truth; IMPLEMENTATION_PLAN corrected from 12s |
+| 2026-02-27 | w4rw1ck = executor and learner | Wants to learn, not just execute — everything is explained |
+| 2026-02-27 | Grounding audio: guided voice + ambient tone | Confirmed by w4rw1ck in planning session |
+| 2026-02-27 | npm (not bun) as package manager | EAS Build requires npm/yarn; bun is experimental in Expo |
+| 2026-03-01 | Do not use GENERATED columns with TIMESTAMPTZ in PostgreSQL | EXTRACT() on TIMESTAMPTZ is not immutable; use queries instead |
+| 2026-03-01 | `hour_of_day` and `day_of_week` removed from `checkins` table | Calculable with EXTRACT in queries; no need to persist them (B-01) |
+| 2026-03-02 | `metro.config.js` with `withNativeWind` is required for NativeWind v4 | Without it, CSS processing doesn't happen and all classNames are ignored (B-04) |
+| 2026-03-02 | No agent starts a phase without explicit instruction from w4rw1ck | Sprint order and control in PO's hands |
+| 2026-03-02 | Global FABs must render in the root `_layout.tsx`, outside any navigator | `zIndex` alone is not sufficient on native Android — Tab Navigator creates its own UI layer that covers child elements (B-05 v2) |
+| 2026-03-02 | **NEVER use `expo-symbols` in Script** — always `Ionicons` from `@expo/vector-icons` | SF Symbols is exclusive to Apple (iOS/macOS). On Android Expo Go it renders nothing (B-07) |
+| 2026-03-02 | FAB overlay: `StyleSheet.absoluteFillObject` + `pointerEvents="box-none"` + flexbox | `position:absolute` with `bottom/right` does not work correctly on Android inside flex containers (B-07) |
+| 2026-03-02 | FAB circle: use `View` wrapper, NOT `Pressable` for `borderRadius+backgroundColor` | On Android, `Pressable` does not render `borderRadius+backgroundColor` correctly — separate visual (`View`) from interaction (`Pressable`) (B-07) |
+| 2026-03-02 | Hidden routes require `Tabs.Screen href:null` in Expo Router | Expo Router auto-discovers all folders — rescue/ must be explicitly hidden (B-06) |
+| 2026-03-02 | `Card` with `onPress`: direct Pressable with `opacity:0.85` on press | `TouchableOpacity` is not used (deprecated). Pressable allows `style` as function with `pressed` state |
+| 2026-03-02 | `Card` "elevated" variant: `script-blue` border as visual selection indicator | Only the colored border is sufficient — maintains the app's calm tone |
+| 2026-03-05 | SAPTEL: (55) 5259-8121 (verified at saptel.org.mx) | The number 800-290-0024 was incorrect — in a crisis app this is critical |
+| 2026-03-05 | Crisis screens: dynamic colors with `useColorScheme()`, layout in StyleSheet | Sizes are critical (§11) and must not vary, but colors must adapt to dark mode to be readable |
+| 2026-03-05 | Phase tracking in breathing: `Date.now()` instead of `elapsed += interval` | `setInterval` on JS thread is not precise; accumulated drift desyncs with Reanimated animations (native UI thread) |
+| 2026-03-05 | Haptics in breathing: Light on transitions + Success on completion | Consistent with multimodal design decision; only vibrates on phase changes (no spam) |
+| 2026-03-06 | Controlled input fields (value+onChangeText) required in auth flows | `onSubmitEditing` without local state does not work reliably on physical Android — always use controlled inputs |
+| 2026-03-06 | CORS headers on all Supabase Edge Functions | Good practice even if RN is not a browser; facilitates web testing and avoids preflight errors |
+| 2026-03-06 | AQ-10 uses `.agree` boolean; TestScreen uses `.value` numeric | AQ-10 is binary (yes/no); AQ-Full/CAT-Q/RAADS-R are multi-point scales — different patterns for different purposes |
+| 2026-03-06 | `AuthGate` in `_layout.tsx` handles all post-auth redirection | Don't duplicate navigation logic in individual screens — single source of truth |
+| 2026-03-06 | EAS consent attestations replaces on-chain access control in Week 5 | `grantAccess()/revokeAccess()` on-chain is mutable and doesn't pass the filter; EAS issues clinical consent as a permanent, irrevocable commitment |
+| 2026-03-06 | Premium feature token-gating: pending architecture, post-Week 5 | w4rw1ck has a plan — to be defined when the time comes |
+| 2026-03-06 | Progress SBTs discarded | Gamifying mental health milestones with permanent public tokens is ethically problematic for ASD users — fixation, stigma, rigidity |
+| 2026-03-06 | Test→seed profile mapping is a clinically-informed design decision, NOT a validated clinical protocol | The rules in `profile-seed.ts` (e.g.: high AQ-10 → more socialization scripts) are reasonable but have no peer-reviewed publication directly backing them. Documented as such in PRD to avoid erroneous medical scrutiny. Clinical supervision recommended before public launch (see T-4.3) |
+| 2026-03-06 | Privy's `sendCode()` does NOT receive `redirectUrl` in OTP flow | `redirectUrl` is only needed for clickable magic links (user arrives at app from a link). In OTP flow (6-digit code) the param causes `Redirect URL scheme is not allowed` because Privy validates the scheme against its allowed origins list. Without the param, the email only contains the code and the flow works without extra configuration in Privy dashboard |
+| 2026-03-06 | `WebBrowser.maybeCompleteAuthSession()` is required for OAuth in Expo | Must be called at module level in the file that uses `useLoginWithOAuth`. Without this call, the OAuth browser hangs when it receives the provider's redirect (Google). It's the standard Expo pattern for any OAuth flow with `expo-web-browser` |
+| 2026-03-06 | `AuthGate` uses `usePrivy().user` as the auth source of truth, NOT `useAuthStore().user` | Zustand is in memory — it resets on every restart. Privy persists the session in SecureStore. The navigation guard must check Privy to prevent already-authenticated users from seeing the login screen on every restart. Zustand is still needed for `onboardingComplete` and profile data |
+| 2026-03-06 | Script palette maintained (`script-blue: #A8C5DA`) — lavender palette rejected | For ASD, grayish-blue is clinically more stable than lavender. Lavender is suitable for meditation apps (Calm, Headspace) but not for Script's profile. Only `script-accent` tokens (#10B981 confirmation) and `script-warning` (#F59E0B alert) are added |
+| 2026-03-06 | Emotional color system approved — 7 emotions × 3 values | Inspired by Daylio. Each emotion has `{ bg, dot, text }`. Color IS the emotion — primary visual signal. Reduces cognitive load of text-based search (especially relevant in ASD). GPT labels must be normalized to 8 canonical values |
+| 2026-03-06 | Atkinson Hyperlegible replaces Inter as project font | Designed with empirical accessibility research. Distinct character shapes reduce confusion in users with atypical visual processing. Regular (400) and Bold (700) only — no SemiBold |
+| 2026-03-06 | Primary button gradient: mono-blue (#A8C5DA → #8BAEC4), NOT lavender | The blue→lavender gradient from the skill would introduce a hue not present in the palette. Mono-blue gives tactile depth without introducing new colors |
+| 2026-03-06 | SVG dot pattern background rejected | `backgroundImage` is not native in React Native without `react-native-svg` as an additional layer. ROI does not justify the dependency. Card shadows + emotional colors provide sufficient depth |
+| 2026-03-06 | Neumorphism rejected as base style | WCAG AAA contrast issues. Current "Soft UI" + double-layer shadows is safer and more accessible |
+| 2026-03-06 | `react-native-get-random-values` as crypto polyfill in RN/Hermes | Hermes throws ReferenceError when accessing non-existent global.crypto (unlike V8 which returns undefined); this package is the standard for Privy in RN |
+| 2026-03-06 | `typeof localStorage !== "undefined"` required in web code | Metro SSR renderer runs in pure Node.js; `Platform.OS === "web"` can be true but localStorage doesn't exist — always check before accessing |
+| 2026-03-06 | Packages with circular ESM imports must go in `extraNodeModules` in metro.config.js | With "browser" condition, Metro can create cycles in uuid's `wrapper.mjs` — forcing CJS root resolution breaks them |
 
 ---
 
-## 📝 Notas del Sprint
+## 📝 Sprint Notes
 
-### Semana 1
+### Week 1
 
-**2026-03-06 — Identidad Visual + UX Audit — 14 tickets registrados (Ana + Aibus)**
-- Fuentes: `nextlevelbuilder/ui-ux-pro-max-skill` + análisis de identidad visual (Aibus, 2026-03-06)
-- FRONTEND_GUIDELINES.md v1.4 actualizado con: §1.4 sistema emocional, §2 Atkinson, §4 shadows/gradiente, §7 useReduceMotion, §12 identidad visual
-- 6 tickets UI/UX (T-U1 a T-U8): 2 críticos (useReduceMotion, error feedback GPT)
-- 8 tickets Visual Identity (T-V1 a T-V9): foundation (colors.ts, shadows, fuente), pantallas (reflect, result, home), infraestructura (label normalization)
-- 7 nuevas decisiones técnicas documentadas (paleta, emociones, fuente, gradiente, neumorphism, dot pattern)
-- División: T-U1/T-U2/T-U4/T-U5/T-U6/T-V1/T-V3/T-V4/T-V5 → **Ana** | T-U3/T-V2/T-V6/T-V7/T-V8 → **Aibus**
+**2026-03-06 — Visual Identity + UX Audit — 14 tickets registered (Ana + Aibus)**
+- Sources: `nextlevelbuilder/ui-ux-pro-max-skill` + visual identity analysis (Aibus, 2026-03-06)
+- FRONTEND_GUIDELINES.md v1.4 updated with: §1.4 emotional system, §2 Atkinson, §4 shadows/gradient, §7 useReduceMotion, §12 visual identity
+- 6 UI/UX tickets (T-U1 to T-U8): 2 critical (useReduceMotion, GPT error feedback)
+- 8 Visual Identity tickets (T-V1 to T-V9): foundation (colors.ts, shadows, font), screens (reflect, result, home), infrastructure (label normalization)
+- 7 new technical decisions documented (palette, emotions, font, gradient, neumorphism, dot pattern)
+- Split: T-U1/T-U2/T-U4/T-U5/T-U6/T-V1/T-V3/T-V4/T-V5 → **Ana** | T-U3/T-V2/T-V6/T-V7/T-V8 → **Aibus**
 
-**2026-03-06 — B-37 — Fix spinner colgado + fire-and-forget sync (Ana)**
-- "Cargando tu sesión..." colgado 5+ minutos — `await supabase.functions.invoke("sync-privy-user")` bloqueaba la navegación
-- Causa: B-35 llamaba `handlePostLogin` con await desde un `useEffect` → Edge Function no desplegada o timeout de red → nunca resolvía
-- Fix: navegar ANTES del await, sync en background. Timeout de 5s en `handlePostLogin` para OTP/OAuth
+**2026-03-06 — B-37 — Fix hung spinner + fire-and-forget sync (Ana)**
+- "Loading your session..." hanging 5+ minutes — `await supabase.functions.invoke("sync-privy-user")` was blocking navigation
+- Cause: B-35 called `handlePostLogin` with await from a `useEffect` → Edge Function not deployed or network timeout → never resolved
+- Fix: navigate BEFORE await, sync in background. 5s timeout in `handlePostLogin` for OTP/OAuth
 - Commit: `5e5e87a`
 
-**2026-03-06 — B-36 — Fix definitivo auth loop (Ana)**
-- Problema persistente: auth screen se mostraba aunque Privy tuviera sesión → "already logged in" en todos los intentos de login
-- Causa: formulario de login seguía renderizando con `privyUser !== null`; hooks de Privy fallaban al ser invocados en estado autenticado
-- Fix A: early return en `auth.tsx` — si `!privyReady || privyUser`, mostrar spinner y nunca renderizar el formulario
-- Fix B: `handlePostLogin` navega explícitamente via `router.replace` al terminar → no depende de que AuthGate dispare la redirección
+**2026-03-06 — B-36 — Definitive auth loop fix (Ana)**
+- Persistent problem: auth screen showed even though Privy had session → "already logged in" on all login attempts
+- Cause: login form kept rendering with `privyUser !== null`; Privy hooks failed when invoked in authenticated state
+- Fix A: early return in `auth.tsx` — if `!privyReady || privyUser`, show spinner and never render the form
+- Fix B: `handlePostLogin` navigates explicitly via `router.replace` when finished → doesn't depend on AuthGate firing the redirect
 - Commit: `325e400`
 
-**2026-03-06 — B-34 — AuthGate: Privy como fuente de verdad (Ana)**
-- Error `Already logged in` al intentar Google OAuth — causa raíz: `AuthGate` usaba Zustand (en memoria) como fuente de verdad, no Privy (persistido en SecureStore)
-- En cada reinicio de app, Zustand se resetea → `user` null → AuthGate muestra `/auth` → usuario ya logueado intenta login de nuevo → Privy dice "ya estás logueado"
-- Fix: `AuthGate` ahora usa `usePrivy().user` para determinar si hay sesión y espera `usePrivy().ready` antes de navegar
-- Efecto de sincronización: si Privy tiene sesión pero Zustand está vacío, llama `sync-privy-user` al arranque para restaurar estado completo (incluye `onboarding_complete`)
+**2026-03-06 — B-34 — AuthGate: Privy as source of truth (Ana)**
+- `Already logged in` error when attempting Google OAuth — root cause: `AuthGate` used Zustand (in memory) as source of truth, not Privy (persisted in SecureStore)
+- On each app restart, Zustand resets → `user` null → AuthGate shows `/auth` → already logged-in user tries to log in again → Privy says "you're already logged in"
+- Fix: `AuthGate` now uses `usePrivy().user` to determine if there's a session and waits for `usePrivy().ready` before navigating
+- Sync effect: if Privy has session but Zustand is empty, calls `sync-privy-user` on startup to restore full state (including `onboarding_complete`)
 - Commit: `d30290d`
 
 **2026-03-06 — B-33 — Google OAuth fix (Ana)**
-- Email OTP funcionando ✅ (B-32 verificado por w4rw1ck en dispositivo Android)
-- Google OAuth: browser abría pero nunca regresaba a la app
-- Causa: `WebBrowser.maybeCompleteAuthSession()` faltaba — obligatorio para OAuth en Expo
-- Fix: agregar llamada a nivel módulo en `auth.tsx` + `import expo-web-browser`
-- Pendiente verificación en dispositivo (w4rw1ck)
-- Pendiente acción en Privy Dashboard: habilitar Google como Social Login provider (Authentication tab)
+- Email OTP working ✅ (B-32 verified by w4rw1ck on Android device)
+- Google OAuth: browser opened but never returned to app
+- Cause: `WebBrowser.maybeCompleteAuthSession()` was missing — required for OAuth in Expo
+- Fix: add module-level call in `auth.tsx` + `import expo-web-browser`
+- Pending device verification (w4rw1ck)
+- Pending action in Privy Dashboard: enable Google as Social Login provider (Authentication tab)
 - Commit: `5f4bad5`
 
 **2026-03-06 — B-32 — Privy auth OTP fix (Ana)**
-- Error `Redirect URL scheme is not allowed` al intentar login con email en Expo Go Android
-- Causa raíz: `sendCode()` recibía `redirectUrl` con scheme `exp://` que Privy rechaza — pero ese param NO es necesario en flujo OTP
-- Fix: eliminar `redirectUrl` + `Linking` import de `auth.tsx`. El código OTP llega al email sin redirect URL
-- Error separado `Unable to activate keep awake` es inofensivo en Expo Go dev — viene de `expo-keep-awake` en una dependencia, desaparece en build de producción
-- Pendiente: w4rw1ck debe crear un Client en Privy Dashboard → Clients tab con App Identifier `host.exp.exponent` y agregar el Client ID a `.env.local` (ver B-30)
+- Error `Redirect URL scheme is not allowed` when attempting email login in Expo Go Android
+- Root cause: `sendCode()` received `redirectUrl` with scheme `exp://` which Privy rejects — but that param is NOT needed in OTP flow
+- Fix: remove `redirectUrl` + `Linking` import from `auth.tsx`. OTP code arrives in email without redirect URL
+- Separate error `Unable to activate keep awake` is harmless in Expo Go dev — comes from `expo-keep-awake` in a dependency, disappears in production build
+- Pending: w4rw1ck must create a Client in Privy Dashboard → Clients tab with App Identifier `host.exp.exponent` and add the Client ID to `.env.local` (see B-30)
 - Commit: `297ca72`
 
-**2026-03-06 — Auditoría clínica completa por Aibus Dumbleclaw — 12 tickets registrados**
-- Base: commit `fdcadd2` (dev branch) — Semana 1 código completo
-- Score global: **6.6/10** — sólido para MVP con usuarios conocidos; no suficiente para lanzamiento público sin resolver críticos
-- Fortalezas: enfoque sensory-first ✅, lenguaje tentativo en IA ✅, tests clínicamente validados (AQ/CAT-Q/RAADS-R) ✅, offline-first en crisis ✅, RLS en 9 tablas ✅
-- 3 tickets críticos antes de usuarios reales (T-C1/T-C2/T-C3): ideación suicida, safety filter GPT, consentimiento informado
-- 6 tickets Semana 2 de alta/media prioridad (T-2.7 a T-2.12): persistencia scores, crisis_events, temperatura GPT, script_executions, PMID, UI feedback
-- 3 tickets Semana 3-4 (T-3.1, T-3.2, T-4.1, T-4.2, T-4.3): rate limiting, logging IA, script fading, zonas Mahler, supervisión clínica
-- División: T-C1/T-C3/2.8/2.10/2.11/4.1/4.2 → **Ana** | T-C2/2.7/2.9/2.12/3.1/3.2 → **Aibus**
-- Nueva decisión técnica registrada: mapeo test→perfil = "diseño informado por clínica" no protocolo validado
+**2026-03-06 — Full clinical audit by Aibus Dumbleclaw — 12 tickets registered**
+- Base: commit `fdcadd2` (dev branch) — Week 1 code complete
+- Global score: **6.6/10** — solid for MVP with known users; not sufficient for public launch without resolving critical items
+- Strengths: sensory-first approach ✅, tentative AI language ✅, clinically validated tests (AQ/CAT-Q/RAADS-R) ✅, crisis offline-first ✅, RLS on 9 tables ✅
+- 3 critical tickets before real users (T-C1/T-C2/T-C3): suicidal ideation, GPT safety filter, informed consent
+- 6 high/medium priority Week 2 tickets (T-2.7 to T-2.12): score persistence, crisis_events, GPT temperature, script_executions, PMID, UI feedback
+- 3 Week 3-4 tickets (T-3.1, T-3.2, T-4.1, T-4.2, T-4.3): rate limiting, AI logging, script fading, Mahler zones, clinical supervision
+- Split: T-C1/T-C3/2.8/2.10/2.11/4.1/4.2 → **Ana** | T-C2/2.7/2.9/2.12/3.1/3.2 → **Aibus**
+- New technical decision registered: test→profile mapping = "clinically-informed design" not validated protocol
 - Ref: https://gist.github.com/dumbleclaw/8d6db74cc4b64b03dde7ed4623ef4bec
 
-**2026-03-06 — Contenido scripts sociales con fundamento clínico (bloqueador #7 ✅)**
-- `supabase/seed-scripts.sql` reescrito — 5 scripts con bloques completos, frases reales, contexto clínico
-- Estructura apertura→contexto→acción→salida basada en Gray (1994) Social Stories™ + Baker (2003)
-- Múltiples opciones por fase para reducir carga cognitiva (Gaus, 2011)
-- Salida `optional: true` — no forzar cierre formal (Attwood, 2007)
-- `REFERENCES.md` creado — fuentes académicas de scripts, tests de onboarding y recursos futuros
-- Bloqueador #7 resuelto ✅ — bloqueadores activos ahora: #2 (Privy App ID), #5 (traducciones), #6 (audio)
+**2026-03-06 — Social scripts content with clinical foundation (blocker #7 ✅)**
+- `supabase/seed-scripts.sql` rewritten — 5 scripts with complete blocks, real phrases, clinical context
+- Opening→context→action→exit structure based on Gray (1994) Social Stories™ + Baker (2003)
+- Multiple options per phase to reduce cognitive load (Gaus, 2011)
+- `optional: true` exit — no forced formal closure (Attwood, 2007)
+- `REFERENCES.md` created — academic sources for scripts, onboarding tests, and future resources
+- Blocker #7 resolved ✅ — active blockers now: #2 (Privy App ID), #5 (translations), #6 (audio)
 - Commit: `fdcadd2`
 
 **2026-03-06 — Metro uuid circular import fix (B-29)**
-- Android bundled ✅ (crypto fix funcionó) — nuevo error: uuid wrapper.mjs circular
-- `@privy-io/js-sdk-core` anida su propio uuid; condición "browser" causaba import circular
-- Fix: uuid raíz en extraNodeModules de metro.config.js + `npm install uuid`
-- w4rw1ck debe correr `npm install` antes de `npx expo start`
+- Android bundled ✅ (crypto fix worked) — new error: uuid wrapper.mjs circular
+- `@privy-io/js-sdk-core` nests its own uuid; "browser" condition caused circular import
+- Fix: uuid root in metro.config.js extraNodeModules + `npm install uuid`
+- w4rw1ck must run `npm install` before `npx expo start`
 - Commit: `c29f4c6`
 
 **2026-03-06 — Polyfill fixes: crypto + localStorage (B-27/B-28)**
-- Bug B-27 🔴: `global.crypto` inexistente en Hermes lanza ReferenceError → instalado `react-native-get-random-values ~1.11.0`, importado primero en polyfills.ts
-- Bug B-28 🟡: `localStorage` undefined en Metro SSR (Node.js) → guards `typeof localStorage !== "undefined"` en supabase.ts
-- w4rw1ck debe correr `npm install` para instalar el nuevo paquete
+- Bug B-27 🔴: non-existent `global.crypto` in Hermes throws ReferenceError → installed `react-native-get-random-values ~1.11.0`, imported first in polyfills.ts
+- Bug B-28 🟡: `localStorage` undefined in Metro SSR (Node.js) → guards `typeof localStorage !== "undefined"` in supabase.ts
+- w4rw1ck must run `npm install` to install the new package
 - Commits: `d9e562c` (polyfills) → `f80d5e0` (supabase)
 
-**2026-03-06 — Auditoría Fase 1.8 por Ana — 3 bugs encontrados y resueltos (B-22 a B-24)**
-- Bug B-22 🔴: AuthGate bloqueaba el protocolo de rescate sin auth — crítico en crisis — fix: excepción explícita en guard para rutas `rescue/`
-- Bug B-23 🟡: Token NativeWind `script-surface` inexistente en 3 archivos — barras de progreso y tarjeta de contactos sin fondo visible
-- Bug B-24 🟡: `Button` sin `className` prop — `className="mt-3"` ignorado en `aq10-result.tsx`
+**2026-03-06 — Phase 1.8 audit by Ana — 3 bugs found and resolved (B-22 to B-24)**
+- Bug B-22 🔴: AuthGate blocked the rescue protocol without auth — critical in crisis — fix: explicit exception in guard for `rescue/` routes
+- Bug B-23 🟡: NativeWind token `script-surface` non-existent in 3 files — test progress bars and contacts card without visible background
+- Bug B-24 🟡: `Button` without `className` prop — `className="mt-3"` ignored in `aq10-result.tsx`
 - Commits: `05fb4e8` → `38bfacb` → `f733e23`
-- Semana 1 código: 8/8 fases implementadas, 24 bugs documentados y resueltos
-- Pendiente verificación funcional en dispositivo (bloqueada por Privy App ID — ver bloqueador #2)
+- Week 1 code: 8/8 phases implemented, 24 bugs documented and resolved
+- Pending functional verification on device (blocked by Privy App ID — see blocker #2)
 
-**2026-03-06 — Decisiones de arquitectura on-chain (Semana 5)**
-- Principio establecido: "si no involucra transferencia de valor trustless o compromiso permanente, no va on-chain"
-- On-chain access control descartado: `grantAccess()/revokeAccess()` es mutable; Supabase RLS es suficiente para permisos
-- EAS consent attestations aprobado para Semana 5: consentimiento clínico paciente→terapeuta como attestation inmutable
-- Token-gating de features premium: aprobado en principio, arquitectura a definir post-Semana 5 (w4rw1ck tiene plan)
-- SBTs de progreso descartados: éticamente problemáticos en contexto de salud mental TEA (fijación, estigma, permanencia pública)
-- Docs actualizados: PRD.md, IMPLEMENTATION_PLAN.md, TECH_STACK.md, STATUS.md
+**2026-03-06 — On-chain architecture decisions (Week 5)**
+- Principle established: "if it doesn't involve trustless value transfer or permanent commitment, don't put it on-chain"
+- On-chain access control discarded: `grantAccess()/revokeAccess()` is mutable; Supabase RLS is sufficient for permissions
+- EAS consent attestations approved for Week 5: clinical patient→therapist consent as immutable attestation
+- Premium feature token-gating: approved in principle, architecture to be defined post-Week 5 (w4rw1ck has a plan)
+- Progress SBTs discarded: ethically problematic in ASD mental health context (fixation, stigma, permanent public record)
+- Updated docs: PRD.md, IMPLEMENTATION_PLAN.md, TECH_STACK.md, STATUS.md
 
-**2026-03-06 — Fase 1.8 completa + auditoría + 7 fixes (B-15 a B-21)**
-- Fase 1.8 implementada por sub-agente: Auth Privy + Onboarding completo S01→S08 (commit `72abbc5`)
-- Auditoría inmediata por Aibus encontró 7 issues (2 altos, 3 medios, 2 bajos)
-- Corregidos en commits individuales: `57d4947` → `fe855c2` → `8372e4e` → `fa66ce1` → `6eaae73` → `e619532` → `6055a7b` → `523e50a`
-- Semana 1 código: 8/8 fases implementadas, 0 issues abiertos de auditoría
-- Bloqueador activo: B-13 Privy config (w4rw1ck necesita crear App ID en dashboard.privy.io)
-- Pendiente w4rw1ck: crear Privy App ID, llenar .env.local, `supabase functions deploy sync-privy-user`
+**2026-03-06 — Phase 1.8 complete + audit + 7 fixes (B-15 to B-21)**
+- Phase 1.8 implemented by sub-agent: Privy Auth + Complete Onboarding S01→S08 (commit `72abbc5`)
+- Immediate audit by Aibus found 7 issues (2 high, 3 medium, 2 low)
+- Fixed in individual commits: `57d4947` → `fe855c2` → `8372e4e` → `fa66ce1` → `6eaae73` → `e619532` → `6055a7b` → `523e50a`
+- Week 1 code: 8/8 phases implemented, 0 open audit issues
+- Active blocker: B-13 Privy config (w4rw1ck needs to create App ID at dashboard.privy.io)
+- Pending w4rw1ck: create Privy App ID, fill in .env.local, `supabase functions deploy sync-privy-user`
 
-**2026-03-05 — Verificación Fase 1.7 en dispositivo + 4 fixes (B-11 a B-14)**
-- w4rw1ck probó el protocolo de rescate en su Android físico
-- Bug B-11: número SAPTEL incorrecto (800-290-0024) → corregido a (55) 5259-8121 (verificado en saptel.org.mx)
-- Bug B-12: pantallas de crisis ilegibles en dark mode → colores dinámicos con `useColorScheme()` en assess.tsx + protocol.tsx
-- Bug B-13: label de respiración desincronizado con círculo animado → `Date.now()` en vez de `elapsed += 100`
-- Bug B-14: respiración guiada sin feedback háptico → Light impact en transiciones de fase + Success al completar
-- Audio sigue pendiente (assets/audio/)
+**2026-03-05 — Phase 1.7 device verification + 4 fixes (B-11 to B-14)**
+- w4rw1ck tested the rescue protocol on their physical Android
+- Bug B-11: incorrect SAPTEL number (800-290-0024) → corrected to (55) 5259-8121 (verified at saptel.org.mx)
+- Bug B-12: crisis screens unreadable in dark mode → dynamic colors with `useColorScheme()` in assess.tsx + protocol.tsx
+- Bug B-13: breathing label out of sync with animated circle → `Date.now()` instead of `elapsed += 100`
+- Bug B-14: guided breathing without haptic feedback → Light impact on phase transitions + Success on completion
+- Audio still pending (assets/audio/)
 - Commits: `e974d66` → `a2f3d41` → `67bb9d5` → `cf3db00`
 
-**2026-03-02 — Fase 1.7 completa: Protocolo de Rescate (S17→S18)**
-- assess.tsx (S17): §11 estricto — fondo crisis, botones 72px, ← Salir, 3 niveles
-- protocol.tsx (S18): Nivel 1 grounding 5-4-3-2-1 + háptico; Nivel 2 círculo Reanimated (4s/2s/6s × 4 ciclos); Nivel 3 SAPTEL + respiración secundaria
-- StyleSheet en lugar de NativeWind en pantallas de crisis (valores críticos)
-- Audio pendiente: assets/audio/ README creado, esperando archivos MP3
-- SAPTEL: (55) 5259-8121, 24h, gratuito (México)
-- Pendiente verificación en dispositivo y contactos de confianza (Fase 1.8+)
+**2026-03-02 — Phase 1.7 complete: Rescue Protocol (S17→S18)**
+- assess.tsx (S17): strict §11 — crisis background, 72px buttons, ← Exit, 3 levels
+- protocol.tsx (S18): Level 1 grounding 5-4-3-2-1 + haptic; Level 2 Reanimated circle (4s/2s/6s × 4 cycles); Level 3 SAPTEL + secondary breathing
+- StyleSheet instead of NativeWind on crisis screens (critical values)
+- Audio pending: assets/audio/ README created, waiting for MP3 files
+- SAPTEL: (55) 5259-8121, 24h, free (Mexico)
+- Pending device verification and trusted contacts (Phase 1.8+)
 
-**2026-03-02 — Fase 1.6 completa: Biblioteca de Scripts (S14→S15→S16)**
-- index.tsx (S14): fetch Supabase predefined scripts, 4 chips de categoría, 5 cards
-- [id].tsx (S15): detalle completo, vista previa de bloques tipo, CTA ejecutar
-- execute.tsx (S16): paso a paso, barra progreso dinámica, opciones seleccionables, bloque contexto, saltar opcional, pantalla de celebración
-- execute.tsx implementado como ruta estática (no [id]/execute) con id como query param
-- Pendiente verificación en dispositivo físico (w4rw1ck)
+**2026-03-02 — Phase 1.6 complete: Script Library (S14→S15→S16)**
+- index.tsx (S14): Supabase predefined scripts fetch, 4 category chips, 5 cards
+- [id].tsx (S15): full detail, block type preview, execute CTA
+- execute.tsx (S16): step-by-step, dynamic progress bar, selectable options, context block, optional skip, celebration screen
+- execute.tsx implemented as static route (not [id]/execute) with id as query param
+- Pending device verification (w4rw1ck)
 
-**2026-03-02 — Fase 1.5 completa: Check-in Corporal (S10→S11→S12→S13)**
-- BodyMap.tsx: SVG 6 zonas táctiles, multi-selección, light/dark mode
-- body.tsx (S10): BodyMap + chips + CTA deshabilitado sin selección
-- notes.tsx (S11): TextInput libre, chips read-only, KeyboardAvoidingView
-- reflect.tsx (S12): loader + 5 opciones emoción (mock) + input personalizado
-- result.tsx (S13): muestra emoción, INSERT Supabase, flagged_for_review
-- interpret-checkin: Edge Function GPT-4o-mini con system prompt lenguaje tentativo
-- Pendiente verificación en dispositivo físico (w4rw1ck)
+**2026-03-02 — Phase 1.5 complete: Body Check-in (S10→S11→S12→S13)**
+- BodyMap.tsx: SVG 6 touch zones, multi-selection, light/dark mode
+- body.tsx (S10): BodyMap + chips + CTA disabled without selection
+- notes.tsx (S11): free TextInput, read-only chips, KeyboardAvoidingView
+- reflect.tsx (S12): loader + 5 emotion options (mock) + custom input
+- result.tsx (S13): shows emotion, Supabase INSERT, flagged_for_review
+- interpret-checkin: GPT-4o-mini Edge Function with tentative language system prompt
+- Pending device verification (w4rw1ck)
 
-**2026-03-02 — Fase 1.4 completada y verificada en dispositivo**
-- 1.4.1–1.4.4 implementadas por Aibus + Ana — tabs, FAB, Home real
-- Bug B-04 detectado: NativeWind sin estilos por falta de metro.config.js — fix en `30fec72`
-- Estilos confirmados funcionando en dispositivo físico Android (w4rw1ck)
-- Bug B-05: FAB invisible en Android físico — fix v1 `b7e9b6e` (zIndex) → fix v2 `6562449` (root layout) → root cause real: B-07
-- Bug B-07 (root cause): `expo-symbols` no funciona en Android — reemplazado por `Ionicons` (@expo/vector-icons) en 5 commits por Aibus. FAB rediseñado con overlay + View circular. Verified en dispositivo físico Android ✅
-- Bug B-06: Tab "rescue" aparecía en barra (faltaba href:null) — fix en `7ccfd0f`
-- FRONTEND_GUIDELINES v1.2: tabla de inspiraciones por pantalla + decisión Planta→S3
-- Regla establecida: ningún agente inicia una fase sin instrucción explícita del PO
+**2026-03-02 — Phase 1.4 completed and verified on device**
+- 1.4.1–1.4.4 implemented by Aibus + Ana — tabs, FAB, real Home
+- Bug B-04 detected: NativeWind without styles due to missing metro.config.js — fix in `30fec72`
+- Styles confirmed working on physical Android device (w4rw1ck)
+- Bug B-05: FAB invisible on physical Android — fix v1 `b7e9b6e` (zIndex) → fix v2 `6562449` (root layout) → real root cause: B-07
+- Bug B-07 (root cause): `expo-symbols` doesn't work on Android — replaced by `Ionicons` (@expo/vector-icons) in 5 commits by Aibus. FAB redesigned with overlay + circular View. Verified on physical Android device ✅
+- Bug B-06: "rescue" tab appeared in bar (missing href:null) — fix in `7ccfd0f`
+- FRONTEND_GUIDELINES v1.2: inspiration table by screen + Plant→S3 decision
+- Rule established: no agent starts a phase without explicit PO instruction
 
-**2026-02-27 — Sesión de planning completada**
-- Equipo formado: w4rw1ck + Ana Banana + Aibus Dumbleclaw
-- Branch `dev` creado ✅
-- Branches `feat/fase-1-4` a `feat/fase-1-7` creados ✅ (Ana)
-- godin-001 aceptó invitación como colaboradora ✅
-- 7 bloqueadores identificados antes de arrancar (ver tabla arriba)
-- Node.js v22 compatible con Expo 55 ✅
-- Dispositivo de prueba: Android físico + amigo con TEA Nivel 1 diagnosticado
+**2026-02-27 — Planning session completed**
+- Team formed: w4rw1ck + Ana Banana + Aibus Dumbleclaw
+- Branch `dev` created ✅
+- Branches `feat/fase-1-4` to `feat/fase-1-7` created ✅ (Ana)
+- godin-001 accepted invitation as collaborator ✅
+- 7 blockers identified before starting (see table above)
+- Node.js v22 compatible with Expo 55 ✅
+- Test device: physical Android + friend with diagnosed Level 1 ASD
 
 ---
 
-## 🔄 Cómo Actualizar Este Archivo
+## 🔄 How to Update This File
 
-- Al completar un paso: cambiar ⏳ → ✅ y agregar nota si aplica
-- Al encontrar un bug: agregar a tabla de Bugs Conocidos
-- Al tomar una decisión técnica: agregar a tabla de Decisiones
-- Formato del commit al actualizar: `status: fase X.X completada`
+- When completing a step: change ⏳ → ✅ and add note if applicable
+- When finding a bug: add to Known Bugs table
+- When making a technical decision: add to Decisions table
+- Commit format when updating: `status: phase X.X completed`

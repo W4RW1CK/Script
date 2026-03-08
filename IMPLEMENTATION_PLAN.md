@@ -1,40 +1,40 @@
-# IMPLEMENTATION_PLAN.md — Plan de Implementación
-## Script — Compañero Digital para Adultos con TEA Nivel 1
+# IMPLEMENTATION_PLAN.md — Implementation Plan
+## Script — Digital Companion for Adults with Level 1 ASD
 
-**Versión:** 1.7  
-**Última actualización:** 2026-03-06  
-**Cambios v1.7:** Semana 2 — sprints 2.A (Fundación Visual) y 2.B (Pantallas de Identidad) agregados. Sistema de color emocional, Atkinson Hyperlegible, shadows, gradiente botón, emotion cards, home redesign, calendario Y-i-P. Ref: STATUS.md T-U1 a T-V9, FRONTEND_GUIDELINES.md v1.4.  
-**Cambios v1.6:** Step 5.1 reemplazado de smart contract a EAS attestations.  
-**Cambios v1.5:** §1.7 Paso 2A — Grounding nivel 1 actualizado a MULTIMODAL (visual + audio/voz guiada + háptico); agrega tone-grounding-voice.mp3 a assets requeridos. Decisión confirmada en sesión de planning 2026-02-27.  
-**Cambios v1.4:** §1.7 audio filename corregido calm-tone.mp3→tone-ambient.mp3 (consistente con BACKEND_STRUCTURE §5). §1.8 Paso 5 tagline corregido (texto completo). §1.8 Paso 12 profile-seed aclarado como runtime/Zustand (no persiste en Supabase).  
-**Cambios v1.3:** FASE 1.1 — agregado expo-symbols al install; corregido @supabase/supabase-js de npx expo install → npm install@2.97.0 (versión pinneada, consistente con TECH_STACK.md).  
-**Cambios v1.2:** Screen IDs actualizados (S06-S14 → S10-S18). expo-av→expo-audio. react-native-worklets, @privy-io/expo y expo-device agregados al install. Pasos 13-14 agregados en Fase 1.8 (profile.tsx, contacts.tsx). Semana 2 Step 2.1 corregido. Directorio de tests en Fase 1.1.
-**Duración total:** 5 semanas  
-**Entrega intermedia:** Semana 1 (lunes)
+**Version:** 1.7  
+**Last updated:** 2026-03-06  
+**Changes v1.7:** Week 2 — sprints 2.A (Visual Foundation) and 2.B (Identity Screens) added. Emotional color system, Atkinson Hyperlegible, shadows, button gradient, emotion cards, home redesign, Y-i-P calendar. Ref: STATUS.md T-U1 to T-V9, FRONTEND_GUIDELINES.md v1.4.  
+**Changes v1.6:** Step 5.1 replaced from smart contract to EAS attestations.  
+**Changes v1.5:** §1.7 Step 2A — Level 1 grounding updated to MULTIMODAL (visual + guided audio/voice + haptic); adds tone-grounding-voice.mp3 to required assets. Decision confirmed in planning session 2026-02-27.  
+**Changes v1.4:** §1.7 audio filename corrected calm-tone.mp3→tone-ambient.mp3 (consistent with BACKEND_STRUCTURE §5). §1.8 Step 5 tagline corrected (full text). §1.8 Step 12 profile-seed clarified as runtime/Zustand (not persisted in Supabase).  
+**Changes v1.3:** FASE 1.1 — added expo-symbols to install; corrected @supabase/supabase-js from npx expo install → npm install@2.97.0 (pinned version, consistent with TECH_STACK.md).  
+**Changes v1.2:** Screen IDs updated (S06-S14 → S10-S18). expo-av→expo-audio. react-native-worklets, @privy-io/expo and expo-device added to install. Steps 13-14 added in Fase 1.8 (profile.tsx, contacts.tsx). Week 2 Step 2.1 corrected. Tests directory in Fase 1.1.
+**Total duration:** 5 weeks  
+**Intermediate delivery:** Week 1 (Monday)
 
-> **Instrucción para AI agents:** Ejecuta los pasos en el orden exacto indicado. Cada paso referencia documentos canónicos. No tomes decisiones de stack, diseño o arquitectura fuera de lo especificado en PRD.md, TECH_STACK.md, FRONTEND_GUIDELINES.md y BACKEND_STRUCTURE.md.
-
----
-
-## SEMANA 1 — MVP: Check-in + Scripts + Rescate
-**Objetivo:** App funcional con las 3 features core. Entregable el lunes.
+> **Instruction for AI agents:** Execute steps in the exact order indicated. Each step references canonical documents. Do not make stack, design, or architecture decisions outside of what is specified in PRD.md, TECH_STACK.md, FRONTEND_GUIDELINES.md, and BACKEND_STRUCTURE.md.
 
 ---
 
-### FASE 1.1 — Setup del Proyecto
-**Referencias:** TECH_STACK.md § Inicialización del Proyecto
+## WEEK 1 — MVP: Check-in + Scripts + Rescue
+**Goal:** Functional app with the 3 core features. Deliverable on Monday.
+
+---
+
+### FASE 1.1 — Project Setup
+**References:** TECH_STACK.md § Project Initialization
 
 ```bash
-# Paso 1: Crear proyecto Expo
+# Step 1: Create Expo project
 npx create-expo-app@latest script-app --template tabs
 cd script-app
 
-# Paso 2: Limpiar template — eliminar archivos innecesarios
-# Borrar: app/(tabs)/explore.tsx, components/ParallaxScrollView.tsx,
+# Step 2: Clean template — remove unnecessary files
+# Delete: app/(tabs)/explore.tsx, components/ParallaxScrollView.tsx,
 #         components/ThemedText.tsx, components/ThemedView.tsx
 
-# Paso 3: Instalar dependencias (exactamente en este orden)
-# ⚠️ react-native-worklets DEBE ir antes que react-native-reanimated
+# Step 3: Install dependencies (exactly in this order)
+# ⚠️ react-native-worklets MUST come before react-native-reanimated
 npx expo install expo-router
 npx expo install react-native-svg
 npx expo install react-native-worklets react-native-reanimated
@@ -52,11 +52,11 @@ npm install react-hook-form@7.55.0 @hookform/resolvers@5.2.2
 npm install nativewind@4.2.2 tailwindcss@3.4.0
 npm install --save-dev @types/react @types/react-native
 
-# Paso 4: Configurar NativeWind
-# Crear tailwind.config.js con content paths correctos para Expo Router
-# Agregar NativeWind plugin a babel.config.js
+# Step 4: Configure NativeWind
+# Create tailwind.config.js with correct content paths for Expo Router
+# Add NativeWind plugin to babel.config.js
 
-# Paso 5: Configurar estructura de carpetas
+# Step 5: Configure folder structure
 mkdir -p app/\(onboarding\) app/\(app\)/checkin app/\(app\)/scripts app/\(app\)/rescue
 mkdir -p app/\(app\)/settings app/therapist
 mkdir -p components/ui components/body-map components/scripts components/rescue
@@ -64,596 +64,596 @@ mkdir -p lib hooks stores types constants supabase/functions/interpret-checkin
 mkdir -p supabase/functions/send-crisis-notification supabase/functions/sync-privy-user
 ```
 
-**Verificación:** `npx expo start` corre sin errores. Expo Go conecta.
+**Verification:** `npx expo start` runs without errors. Expo Go connects.
 
 ---
 
-### FASE 1.2 — Configuración de Variables y Supabase
+### FASE 1.2 — Variables and Supabase Configuration
 
-**Referencias:** TECH_STACK.md § Variables de Entorno, BACKEND_STRUCTURE.md § 2
+**References:** TECH_STACK.md § Environment Variables, BACKEND_STRUCTURE.md § 2
 
 ```
-Paso 1: Crear .env.local con variables de Supabase (ver TECH_STACK.md)
-Paso 2: Crear lib/supabase.ts con el cliente configurado
-Paso 3: En Supabase Dashboard → SQL Editor, ejecutar el SQL de BACKEND_STRUCTURE.md §2
-        en este orden:
-        a) Tabla users
-        b) Tabla profiles
-        c) Tabla scripts
-        d) Tabla checkins
-        e) Tabla emotional_dictionary
-        f) Tabla trusted_contacts
-        g) Tabla crisis_events
-        h) Tabla therapist_patients
-        i) Tabla script_executions
-Paso 4: En Supabase → Authentication → Activar provider "Email" (magic link)
-Paso 5: Ejecutar RLS policies de BACKEND_STRUCTURE.md §3
-Paso 6: Ejecutar seed de scripts predefinidos de BACKEND_STRUCTURE.md §6
+Step 1: Create .env.local with Supabase variables (see TECH_STACK.md)
+Step 2: Create lib/supabase.ts with the configured client
+Step 3: In Supabase Dashboard → SQL Editor, run the SQL from BACKEND_STRUCTURE.md §2
+        in this order:
+        a) Table users
+        b) Table profiles
+        c) Table scripts
+        d) Table checkins
+        e) Table emotional_dictionary
+        f) Table trusted_contacts
+        g) Table crisis_events
+        h) Table therapist_patients
+        i) Table script_executions
+Step 4: In Supabase → Authentication → Enable "Email" provider (magic link)
+Step 5: Run RLS policies from BACKEND_STRUCTURE.md §3
+Step 6: Run predefined scripts seed from BACKEND_STRUCTURE.md §6
 ```
 
-**Verificación:** `supabase.from('scripts').select('*')` retorna 5 scripts.
+**Verification:** `supabase.from('scripts').select('*')` returns 5 scripts.
 
 ---
 
-### FASE 1.3 — Sistema de Temas y Componentes Base
+### FASE 1.3 — Theme System and Base Components
 
-**Referencias:** FRONTEND_GUIDELINES.md § 1, 2, 3, 4
+**References:** FRONTEND_GUIDELINES.md § 1, 2, 3, 4
 
 ```
-Paso 1: Crear constants/colors.ts con todos los tokens de color (light + dark)
-Paso 2: Crear constants/typography.ts con la escala tipográfica
-Paso 3: Crear constants/spacing.ts con la escala de espaciado
-Paso 4: Crear hook hooks/useTheme.ts que lee preferencia del sistema
-Paso 5: Crear componentes UI base:
+Step 1: Create constants/colors.ts with all color tokens (light + dark)
+Step 2: Create constants/typography.ts with the typographic scale
+Step 3: Create constants/spacing.ts with the spacing scale
+Step 4: Create hook hooks/useTheme.ts that reads system preference
+Step 5: Create base UI components:
         a) components/ui/Button.tsx (primary, secondary, ghost, danger)
         b) components/ui/Card.tsx
         c) components/ui/TextInput.tsx
         d) components/ui/Chip.tsx
         e) components/ui/Typography.tsx (Heading, Body, Caption)
-Paso 6: Crear components/ui/SafeScreen.tsx (wrapper con SafeAreaView + tema)
+Step 6: Create components/ui/SafeScreen.tsx (wrapper with SafeAreaView + theme)
 ```
 
-**Verificación:** Renderizar cada componente en una pantalla de prueba. Verificar en modo claro y oscuro.
+**Verification:** Render each component on a test screen. Verify in light and dark mode.
 
 ---
 
-### FASE 1.4 — Bottom Navigation y Layout Principal
+### FASE 1.4 — Bottom Navigation and Main Layout
 
-**Referencias:** APP_FLOW.md § Navegación Persistente, FRONTEND_GUIDELINES.md § 4
+**References:** APP_FLOW.md § Persistent Navigation, FRONTEND_GUIDELINES.md § 4
 
 ```
-Paso 1: Configurar app/(app)/_layout.tsx con Tab Navigator (Expo Router)
-Paso 2: Implementar 5 tabs: Home, Check-in, Scripts, Historial, Settings
-        - Usar íconos de FRONTEND_GUIDELINES.md §8
-        - Colores activo/inactivo según FRONTEND_GUIDELINES.md §4
-Paso 3: Agregar botón de Rescate flotante (FAB) visible en todas las tabs
-        - Posición: bottom-right, encima del bottom nav
-        - Color: color-crisis-soft (suave, no alarmista)
-        - Navega a: /rescue/assess
-Paso 4: Crear app/(app)/home.tsx — pantalla Home básica con:
-        - Saludo con nombre del usuario
-        - Botón grande "¿Cómo estás hoy?" → /checkin/body
-        - Acceso rápido a Scripts
-        - Acceso rápido al último check-in
+Step 1: Configure app/(app)/_layout.tsx with Tab Navigator (Expo Router)
+Step 2: Implement 5 tabs: Home, Check-in, Scripts, History, Settings
+        - Use icons from FRONTEND_GUIDELINES.md §8
+        - Active/inactive colors according to FRONTEND_GUIDELINES.md §4
+Step 3: Add floating Rescue button (FAB) visible on all tabs
+        - Position: bottom-right, above the bottom nav
+        - Color: color-crisis-soft (soft, non-alarmist)
+        - Navigates to: /rescue/assess
+Step 4: Create app/(app)/home.tsx — basic Home screen with:
+        - Greeting with user's name
+        - Large button "How are you feeling today?" → /checkin/body
+        - Quick access to Scripts
+        - Quick access to the last check-in
 ```
 
-**Verificación:** Navegación entre tabs funciona. FAB visible y navega correctamente.
+**Verification:** Navigation between tabs works. FAB is visible and navigates correctly.
 
 ---
 
-### FASE 1.5 — Check-in Corporal (Feature Core #1)
+### FASE 1.5 — Body Check-in (Core Feature #1)
 
-**Referencias:** APP_FLOW.md § FLUJO 2, FRONTEND_GUIDELINES.md §5, BACKEND_STRUCTURE.md §2 (checkins)
+**References:** APP_FLOW.md § FLOW 2, FRONTEND_GUIDELINES.md §5, BACKEND_STRUCTURE.md §2 (checkins)
 
 ```
-Paso 1: Crear componente components/body-map/BodyMap.tsx
-        - SVG con silueta humana (frente)
-        - 6 zonas táctiles como definidas en FRONTEND_GUIDELINES.md §5
-        - Estado por zona: default / pressed / selected
-        - Soporte multi-selección
-        - Emite evento: onZonesChange(zones: string[])
+Step 1: Create component components/body-map/BodyMap.tsx
+        - SVG with human silhouette (front)
+        - 6 touch zones as defined in FRONTEND_GUIDELINES.md §5
+        - State per zone: default / pressed / selected
+        - Multi-selection support
+        - Emits event: onZonesChange(zones: string[])
 
-Paso 2: Crear app/(app)/checkin/body.tsx (S10)
+Step 2: Create app/(app)/checkin/body.tsx (S10)
         - Render BodyMap
-        - Header: "¿Qué siente tu cuerpo?"
-        - Instrucción: "Toca las zonas donde sientes algo"
-        - Chips con zonas seleccionadas
-        - Botón "Describir lo que siento" (deshabilitado si 0 zonas)
-        - Guarda zonas seleccionadas en estado local
+        - Header: "What does your body feel?"
+        - Instruction: "Touch the zones where you feel something"
+        - Chips with selected zones
+        - Button "Describe what I feel" (disabled if 0 zones)
+        - Saves selected zones in local state
 
-Paso 3: Crear app/(app)/checkin/notes.tsx (S11)
-        - Muestra zonas seleccionadas como chips (read-only)
-        - TextInput multiline: "¿Qué percibes ahí?"
-        - Placeholder: "Cualquier palabra vale. Presión, calor, nada, mariposas..."
-        - Botón "Listo" → navega a /checkin/reflect
-        - Guarda texto en estado
+Step 3: Create app/(app)/checkin/notes.tsx (S11)
+        - Displays selected zones as chips (read-only)
+        - Multiline TextInput: "What do you perceive there?"
+        - Placeholder: "Any word works. Pressure, heat, nothing, butterflies..."
+        - Button "Done" → navigates to /checkin/reflect
+        - Saves text in state
 
-Paso 4: Crear app/(app)/checkin/reflect.tsx (S12)
-        - Loader animado: "Conectando los puntos..."
-        - Llamar a Supabase Edge Function interpret-checkin
-          (Si edge function no está lista: usar mock con 5 opciones hardcodeadas)
-        - Mostrar 3-5 opciones como tarjetas seleccionables
-        - Botón "Ninguna de estas" → TextInput para escribir propia
-        - Botón "Continuar" → /checkin/result
+Step 4: Create app/(app)/checkin/reflect.tsx (S12)
+        - Animated loader: "Connecting the dots..."
+        - Call Supabase Edge Function interpret-checkin
+          (If edge function is not ready: use mock with 5 hardcoded options)
+        - Show 3-5 options as selectable cards
+        - Button "None of these" → TextInput to write your own
+        - Button "Continue" → /checkin/result
 
-Paso 5: Crear app/(app)/checkin/result.tsx (S13)
-        - Mostrar emoción confirmada con ícono visual
-        - Texto: "Gracias por explorar esto."
-        - Si hay script sugerido: mostrar tarjeta con botón "Ver script"
-        - Botón "Guardar" → inserta en tabla checkins → S09 Home
-        - Botón "🚩 Esto no se siente bien" → marca flagged_for_review = true
+Step 5: Create app/(app)/checkin/result.tsx (S13)
+        - Show confirmed emotion with visual icon
+        - Text: "Thank you for exploring this."
+        - If there is a suggested script: show card with button "View script"
+        - Button "Save" → inserts into checkins table → S09 Home
+        - Button "🚩 This doesn't feel right" → marks flagged_for_review = true
 
-Paso 6: Crear Supabase Edge Function: interpret-checkin
+Step 6: Create Supabase Edge Function: interpret-checkin
         - Runtime: Deno
-        - Importar OpenAI
-        - System prompt con contexto TEA (ver instrucciones en este mismo paso)
-        - Retornar JSON con array de opciones
+        - Import OpenAI
+        - System prompt with ASD context (see instructions in this same step)
+        - Return JSON with array of options
         
-        SYSTEM PROMPT BASE:
-        "Eres un asistente especializado en apoyar a personas con TEA Nivel 1 
-        a identificar sus emociones. Tu rol es proponer, no diagnosticar. 
-        Usa lenguaje de exploración: '¿Podría ser...?', 'Algunas personas describen esto como...'
-        Nunca uses: 'Tú sientes', 'Esto es', 'Claramente'.
-        Responde SIEMPRE en español.
-        Devuelve un JSON con: { options: [{label, description, confidence}] }
-        Máximo 5 opciones. Mínimo 3."
+        BASE SYSTEM PROMPT:
+        "You are an assistant specialized in supporting people with Level 1 ASD
+        to identify their emotions. Your role is to suggest, not to diagnose.
+        Use exploratory language: 'Could it be...?', 'Some people describe this as...'
+        Never use: 'You feel', 'This is', 'Clearly'.
+        Always respond in Spanish.
+        Return a JSON with: { options: [{label, description, confidence}] }
+        Maximum 5 options. Minimum 3."
 ```
 
-**Verificación:** Usuario puede completar un check-in de inicio a fin. Dato guardado en Supabase.
+**Verification:** User can complete a check-in from start to finish. Data saved in Supabase.
 
 ---
 
-### FASE 1.6 — Scripts Sociales (Feature Core #2)
+### FASE 1.6 — Social Scripts (Core Feature #2)
 
-**Referencias:** APP_FLOW.md § FLUJO 3, BACKEND_STRUCTURE.md §6
+**References:** APP_FLOW.md § FLOW 3, BACKEND_STRUCTURE.md §6
 
 ```
-Paso 1: Crear app/(app)/scripts/index.tsx (S14)
-        - Fetch de scripts (predefinidos + personalizados del usuario)
-        - Agrupar por categoría
-        - Tarjeta por script: título + ícono de categoría + duración estimada
-        - Sin búsqueda en MVP (lista simple)
+Step 1: Create app/(app)/scripts/index.tsx (S14)
+        - Fetch scripts (predefined + user's custom ones)
+        - Group by category
+        - Card per script: title + category icon + estimated duration
+        - No search in MVP (simple list)
 
-Paso 2: Crear app/(app)/scripts/[id].tsx (S15 — Modo Preparación)
-        - Título y descripción del script
-        - Renderizar cada bloque:
-          - type "apertura" / "accion" / "salida": mostrar opciones como chips seleccionables
-          - type "contexto": texto descriptivo (no interactivo)
-        - Botón "Modo Ejecución" → /scripts/[id]/execute
-        - Botón "← Volver" → /scripts
+Step 2: Create app/(app)/scripts/[id].tsx (S15 — Preparation Mode)
+        - Script title and description
+        - Render each block:
+          - type "apertura" / "accion" / "salida": show options as selectable chips
+          - type "contexto": descriptive text (non-interactive)
+        - Button "Execution Mode" → /scripts/[id]/execute
+        - Button "← Back" → /scripts
 
-Paso 3: Crear app/(app)/scripts/[id]/execute.tsx (S16 — Modo Ejecución)
-        - Estado: bloque actual (índice)
-        - Un bloque visible a la vez (pantalla limpia)
-        - Para bloques con opciones: tarjetas táctiles grandes
-        - Opción seleccionada se resalta
-        - Botón "→ Siguiente" / "← Atrás"
-        - Indicador de progreso: "Paso 2 de 4"
-        - Último bloque: botón "✓ Completado"
-        - Pantalla de cierre: escala 1-3 + guardar en script_executions → S09 Home
+Step 3: Create app/(app)/scripts/[id]/execute.tsx (S16 — Execution Mode)
+        - State: current block (index)
+        - One block visible at a time (clean screen)
+        - For blocks with options: large touch cards
+        - Selected option is highlighted
+        - Button "→ Next" / "← Back"
+        - Progress indicator: "Step 2 of 4"
+        - Last block: button "✓ Completed"
+        - Closing screen: scale 1-3 + save in script_executions → S09 Home
 ```
 
-**Verificación:** Usuario puede navegar y ejecutar los 5 scripts predefinidos.
+**Verification:** User can navigate and execute all 5 predefined scripts.
 
 ---
 
-### FASE 1.7 — Botón de Rescate (Feature Core #3)
+### FASE 1.7 — Rescue Button (Core Feature #3)
 
-**Referencias:** APP_FLOW.md § FLUJO 4, FRONTEND_GUIDELINES.md §11, BACKEND_STRUCTURE.md §2 (crisis_events)
+**References:** APP_FLOW.md § FLOW 4, FRONTEND_GUIDELINES.md §11, BACKEND_STRUCTURE.md §2 (crisis_events)
 
 ```
-Paso 1: Crear app/(app)/rescue/assess.tsx (S17)
-        - APLICAR TODAS las reglas de FRONTEND_GUIDELINES.md §11
-        - Texto: "¿Qué tan intenso se siente esto?"
-        - 3 botones grandes (mínimo 64px alto):
-          1️⃣ "Incómodo"   2️⃣ "Difícil"   3️⃣ "No puedo"
-        - Guardar nivel en estado
-        - → /rescue/protocol (pasar nivel como parámetro)
-        - Botón "← Salir" (arriba izquierda, siempre visible)
+Step 1: Create app/(app)/rescue/assess.tsx (S17)
+        - APPLY ALL rules from FRONTEND_GUIDELINES.md §11
+        - Text: "How intense does this feel?"
+        - 3 large buttons (minimum 64px height):
+          1️⃣ "Uncomfortable"   2️⃣ "Difficult"   3️⃣ "I can't"
+        - Save level in state
+        - → /rescue/protocol (pass level as parameter)
+        - Button "← Exit" (top left, always visible)
 
-Paso 2: Crear app/(app)/rescue/protocol.tsx (S18)
-        - APLICAR TODAS las reglas de FRONTEND_GUIDELINES.md §11
+Step 2: Create app/(app)/rescue/protocol.tsx (S18)
+        - APPLY ALL rules from FRONTEND_GUIDELINES.md §11
         
-        A) Si nivel === 1: Renderizar GroundingSequence (MULTIMODAL — decisión planning 2026-02-27)
-           - Componente que muestra pasos 5-4-3-2-1
-           - Un paso a la vez, fuente grande
-           - Auto-avanza en 10s o tap para avanzar
-           - Integrar expo-haptics: vibración sutil al cambiar de paso
-           - Integrar expo-audio: voz guiada + tono ambient de fondo
-             Archivos: tone-grounding-voice.mp3 (voz), tone-ambient.mp3 (fondo)
+        A) If level === 1: Render GroundingSequence (MULTIMODAL — planning decision 2026-02-27)
+           - Component that shows steps 5-4-3-2-1
+           - One step at a time, large font
+           - Auto-advances in 10s or tap to advance
+           - Integrate expo-haptics: subtle vibration when changing step
+           - Integrate expo-audio: guided voice + ambient tone in background
+             Files: tone-grounding-voice.mp3 (voice), tone-ambient.mp3 (background)
              const voice = useAudioPlayer(require('../../assets/audio/tone-grounding-voice.mp3'))
              const ambient = useAudioPlayer(require('../../assets/audio/tone-ambient.mp3'))
-           - Si audio desactivado: solo visual + háptico
-           - Si háptico no disponible: solo visual + audio
+           - If audio disabled: visual + haptic only
+           - If haptic not available: visual + audio only
         
-        B) Si nivel === 2 o 3: Renderizar BreathingGuide
-           - Componente con círculo SVG animado (ver FRONTEND_GUIDELINES.md §6)
-           - Integrar expo-haptics: vibración sutil al ritmo
-           - Integrar expo-audio (NO expo-av): cargar y reproducir audio (si usuario lo activó)
-             Ejemplo: const player = useAudioPlayer(require('../../assets/audio/tone-ambient.mp3'))
-             // Archivos bundleados: tone-inhale.mp3, tone-exhale.mp3, tone-ambient.mp3 (ver BACKEND_STRUCTURE.md §5)
-           - 3 ciclos mínimo (inhalar 4s + pausa 2s + exhalar 6s = 12s por ciclo)
-           - Después de ciclos: mostrar opciones finales
+        B) If level === 2 or 3: Render BreathingGuide
+           - Component with animated SVG circle (see FRONTEND_GUIDELINES.md §6)
+           - Integrate expo-haptics: subtle vibration to the rhythm
+           - Integrate expo-audio (NOT expo-av): load and play audio (if user enabled it)
+             Example: const player = useAudioPlayer(require('../../assets/audio/tone-ambient.mp3'))
+             // Bundled files: tone-inhale.mp3, tone-exhale.mp3, tone-ambient.mp3 (see BACKEND_STRUCTURE.md §5)
+           - 3 minimum cycles (inhale 4s + pause 2s + exhale 6s = 12s per cycle)
+           - After cycles: show final options
         
-        C) Si nivel === 3 (adicional):
-           - Background: pedir permiso de ubicación si no está concedido
-           - Llamar a Supabase Edge Function send-crisis-notification
-           - Mostrar confirmación suave: "Avisando a tus contactos..."
+        C) If level === 3 (additional):
+           - Background: request location permission if not granted
+           - Call Supabase Edge Function send-crisis-notification
+           - Show soft confirmation: "Notifying your contacts..."
         
-        D) Opciones finales (todos los niveles):
-           - "Me siento mejor" → S09 Home
-           - "Necesito más ayuda" → mostrar botón de llamada directa al contacto #1
-           - "Registrar" → mini form (1 campo: ¿cómo resultó?) → crisis_events → S09 Home
+        D) Final options (all levels):
+           - "I feel better" → S09 Home
+           - "I need more help" → show direct call button to contact #1
+           - "Log" → mini form (1 field: how did it turn out?) → crisis_events → S09 Home
 
-Paso 3: Crear Supabase Edge Function: send-crisis-notification
-        - Buscar trusted_contacts del usuario
-        - Para cada contacto activo: llamar Expo Push API
-        - Guardar registro en crisis_events
-        - Retornar { notified: number }
+Step 3: Create Supabase Edge Function: send-crisis-notification
+        - Fetch user's trusted_contacts
+        - For each active contact: call Expo Push API
+        - Save record in crisis_events
+        - Return { notified: number }
         
-        Formato de notificación push:
-        Título: "⚡ [Nombre] necesita apoyo"
-        Cuerpo: "Está teniendo un momento difícil. [Dirección si disponible]"
+        Push notification format:
+        Title: "⚡ [Name] needs support"
+        Body: "They are having a difficult moment. [Address if available]"
         Data: { type: 'crisis', user_id, latitude?, longitude? }
 ```
 
-**Verificación:** Protocolo completo funciona (nivel 1, 2, y 3). Notificación llega a un dispositivo de prueba.
+**Verification:** Full protocol works (level 1, 2, and 3). Notification arrives on a test device.
 
 ---
 
-### FASE 1.8 — Auth Básico + Onboarding Completo
+### FASE 1.8 — Basic Auth + Complete Onboarding
 
-**Referencias:** TECH_STACK.md § Autenticación, BACKEND_STRUCTURE.md §8, PRD.md §3.1 + Apéndices A-E, APP_FLOW.md § FLUJO 1
+**References:** TECH_STACK.md § Authentication, BACKEND_STRUCTURE.md §8, PRD.md §3.1 + Appendices A-E, APP_FLOW.md § FLOW 1
 
 ```
-Paso 1: Instalar @privy-io/expo y configurar PrivyProvider en app/_layout.tsx
-Paso 2: Crear app/auth.tsx con:
-        - Botón "Continuar con email" (magic link)
-        - Botón "Continuar con Google"
-        - Texto: "Sin cuenta, solo un email. Tus datos son tuyos."
-Paso 3: Crear Supabase Edge Function sync-privy-user:
-        - Recibe privy_user_id + email
-        - Crea o actualiza registro en users
-        - Retorna Supabase user token
-Paso 4: Configurar redirect post-auth:
-        - Si onboarding_complete = false → /onboarding
-        - Si onboarding_complete = true → /home
-Paso 5: Crear app/(onboarding)/index.tsx (S01 Welcome):
-        - Pantalla con logo/nombre "Script"
-        - Tagline: "Un manual para quienes sienten que son el único actor en la obra el cual no conoce el guión"
-        - Botón "Comenzar mi camino" → /onboarding/aq10
-        - Botón "Necesito ayuda ahora" → /rescue/assess
+Step 1: Install @privy-io/expo and configure PrivyProvider in app/_layout.tsx
+Step 2: Create app/auth.tsx with:
+        - Button "Continue with email" (magic link)
+        - Button "Continue with Google"
+        - Text: "No account, just an email. Your data is yours."
+Step 3: Create Supabase Edge Function sync-privy-user:
+        - Receives privy_user_id + email
+        - Creates or updates record in users
+        - Returns Supabase user token
+Step 4: Configure post-auth redirect:
+        - If onboarding_complete = false → /onboarding
+        - If onboarding_complete = true → /home
+Step 5: Create app/(onboarding)/index.tsx (S01 Welcome):
+        - Screen with logo/name "Script"
+        - Tagline: "A manual for those who feel they are the only actor in the play who doesn't know the script"
+        - Button "Start my journey" → /onboarding/aq10
+        - Button "I need help now" → /rescue/assess
 
-Paso 6: Crear app/(onboarding)/aq10.tsx (S02):
-        - 10 preguntas del PRD Apéndice A, UNA por pantalla
-        - Escala: 4 opciones (Totalmente de acuerdo / Ligeramente de acuerdo /
-          Ligeramente en desacuerdo / Totalmente en desacuerdo)
-        - Barra de progreso: "Pregunta X de 10"
-        - Sin botón "atrás" entre preguntas (para evitar over-thinking)
-        - Al terminar: calcular score y navegar a /onboarding/aq10-result
+Step 6: Create app/(onboarding)/aq10.tsx (S02):
+        - 10 questions from PRD Appendix A, ONE per screen
+        - Scale: 4 options (Strongly agree / Slightly agree /
+          Slightly disagree / Strongly disagree)
+        - Progress bar: "Question X of 10"
+        - No "back" button between questions (to avoid over-thinking)
+        - When done: calculate score and navigate to /onboarding/aq10-result
 
-Paso 7: Crear app/(onboarding)/aq10-result.tsx (S03):
-        - Mostrar score + mensaje de PRD Apéndice A (sin usar palabras "positivo/negativo")
-        - Si score ≥6: mostrar tarjeta recomendando AQ Completo
-        - Si score <6: mostrar tarjeta recomendando CAT-Q
-        - Siempre mostrar opción de RAADS-R como tercer test
-        - Botón por test: "Hacer ahora" / "Más tarde"
-        - Botón: "Saltar tests adicionales → Continuar" → /onboarding/profile
+Step 7: Create app/(onboarding)/aq10-result.tsx (S03):
+        - Show score + message from PRD Appendix A (without using words "positive/negative")
+        - If score ≥6: show card recommending Full AQ
+        - If score <6: show card recommending CAT-Q
+        - Always show RAADS-R option as third test
+        - Button per test: "Take now" / "Later"
+        - Button: "Skip additional tests → Continue" → /onboarding/profile
 
-Paso 8: Crear componente reutilizable TestScreen con:
+Step 8: Create reusable TestScreen component with:
         - Props: questions[], scale, title, onComplete(scores)
-        - Navegación pregunta por pregunta
-        - Botón "Pausar y continuar después" (guarda progreso en SecureStore)
-        - Progreso visible: "Pregunta X de Y"
+        - Question-by-question navigation
+        - Button "Pause and continue later" (saves progress in SecureStore)
+        - Visible progress: "Question X of Y"
 
-Paso 9: Crear app/(onboarding)/aq-full.tsx (S04 — AQ 50 preguntas):
-        - Usar componente TestScreen
-        - 50 preguntas del PRD Apéndice C
-        - Mismo formato escala que AQ-10
-        - Al completar: guardar aq_full_score + aq_full_domain_scores en profiles
-        - Botón "Omitir" siempre visible → /onboarding/catq
+Step 9: Create app/(onboarding)/aq-full.tsx (S04 — AQ 50 questions):
+        - Use TestScreen component
+        - 50 questions from PRD Appendix C
+        - Same scale format as AQ-10
+        - On completion: save aq_full_score + aq_full_domain_scores in profiles
+        - Button "Skip" always visible → /onboarding/catq
 
-Paso 10: Crear app/(onboarding)/catq.tsx (S05 — 25 preguntas):
-        - Usar componente TestScreen
-        - 25 preguntas del PRD Apéndice D
-        - Escala 1-7 (7 opciones)
-        - Al completar: calcular catq_total_score + catq_subscores, guardar en profiles
-        - Botón "Omitir" siempre visible → /onboarding/raads
+Step 10: Create app/(onboarding)/catq.tsx (S05 — 25 questions):
+        - Use TestScreen component
+        - 25 questions from PRD Appendix D
+        - Scale 1-7 (7 options)
+        - On completion: calculate catq_total_score + catq_subscores, save in profiles
+        - Button "Skip" always visible → /onboarding/raads
 
-Paso 11: Crear app/(onboarding)/raads.tsx (S06 — 80 preguntas):
-        - Usar componente TestScreen con soporte de pausa
-        - 80 preguntas del PRD Apéndice E
-        - Escala 0-3 (4 opciones)
-        - Al completar: calcular raads scores por dominio, guardar en profiles
-        - Botón "Omitir" siempre visible → /onboarding/profile
+Step 11: Create app/(onboarding)/raads.tsx (S06 — 80 questions):
+        - Use TestScreen component with pause support
+        - 80 questions from PRD Appendix E
+        - Scale 0-3 (4 options)
+        - On completion: calculate raads scores by domain, save in profiles
+        - Button "Skip" always visible → /onboarding/profile
 
-Paso 12: Crear función lib/profile-seed.ts:
-        - INPUT: scores de todos los tests completados
-        - OUTPUT: perfil semilla con:
-          - scripts_priority: string[] (qué scripts mostrar primero)
+Step 12: Create function lib/profile-seed.ts:
+        - INPUT: scores from all completed tests
+        - OUTPUT: seed profile with:
+          - scripts_priority: string[] (which scripts to show first)
           - sensory_defaults: { light, sound, touch, crowds }
           - emphasis: 'social' | 'sensory' | 'masking' | 'general'
-        - ⚠️ RUNTIME: estos valores NO se persisten en la tabla `profiles` de Supabase
-          (no existen esas columnas). Se guardan en el Zustand store al iniciar sesión
-          y se re-calculan desde los scores guardados. Opcional: cachear en SecureStore.
-        - Esta función alimenta la primera experiencia personalizada del usuario
+        - ⚠️ RUNTIME: these values are NOT persisted in the `profiles` table in Supabase
+          (those columns don't exist). They are saved in the Zustand store on login
+          and re-calculated from the saved scores. Optional: cache in SecureStore.
+        - This function feeds the user's first personalized experience
 
-Paso 13: Crear app/(onboarding)/profile.tsx (S07 — Cuestionario Personal):
-        - Formulario con react-hook-form + zod
-        - Campos: nombre (text), edad (number), intereses (multiselect chips),
-          sensibilidades (checkboxes: luz / sonido / texturas / multitudes),
-          herramientas que ya usa (multiselect: journaling / terapia / meditación / ninguna)
-        - Guardar en tabla profiles (interests, sensitivities, existing_tools)
-        - Botón "Continuar" → /onboarding/contacts
+Step 13: Create app/(onboarding)/profile.tsx (S07 — Personal Questionnaire):
+        - Form with react-hook-form + zod
+        - Fields: name (text), age (number), interests (multiselect chips),
+          sensitivities (checkboxes: light / sound / textures / crowds),
+          tools already used (multiselect: journaling / therapy / meditation / none)
+        - Save in profiles table (interests, sensitivities, existing_tools)
+        - Button "Continue" → /onboarding/contacts
 
-Paso 14: Crear app/(onboarding)/contacts.tsx (S08 — Setup Contactos):
-        - Formulario: nombre + teléfono + relación (selector)
-        - Botón "Agregar contacto" → guarda en trusted_contacts
-        - Lista de contactos ya agregados (chips eliminables)
-        - Botón "Omitir por ahora" → S24 Auth
-        - Botón "Listo (X contactos)" → S24 Auth
-        - Al llegar a auth: marcar onboarding_complete = true en profiles
+Step 14: Create app/(onboarding)/contacts.tsx (S08 — Contact Setup):
+        - Form: name + phone + relationship (selector)
+        - Button "Add contact" → saves in trusted_contacts
+        - List of already added contacts (deletable chips)
+        - Button "Skip for now" → S24 Auth
+        - Button "Done (X contacts)" → S24 Auth
+        - On reaching auth: mark onboarding_complete = true in profiles
 ```
 
-**Verificación:** Flujo completo: S01 → S02 → S03 → S07 → S08 → S24 → S09. Login con email funciona. Perfil con datos básicos en Supabase. Función profile-seed retorna datos coherentes con scores.
+**Verification:** Full flow: S01 → S02 → S03 → S07 → S08 → S24 → S09. Email login works. Profile with basic data in Supabase. profile-seed function returns data consistent with scores.
 
 ---
 
-## SEMANA 2 — Historial, Diccionario, Personalización e Identidad Visual
+## WEEK 2 — History, Dictionary, Personalization and Visual Identity
 
-> **Nota v1.7 (2026-03-06):** Se agregan sprints 2.A (Fundación Visual) y 2.B (Pantallas de Identidad) resultado de la auditoría UI/UX + análisis de identidad visual. Ref: STATUS.md tickets T-U1 a T-V9, FRONTEND_GUIDELINES.md §1.4/§2/§4/§7/§12.
+> **Note v1.7 (2026-03-06):** Sprints 2.A (Visual Foundation) and 2.B (Identity Screens) added as a result of the UI/UX audit + visual identity analysis. Ref: STATUS.md tickets T-U1 to T-V9, FRONTEND_GUIDELINES.md §1.4/§2/§4/§7/§12.
 
 ```
-2.A SPRINT — Fundación Visual (hacer ANTES que 2.1–2.5)
+2.A SPRINT — Visual Foundation (do BEFORE 2.1–2.5)
 
-2.A.1 Tickets críticos pre-usuarios
-    T-U1: useReduceMotion() en protocol.tsx, body.tsx, y cualquier Reanimated animation
-         Patrón: const shouldReduce = useReduceMotion(); if (shouldReduce) skip animation
+2.A.1 Critical pre-user tickets
+    T-U1: useReduceMotion() in protocol.tsx, body.tsx, and any Reanimated animation
+         Pattern: const shouldReduce = useReduceMotion(); if (shouldReduce) skip animation
          Ref: FRONTEND_GUIDELINES.md §7 (Ana)
-    T-U2: Error feedback visible en reflect.tsx cuando interpret-checkin falla
-         Usuario debe saber que la interpretación es aproximada o falló
+    T-U2: Visible error feedback in reflect.tsx when interpret-checkin fails
+         User must know that the interpretation is approximate or failed
          Ref: STATUS.md T-U2 (Aibus)
 
-2.A.2 Sistema de color emocional (T-V1) — BLOQUEANTE para T-V3, T-V4, T-V5
-    - Crear constants/colors.ts con EmotionColors (7 emociones × {bg, dot, text})
-    - Exportar EmotionKey type
+2.A.2 Emotional color system (T-V1) — BLOCKING for T-V3, T-V4, T-V5
+    - Create constants/colors.ts with EmotionColors (7 emotions × {bg, dot, text})
+    - Export EmotionKey type
     - Ref: FRONTEND_GUIDELINES.md §1.4 (Ana)
 
-2.A.3 Tokens NativeWind nuevos en tailwind.config.js (T-U4, T-V2)
-    - Agregar script-accent: #10B981, script-warning: #F59E0B (T-U4)
-    - Agregar shadow-card, shadow-card-elevated, shadow-card-pressed, shadow-card-dark (T-V2)
-    - Actualizar Card.tsx para usar shadow-card por default
+2.A.3 New NativeWind tokens in tailwind.config.js (T-U4, T-V2)
+    - Add script-accent: #10B981, script-warning: #F59E0B (T-U4)
+    - Add shadow-card, shadow-card-elevated, shadow-card-pressed, shadow-card-dark (T-V2)
+    - Update Card.tsx to use shadow-card by default
     - Ref: FRONTEND_GUIDELINES.md §1.2.1 + §4 (Aibus)
 
 2.A.4 Atkinson Hyperlegible (T-U3)
     - npx expo install @expo-google-fonts/atkinson-hyperlegible
-    - _layout.tsx: reemplazar Inter fonts por Atkinson Regular + Bold
-    - constants/typography.ts: actualizar fontFamily (sin SemiBold — headings usan Bold)
+    - _layout.tsx: replace Inter fonts with Atkinson Regular + Bold
+    - constants/typography.ts: update fontFamily (no SemiBold — headings use Bold)
     - Ref: FRONTEND_GUIDELINES.md §2 (Aibus)
 
-2.A.5 Normalización labels GPT en Edge Function (T-V7) — BLOQUEANTE para T-V3
-    - interpret-checkin/index.ts: post-process output → mapear a 8 labels canónicos
-    - Ref: FRONTEND_GUIDELINES.md §1.4 (mapeo) (Aibus)
+2.A.5 GPT label normalization in Edge Function (T-V7) — BLOCKING for T-V3
+    - interpret-checkin/index.ts: post-process output → map to 8 canonical labels
+    - Ref: FRONTEND_GUIDELINES.md §1.4 (mapping) (Aibus)
 
-2.A.6 Gradiente mono-azul en Button.tsx (T-V6)
-    - Primary variant: gradiente 135° #A8C5DA → #8BAEC4
+2.A.6 Mono-blue gradient in Button.tsx (T-V6)
+    - Primary variant: gradient 135° #A8C5DA → #8BAEC4
     - Ref: FRONTEND_GUIDELINES.md §4 (Aibus)
 
-2.A.7 Audit de contraste (T-U6)
-    - text-script-text-secondary (#6B6B6B sobre #F8F6F2) — verificar WCAG AA
-    - Si falla → ajustar a #606060
+2.A.7 Contrast audit (T-U6)
+    - text-script-text-secondary (#6B6B6B on #F8F6F2) — verify WCAG AA
+    - If fails → adjust to #606060
     - Ref: FRONTEND_GUIDELINES.md §10 (Ana)
 
 
-2.B SPRINT — Pantallas de Identidad Visual (después de 2.A)
+2.B SPRINT — Visual Identity Screens (after 2.A)
 
-2.B.1 reflect.tsx — emotion cards con color (T-V3)
-    - Card seleccionado: EmotionColors[key].bg como fondo, dot como borde 1.5px + círculo 8px
+2.B.1 reflect.tsx — emotion cards with color (T-V3)
+    - Selected card: EmotionColors[key].bg as background, dot as 1.5px border + 8px circle
     - Press animation: scale 0.97→1.0 (100ms)
-    - Requiere T-V1 + T-V7
+    - Requires T-V1 + T-V7
     - Ref: FRONTEND_GUIDELINES.md §12.2 (Ana)
 
-2.B.2 result.tsx — fondo del color de emoción (T-V4)
-    - Pantalla S13: fondo full-screen EmotionColors[key].bg
-    - Transición fade 300ms desde color del card anterior
-    - Requiere T-V1
+2.B.2 result.tsx — emotion color background (T-V4)
+    - Screen S13: full-screen background EmotionColors[key].bg
+    - Fade transition 300ms from previous card color
+    - Requires T-V1
     - Ref: FRONTEND_GUIDELINES.md §12.2 (Ana)
 
-2.B.3 home.tsx — redesign Finch (T-V5)
-    - Layout: saludo + hora del día, card "última emoción" con EmotionColors, mini historial 7 días, CTA check-in, tiles scripts rápidos
-    - Empty state cuando no hay datos previos (primera apertura)
-    - Requiere T-V1
+2.B.3 home.tsx — Finch redesign (T-V5)
+    - Layout: greeting + time of day, "last emotion" card with EmotionColors, 7-day mini history, check-in CTA, quick script tiles
+    - Empty state when no previous data (first open)
+    - Requires T-V1
     - Ref: FRONTEND_GUIDELINES.md §0 + §12.2 (Ana)
 
-2.B.4 Confirmación antes de notificación Level 3 (T-U5)
-    - protocol.tsx: Alert.alert("¿Confirmar?") antes de envío a red de confianza
+2.B.4 Confirmation before Level 3 notification (T-U5)
+    - protocol.tsx: Alert.alert("Confirm?") before sending to trust network
     - Ref: UX Guideline #35 (Ana)
 
 
-2.1 Tests opcionales de screening accesibles desde Configuración
-    - Completar los pasos que el usuario omitió durante onboarding (S04, S05, S06)
-    - app/(app)/settings/index.tsx: agregar sección "Completar mi perfil"
-    - Mostrar tests pendientes con indicador de progreso
-    - Tests disponibles desde Settings sin necesidad de repetir onboarding
-    - Nota: AQ-10, cuestionario y contactos ya implementados en Semana 1 Fase 1.8
+2.1 Optional screening tests accessible from Settings
+    - Complete steps the user skipped during onboarding (S04, S05, S06)
+    - app/(app)/settings/index.tsx: add "Complete my profile" section
+    - Show pending tests with progress indicator
+    - Tests available from Settings without repeating onboarding
+    - Note: AQ-10, questionnaire and contacts already implemented in Week 1 Fase 1.8
 
-2.2 Historial de check-ins
-    - app/(app)/history.tsx: lista de check-ins con fecha, emoción, zonas
-    - Calendario estilo Year in Pixels (T-V8): dots 36x36px con EmotionColors[key].dot por día
-    - Tap en día → bottom sheet con detalle
-    - Requiere T-V1 (sistema emocional)
+2.2 Check-in history
+    - app/(app)/history.tsx: list of check-ins with date, emotion, zones
+    - Year in Pixels style calendar (T-V8): 36x36px dots with EmotionColors[key].dot per day
+    - Tap on day → bottom sheet with detail
+    - Requires T-V1 (emotional system)
 
-2.3 Diccionario emocional
-    - app/(app)/dictionary.tsx: palabras confirmadas con frecuencia
-    - Visual: grid de chips con tamaño proporcional a frecuencia
-    - Tap en palabra → ver check-ins donde apareció
+2.3 Emotional dictionary
+    - app/(app)/dictionary.tsx: confirmed words with frequency
+    - Visual: chip grid with size proportional to frequency
+    - Tap on word → view check-ins where it appeared
 
-2.4 Personalización
-    - app/(app)/settings/index.tsx: selección de tema y paleta
-    - Zustand store para preferencias (persistido en SecureStore)
-    - Hook useTheme() actualizado para leer del store
+2.4 Personalization
+    - app/(app)/settings/index.tsx: theme and palette selection
+    - Zustand store for preferences (persisted in SecureStore)
+    - Hook useTheme() updated to read from store
 
-2.5 "Insights desbloqueados"
-    - Después de 3 check-ins: primer insight ("Tu zona más activa esta semana es...")
-    - Después de 7: insight de patrón temporal ("Tus momentos más difíciles son los...")
-    - Banner no intrusivo en Home cuando hay nuevo insight
+2.5 "Unlocked insights"
+    - After 3 check-ins: first insight ("Your most active zone this week is...")
+    - After 7: temporal pattern insight ("Your most difficult moments are on...")
+    - Non-intrusive banner on Home when there is a new insight
 ```
 
 ---
 
-## SEMANA 3 — Red de Confianza y Notificaciones
+## WEEK 3 — Trust Network and Notifications
 
 ```
-3.1 Gestión completa de contactos de confianza
-    - app/(app)/settings/contacts.tsx: CRUD completo
-    - Configurar permisos por contacto (qué puede ver)
-    - Test de notificación
+3.1 Complete trusted contacts management
+    - app/(app)/settings/contacts.tsx: full CRUD
+    - Configure permissions per contact (what they can see)
+    - Notification test
 
-3.2 Sistema de notificaciones completo
-    - Registrar dispositivo en Expo Push
-    - Configurar notificaciones locales recordatorio de check-in
-    - Configurar hora preferida del usuario
+3.2 Complete notifications system
+    - Register device in Expo Push
+    - Configure local check-in reminder notifications
+    - Configure user's preferred time
 
-3.3 Telegram Bot para personas de confianza
-    - Crear bot con @BotFather
-    - Edge function actualizada para enviar por Telegram
-    - Flujo de registro: usuario da link al contacto → contacto inicia chat con bot
+3.3 Telegram Bot for trusted contacts
+    - Create bot with @BotFather
+    - Updated edge function to send via Telegram
+    - Registration flow: user gives link to contact → contact starts chat with bot
 
-3.4 Respuesta bilateral en crisis
-    - Cuando contacto recibe notificación push, puede responder con opciones predefinidas
-    - Respuesta aparece en pantalla del usuario como banner suave
-    - Historial de respuestas en crisis_events
+3.4 Bilateral crisis response
+    - When contact receives push notification, they can respond with predefined options
+    - Response appears on user's screen as a soft banner
+    - Response history in crisis_events
 
-3.5 SMS fallback offline
-    - Integrar expo-sms
-    - Preparar mensaje pre-formateado con datos del usuario
-    - Activar solo cuando no hay conexión
+3.5 Offline SMS fallback
+    - Integrate expo-sms
+    - Prepare pre-formatted message with user data
+    - Activate only when there is no connection
 ```
 
-**Tickets técnicos + UX de Semana 3** (ver STATUS.md para detalle completo):
+**Technical + UX tickets for Week 3** (see STATUS.md for full detail):
 
-| Ticket | Descripción | Responsable |
+| Ticket | Description | Owner |
 |---|---|---|
-| T-3.1 | Rate limiting en `interpret-checkin` — límite por `user_id` (10 calls/hora) | Aibus |
-| T-3.2 | Logging de outputs de IA — tabla `ai_logs` para auditoría clínica | Aibus |
-| T-U7 | Active/pressed state en emotion cards — UX feedback inmediato | Ana |
-| T-U8 | Focus rings audit en `Card` y `Pressable` — accesibilidad | Aibus |
-| T-V8 | Calendario S19 Year in Pixels — dots emocionales 36×36px | Aibus |
+| T-3.1 | Rate limiting in `interpret-checkin` — limit per `user_id` (10 calls/hour) | Aibus |
+| T-3.2 | AI output logging — `ai_logs` table for clinical audit | Aibus |
+| T-U7 | Active/pressed state on emotion cards — immediate UX feedback | Ana |
+| T-U8 | Focus rings audit on `Card` and `Pressable` — accessibility | Aibus |
+| T-V8 | Calendar S19 Year in Pixels — emotional dots 36×36px | Aibus |
 
 ---
 
-## SEMANA 4 — Inteligencia Artificial y Vista Terapeuta
+## WEEK 4 — Artificial Intelligence and Therapist View
 
 ```
-4.1 Mejorar interpret-checkin con contexto completo
-    - Incluir últimos 5 check-ins en el prompt
-    - Incluir perfil sensorial del usuario
-    - Incluir hora y día de la semana
-    - Ajustar temperatura y tokens
+4.1 Improve interpret-checkin with full context
+    - Include last 5 check-ins in the prompt
+    - Include user's sensory profile
+    - Include time and day of the week
+    - Adjust temperature and tokens
 
-4.2 Detección de patrones
+4.2 Pattern detection
     - Edge function analyze-patterns:
-      INPUT: historial de 30 días
+      INPUT: 30-day history
       OUTPUT: { top_zones, top_emotions, trigger_times, trigger_contexts }
-    - Visualización en pantalla de historial
+    - Visualization on history screen
 
-4.3 Scripts personalizados con IA
-    - Form para crear script: situación → IA sugiere bloques
-    - Usuario edita y confirma
-    - Guardar en scripts con owner_user_id
+4.3 AI-personalized scripts
+    - Form to create script: situation → AI suggests blocks
+    - User edits and confirms
+    - Save in scripts with owner_user_id
 
-4.4 Vista terapeuta
-    - Rol 'therapist' en users
-    - app/therapist/index.tsx: lista de pacientes
-    - Vista de paciente: check-ins, patrones, scripts
-    - Crear/editar scripts para paciente
-    - Botón "Generar reporte" → descarga JSON/PDF
+4.4 Therapist view
+    - Role 'therapist' in users
+    - app/therapist/index.tsx: patient list
+    - Patient view: check-ins, patterns, scripts
+    - Create/edit scripts for patient
+    - Button "Generate report" → download JSON/PDF
 
-4.5 Botón 🚩 y supervisión clínica
-    - Terapeuta ve interpretaciones marcadas
-    - Puede agregar nota aclaratoria
-    - Usuario recibe feedback del terapeuta
+4.5 🚩 Flag button and clinical supervision
+    - Therapist sees flagged interpretations
+    - Can add a clarifying note
+    - User receives feedback from therapist
 ```
 
-**Tickets técnicos + UX de Semana 4** (ver STATUS.md para detalle completo):
+**Technical + UX tickets for Week 4** (see STATUS.md for full detail):
 
-| Ticket | Descripción | Responsable |
+| Ticket | Description | Owner |
 |---|---|---|
-| T-4.1 | Script fading mechanism — generalización de scripts (Gray, Krantz & McClannahan) | Ana |
-| T-4.2 | Validar zonas corporales con protocolo Mahler (8 señales interoceptivas) | Ana |
-| T-4.3 | Supervisión clínica del mapeo test→perfil (psicólogo ASD adultos) | w4rw1ck |
-| T-V9 | Body map con colores emocionales contextuales — requiere T-V1 + datos históricos | Ana |
+| T-4.1 | Script fading mechanism — script generalization (Gray, Krantz & McClannahan) | Ana |
+| T-4.2 | Validate body zones with Mahler protocol (8 interoceptive signals) | Ana |
+| T-4.3 | Clinical supervision of test→profile mapping (adult ASD psychologist) | w4rw1ck |
+| T-V9 | Body map with contextual emotional colors — requires T-V1 + historical data | Ana |
 
 ---
 
-## SEMANA 5 — On-Chain, Polish y APK
+## WEEK 5 — On-Chain, Polish and APK
 
 ```
 5.1 EAS consent attestations (Ethereum Attestation Service)
-    - Consentimiento clínico paciente→terapeuta como attestation inmutable
-    - Pasa el filtro on-chain: es un compromiso permanente con significado legal/clínico
-    - No requiere smart contract propio: usar EAS (attestation schema para permisos de salud)
-    - Integrar con vista terapeuta (S23): mostrar estado del consentimiento verificado
-    - Permisos de acceso (CRUD) siguen manejados por Supabase RLS (off-chain)
-    - Token-gating de features premium: arquitectura a definir post-Semana 5 (plan pendiente)
+    - Clinical consent patient→therapist as immutable attestation
+    - Passes the on-chain filter: it is a permanent commitment with legal/clinical significance
+    - Does not require own smart contract: use EAS (attestation schema for health permissions)
+    - Integrate with therapist view (S23): show verified consent status
+    - Access permissions (CRUD) continue to be managed by Supabase RLS (off-chain)
+    - Token-gating of premium features: architecture to define post-Week 5 (plan pending)
 
-5.2 Sincronización offline completa
-    - Implementar offline-sync.ts (ver BACKEND_STRUCTURE.md §7)
-    - Queue de operaciones pendientes
-    - Indicador visual de estado de sync
+5.2 Complete offline synchronization
+    - Implement offline-sync.ts (see BACKEND_STRUCTURE.md §7)
+    - Queue of pending operations
+    - Visual sync status indicator
 
-5.3 Accesibilidad y sensory polish
-    - Revisar accessibilityLabel en todos los componentes interactivos
-    - Verificar contraste en ambos modos (WCAG AA)
-    - Modo reducción de animaciones completo
-    - Modo crisis: verificar que cumple TODAS las reglas de FRONTEND_GUIDELINES.md §11
+5.3 Accessibility and sensory polish
+    - Review accessibilityLabel on all interactive components
+    - Verify contrast in both modes (WCAG AA)
+    - Complete reduce-animations mode
+    - Crisis mode: verify it meets ALL rules from FRONTEND_GUIDELINES.md §11
 
 5.4 Build APK
-    - Configurar app.json: nombre, ícono, splash screen
-    - Configurar eas.json (ver TECH_STACK.md § Build y Deploy)
-    - Ejecutar: eas build --platform android --profile preview
-    - Instalar APK en dispositivo físico y hacer prueba completa
+    - Configure app.json: name, icon, splash screen
+    - Configure eas.json (see TECH_STACK.md § Build and Deploy)
+    - Run: eas build --platform android --profile preview
+    - Install APK on physical device and do a full test
 
-5.5 Testing con usuario real
-    - Instalar APK en dispositivo del amigo diagnosticado
-    - Sesión de prueba de 30 minutos con los 3 flows principales
-    - Documentar friction points
-    - Iterar lo crítico
+5.5 Testing with real user
+    - Install APK on diagnosed friend's device
+    - 30-minute test session with the 3 main flows
+    - Document friction points
+    - Iterate on critical items
 ```
 
 ---
 
-## Checklist de Entrega por Semana
+## Delivery Checklist by Week
 
-### Semana 1 (Lunes) ✅
-- [ ] App corre en Expo Go en dispositivo físico
-- [ ] Onboarding funciona: S01 → S02 → S03 → S07 → S08 → S24 → S09
-- [ ] Check-in completo de inicio a fin: S10 → S11 → S12 → S13
-- [ ] 5 scripts navegables en modo preparación (S15) y ejecución (S16)
-- [ ] Botón de rescate funciona (nivel 1, 2, y 3): S17 → S18
-- [ ] Datos se guardan en Supabase (profiles + checkins + crisis_events)
-- [ ] Auth básico con email (Privy + sync-privy-user)
+### Week 1 (Monday) ✅
+- [ ] App runs in Expo Go on physical device
+- [ ] Onboarding works: S01 → S02 → S03 → S07 → S08 → S24 → S09
+- [ ] Complete check-in from start to finish: S10 → S11 → S12 → S13
+- [ ] 5 scripts navigable in preparation mode (S15) and execution mode (S16)
+- [ ] Rescue button works (level 1, 2, and 3): S17 → S18
+- [ ] Data saved in Supabase (profiles + checkins + crisis_events)
+- [ ] Basic auth with email (Privy + sync-privy-user)
 
-### Semana 2 ✅
-- [ ] Tests opcionales accesibles desde Configuración (S04, S05, S06)
-- [ ] Historial de check-ins visible (S19)
-- [ ] Diccionario emocional se construye (S20)
-- [ ] Tema claro/oscuro funcional (S21)
+### Week 2 ✅
+- [ ] Optional tests accessible from Settings (S04, S05, S06)
+- [ ] Check-in history visible (S19)
+- [ ] Emotional dictionary is built (S20)
+- [ ] Light/dark theme functional (S21)
 
-### Semana 3 ✅
-- [ ] Contactos de confianza completamente configurables
-- [ ] Notificación push llega en crisis
-- [ ] Telegram bot funcional (opcional)
-- [ ] SMS fallback offline funcional
+### Week 3 ✅
+- [ ] Trusted contacts fully configurable
+- [ ] Push notification arrives on crisis
+- [ ] Telegram bot functional (optional)
+- [ ] Offline SMS fallback functional
 
-### Semana 4 ✅
-- [ ] IA mejora interpretaciones con historial
-- [ ] Patrones visibles después de 7+ check-ins
-- [ ] Vista terapeuta básica funcional
-- [ ] Scripts personalizados con asistencia IA
+### Week 4 ✅
+- [ ] AI improves interpretations with history
+- [ ] Patterns visible after 7+ check-ins
+- [ ] Basic therapist view functional
+- [ ] Custom scripts with AI assistance
 
-### Semana 5 ✅
-- [ ] APK instalable generado y probado
-- [ ] EAS consent attestations funcional (testnet)
-- [ ] Prueba completa con usuario real
-- [ ] App no genera ningún detonante sensorial (validado por usuario con TEA)
+### Week 5 ✅
+- [ ] Installable APK generated and tested
+- [ ] EAS consent attestations functional (testnet)
+- [ ] Full test with real user
+- [ ] App does not generate any sensory triggers (validated by user with ASD)
