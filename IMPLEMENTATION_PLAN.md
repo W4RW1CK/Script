@@ -402,10 +402,78 @@ Step 14: Create app/(onboarding)/contacts.tsx (S08 — Contact Setup):
 
 ## WEEK 2 — History, Dictionary, Personalization and Visual Identity
 
+> **Note v1.8 (2026-03-08):** Sprint 2.C (Onboarding Flow Redesign) added as first priority for Week 2. Must be completed before Sprints 2.A and 2.B. Ref: PRD.md v1.5 §3.1, APP_FLOW.md v1.4, STATUS.md T-F1–T-F5.  
 > **Note v1.7 (2026-03-06):** Sprints 2.A (Visual Foundation) and 2.B (Identity Screens) added as a result of the UI/UX audit + visual identity analysis. Ref: STATUS.md tickets T-U1 to T-V9, FRONTEND_GUIDELINES.md §1.4/§2/§4/§7/§12.
 
+---
+
+### Sprint 2.C — Onboarding Flow Redesign ⚡ DO FIRST
+**Decision by:** w4rw1ck · **Date:** 2026-03-08  
+**References:** PRD.md v1.5 §3.1, APP_FLOW.md v1.4 Flow 1  
+**Rationale:** Reduce onboarding friction; one guided test eliminates decision fatigue for ASD Level 1 users
+
+| Ticket | Screen | Change | Owner | Priority |
+|---|---|---|---|---|
+| T-F1 | S01 `index.tsx` | Add second CTA: "I need help right now" → navigate to `/(app)/rescue/assess` without auth | Ana | 🔴 High |
+| T-F2 | S03 `aq10-result.tsx` | Show ONE recommended test (AQ if ≥6, CAT-Q if <6). Remove cascade to S06. Hide score. Add "Skip for now" → S07. | Ana | 🔴 High |
+| T-F3 | S07 `profile.tsx` | Remove skip button. Trim form to 4–5 questions (name, 2 sensitivities, 1–2 interests, tools). Update copy to "Tell us about you" framing. | Ana | 🔴 High |
+| T-F4 | S08 `contacts.tsx` | Update skip copy to "Skip for now — I'll add contacts later". Add warm explanation of why contacts matter. Keep skip functional. | Ana | 🟡 Medium |
+| T-F5 | S06 `raads.tsx` + Settings | Remove RAADS-R from onboarding navigation. Add entry point in `settings/index.tsx` → "Complete my profile" section. | Aibus | 🟡 Medium |
+
+#### T-F1 — S01: Add "I need help right now" CTA
+```tsx
+// app/(onboarding)/index.tsx
+// Add second button alongside "Begin my journey"
+<Button
+  title="I need help right now"
+  variant="ghost"
+  onPress={() => router.push("/(app)/rescue/assess")}
+  accessibilityLabel="I need immediate support"
+  accessibilityHint="Opens the rescue protocol without requiring login"
+/>
 ```
-2.A SPRINT — Visual Foundation (do BEFORE 2.1–2.5)
+> Crisis access must NEVER be blocked by auth walls (PRD §6, Principle 6)
+
+#### T-F2 — S03: Hide score, ONE test recommendation
+```tsx
+// app/(onboarding)/aq10-result.tsx
+// DECISION (w4rw1ck 2026-03-08): Do NOT display the numerical AQ-10 score.
+// Score stored silently in Supabase (therapist view / Settings).
+// Screen shows:
+// 1. Warm non-diagnostic message (no score)
+// 2. ONE recommended test: Score ≥6 → Full AQ | Score <6 → CAT-Q
+// 3. CTA: "Take [test] now" + "Skip for now → S07"
+// 4. Remove: all navigation to S06 RAADS-R
+```
+
+#### T-F3 — S07: Mandatory profile, trimmed form
+```tsx
+// app/(onboarding)/profile.tsx
+// Remove skip button entirely
+// Trim to: displayName, sensitivities (max 2), interests (max 2), existingTools
+// Heading: "Tell us about you" / "So we can make this yours"
+```
+
+#### T-F4 — S08: Optional contacts with warm copy
+```tsx
+// app/(onboarding)/contacts.tsx
+// Skip button text: "Skip for now — I'll add contacts later"
+// Info text: "A trusted contact can receive a notification if you're in crisis.
+//             You can always add people later from Settings."
+```
+
+#### T-F5 — RAADS-R to Settings
+```
+1. Remove RAADS-R from onboarding navigation in aq10-result.tsx
+2. Add "Complete my profile" section in settings/index.tsx
+   - Test completion status (✅ / ⏳) for Full AQ, CAT-Q, RAADS-R
+3. Screen S06 route changes to /settings/raads
+```
+
+---
+
+```
+2.A SPRINT — Visual Foundation (do AFTER Sprint 2.C)
 
 2.A.1 Critical pre-user tickets
     T-U1: useReduceMotion() in protocol.tsx, body.tsx, and any Reanimated animation
@@ -620,86 +688,6 @@ Step 14: Create app/(onboarding)/contacts.tsx (S08 — Contact Setup):
     - 30-minute test session with the 3 main flows
     - Document friction points
     - Iterate on critical items
-```
-
----
-
-## SPRINT 2.C — Onboarding Flow Redesign
-**Decision by:** w4rw1ck · **Date:** 2026-03-08  
-**References:** PRD.md v1.5 §3.1, APP_FLOW.md v1.4 Flow 1  
-**Rationale:** Reduce onboarding friction; one guided test eliminates decision fatigue for ASD Level 1 users
-
-| Ticket | Screen | Change | Owner | Priority |
-|---|---|---|---|---|
-| T-F1 | S01 `index.tsx` | Add second CTA: "I need help right now" → navigate to `/(app)/rescue/assess` without auth | Ana | 🔴 High |
-| T-F2 | S03 `aq10-result.tsx` | Show ONE recommended test (AQ if ≥6, CAT-Q if <6). Remove cascade to S06. Add "Skip for now" → S07. | Ana | 🔴 High |
-| T-F3 | S07 `profile.tsx` | Remove skip button. Trim form to 4–5 questions (name, 2 sensitivities, 1–2 interests, tools). Update copy to "Tell us about you" framing. | Ana | 🔴 High |
-| T-F4 | S08 `contacts.tsx` | Update skip copy to "Skip for now — I'll add contacts later". Add warm explanation of why contacts matter. Keep skip functional. | Ana | 🟡 Medium |
-| T-F5 | S06 `raads.tsx` + Settings | Remove RAADS-R from onboarding navigation. Add entry point in `settings/index.tsx` → "Complete my profile" section. | Aibus | 🟡 Medium |
-
-### T-F1 — S01: Add "I need help right now" CTA
-
-```tsx
-// app/(onboarding)/index.tsx
-// Add second button alongside "Begin my journey"
-<Button
-  title="I need help right now"
-  variant="ghost"
-  onPress={() => router.push("/(app)/rescue/assess")}
-  accessibilityLabel="I need immediate support"
-  accessibilityHint="Opens the rescue protocol without requiring login"
-/>
-```
-> Crisis access must NEVER be blocked by auth walls (PRD §6, Principle 6)
-
-### T-F2 — S03: Hide score, ONE test recommendation
-
-```tsx
-// app/(onboarding)/aq10-result.tsx
-// 
-// DECISION (w4rw1ck 2026-03-08): Do NOT display the numerical AQ-10 score.
-// Showing "7/10" triggers grade-thinking and validation anxiety — both
-// counterproductive for ASD Level 1 users who have spent their lives being evaluated.
-// The score is stored silently in Supabase (for therapist view / Settings).
-//
-// Screen shows:
-// 1. Warm, non-diagnostic message (no score)
-//    e.g. "The way you answered tells us something useful. Many people who experience
-//          the world the way you described find these tools genuinely helpful."
-// 2. ONE recommended test based on internal score:
-//    - Score ≥6 → Full AQ only ("We suggest the Full AQ for a more accurate profile")
-//    - Score <6 → CAT-Q only ("We suggest the CAT-Q — it detects patterns often missed")
-// 3. CTA: "Take [test] now" + "Skip for now → S07"
-// 4. Remove: all navigation to S06 RAADS-R from this screen
-```
-
-### T-F3 — S07: Mandatory profile, trimmed form
-
-```tsx
-// app/(onboarding)/profile.tsx
-// Remove skip button entirely
-// Trim to: displayName, sensitivities (max 2), interests (max 2), existingTools
-// Update heading: "Tell us about you" / "So we can make this yours"
-// Keep: Continue button, validation that displayName is not empty
-```
-
-### T-F4 — S08: Optional contacts with warm copy
-
-```tsx
-// app/(onboarding)/contacts.tsx  
-// Update skip button text: "Skip for now — I'll add contacts later"
-// Add info text: "A trusted contact can receive a notification if you're in crisis.
-//                You can always add people later from Settings."
-```
-
-### T-F5 — RAADS-R to Settings
-
-```
-1. Remove RAADS-R from onboarding navigation graph in aq10-result.tsx
-2. Add "Complete my profile" section to settings/index.tsx
-   - Shows: test completion status (✅ / ⏳)
-   - Entry points: Full AQ, CAT-Q, RAADS-R
-3. Update APP_FLOW.md (done ✅) and screen S06 route to /settings/raads
 ```
 
 ---
