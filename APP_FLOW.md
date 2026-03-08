@@ -16,7 +16,7 @@
 |---|---|---|---|
 | S01 | Splash / Welcome | `/` | First screen, two options |
 | S02 | AQ-10 Test | `/onboarding/aq10` | 10 indicative questions |
-| S03 | AQ-10 Result + Next Steps | `/onboarding/aq10-result` | Score + recommended tests |
+| S03 | AQ-10 Result + Next Steps | `/onboarding/aq10-result` | Warm non-diagnostic message + ONE recommended test (score hidden — stored in Supabase only) |
 | S04 | Full AQ (50 questions) | `/onboarding/aq-full` | Only if AQ-10 ≥6, skippable — ONE additional test only |
 | S05 | CAT-Q (25 questions) | `/onboarding/catq` | Only if AQ-10 <6, skippable — ONE additional test only |
 | S06 | RAADS-R (80 questions) | `/settings/raads` | **Settings only** — not in onboarding; accessible from S21 "Complete my profile" |

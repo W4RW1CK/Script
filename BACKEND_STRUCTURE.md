@@ -1,8 +1,9 @@
 # BACKEND_STRUCTURE.md — Backend and Database Architecture
 ## Script — Digital Companion for Adults with ASD Level 1
 
-**Version:** 1.3  
-**Last updated:** 2026-02-27  
+**Version:** 1.4  
+**Last updated:** 2026-03-08  
+**Changes v1.4:** §4 `sync-privy-user` updated to Admin API approach (B-51 v2): `auth.admin.createUser` + `auth.admin.generateLink`. Output changed from `supabase_token` to `otp_token_hash`. No `SUPABASE_JWT_SECRET` required. Client flow updated: `verifyOtp({ token_hash, type: 'email' })` instead of `setSession()`.  
 **Changes v1.3:** §4 interpret-checkin trigger corrected S11→S12 (the edge function is called from reflect.tsx). §4 send-crisis-notification corrected "level 2-3" → "level 3 only" (consistent with PRD/APP_FLOW/IMPLEMENTATION_PLAN). §5 Storage: note about audio bundled in assets for offline; filenames standardized.  
 **Changes v1.2:** RAADS-R domain counts corrected (64→80 items). RLS with WITH CHECK on all tables. RLS added for emotional_dictionary, script_executions, therapist_patients. sync-privy-user documented in §4. Screen reference S07→S11.
 
@@ -357,7 +358,8 @@ CREATE POLICY "tp_patient_manage" ON therapist_patients
 ## 4. Edge Functions (Supabase)
 
 ### `sync-privy-user`
-**Trigger:** POST from the client immediately after Privy completes login  
+**Trigger:** POST from the client immediately after Privy completes login (fire-and-forget — never awaited in navigation path)  
+**Auth required:** `SUPABASE_SERVICE_ROLE_KEY` (auto-injected by Supabase runtime — no additional secrets needed)  
 **Input:**
 ```typescript
 {
@@ -366,15 +368,30 @@ CREATE POLICY "tp_patient_manage" ON therapist_patients
   wallet_address?: string
 }
 ```
-**Process:** Finds or creates a user in the `users` table. If new, creates an empty record in `profiles`. Generates and returns a Supabase session token.  
+**Process:**
+1. Looks up existing user in `users` by `privy_user_id`
+2. If not found: creates user via `supabase.auth.admin.createUser()` + inserts into `users` + creates empty `profiles` row
+3. If found: updates `updated_at` in `users`
+4. Reads `onboarding_complete` from `profiles`
+5. Calls `supabase.auth.admin.generateLink({ type: 'magiclink', email })` to get a one-time token
+6. Returns token hash for client-side session establishment
+
 **Output:**
 ```typescript
 {
-  supabase_token: string,
-  user_id: string,
-  is_new_user: boolean  // true = redirect to onboarding
+  user_id: string,               // Supabase auth UUID
+  onboarding_complete: boolean,  // from profiles table
+  created: boolean,              // true = new user → redirect to onboarding
+  otp_token_hash: string         // used by client to establish Supabase session
 }
 ```
+**Client-side flow (after receiving response):**
+```typescript
+// lib/supabase.ts — setSupabaseToken()
+await supabase.auth.verifyOtp({ token_hash: otp_token_hash, type: 'email' })
+// This establishes a real Supabase session → auth.uid() returns correct UUID → RLS resolves
+```
+> **Note:** `autoRefreshToken` is set to `false` in the Supabase client — Privy manages the session lifecycle. Supabase session is re-established on each app startup via AuthGate sync.
 
 ---
 

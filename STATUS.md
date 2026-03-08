@@ -1,12 +1,12 @@
 # STATUS.md — Project Status
-## Script — Digital Companion for Adults with Level 1 ASD
+## Script — Digital Companion for Adults with ASD Level 1
 
 > **How to read this file:**
 > ✅ Complete | 🔄 In progress | ⏳ Pending | ❌ Blocked
 
 **Last updated:** 2026-03-08 (Sprint 2.C onboarding flow redesign tickets T-F1–T-F5 added; all 7 docs translated to English; B-52–B-57 fixed)  
-**Current week:** 1  
-**Next delivery:** Monday (MVP)
+**Current week:** 2  
+**Next delivery:** Sprint 2.A (Visual Foundation) + Sprint 2.C (Onboarding Flow Redesign)
 
 ---
 
@@ -37,7 +37,7 @@ Something fails → both attack the bug → w4rw1ck confirms fix
 | 5 | Spanish translations: AQ Full (50q) + CAT-Q (25q) + RAADS-R (80q) | Ana + Aibus | Phase 1.8 | ⏳ |
 | 6 | Audio: guided voice + ambient tone (for grounding and breathing) | Ana + Aibus | Phase 1.7 | ⏳ |
 | 7 | Review/complete content for 5 social scripts | Ana + Aibus | Phase 1.6 | ✅ |
-| 8 | **Add `SUPABASE_JWT_SECRET` to Edge Functions env vars + redeploy `sync-privy-user`** — without this B-51 (RLS) won't activate even though the code is ready. Obtain in Supabase Dashboard → Settings → API → JWT Secret. Add in Dashboard → Edge Functions → Manage Secrets. Then: `supabase functions deploy sync-privy-user` | w4rw1ck | RLS (B-51) | ⏳ |
+| 8 | ~~Add `SUPABASE_JWT_SECRET` to Edge Functions env vars~~ — **OBSOLETE.** B-51 v2 switched to Supabase Admin API (`auth.admin.createUser` + `auth.admin.generateLink`). No JWT Secret needed. Only `SUPABASE_URL` + `SUPABASE_SERVICE_ROLE_KEY` required (auto-injected). | — | — | ✅ N/A |
 
 ---
 
@@ -46,7 +46,7 @@ Something fails → both attack the bug → w4rw1ck confirms fix
 | Week | Description | Status | Completed |
 |---|---|---|---|
 | Pre-implementation | Documentation + audit of 6 canonical docs | ✅ | PR #3 ready to merge |
-| Week 1 | MVP: Setup + Check-in + Scripts + Rescue + Auth | 🔄 | Code 8/8 phases complete · Functional verification pending (Privy setup — see Blocker #2) |
+| Week 1 | MVP: Setup + Check-in + Scripts + Rescue + Auth | ✅ | Code 8/8 phases complete · App running on Android device via Expo Go (2026-03-08) · Privy init issue under investigation (dev bypass active) |
 | Week 2 | History + Dictionary + Customization + Visual Identity | ⏳ | Sprints 2.A (Visual Foundation) and 2.B (Screens) added |
 | Week 3 | Trust Network + Notifications | ⏳ | — |
 | Week 4 | AI + Therapist View | ⏳ | — |
@@ -415,7 +415,8 @@ Something fails → both attack the bug → w4rw1ck confirms fix
 
 | Date | Decision | Reason |
 
-| 2026-03-06 | **B-51: Option A chosen** — sync-privy-user mints HS256 JWT (sub=UUID, signed with SUPABASE_JWT_SECRET). Privy not added as external provider in Supabase Dashboard. No additional Edge Functions created. The minted JWT is passed to client via `setSupabaseToken()` → `supabase.auth.setSession()`. `autoRefreshToken: false` because Privy manages the lifecycle. JWT duration: 30 days; automatic re-minting on each app startup when Privy has session | Privy does not use Supabase Auth — auth.uid() was always null before this fix |
+| 2026-03-06 | **B-51 Option A (superseded)** — sync-privy-user minted HS256 JWT signed with SUPABASE_JWT_SECRET. Required `SUPABASE_JWT_SECRET` env var (Legacy JWT Secret), not exposed in new Supabase dashboard UI. | Superseded by B-51 v2 below |
+| 2026-03-06 | **B-51 v2 (current)** — Switched to Admin API: `auth.admin.createUser()` + `auth.admin.generateLink({ type: 'magiclink' })`. Returns `otp_token_hash` (not `access_token`). Client calls `supabase.auth.verifyOtp({ token_hash, type: 'email' })`. `SUPABASE_SERVICE_ROLE_KEY` auto-injected — no additional secrets needed. `autoRefreshToken: false` (Privy manages lifecycle). Commit: `4aa48b3` | Privy ↔ Supabase session bridge without needing Legacy JWT Secret |
 |---|---|---|
 | 2026-02-26 | Expo SDK 55 as base | Current stable version |
 | 2026-02-26 | expo-audio instead of expo-av | expo-av deprecated in Expo 55 |

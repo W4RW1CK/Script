@@ -1,5 +1,5 @@
 # IMPLEMENTATION_PLAN.md — Implementation Plan
-## Script — Digital Companion for Adults with Level 1 ASD
+## Script — Digital Companion for Adults with ASD Level 1
 
 **Version:** 1.8  
 **Last updated:** 2026-03-08  
