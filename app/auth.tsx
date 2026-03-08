@@ -101,7 +101,9 @@ export default function AuthScreen() {
   const setOnboardingComplete = useAuthStore((s) => s.setOnboardingComplete);
 
   // Privy — fuente de verdad para auth
-  const { user: privyUser, ready: privyReady, authenticated } = usePrivy();
+  // v0.63 API: `ready` → `isReady`, no `authenticated` field — use !!user instead
+  const { user: privyUser, isReady: privyReady } = usePrivy();
+  const authenticated = !!privyUser;
 
   /**
    * DEV BYPASS — Solo visible en development (__DEV__ = true en Expo Go).
