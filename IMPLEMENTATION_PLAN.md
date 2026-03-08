@@ -1,8 +1,9 @@
 # IMPLEMENTATION_PLAN.md — Implementation Plan
 ## Script — Digital Companion for Adults with Level 1 ASD
 
-**Version:** 1.7  
-**Last updated:** 2026-03-06  
+**Version:** 1.8  
+**Last updated:** 2026-03-08  
+**Changes v1.8:** Sprint 2.C (Onboarding Flow Redesign) added — 5 tickets (T-F1 to T-F5) implementing w4rw1ck flow decisions: S01 two CTAs, AQ-10 → ONE test, RAADS-R to Settings, S07 mandatory, S08 optional. Ref: PRD.md v1.5, APP_FLOW.md v1.4.  
 **Changes v1.7:** Week 2 — sprints 2.A (Visual Foundation) and 2.B (Identity Screens) added. Emotional color system, Atkinson Hyperlegible, shadows, button gradient, emotion cards, home redesign, Y-i-P calendar. Ref: STATUS.md T-U1 to T-V9, FRONTEND_GUIDELINES.md v1.4.  
 **Changes v1.6:** Step 5.1 replaced from smart contract to EAS attestations.  
 **Changes v1.5:** §1.7 Step 2A — Level 1 grounding updated to MULTIMODAL (visual + guided audio/voice + haptic); adds tone-grounding-voice.mp3 to required assets. Decision confirmed in planning session 2026-02-27.  
@@ -619,6 +620,75 @@ Step 14: Create app/(onboarding)/contacts.tsx (S08 — Contact Setup):
     - 30-minute test session with the 3 main flows
     - Document friction points
     - Iterate on critical items
+```
+
+---
+
+## SPRINT 2.C — Onboarding Flow Redesign
+**Decision by:** w4rw1ck · **Date:** 2026-03-08  
+**References:** PRD.md v1.5 §3.1, APP_FLOW.md v1.4 Flow 1  
+**Rationale:** Reduce onboarding friction; one guided test eliminates decision fatigue for ASD Level 1 users
+
+| Ticket | Screen | Change | Owner | Priority |
+|---|---|---|---|---|
+| T-F1 | S01 `index.tsx` | Add second CTA: "I need help right now" → navigate to `/(app)/rescue/assess` without auth | Ana | 🔴 High |
+| T-F2 | S03 `aq10-result.tsx` | Show ONE recommended test (AQ if ≥6, CAT-Q if <6). Remove cascade to S06. Add "Skip for now" → S07. | Ana | 🔴 High |
+| T-F3 | S07 `profile.tsx` | Remove skip button. Trim form to 4–5 questions (name, 2 sensitivities, 1–2 interests, tools). Update copy to "Tell us about you" framing. | Ana | 🔴 High |
+| T-F4 | S08 `contacts.tsx` | Update skip copy to "Skip for now — I'll add contacts later". Add warm explanation of why contacts matter. Keep skip functional. | Ana | 🟡 Medium |
+| T-F5 | S06 `raads.tsx` + Settings | Remove RAADS-R from onboarding navigation. Add entry point in `settings/index.tsx` → "Complete my profile" section. | Aibus | 🟡 Medium |
+
+### T-F1 — S01: Add "I need help right now" CTA
+
+```tsx
+// app/(onboarding)/index.tsx
+// Add second button alongside "Begin my journey"
+<Button
+  title="I need help right now"
+  variant="ghost"
+  onPress={() => router.push("/(app)/rescue/assess")}
+  accessibilityLabel="I need immediate support"
+  accessibilityHint="Opens the rescue protocol without requiring login"
+/>
+```
+> Crisis access must NEVER be blocked by auth walls (PRD §6, Principle 6)
+
+### T-F2 — S03: ONE test recommendation
+
+```tsx
+// app/(onboarding)/aq10-result.tsx
+// Score ≥6 → show only Full AQ recommendation
+// Score <6 → show only CAT-Q recommendation
+// Both: single CTA "Take [test] now" + "Skip for now"
+// Remove: all navigation to S06 RAADS-R
+```
+
+### T-F3 — S07: Mandatory profile, trimmed form
+
+```tsx
+// app/(onboarding)/profile.tsx
+// Remove skip button entirely
+// Trim to: displayName, sensitivities (max 2), interests (max 2), existingTools
+// Update heading: "Tell us about you" / "So we can make this yours"
+// Keep: Continue button, validation that displayName is not empty
+```
+
+### T-F4 — S08: Optional contacts with warm copy
+
+```tsx
+// app/(onboarding)/contacts.tsx  
+// Update skip button text: "Skip for now — I'll add contacts later"
+// Add info text: "A trusted contact can receive a notification if you're in crisis.
+//                You can always add people later from Settings."
+```
+
+### T-F5 — RAADS-R to Settings
+
+```
+1. Remove RAADS-R from onboarding navigation graph in aq10-result.tsx
+2. Add "Complete my profile" section to settings/index.tsx
+   - Shows: test completion status (✅ / ⏳)
+   - Entry points: Full AQ, CAT-Q, RAADS-R
+3. Update APP_FLOW.md (done ✅) and screen S06 route to /settings/raads
 ```
 
 ---

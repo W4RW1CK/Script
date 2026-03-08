@@ -1,8 +1,9 @@
 # PRD.md — Product Requirements Document
 ## Script — Digital Companion for Adults with ASD Level 1
 
-**Version:** 1.4  
-**Last updated:** 2026-02-27  
+**Version:** 1.5  
+**Last updated:** 2026-03-08  
+**Changes v1.5:** §3.1 Onboarding redesigned — S01 now has two explicit CTAs ("Begin my journey" / "I need help right now"). AQ-10 → ONE additional test based on score (AQ Full if ≥6, CAT-Q if <6); cascade of 3 tests removed. RAADS-R removed from onboarding; accessible only from Settings → "Complete my profile". Personal questionnaire (S07) is now MANDATORY (no skip). Contacts (S08) remain OPTIONAL with warm recommendation. Decision by w4rw1ck 2026-03-08.  
 **Changes v1.4:** §3.4 Level 1 (grounding 5-4-3-2-1) updated to multimodal (visual + audio/voice + haptic) — decision confirmed in planning session 2026-02-27.  
 **Changes v1.3:** §3.1 Deep Phase — clarified that Settings access is Week 1 (Phase 1.8). §4 Week 2 — screening tests removed (they are Week 1). §4 Week 5 — "fully offline" scoped to avoid confusion with offline-first base of Week 1.  
 **Changes v1.2:** RAADS-R domain counts corrected (Appendix E). §3.4 notifications scoped to level 3. §4 Week 2 redundant auth removed. §6 Principle 6 aligned with APP_FLOW.md (1 tap, not 2).  
@@ -55,18 +56,23 @@ Script is a mobile application (Android-first, web-compatible) that acts as a di
 Onboarding has two phases: **quick** (mandatory, ~3 min) and **deep** (optional, ~15-30 min).
 
 #### Quick Phase — Mandatory
-- **Welcome screen** with "Calm Mode" option (direct bypass to crisis if needed)
-- **AQ-10 test** (Autism Quotient-10): 10 questions, indicative result, not a diagnosis
-  - Score ≥6: pre-configured seed profile + recommends full AQ
-  - Score <6: base seed profile + recommends CAT-Q (detects masking)
-- **Personal questionnaire:** name, interests, sensitivities, tools already in use (5–8 questions)
-- **Trusted contacts setup** (optional, skippable)
+- **Welcome screen (S01):** Two explicit CTAs:
+  - **"Begin my journey"** → AQ-10 onboarding flow
+  - **"I need help right now"** → S17 Rescue (direct bypass, no auth required)
+- **AQ-10 test (S02):** 10 questions, indicative result, not a diagnosis
+  - Score ≥6: pre-configured seed profile + recommends **Full AQ only** (one test)
+  - Score <6: base seed profile + recommends **CAT-Q only** (one test, detects masking)
+  - Both: test is optional and skippable; skipped tests available later in Settings
+- **Personal questionnaire (S07):** MANDATORY — name, 2 key sensitivities, 1–2 main interests, tools already in use (4–5 questions max, no skip). Core data for app personalization; framed as "Tell us about you" not a form.
+- **Trusted contacts setup (S08):** OPTIONAL (clearly recommended, not required). User can skip with warm message "You can always add contacts later from Settings". No penalty for skipping.
 
-#### Deep Phase — Optional (available after AQ-10)
-Additional tests that **feed the seed profile** with greater precision. The user can:
-- Complete all of them during onboarding (flow S04 → S05 → S06)
-- Resume them at any time from Settings → "Complete my profile" (S21) — **available from Week 2** (Phase 2.1 — screens S04–S06 exist from Week 1, the entry point in Settings is built in Week 2)
-- Skip them entirely (no penalty)
+#### Deep Phase — Accessible from Settings only
+Additional tests to **refine the seed profile**. These are intentionally excluded from onboarding to reduce friction. Available at any time from Settings → "Complete my profile" (S21):
+- **Full AQ (50 questions)** — if not done during onboarding
+- **CAT-Q (25 questions)** — if not done during onboarding
+- **RAADS-R (80 questions)** — Settings only; too long for onboarding
+
+> **Rationale (w4rw1ck, 2026-03-08):** Presenting multiple long tests during onboarding causes drop-off and decision fatigue — especially counterproductive for ASD Level 1 users. One guided test based on AQ-10 score is the optimal balance between personalization and accessibility.
 
 **Test 2: Full AQ (Autism Quotient — 50 questions)**
 - Only recommended if AQ-10 score ≥6

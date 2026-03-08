@@ -1,9 +1,10 @@
 # APP_FLOW.md — Navigation Flows
 ## Script — Digital Companion for Adults with ASD Level 1
 
-**Version:** 1.3  
-**Last updated:** 2026-02-27  
-**Changes v1.2:** Screen IDs renumbered to eliminate duplicates. Cross-references corrected. New screens S03-S06 (screening tests).
+**Version:** 1.4  
+**Last updated:** 2026-03-08  
+**Changes v1.4:** Flow 1 (Onboarding) redesigned per w4rw1ck 2026-03-08. S01 now has two explicit CTAs. AQ-10 → ONE additional test (not cascade). RAADS-R removed from onboarding; moved to Settings. S07 profile made mandatory. S08 contacts remain optional. S06 marked as Settings-only.  
+**Changes v1.3:** Screen IDs renumbered to eliminate duplicates. Cross-references corrected. New screens S03-S06 (screening tests).
 
 ---
 
@@ -16,9 +17,9 @@
 | S01 | Splash / Welcome | `/` | First screen, two options |
 | S02 | AQ-10 Test | `/onboarding/aq10` | 10 indicative questions |
 | S03 | AQ-10 Result + Next Steps | `/onboarding/aq10-result` | Score + recommended tests |
-| S04 | Full AQ (50 questions) | `/onboarding/aq-full` | Only if AQ-10 ≥6, skippable |
-| S05 | CAT-Q (25 questions) | `/onboarding/catq` | Measures masking, skippable |
-| S06 | RAADS-R (80 questions) | `/onboarding/raads` | Subcritical presentation, skippable |
+| S04 | Full AQ (50 questions) | `/onboarding/aq-full` | Only if AQ-10 ≥6, skippable — ONE additional test only |
+| S05 | CAT-Q (25 questions) | `/onboarding/catq` | Only if AQ-10 <6, skippable — ONE additional test only |
+| S06 | RAADS-R (80 questions) | `/settings/raads` | **Settings only** — not in onboarding; accessible from S21 "Complete my profile" |
 | S07 | Personal Questionnaire | `/onboarding/profile` | Interests, sensory preferences |
 | S08 | Contacts Setup | `/onboarding/contacts` | Add trusted people (skippable) |
 | S24 | Login / Auth | `/auth` | Privy: email/social/wallet |
@@ -57,44 +58,57 @@
 
 ```
 S01 Welcome
-├── [Button: "Start my journey"] → S02 AQ-10
+│
+├── [Button: "Begin my journey"] → S02 AQ-10
 │   ├── User answers 10 questions (Likert scale, see PRD Appendix A)
 │   ├── Result calculated (≤5: low score / ≥6: high score)
 │   └── → S03 AQ-10 Result + Next Steps
 │       ├── Shows score + NON-diagnostic message
+│       │
 │       ├── Score ≥6:
-│       │   ├── Recommendation: "Next step: Full AQ (50 questions)"
-│       │   └── [Button: "Take full AQ now"] → S04 Full AQ
-│       │       └── Completed or [Skip] → S05 CAT-Q (optional)
-│       │           └── Completed or [Skip] → S06 RAADS-R (optional)
-│       │               └── Completed or [Skip] → S07 Personal Questionnaire
+│       │   ├── Recommendation: "We suggest the Full AQ for a more accurate profile"
+│       │   ├── [Button: "Take Full AQ now"] → S04 Full AQ (50 questions)
+│       │   │   └── Completed or [Skip] → S07 Personal Questionnaire
+│       │   └── [Button: "Skip for now"] → S07 Personal Questionnaire
+│       │
 │       ├── Score <6:
-│       │   ├── Recommendation: "Next step: CAT-Q (measures masking)"
-│       │   └── [Button: "Take CAT-Q now"] → S05 CAT-Q
-│       │       └── Completed or [Skip] → S06 RAADS-R (optional)
-│       │           └── Completed or [Skip] → S07 Personal Questionnaire
-│       └── [Button: "Skip additional tests"] → S07 Personal Questionnaire
+│       │   ├── Recommendation: "We suggest the CAT-Q — it detects patterns standard tests often miss"
+│       │   ├── [Button: "Take CAT-Q now"] → S05 CAT-Q (25 questions)
+│       │   │   └── Completed or [Skip] → S07 Personal Questionnaire
+│       │   └── [Button: "Skip for now"] → S07 Personal Questionnaire
+│       │
+│       │   ⚠️ RAADS-R is NOT offered here — accessible from Settings only (S21)
+│       │
+│       └── S07 Personal Questionnaire  ← MANDATORY (no skip)
+│           ├── 4–5 questions: display name, 2 key sensitivities,
+│           │   1–2 main interests, tools already in use
+│           ├── Framed as "Tell us about you so we can make this yours"
+│           └── [Button: "Continue"] → S08 Contacts Setup
+│               │
+│               ├── S08 Contacts Setup  ← OPTIONAL (recommended, not required)
+│               │   ├── Warm copy: "Adding a trusted contact helps us support you in a crisis."
+│               │   │             "You can always add people later from Settings."
+│               │   ├── [Button: "Add trusted contact"] → Form: name + phone + relationship
+│               │   │   └── [Button: "Done"] → S24 Auth
+│               │   └── [Button: "Skip for now — I'll add contacts later"] → S24 Auth
+│               │
+│               └── Auth completed → S09 Home
 │
-│   S07 Personal Questionnaire
-│   ├── Questions: name, age, interests (multiselect),
-│   │   sensitivities (light / sound / textures / crowds),
-│   │   tools you already use (none / journaling / therapy / meditation)
-│   └── [Button: "Continue"] → S08 Contacts Setup
-│       ├── [Button: "Add trusted contact"] → Form: name + phone + relationship
-│       ├── [Button: "Skip for now"] → S24 Auth
-│       └── [Button: "Done"] → S24 Auth
-│           └── Auth completed → S09 Home
-│
-└── [Button: "I need help now"] → S17 Rescue (onboarding bypass)
-    └── After completing protocol → S01 Welcome (option to complete onboarding)
+└── [Button: "I need help right now"] → S17 Rescue (no auth required)
+    └── After completing protocol → S01 Welcome (option to continue onboarding)
 ```
 
-**Rules for optional tests (S04, S05, S06):**
-- Each test has a "Skip for now" button always visible
-- If skipped, it becomes available in S21 Settings → "Complete my profile"
-- Results from each test are saved immediately upon completion (not lost if app is closed)
-- Progress bar is visible but without pressure: "Question 12 of 25"
-- Long tests (S06 RAADS-R, 80 questions) can be paused and resumed
+**Rules for the one optional test (S04 or S05):**
+- Only ONE test is recommended based on AQ-10 score — never both
+- The recommended test has a "Skip for now" button always visible
+- RAADS-R (S06) is not offered during onboarding; accessible from S21 → "Complete my profile"
+- Test results saved immediately on completion (not lost if app closes)
+- Progress bar without pressure: "Question 12 of 25"
+- Full AQ (S04, 50q) can be paused and resumed (SecureStore persistence)
+
+**Rationale for simplified flow (w4rw1ck, 2026-03-08):**
+Cascading 3 tests in onboarding causes decision fatigue — especially for ASD Level 1 users.
+One guided recommendation based on score is the optimal balance between personalization and accessibility.
 
 **Errors:**
 - AQ-10 with not all questions answered: show pending questions indicator, do not block

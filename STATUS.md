@@ -4,7 +4,7 @@
 > **How to read this file:**
 > ✅ Complete | 🔄 In progress | ⏳ Pending | ❌ Blocked
 
-**Last updated:** 2026-03-06 (B-51 ✅ — Option A implemented: sync-privy-user mints Supabase JWT, auth.uid() works, RLS resolved)  
+**Last updated:** 2026-03-08 (Sprint 2.C onboarding flow redesign tickets T-F1–T-F5 added; all 7 docs translated to English; B-52–B-57 fixed)  
 **Current week:** 1  
 **Next delivery:** Monday (MVP)
 
@@ -58,12 +58,12 @@ Something fails → both attack the bug → w4rw1ck confirms fix
 
 | Doc | Version | Status | Key changes |
 |---|---|---|---|
-| `PRD.md` | v1.4 | ✅ | Tests moved to Week 1; offline clarified; Settings timing corrected; tagline restored |
-| `APP_FLOW.md` | v1.3 | ✅ | Screen IDs S01–S24; Flow 5 added; Level 1 crisis = multimodal (visual+voice+haptic) |
+| `PRD.md` | **v1.5** | ✅ | Onboarding redesigned: S01 two CTAs, ONE test per score, RAADS-R to Settings, S07 mandatory, S08 optional |
+| `APP_FLOW.md` | **v1.4** | ✅ | Flow 1 redesigned: S01 two CTAs, ONE test recommendation, RAADS-R Settings-only, S07 mandatory, S08 optional |
 | `TECH_STACK.md` | **v1.4** | ✅ | Inter → Atkinson Hyperlegible (T-U3); expo-symbols removed (B-07) |
 | `FRONTEND_GUIDELINES.md` | **v1.4** | ✅ | §1.4 emotional color; §2 Atkinson; §4 shadows+gradient; §7 useReduceMotion; §12 Visual Identity |
 | `BACKEND_STRUCTURE.md` | v1.3 | ✅ | RAADS-R domain counts corrected; RLS policies completed; tone-grounding-voice.mp3 added |
-| `IMPLEMENTATION_PLAN.md` | **v1.7** | ✅ | Week 2 sprints 2.A/2.B visual identity; T-U1 to T-V9 integrated into plan |
+| `IMPLEMENTATION_PLAN.md` | **v1.8** | ✅ | Sprint 2.C onboarding flow redesign (T-F1–T-F5) added; Week 2 sprints 2.A/2.B; T-U1 to T-V9 |
 | `REFERENCES.md` | v1.0 | ✅ | AQ-10 PMID corrected (22366774→22397989); clinical sources + tests (AQ, CAT-Q, RAADS-R) |
 
 ---
@@ -261,6 +261,20 @@ Something fails → both attack the bug → w4rw1ck confirms fix
 | T-4.2 | **Validate body zones with Mahler protocol** | ⏳ | 8 interoceptive signals vs 6 current geographic zones. Low impact in MVP; clinical depth in v2 (Ana) |
 | T-4.3 | **Clinical supervision of test→profile mapping** | ⏳ | Session with ASD psychologist/psychiatrist before public launch. w4rw1ck coordinates |
 | T-V9 | **Body map with contextual emotional colors** — Selected zones adopt the color of the previous check-in emotion. Requires T-V1 + historical data in production | **Ana** | ⏳ |
+
+---
+
+### 🟡 Onboarding Flow Redesign (Sprint 2.C) — Decision 2026-03-08
+
+> **Decision by w4rw1ck 2026-03-08.** Full rationale in PRD.md v1.5 §3.1, APP_FLOW.md v1.4 Flow 1, IMPLEMENTATION_PLAN.md Sprint 2.C.
+
+| Ticket | Description | Owner | Status |
+|---|---|---|---|
+| T-F1 | **S01 Welcome — Add "I need help right now" CTA** → navigates to `/(app)/rescue/assess` without auth. Crisis access must never be blocked by auth walls (PRD §6). | **Ana** | ⏳ |
+| T-F2 | **S03 AQ-10 Result — ONE test recommendation** — Score ≥6 → Full AQ only; Score <6 → CAT-Q only. Remove cascade to S06 RAADS-R. Add "Skip for now" → S07. | **Ana** | ⏳ |
+| T-F3 | **S07 Profile — Mandatory, trimmed** — Remove skip button. Trim to 4–5 questions (name, 2 sensitivities, 1–2 interests, tools). Update copy to "Tell us about you" framing. | **Ana** | ⏳ |
+| T-F4 | **S08 Contacts — Optional with warm copy** — Update skip text to "Skip for now — I'll add contacts later". Add explanation: "A trusted contact can receive a notification if you're in crisis." | **Ana** | ⏳ |
+| T-F5 | **RAADS-R → Settings only** — Remove from onboarding navigation. Add "Complete my profile" entry point in `settings/index.tsx` with test completion status (✅/⏳) for Full AQ, CAT-Q, RAADS-R. | **Aibus** | ⏳ |
 
 ---
 
