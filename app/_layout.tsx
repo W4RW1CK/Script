@@ -74,6 +74,11 @@ function AuthGate({ children }: { children: React.ReactNode }) {
   //   auth.tsx redirige a /(onboarding) → AuthGate ve user=null → manda de vuelta a /auth
   const { user: privyUser, ready: privyReady, authenticated } = usePrivy();
 
+  // DIAGNOSTIC: log Privy state changes to Metro terminal (remove before production)
+  useEffect(() => {
+    console.log(`[Privy] state — ready:${privyReady} authenticated:${authenticated} user:${privyUser ? "yes" : "no"}`);
+  }, [privyReady, authenticated, privyUser]);
+
   // Estado local de Zustand (en memoria — no persiste entre reinicios)
   const storeUser = useAuthStore((s) => s.user);
   const onboardingComplete = useAuthStore((s) => s.onboardingComplete);
@@ -234,12 +239,13 @@ function RootLayoutNav() {
   return (
     <PrivyProvider
       appId={process.env.EXPO_PUBLIC_PRIVY_APP_ID!}
-      // clientId: requerido en dashboard nuevo de Privy para mobile.
-      // Si el valor es incorrecto/vacío, Privy nunca llega a ready=true.
-      // Pasarlo solo si existe y no está vacío:
       {...(process.env.EXPO_PUBLIC_PRIVY_CLIENT_ID
         ? { clientId: process.env.EXPO_PUBLIC_PRIVY_CLIENT_ID }
         : {})}
+      // Diagnostic: log Privy config on mount (values redacted, only presence shown)
+      onSuccess={(user) => {
+        console.log("[Privy] onSuccess — user authenticated:", user?.id ? "yes" : "no");
+      }}
     >
       <SafeAreaProvider>
         <ThemeProvider
