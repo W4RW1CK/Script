@@ -30,7 +30,7 @@
  * Diseño §11: fondo crisis, texto 28px, botones 64px+, "← Salir" visible.
  */
 import React, { useState, useEffect, useCallback, useRef } from "react";
-import { View, Pressable, Text, StyleSheet, Linking, useColorScheme } from "react-native";
+import { View, Pressable, Text, StyleSheet, Linking, useColorScheme, AccessibilityInfo } from "react-native";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import Animated, {
   useSharedValue,
@@ -38,10 +38,22 @@ import Animated, {
   withSequence,
   withTiming,
   withRepeat,
-  useReduceMotion,
   Easing,
 } from "react-native-reanimated";
-// useReduceMotion — respeta OS prefers-reduced-motion + setting interno (T-U1)
+/**
+ * B-61 FIX: useReduceMotion from react-native-reanimated is undefined in Reanimated v4.
+ * Replaced with React Native's AccessibilityInfo.isReduceMotionEnabled — same behavior,
+ * no Reanimated dependency. Respects OS prefers-reduced-motion setting (T-U1).
+ */
+function useReduceMotion(): boolean {
+  const [shouldReduce, setShouldReduce] = useState(false);
+  useEffect(() => {
+    AccessibilityInfo.isReduceMotionEnabled().then(setShouldReduce);
+    const subscription = AccessibilityInfo.addEventListener("reduceMotionChanged", setShouldReduce);
+    return () => subscription.remove();
+  }, []);
+  return shouldReduce;
+}
 import * as Haptics from "expo-haptics";
 import { SafeScreen, Typography } from "@/components/ui";
 import { useAuthStore } from "@/stores/auth";
