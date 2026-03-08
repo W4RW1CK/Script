@@ -652,14 +652,25 @@ Step 14: Create app/(onboarding)/contacts.tsx (S08 — Contact Setup):
 ```
 > Crisis access must NEVER be blocked by auth walls (PRD §6, Principle 6)
 
-### T-F2 — S03: ONE test recommendation
+### T-F2 — S03: Hide score, ONE test recommendation
 
 ```tsx
 // app/(onboarding)/aq10-result.tsx
-// Score ≥6 → show only Full AQ recommendation
-// Score <6 → show only CAT-Q recommendation
-// Both: single CTA "Take [test] now" + "Skip for now"
-// Remove: all navigation to S06 RAADS-R
+// 
+// DECISION (w4rw1ck 2026-03-08): Do NOT display the numerical AQ-10 score.
+// Showing "7/10" triggers grade-thinking and validation anxiety — both
+// counterproductive for ASD Level 1 users who have spent their lives being evaluated.
+// The score is stored silently in Supabase (for therapist view / Settings).
+//
+// Screen shows:
+// 1. Warm, non-diagnostic message (no score)
+//    e.g. "The way you answered tells us something useful. Many people who experience
+//          the world the way you described find these tools genuinely helpful."
+// 2. ONE recommended test based on internal score:
+//    - Score ≥6 → Full AQ only ("We suggest the Full AQ for a more accurate profile")
+//    - Score <6 → CAT-Q only ("We suggest the CAT-Q — it detects patterns often missed")
+// 3. CTA: "Take [test] now" + "Skip for now → S07"
+// 4. Remove: all navigation to S06 RAADS-R from this screen
 ```
 
 ### T-F3 — S07: Mandatory profile, trimmed form

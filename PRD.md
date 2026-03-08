@@ -60,9 +60,10 @@ Onboarding has two phases: **quick** (mandatory, ~3 min) and **deep** (optional,
   - **"Begin my journey"** → AQ-10 onboarding flow
   - **"I need help right now"** → S17 Rescue (direct bypass, no auth required)
 - **AQ-10 test (S02):** 10 questions, indicative result, not a diagnosis
-  - Score ≥6: pre-configured seed profile + recommends **Full AQ only** (one test)
-  - Score <6: base seed profile + recommends **CAT-Q only** (one test, detects masking)
+  - Score ≥6 (internal): pre-configured seed profile + recommends **Full AQ only** (one test)
+  - Score <6 (internal): base seed profile + recommends **CAT-Q only** (one test, detects masking)
   - Both: test is optional and skippable; skipped tests available later in Settings
+  - **Score is NOT displayed to the user.** Only a warm non-diagnostic message + one test recommendation. Rationale: numerical scores trigger grade-thinking and validation anxiety — both counterproductive for ASD Level 1 users who have spent their lives being evaluated. The score is stored silently in Supabase for therapist view and future analytics. (Decision: w4rw1ck 2026-03-08)
 - **Personal questionnaire (S07):** MANDATORY — name, 2 key sensitivities, 1–2 main interests, tools already in use (4–5 questions max, no skip). Core data for app personalization; framed as "Tell us about you" not a form.
 - **Trusted contacts setup (S08):** OPTIONAL (clearly recommended, not required). User can skip with warm message "You can always add contacts later from Settings". No penalty for skipping.
 

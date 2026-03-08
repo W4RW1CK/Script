@@ -63,7 +63,8 @@ S01 Welcome
 │   ├── User answers 10 questions (Likert scale, see PRD Appendix A)
 │   ├── Result calculated (≤5: low score / ≥6: high score)
 │   └── → S03 AQ-10 Result + Next Steps
-│       ├── Shows score + NON-diagnostic message
+│       ├── Shows ONLY a warm non-diagnostic message — score is NOT shown to user
+│       │   (Score stored silently in Supabase; shown in therapist view / Settings only)
 │       │
 │       ├── Score ≥6:
 │       │   ├── Recommendation: "We suggest the Full AQ for a more accurate profile"
