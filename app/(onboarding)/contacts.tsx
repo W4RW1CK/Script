@@ -1,20 +1,22 @@
 /**
- * (onboarding)/contacts.tsx — S08: Setup de Contactos de Confianza
+ * (onboarding)/contacts.tsx — S08: Trusted Contacts Setup
  *
- * Permite agregar contactos de confianza que serán notificados en crisis.
- * El usuario puede agregar múltiples contactos o saltar este paso.
+ * Allows adding trusted contacts who will be notified in a crisis.
+ * The user can add multiple contacts or skip this step (optional).
  *
- * Al terminar:
- * 1. Marca onboarding_complete = true en Supabase
- * 2. Actualiza el auth store
- * 3. AuthGate en _layout.tsx redirige automáticamente a /(app)/home
+ * On completion:
+ * 1. Marks onboarding_complete = true in Supabase
+ * 2. Updates the auth store
+ * 3. Explicitly navigates to /(app)/home (B-59 fix: do not rely solely on AuthGate,
+ *    since privyReady may never become true in dev bypass mode, leaving navReady=false
+ *    and AuthGate's navigation effect permanently disabled)
  *
- * NOTA: El campo en la DB es "relationship" (no "relation").
+ * NOTE: DB field is "relationship" (not "relation").
  */
 import React, { useState } from "react";
 import { View, ScrollView, Alert } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
-// M-03: useRouter removido — la navegación post-onboarding la maneja AuthGate automáticamente
+import { useRouter } from "expo-router";
 import { SafeScreen, Typography, Button, TextInput, Chip } from "@/components/ui";
 import { supabase } from "@/lib/supabase";
 import { useAuthStore } from "@/stores/auth";
@@ -31,7 +33,7 @@ interface Contact {
 }
 
 export default function ContactsScreen() {
-  // M-03: router removido — AuthGate redirige a /(app)/home cuando onboardingComplete=true
+  const router = useRouter();
   const supabaseUserId = useAuthStore((s) => s.user?.supabaseUserId);
   const privyId = useAuthStore((s) => s.user?.privyId);
   const setSupabaseUserId = useAuthStore((s) => s.setSupabaseUserId);
@@ -141,12 +143,18 @@ export default function ContactsScreen() {
           .eq("user_id", resolvedSupabaseId); // profiles usa "user_id" como FK
       }
 
-      // Actualizar el store — AuthGate redirigirá a /(app)/home
+      // Update store, then navigate explicitly.
+      // B-59 FIX: Do not rely solely on AuthGate for navigation here.
+      // In dev bypass mode, privyReady never becomes true → navReady stays false →
+      // AuthGate's navigation effect is permanently disabled → buttons appear to do nothing.
+      // Explicit router.replace() works regardless of Privy state.
       setOnboardingComplete(true);
+      router.replace("/(app)/home");
     } catch (e) {
-      console.warn("[Contacts] Error completando onboarding:", e);
-      // Aún así marcar como completo en store para no bloquear al usuario
+      console.warn("[Contacts] Error completing onboarding:", e);
+      // Still mark complete and navigate to avoid blocking the user
       setOnboardingComplete(true);
+      router.replace("/(app)/home");
     } finally {
       setIsSaving(false);
     }

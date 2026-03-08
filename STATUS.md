@@ -4,7 +4,7 @@
 > **How to read this file:**
 > ✅ Complete | 🔄 In progress | ⏳ Pending | ❌ Blocked
 
-**Last updated:** 2026-03-08 (Sprint 2.C onboarding flow redesign tickets T-F1–T-F5 added; all 7 docs translated to English; B-52–B-57 fixed)  
+**Last updated:** 2026-03-08 (B-52–B-59 fixed; Sprint 2.C T-F1–T-F5 added; all 7 docs translated to English and consistency-audited)  
 **Current week:** 2  
 **Next delivery:** Sprint 2.A (Visual Foundation) + Sprint 2.C (Onboarding Flow Redesign)
 
@@ -62,7 +62,7 @@ Something fails → both attack the bug → w4rw1ck confirms fix
 | `APP_FLOW.md` | **v1.4** | ✅ | Flow 1 redesigned: S01 two CTAs, ONE test recommendation, RAADS-R Settings-only, S07 mandatory, S08 optional |
 | `TECH_STACK.md` | **v1.4** | ✅ | Inter → Atkinson Hyperlegible (T-U3); expo-symbols removed (B-07) |
 | `FRONTEND_GUIDELINES.md` | **v1.4** | ✅ | §1.4 emotional color; §2 Atkinson; §4 shadows+gradient; §7 useReduceMotion; §12 Visual Identity |
-| `BACKEND_STRUCTURE.md` | v1.3 | ✅ | RAADS-R domain counts corrected; RLS policies completed; tone-grounding-voice.mp3 added |
+| `BACKEND_STRUCTURE.md` | **v1.4** | ✅ | sync-privy-user rewritten (Admin API, otp_token_hash); RAADS-R counts; RLS policies |
 | `IMPLEMENTATION_PLAN.md` | **v1.8** | ✅ | Sprint 2.C onboarding flow redesign (T-F1–T-F5) added; Week 2 sprints 2.A/2.B; T-U1 to T-V9 |
 | `REFERENCES.md` | v1.0 | ✅ | AQ-10 PMID corrected (22366774→22397989); clinical sources + tests (AQ, CAT-Q, RAADS-R) |
 
@@ -332,7 +332,15 @@ Something fails → both attack the bug → w4rw1ck confirms fix
 | B-48 | `profile.tsx` sent `sensitivities: string[]` to `profiles.sensitivities JSONB` — schema designed as object `{}`, not array. Fix: `Object.fromEntries(selectedSensitivities.map(k => [k, true]))` converts to `{ light: true, sound: true }`. Commit: `142104d` | 🟡 Medium | onboarding | ✅ Resolved |
 | B-49 | `aq10.tsx` calculated the score and passed it ONLY as a query param to `aq10-result.tsx`. When navigating away from the result, the score was lost forever. Fix: `upsert` to `profiles.aq10_score` + `aq10_completed_at` before navigating. Commit: `46e39e0` | 🟡 Medium | onboarding | ✅ Resolved |
 | B-50 | `aq-full.tsx`, `catq.tsx`, `raads.tsx` used `.update()` to save scores in `profiles` — if the row didn't exist (sync-privy-user failed), 0 rows affected and scores silently lost. Fix: `.upsert({ user_id, score, completed_at }, { onConflict: "user_id" })` in all 3 files. Commit: `89cd56f` | 🟡 Medium | onboarding | ✅ Resolved |
-| B-51 | **Privy auth + Supabase RLS incompatible — `auth.uid()` = null.** `sync-privy-user` now mints an HS256 JWT signed with `SUPABASE_JWT_SECRET` (sub = user UUID). Client calls `setSupabaseToken(access_token)` → `supabase.auth.setSession()` → `auth.uid()` returns correct UUID → all RLS policies resolve. **Pending action from w4rw1ck**: (1) Add `SUPABASE_JWT_SECRET` as env var in Supabase Dashboard → Edge Functions (Settings → API → JWT Secret). (2) Redeploy: `supabase functions deploy sync-privy-user`. Commits: `c80669e`, `85a468b`, `553cae2`, `fbceca3` | 🔴 Critical | architecture | ✅ Resolved in code — deploy pending |
+| B-51 | **Privy auth + Supabase RLS incompatible — `auth.uid()` = null.** Resolved via B-51 v2: Admin API `auth.admin.createUser` + `auth.admin.generateLink`. Returns `otp_token_hash`; client calls `verifyOtp`. See decision log for full history. | 🔴 Critical | architecture | ✅ Resolved (v2) |
+| B-52 | `tailwind.config.js` missing `script-accent` (#10B981) and `script-warning` (#F59E0B) tokens — FRONTEND_GUIDELINES §1.4 referenced them but classes were unknown to Tailwind | 🟡 Medium | styles | ✅ `0a0de01` |
+| B-53 | `constants/colors.ts` missing `accent` and `warning` entries in light + dark Color objects — components using `Colors.accent` crashed at runtime | 🟡 Medium | styles | ✅ `0a0de01` |
+| B-54 | `contacts.tsx` `removeContact()` only removed from local state — did not delete from Supabase `trusted_contacts` table. Re-opening app restored deleted contacts. | 🟡 Medium | data | ✅ `0a0de01` |
+| B-55 | `interpret-checkin` Edge Function had `temperature: 0.7` — too creative for clinical emotion labeling. Fix: `0.4` for consistent, grounded outputs. Deploy pending. | 🟡 Medium | AI | ✅ Code `0a0de01` · ⏳ Redeploy needed |
+| B-56 | `app.json` missing `android.package` and `ios.bundleIdentifier` — EAS Build would fail; Play Store upload would be rejected | 🔴 High | build | ✅ `0a0de01` |
+| B-57 | `app.json` splash `backgroundColor: "#ffffff"` — white flash on warm-background app caused visual jarring on launch | 🟡 Medium | UX | ✅ `0a0de01` |
+| B-58 | `protocol.tsx` always navigated to `/(app)/home` after rescue completion — but if rescue was triggered from S01 welcome screen (pre-onboarding), user had no home to go to; AuthGate would redirect them back to onboarding in a confusing flash. Fix: check `onboardingComplete` in auth store → redirect to `/(onboarding)` if false, `/(app)/home` if true. | 🟡 Medium | navigation | ✅ `HEAD` |
+| B-59 | `contacts.tsx` "Done" and "Skip" buttons appeared to do nothing. Root cause: `useRouter` was removed (comment M-03) — navigation relied entirely on AuthGate. AuthGate's nav effect has `if (!navReady) return` guard. In dev bypass mode, `privyReady` never becomes `true` → `navReady` stays `false` forever → effect permanently disabled → buttons freeze. Fix: re-add `useRouter`; call `router.replace("/(app)/home")` explicitly after `setOnboardingComplete(true)`. | 🔴 High | navigation | ✅ `HEAD` |
 
 **B-01 — Fix:** Columns `hour_of_day` and `day_of_week` removed from `checkins`. `EXTRACT()` usable in queries. Commit: `864e435`.
 

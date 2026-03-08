@@ -4,7 +4,9 @@
  * Pantalla de protocolo según el nivel de crisis elegido en S17.
  * Sigue FRONTEND_GUIDELINES §11 en todos los niveles.
  *
- * Flujo: S17 (assess) → S18 → Home (replace al completar)
+ * Flujo: S17 (assess) → S18 → Home OR Onboarding (replace al completar)
+ * B-58: If user hasn't completed onboarding (rescue triggered from S01 welcome screen),
+ * redirect back to /(onboarding) after the protocol, not to /(app)/home.
  *
  * Recibe: `level` como query param ("1" | "2" | "3")
  *
@@ -42,6 +44,7 @@ import Animated, {
 // useReduceMotion — respeta OS prefers-reduced-motion + setting interno (T-U1)
 import * as Haptics from "expo-haptics";
 import { SafeScreen, Typography } from "@/components/ui";
+import { useAuthStore } from "@/stores/auth";
 
 // ── Constantes de nivel ────────────────────────────────────────────────────
 type CrisisLevel = 1 | 2 | 3;
@@ -78,6 +81,15 @@ export default function RescueProtocolScreen() {
 
   // Parsear nivel (default 1 si el param es inválido)
   const level = (parseInt(levelParam ?? "1", 10) as CrisisLevel) || 1;
+
+  /**
+   * B-58 FIX: Post-protocol destination depends on whether onboarding is complete.
+   * - Not complete → user came from S01 welcome screen → return to /(onboarding)
+   * - Complete → normal flow → return to /(app)/home
+   * Crisis access must never be blocked by auth walls (PRD §6, Principle 6).
+   */
+  const onboardingComplete = useAuthStore((s) => s.onboardingComplete);
+  const postProtocolDestination = onboardingComplete ? "/(app)/home" : "/(onboarding)";
 
   /**
    * T-U1: Reducción de animaciones accesible.
@@ -227,7 +239,7 @@ export default function RescueProtocolScreen() {
       <SafeScreen crisis scrollable={false}>
         <View style={styles.container}>
           <Pressable
-            onPress={() => router.replace("/(app)/home")}
+            onPress={() => router.replace(postProtocolDestination)}
             style={({ pressed }) => [styles.exitBtn, pressed && styles.exitBtnPressed]}
             accessibilityRole="button"
             accessibilityLabel="Volver al inicio"
@@ -244,7 +256,7 @@ export default function RescueProtocolScreen() {
             </Text>
             <View style={{ height: 40 }} />
             <Pressable
-              onPress={() => router.replace("/(app)/home")}
+              onPress={() => router.replace(postProtocolDestination)}
               style={({ pressed }) => [styles.primaryBtn, { backgroundColor: primaryBtnBg }, pressed && styles.primaryBtnPressed]}
               accessibilityRole="button"
             >
