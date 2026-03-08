@@ -89,20 +89,18 @@ podman run \
   --interactive \
   --tty \
   \
-  `# Port mappings — Metro and Expo Go` \
-  --publish 8081:8081 \
-  --publish 19000:19000 \
-  --publish 19001:19001 \
-  --publish 19002:19002 \
+  `# Host networking — container shares host network stack directly.` \
+  `# This is the most reliable option for Metro + Expo Go on LAN.` \
+  `# Port mapping (-p) doesn't work reliably with Podman rootless + bridge.` \
+  --network=host \
   \
   `# Mount project source — read-write (edits inside container reflect on host)` \
   --volume "$PROJECT_ROOT:/app:z" \
   \
-  `# Tell Expo to bind on the host IP so the phone can reach it` \
+  `# Tell Expo to use the host's LAN IP in the QR code` \
   --env "REACT_NATIVE_PACKAGER_HOSTNAME=$HOST_IP" \
   \
   `# Pass through all EXPO_PUBLIC_ vars from .env.local to the container` \
-  `# (podman --env-file parses KEY=VALUE lines, ignores comments)` \
   --env-file "$PROJECT_ROOT/.env.local" \
   \
   `# Image and command` \
