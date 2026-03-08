@@ -54,13 +54,12 @@ if podman container exists "$CONTAINER_NAME" 2>/dev/null; then
   exit 0
 fi
 
-# Check if ports are free on the host
+# Check if ports are free on the host (ss is available on Fedora/all Linux)
 for PORT in 8081 19000 19001; do
-  if lsof -i :"$PORT" -sTCP:LISTEN -t &>/dev/null 2>&1; then
+  if ss -tlnp 2>/dev/null | grep -q ":${PORT} "; then
     echo "WARNING: Port $PORT is already in use on the host."
     echo "  Stop the process using it before starting the container."
-    echo "  Check: lsof -i :$PORT"
-    # Don't exit — let podman fail with a clear error if port binding fails
+    echo "  Check: ss -tlnp | grep :$PORT"
   fi
 done
 
