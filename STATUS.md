@@ -47,7 +47,7 @@ Something fails → both attack the bug → w4rw1ck confirms fix
 |---|---|---|---|
 | Pre-implementation | Documentation + audit of 6 canonical docs | ✅ | PR #3 ready to merge |
 | Week 1 | MVP: Setup + Check-in + Scripts + Rescue + Auth | ✅ | Code 8/8 phases complete · App running on Android device via Expo Go (2026-03-08) · Privy init issue under investigation (dev bypass active) |
-| Week 2 | History + Dictionary + Customization + Visual Identity | ⏳ | Sprints 2.A (Visual Foundation) and 2.B (Screens) added |
+| Week 2 | History + Dictionary + Customization + Visual Identity | ⏳ | Sprint 2.C (Onboarding Redesign) + 2.A (Visual Foundation) + 2.B (Screens) — 2.C goes first |
 | Week 3 | Trust Network + Notifications | ⏳ | — |
 | Week 4 | AI + Therapist View | ⏳ | — |
 | Week 5 | EAS Attestations + Polish + APK | ⏳ | — |
@@ -261,6 +261,20 @@ Something fails → both attack the bug → w4rw1ck confirms fix
 | T-4.2 | **Validate body zones with Mahler protocol** | ⏳ | 8 interoceptive signals vs 6 current geographic zones. Low impact in MVP; clinical depth in v2 (Ana) |
 | T-4.3 | **Clinical supervision of test→profile mapping** | ⏳ | Session with ASD psychologist/psychiatrist before public launch. w4rw1ck coordinates |
 | T-V9 | **Body map with contextual emotional colors** — Selected zones adopt the color of the previous check-in emotion. Requires T-V1 + historical data in production | **Ana** | ⏳ |
+
+---
+
+## 🗓️ Week 5 — On-Chain, Polish and APK
+
+> See IMPLEMENTATION_PLAN.md §Week 5 for the full plan. This week is focused on EAS consent attestations, offline sync, accessibility audit, and shipping the APK.
+
+| Step | Description | Status | Notes |
+|---|---|---|---|
+| 5.1 | **EAS consent attestations** — patient→therapist clinical consent as immutable attestation (Ethereum Attestation Service). No custom smart contract needed. Integrate with therapist view S23. | ⏳ | On-chain decision confirmed 2026-03-06. See decision log. |
+| 5.2 | **Complete offline synchronization** — `offline-sync.ts` with pending operations queue + visual sync status indicator | ⏳ | BACKEND_STRUCTURE.md §7 |
+| 5.3 | **Accessibility and sensory polish** — `accessibilityLabel` audit on all interactive components, WCAG AA contrast verification (both modes), reduce-motion mode, crisis mode §11 audit | ⏳ | FRONTEND_GUIDELINES.md §10–§11 |
+| 5.4 | **Build APK** — `app.json` finalize, `eas.json` configure, `eas build --platform android --profile preview`, install on physical device, full flow test | ⏳ | Requires `android.package` set ✅ (B-56) |
+| 5.5 | **Real user testing** — Install APK on device of person with ASD Level 1 diagnosis. 30-min session covering 3 main flows. Document friction points. Iterate on critical items. | ⏳ | w4rw1ck coordinates |
 
 ---
 
