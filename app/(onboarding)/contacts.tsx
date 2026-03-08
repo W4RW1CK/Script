@@ -137,10 +137,24 @@ export default function ContactsScreen() {
          * Ahora (correcto):
          *   supabase.from("profiles").update({ onboarding_complete: true }).eq("user_id", ...)
          */
-        await supabase
+        const { error: updateError, count } = await supabase
           .from("profiles")
           .update({ onboarding_complete: true })
-          .eq("user_id", resolvedSupabaseId); // profiles usa "user_id" como FK
+          .eq("user_id", resolvedSupabaseId)
+          .select("user_id", { count: "exact", head: true });
+
+        if (updateError) {
+          console.warn("[Contacts] profiles update error:", updateError.message);
+        } else if (count === 0) {
+          // profiles row missing — upsert it
+          console.log("[Contacts] profiles row missing — inserting with onboarding_complete=true");
+          const { error: upsertError } = await supabase
+            .from("profiles")
+            .upsert({ user_id: resolvedSupabaseId, onboarding_complete: true });
+          if (upsertError) console.warn("[Contacts] profiles upsert error:", upsertError.message);
+        } else {
+          console.log("[Contacts] onboarding_complete=true saved to Supabase ✅");
+        }
       }
 
       // Update store, then navigate explicitly.
