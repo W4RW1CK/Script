@@ -74,10 +74,19 @@ function AuthGate({ children }: { children: React.ReactNode }) {
   //   auth.tsx redirige a /(onboarding) → AuthGate ve user=null → manda de vuelta a /auth
   const { user: privyUser, ready: privyReady, authenticated } = usePrivy();
 
-  // DIAGNOSTIC: log Privy state changes to Metro terminal (remove before production)
+  // DIAGNOSTIC: log full Privy hook keys + state
   useEffect(() => {
+    const privyHook = usePrivy as any;
     console.log(`[Privy] state — ready:${privyReady} authenticated:${authenticated} user:${privyUser ? "yes" : "no"}`);
   }, [privyReady, authenticated, privyUser]);
+
+  // Log all keys returned by usePrivy on first render
+  const privyFullResult = usePrivy() as any;
+  if (!('_privyKeysLogged' in (global as any))) {
+    (global as any)._privyKeysLogged = true;
+    console.log("[Privy] hook keys:", Object.keys(privyFullResult).join(", "));
+    console.log("[Privy] ready value:", privyFullResult.ready, "| isReady:", privyFullResult.isReady);
+  }
 
   // Estado local de Zustand (en memoria — no persiste entre reinicios)
   const storeUser = useAuthStore((s) => s.user);
