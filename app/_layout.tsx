@@ -236,16 +236,15 @@ export default function RootLayout() {
 function RootLayoutNav() {
   const colorScheme = useColorScheme();
 
+  // DIAGNOSTIC: log env vars presence (not values) and Privy module
+  console.log("[Layout] appId set:", !!process.env.EXPO_PUBLIC_PRIVY_APP_ID);
+  console.log("[Layout] clientId set:", !!process.env.EXPO_PUBLIC_PRIVY_CLIENT_ID);
+  console.log("[Layout] PrivyProvider type:", typeof PrivyProvider);
+
   return (
     <PrivyProvider
       appId={process.env.EXPO_PUBLIC_PRIVY_APP_ID!}
-      {...(process.env.EXPO_PUBLIC_PRIVY_CLIENT_ID
-        ? { clientId: process.env.EXPO_PUBLIC_PRIVY_CLIENT_ID }
-        : {})}
-      // Diagnostic: log Privy config on mount (values redacted, only presence shown)
-      onSuccess={(user) => {
-        console.log("[Privy] onSuccess — user authenticated:", user?.id ? "yes" : "no");
-      }}
+      clientId={process.env.EXPO_PUBLIC_PRIVY_CLIENT_ID!}
     >
       <SafeAreaProvider>
         <ThemeProvider
