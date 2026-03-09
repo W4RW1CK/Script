@@ -77,12 +77,20 @@ function AuthGate({ children }: { children: React.ReactNode }) {
   const { user: privyUser, isReady: privyReady } = usePrivy();
   const authenticated = !!privyUser;
 
-  // Estado local de Zustand (en memoria — no persiste entre reinicios)
   const storeUser = useAuthStore((s) => s.user);
   const onboardingComplete = useAuthStore((s) => s.onboardingComplete);
   const setUser = useAuthStore((s) => s.setUser);
   const setSupabaseUserId = useAuthStore((s) => s.setSupabaseUserId);
   const setOnboardingComplete = useAuthStore((s) => s.setOnboardingComplete);
+  const loadPersistedState = useAuthStore((s) => s.loadPersistedState);
+
+  // Load persisted onboardingComplete from SecureStore on first mount.
+  // This eliminates the onboarding→home flash on restart by making
+  // the value available synchronously before AuthGate's navigation effect.
+  useEffect(() => {
+    loadPersistedState();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   /**
    * Efecto de sincronización al arranque.
@@ -233,11 +241,6 @@ export default function RootLayout() {
  */
 function RootLayoutNav() {
   const colorScheme = useColorScheme();
-
-  // DIAGNOSTIC: log env vars presence (not values) and Privy module
-  console.log("[Layout] appId set:", !!process.env.EXPO_PUBLIC_PRIVY_APP_ID);
-  console.log("[Layout] clientId set:", !!process.env.EXPO_PUBLIC_PRIVY_CLIENT_ID);
-  console.log("[Layout] PrivyProvider type:", typeof PrivyProvider);
 
   return (
     <PrivyProvider
