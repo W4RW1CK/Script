@@ -4,7 +4,7 @@
 > **How to read this file:**
 > ✅ Complete | 🔄 In progress | ⏳ Pending | ❌ Blocked
 
-**Last updated:** 2026-03-09 (B-61/B-62 fixed; onboarding_complete persists in SecureStore; Edge Functions deployed with --no-verify-jwt; email auth + onboarding flow verified end-to-end on Android device)  
+**Last updated:** 2026-03-09 (🎉 **WEEK 1 COMPLETE** — email auth ✅ · RLS ✅ · Edge Functions deployed ✅ · onboarding_complete persists in SecureStore ✅ · B-52–B-62 fixed · Sprint 2.C–2.B planned · all 7 docs translated)
 **Current week:** 2  
 **Next delivery:** Sprint 2.C (Onboarding Flow Redesign) → Sprint 2.A (Visual Foundation) → Sprint 2.B (Screens)
 
@@ -46,7 +46,7 @@ Something fails → both attack the bug → w4rw1ck confirms fix
 | Week | Description | Status | Completed |
 |---|---|---|---|
 | Pre-implementation | Documentation + audit of 6 canonical docs | ✅ | PR #3 ready to merge |
-| Week 1 | MVP: Setup + Check-in + Scripts + Rescue + Auth | ✅ | Code 8/8 phases complete · Email auth + onboarding flow verified end-to-end on Android device (2026-03-09) · onboarding_complete persists across restarts |
+| Week 1 | MVP: Setup + Check-in + Scripts + Rescue + Auth | ✅ | **COMPLETE 2026-03-09** · Email auth end-to-end ✅ · Onboarding persists across restarts ✅ · Home on reopen ✅ · RLS working ✅ · Edge Functions deployed ✅ · Google OAuth URL schemes configured ✅ |
 | Week 2 | History + Dictionary + Customization + Visual Identity | ⏳ | Sprint 2.C (Onboarding Redesign) + 2.A (Visual Foundation) + 2.B (Screens) — 2.C goes first |
 | Week 3 | Trust Network + Notifications | ⏳ | — |
 | Week 4 | AI + Therapist View | ⏳ | — |
@@ -159,7 +159,7 @@ Something fails → both attack the bug → w4rw1ck confirms fix
 | 1.8.12 | lib/profile-seed.ts — synthesizes scores into seed profile | ✅ | Runtime-only, not persisted in Supabase |
 | 1.8.13 | app/(onboarding)/profile.tsx **(S07)** — Personal questionnaire | ✅ | Guard for null supabaseUserId (B-19) |
 | 1.8.14 | app/(onboarding)/contacts.tsx **(S08)** — Contact setup | ✅ | Uses "relationship" (correct schema) |
-| **Verification** | Full flow S01→S02→S03→S07→S08→S24→S09. Email login works. onboarding_complete saves + persists. | ✅ | Verified on Android device 2026-03-09. Google OAuth pending (add `exp` to Privy Allowed URL Schemes) |
+| **Verification** | Full flow S01→S02→S03→S07→S08→S24→S09. Email login works. onboarding_complete saves + persists. | ✅ | **Confirmed on device 2026-03-09** · email auth ✅ · onboarding persists ✅ · home on reopen ✅ · RLS working ✅ · Google OAuth: `exp` scheme added to Privy ✅ |
 
 ---
 
