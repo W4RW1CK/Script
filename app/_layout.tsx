@@ -84,13 +84,7 @@ function AuthGate({ children }: { children: React.ReactNode }) {
   const setOnboardingComplete = useAuthStore((s) => s.setOnboardingComplete);
   const loadPersistedState = useAuthStore((s) => s.loadPersistedState);
 
-  // Load persisted onboardingComplete from SecureStore on first mount.
-  // This eliminates the onboarding→home flash on restart by making
-  // the value available synchronously before AuthGate's navigation effect.
-  useEffect(() => {
-    loadPersistedState();
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+
 
   /**
    * Efecto de sincronización al arranque.
@@ -153,13 +147,21 @@ function AuthGate({ children }: { children: React.ReactNode }) {
    * antes de tomar decisiones de navegación. Esto rompe el loop:
    *   auth.tsx redirige → AuthGate ve authenticated=false (lag) → manda a /auth
    */
+  // navReady: wait for both Privy AND SecureStore (onboardingComplete) to load
+  // before making any navigation decisions — prevents the onboarding flash on restart.
+  const [storeLoaded, setStoreLoaded] = React.useState(false);
   const [navReady, setNavReady] = React.useState(false);
+
   useEffect(() => {
-    if (!privyReady) return;
-    // Esperar un tick para que Privy termine de restaurar la sesión de SecureStore
+    loadPersistedState().finally(() => setStoreLoaded(true));
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  useEffect(() => {
+    if (!privyReady || !storeLoaded) return;
     const t = setTimeout(() => setNavReady(true), 100);
     return () => clearTimeout(t);
-  }, [privyReady]);
+  }, [privyReady, storeLoaded]);
 
   /**
    * Efecto de navegación.
