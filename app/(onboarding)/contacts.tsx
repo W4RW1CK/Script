@@ -116,9 +116,11 @@ export default function ContactsScreen() {
       // intentar sync de nuevo antes de marcar onboarding completo
       if (!resolvedSupabaseId && privyId) {
         console.log("[Contacts] supabaseUserId null — reintentando sync-privy-user...");
+        console.log("[Contacts] privyId for sync:", privyId ? "present" : "null");
         const { data, error } = await supabase.functions.invoke("sync-privy-user", {
           body: { privy_user_id: privyId, email: null },
         });
+        console.log("[Contacts] sync result — error:", error?.message ?? "none", "| user_id:", data?.user_id ?? "null");
         if (!error && data?.user_id) {
           resolvedSupabaseId = data.user_id;
           setSupabaseUserId(data.user_id);
