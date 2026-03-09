@@ -31,10 +31,10 @@ Something fails → both attack the bug → w4rw1ck confirms fix
 | # | Pending | Who | Blocks | Status |
 |---|---|---|---|---|
 | 1 | Create new project in Supabase | w4rw1ck | Phase 1.2 | ✅ |
-| 2 | Create new App ID in Privy | w4rw1ck | Phase 1.8 | ⏳ |
+| 2 | Create new App ID in Privy | w4rw1ck | Phase 1.8 | ✅ `host.exp.exponent` + `exp` URL scheme configured — email auth working |
 | 3 | Sensory-safe UI references (3-5 options) | Ana + Aibus | Phase 1.3 | ✅ |
 | 4 | Validate/adjust ASD color palette | Ana + Aibus | Phase 1.3 | ✅ |
-| 5 | Spanish translations: AQ Full (50q) + CAT-Q (25q) + RAADS-R (80q) | Ana + Aibus | Phase 1.8 | ⏳ |
+| 5 | Spanish translations: AQ Full (50q) + CAT-Q (25q) + RAADS-R (80q) | Ana + Aibus | Phase 1.8 | ✅ Questions hardcoded in Spanish in screen files (Phase 1.8 complete) |
 | 6 | Audio: guided voice + ambient tone (for grounding and breathing) | Ana + Aibus | Phase 1.7 | ⏳ |
 | 7 | Review/complete content for 5 social scripts | Ana + Aibus | Phase 1.6 | ✅ |
 | 8 | ~~Add `SUPABASE_JWT_SECRET` to Edge Functions env vars~~ — **OBSOLETE.** B-51 v2 switched to Supabase Admin API (`auth.admin.createUser` + `auth.admin.generateLink`). No JWT Secret needed. Only `SUPABASE_URL` + `SUPABASE_SERVICE_ROLE_KEY` required (auto-injected). | — | — | ✅ N/A |
@@ -47,7 +47,7 @@ Something fails → both attack the bug → w4rw1ck confirms fix
 |---|---|---|---|
 | Pre-implementation | Documentation + audit of 6 canonical docs | ✅ | PR #3 ready to merge |
 | Week 1 | MVP: Setup + Check-in + Scripts + Rescue + Auth | ✅ | **COMPLETE 2026-03-09** · Email auth end-to-end ✅ · Onboarding persists across restarts ✅ · Home on reopen ✅ · RLS working ✅ · Edge Functions deployed ✅ · Google OAuth URL schemes configured ✅ |
-| Week 2 | History + Dictionary + Customization + Visual Identity | ⏳ | Sprint 2.C (Onboarding Redesign) + 2.A (Visual Foundation) + 2.B (Screens) — 2.C goes first |
+| Week 2 | History + Dictionary + Customization + Visual Identity | 🔄 | **Started 2026-03-09** · Sprint 2.C (Onboarding Redesign) → 2.A (Visual Foundation) → 2.B (Screens) |
 | Week 3 | Trust Network + Notifications | ⏳ | — |
 | Week 4 | AI + Therapist View | ⏳ | — |
 | Week 5 | EAS Attestations + Polish + APK | ⏳ | — |
@@ -105,7 +105,7 @@ Something fails → both attack the bug → w4rw1ck confirms fix
 | 1.3.5e | components/ui/Typography.tsx | ✅ | |
 | 1.3.6 | components/ui/SafeScreen.tsx | ✅ | |
 | **+Extra** | components/ui/index.ts (barrel export) | ✅ | Added in audit |
-| **Verification** | Components rendered in light and dark mode | ✅ | Pending device confirmation — Inter fonts loading |
+| **Verification** | Components rendered in light and dark mode | ✅ | Confirmed — app running on Android device 2026-03-09 |
 
 ### Phase 1.4 — Bottom Navigation and Layout ✅ COMPLETE
 | Step | Description | Status | Notes |
@@ -190,7 +190,7 @@ Something fails → both attack the bug → w4rw1ck confirms fix
 | 2.6 | **Script progress persistence** (S16) | ⏳ | If user exits mid-script and returns, currently restarts from block 1. Options: (a) Zustand in memory (persists while app is not closed); (b) `script_sessions` table in Supabase for persistence across closes. MVP uses (a) — decide in Week 2 sprint |
 | 2.7 | **Persist test scores in Supabase immediately** | ⏳ | `profile-seed.ts` is runtime-only — if user closes the app post-onboarding, AQ/CAT-Q/RAADS-R results are lost. Fix: INSERT into `profiles` when each individual test is completed, not at the end of onboarding. Impact: loss of 30 min of user work (Aibus) |
 | 2.8 | **INSERT `crisis_events` in `protocol.tsx`** | ⏳ | The `crisis_events` table exists in the schema but is never written to. Record: `user_id`, `level` (1/2/3), `started_at`, `completed_at`, `resolved` (boolean). Critical data for the therapist module in Week 4 (Ana) |
-| 2.9 | **Reduce GPT temperature 0.7 → 0.4 in `interpret-checkin`** | ⏳ | High temperature in a clinical context produces inconsistent outputs. 0.4 gives more determinism without losing variety. Below 0.3 may be too rigid (Aibus) |
+| 2.9 | **Reduce GPT temperature 0.7 → 0.4 in `interpret-checkin`** | ✅ | B-55 fixed in code `0a0de01` · deployed `2026-03-09` |
 | 2.10 | **INSERT `script_executions` in `execute.tsx`** | ⏳ | The `script_executions` table exists in the schema but `execute.tsx` does not INSERT. Record: `script_id`, `user_id`, `options_chosen` (JSONB), `completed` (boolean), `executed_at`. Input for history S19 and therapist S23 (Ana) |
 | 2.11 | **Fix AQ-10 PMID in `REFERENCES.md`** | ✅ | PMID `22366774` → `22397989` (Allison et al., 2012, Arch Dis Child). Commit `1116147`. (Ana) |
 | 2.12 | **UI feedback when profile save fails in `profile.tsx`** | ⏳ | The guard `if (!supabaseUserId)` only does `console.warn` — the user doesn't know if their profile wasn't saved. Add visible Alert or Toast with retry option (Aibus) |
@@ -208,7 +208,7 @@ Something fails → both attack the bug → w4rw1ck confirms fix
 | Ticket | Description | Owner | Status |
 |---|---|---|---|
 | T-U3 | **Atkinson Hyperlegible replaces Inter** — Font designed with empirical accessibility research. Each character is distinguishable. For ASD with possible dyslexia or atypical visual processing. Install `@expo-google-fonts/atkinson-hyperlegible`, update `_layout.tsx` and `constants/typography.ts`. Regular and Bold only (no SemiBold — headings migrate to Bold). Ref: FRONTEND_GUIDELINES.md §2 | **Aibus** | ⏳ |
-| T-U4 | **Tokens `script-accent` (#10B981) and `script-warning` (#F59E0B) in `tailwind.config.js`** — Missing confirmation/success and soft alert colors. `script-accent` for completed states and positive states. `script-warning` for non-crisis alerts. Ref: FRONTEND_GUIDELINES.md §1.2.1 | **Ana** | ⏳ |
+| T-U4 | **Tokens `script-accent` (#10B981) and `script-warning` (#F59E0B) in `tailwind.config.js`** — Missing confirmation/success and soft alert colors. `script-accent` for completed states and positive states. `script-warning` for non-crisis alerts. Ref: FRONTEND_GUIDELINES.md §1.2.1 | **Ana** | ✅ B-52 `0a0de01` |
 | T-U5 | **Confirmation before Level 3 notification in `protocol.tsx`** — If there is auto-sending to trust network without user confirmation, it may generate false positives. Add `Alert.alert("Confirm notification?", ...)` before sending. Ref: UX Guideline #35 Confirmation Dialogs | **Ana** | ⏳ |
 | T-U6 | **Contrast audit `text-script-text-secondary` (WCAG AA)** — `#6B6B6B` on `#F8F6F2` ≈ 4.2:1 (slightly below WCAG AA 4.5:1). Verify all critical combinations. If it fails, darken slightly to `#606060`. Ref: FRONTEND_GUIDELINES.md §10 | **Ana** | ⏳ |
 
@@ -355,6 +355,7 @@ Something fails → both attack the bug → w4rw1ck confirms fix
 | B-57 | `app.json` splash `backgroundColor: "#ffffff"` — white flash on warm-background app caused visual jarring on launch | 🟡 Medium | UX | ✅ `0a0de01` |
 | B-58 | `protocol.tsx` always navigated to `/(app)/home` after rescue completion — but if rescue was triggered from S01 welcome screen (pre-onboarding), user had no home to go to; AuthGate would redirect them back to onboarding in a confusing flash. Fix: check `onboardingComplete` in auth store → redirect to `/(onboarding)` if false, `/(app)/home` if true. | 🟡 Medium | navigation | ✅ `HEAD` |
 | B-61 | `protocol.tsx` crashed on load — `useReduceMotion` from `react-native-reanimated` is exported but `undefined` at runtime in Reanimated v4.x (breaking API change from v3). Fix: removed from Reanimated imports; replaced with a local hook using `AccessibilityInfo.isReduceMotionEnabled` (React Native built-in). Same behavior — respects OS `prefers-reduced-motion` (T-U1). | 🔴 Critical | rescue | ✅ `8d42e31` |
+| B-62 | `onboarding_complete` was not persisting across app restarts — stored only in Zustand memory, not in SecureStore. On restart, Zustand reset to `false` and AuthGate redirected to onboarding. Fix (Aibus): persist `onboarding_complete` to SecureStore so it survives app restarts independently of the Supabase sync. | 🔴 Critical | auth | ✅ `2026-03-09` |
 | B-60 | `lib/supabase.ts` `setSupabaseToken()` called `verifyOtp` with `type: "email"` — but the token was generated by `auth.admin.generateLink({ type: 'magiclink' })`. Type must match the generator. Result: silent session failure, Supabase session never established, `auth.uid()` always null, RLS broken for all users. No visible error shown. Fix: `type: "magiclink"`. Also translated all Spanish comments to English. Commit: `d1fe697` | 🔴 Critical | auth | ✅ `d1fe697` |
 | B-62 | **onboarding→home flash on restart** — `onboardingComplete` lived only in Zustand (in-memory, resets on restart). AuthGate briefly saw `false` before Supabase sync returned `true` → flash of onboarding screen. Fix: persist `onboardingComplete` in SecureStore (key `script_onboarding_complete`); `loadPersistedState()` called before `navReady` is set — `navReady` now waits for BOTH `privyReady` AND `storeLoaded`. Commits: `706bd15` + `3ef64bb` | 🟡 Medium | UX | ✅ `3ef64bb` |
 | B-63 | **Edge Functions returning 401** — `EXPO_PUBLIC_SUPABASE_ANON_KEY` uses new Supabase Publishable key format (`sb_...`) which is NOT a JWT. By default, Supabase Edge Functions verify JWT on each request. The new key fails verification → non-2xx response. Fix: deploy all Edge Functions with `--no-verify-jwt`. Affects: `sync-privy-user`, `interpret-checkin`. | 🔴 Critical | infra | ✅ deployed 2026-03-09 |
