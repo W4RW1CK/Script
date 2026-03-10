@@ -4,7 +4,7 @@
 > **How to read this file:**
 > ✅ Complete | 🔄 In progress | ⏳ Pending | ❌ Blocked
 
-**Last updated:** 2026-03-10 (Sprint 2.C ✅ · Sprint 2.A ✅ (T-U3 T-U4 T-U5 T-U6 T-V1) · Sprint 2.B: T-V3 ✅ T-V4 ✅ T-U3 ✅ · T-V5 Home redesign next · ACTION: w4rw1ck pull dev + npm install)
+**Last updated:** 2026-03-10 (Sprint 2.C ✅ · Sprint 2.A ✅ · Sprint 2.B: T-V3 ✅ T-V4 ✅ T-V5 ✅ · Ana sprint complete · ACTION: w4rw1ck pull dev + npm install for Atkinson font)
 **Current week:** 2  
 **Next delivery:** Sprint 2.C (Onboarding Flow Redesign) → Sprint 2.A (Visual Foundation) → Sprint 2.B (Screens)
 
@@ -220,7 +220,7 @@ Something fails → both attack the bug → w4rw1ck confirms fix
 | T-V2 | **Double-layer shadows in `tailwind.config.js`** — Add `shadow-card`, `shadow-card-elevated`, `shadow-card-pressed`, `shadow-card-dark`. Update `Card.tsx` to use `shadow-card` by default. Ref: FRONTEND_GUIDELINES.md §4 | **Aibus** | ⏳ |
 | T-V3 | **Emotion cards in `reflect.tsx`** — Selected card adopts `EmotionColors[key].bg` as background, `dot` as 1.5px border and 8px accent circle. Press animation scale 0.97→1.0 (100ms). Requires T-V1. Ref: FRONTEND_GUIDELINES.md §12.2 | **Ana** | ✅ EmotionCard component + Spanish→EmotionKey mapping + Animated scale + Card style prop added |
 | T-V4 | **`result.tsx` with emotional color background** — The check-in result screen (S13) adopts `EmotionColors[key].bg` as full-screen background. 300ms fade transition from the previous card color. This is the most emotionally significant screen. Requires T-V1. Ref: FRONTEND_GUIDELINES.md §12.2 | **Ana** | ✅ 300ms Animated.View fade + emotion card with dot tint + text in emotion colors + SafeScreen style prop added |
-| T-V5 | **Home S09 redesign — inspired by Finch** — Layout: greeting + time of day, "last emotion" card with emotional color, 7-day mini history (emotional dots), "Start check-in" CTA button, quick script tiles. Requires T-V1. Ref: FRONTEND_GUIDELINES.md §0 (table) + §12.2 | **Ana** | ⏳ |
+| T-V5 | **Home S09 redesign — inspired by Finch** — Layout: greeting + time of day, "last emotion" card with emotional color, 7-day mini history (emotional dots), "Start check-in" CTA button, quick script tiles. Requires T-V1. Ref: FRONTEND_GUIDELINES.md §0 (table) + §12.2 | **Ana** | ✅ Greeting + time-of-day · LastEmotionCard (empty state ✅, D-01 hook ready) · WeekStrip 7 dots · Check-in CTA · 2 quick tiles |
 | T-V6 | **Mono-blue gradient on primary button** — 135° gradient from `#A8C5DA → #8BAEC4`. Visual depth without introducing new hues. Update `Button.tsx` variant="primary". Ref: FRONTEND_GUIDELINES.md §4 | **Aibus** | ⏳ |
 | T-V7 | **GPT label normalization in Edge Function `interpret-checkin`** — Ensure model output is always one of the 8 canonical labels (see FRONTEND_GUIDELINES.md §1.4). Post-process with mapping before returning to client. Without this normalization, the emotion color system fails silently | **Aibus** | ⏳ |
 
