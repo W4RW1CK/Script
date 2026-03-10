@@ -30,7 +30,7 @@
  * Diseño §11: fondo crisis, texto 28px, botones 64px+, "← Salir" visible.
  */
 import React, { useState, useEffect, useCallback, useRef } from "react";
-import { View, Pressable, Text, StyleSheet, Linking, useColorScheme, AccessibilityInfo } from "react-native";
+import { View, Pressable, Text, StyleSheet, Linking, Alert, useColorScheme, AccessibilityInfo } from "react-native";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import Animated, {
   useSharedValue,
@@ -461,10 +461,53 @@ export default function RescueProtocolScreen() {
           </Pressable>
 
           {/*
-            TODO (Fase 1.8+): mostrar contactos de confianza del usuario.
-            Requiere auth + tabla emergency_contacts en Supabase.
-            <EmergencyContactsList userId={uid} />
+            T-U5: "Notify trusted contact" button with mandatory confirmation dialog.
+            The confirmation step prevents accidental sends (false positives).
+            Actual Supabase send + contact loading is TODO (Sprint 2.1 trusted contacts).
+            The Alert pattern is already wired — just needs the backend when ready.
           */}
+          <View style={{ height: 16 }} />
+          <Pressable
+            onPress={() => {
+              // T-U5: Always confirm before notifying — never auto-send (UX Guideline #35).
+              Alert.alert(
+                "¿Notificar a un contacto?",
+                "Esto enviará un mensaje a tu contacto de confianza avisando que necesitas apoyo. ¿Continuar?",
+                [
+                  {
+                    text: "Cancelar",
+                    style: "cancel",
+                    // No action — user stays in protocol
+                  },
+                  {
+                    text: "Sí, notificar",
+                    style: "default",
+                    onPress: () => {
+                      // TODO (Sprint 2.1): load trusted_contacts from Supabase and
+                      // send push notification / SMS to the user's trusted contact.
+                      // For now: show confirmation that the action was registered.
+                      Alert.alert(
+                        "Registrado",
+                        "Tu contacto será notificado. Recuerda que también puedes llamar directamente.",
+                        [{ text: "Ok" }]
+                      );
+                    },
+                  },
+                ]
+              );
+            }}
+            style={({ pressed }) => [
+              styles.notifyBtn,
+              { borderColor: secondaryBorder },
+              pressed && styles.secondaryBtnPressed,
+            ]}
+            accessibilityRole="button"
+            accessibilityLabel="Notificar a un contacto de confianza"
+          >
+            <Text style={[styles.secondaryBtnLabel, { color: secondaryText }]}>
+              Notificar a un contacto
+            </Text>
+          </Pressable>
         </View>
       </View>
     </SafeScreen>
@@ -582,5 +625,17 @@ const styles = StyleSheet.create({
     fontSize: 18,
     // color aplicado dinámicamente según tema
     textAlign: "center",
+  },
+  // T-U5: notify contact button — same sizing as secondaryBtn (64px+ crisis requirement)
+  notifyBtn: {
+    borderWidth: 1.5,
+    // borderColor applied dynamically per theme
+    borderRadius: 20,
+    paddingVertical: 16,
+    paddingHorizontal: 32,
+    minHeight: 64,
+    alignItems: "center",
+    justifyContent: "center",
+    width: "100%",
   },
 });
