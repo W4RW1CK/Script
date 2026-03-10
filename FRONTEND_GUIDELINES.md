@@ -1,9 +1,11 @@
 # FRONTEND_GUIDELINES.md — Design System
 ## Script — Digital Companion for Adults with ASD Level 1
 
-**Version:** 1.4  
-**Last updated:** 2026-03-06  
-**Changes v1.4:** §1.4 Emotional color system added (7 emotions with bg/dot/text). Tokens `script-accent` and `script-warning` added. §2 Typography migrated to Atkinson Hyperlegible (replaces Inter — empirical accessibility research). §4 Cards: double-layer shadows. §4 Buttons: approved mono-blue gradient. §7 Animations: `useReduceMotion()` pattern canonized. §12 Visual Identity (new section): 2026-03-06 redesign decisions (Aibus + Ana).  
+**Version:** 1.5  
+**Last updated:** 2026-03-10  
+**Changes v1.4:** §1.4 Emotional color system added (7 emotions with bg/dot/text). Tokens `script-accent` and `script-warning` added. §2 Typography migrated to Atkinson Hyperlegible (replaces Inter — empirical accessibility research). §4 Cards: double-layer shadows. §4 Buttons: approved mono-blue gradient. §7 Animations: `useReduceMotion()` pattern canonized. §12 Visual Identity (new section): 2026-03-06 redesign decisions (Aibus + Ana).
+
+**Changes v1.5 (2026-03-10):** §1.4 emotion set finalized — 8 canonical emotions locked by w4rw1ck: `calm`, `anxious`, `overwhelmed`, `sad`, `joyful`, `irritable`, `tired`, `unnamed`. Keys `overwhelm`→`overwhelmed`, `joy`→`joyful`, added `irritable` (replaces previous `frustrated` proposal — clinically more accurate for ASD Level 1). §2 font weight finalized — Atkinson Bold (700) everywhere for headings; no Inter fallback, no SemiBold. Dictionary content strategy: definition + how expressed in Week 2; "how to deal" deferred (AI-generated with disclaimer when it ships).  
 **Changes v1.3:** §8 Iconography updated — `expo-symbols` → `Ionicons` from `@expo/vector-icons` (B-07: SF Symbols does not work on Android).  
 **Changes v1.2:** Added §0 — Design Inspiration and Per-Screen Decisions (incl. deferral of Companion/Plant to Week 3).  
 **Changes v1.1:** Added NativeWind mapping table (§1.3); corrected screen template with dark mode; added `expo-symbols` to §8.
@@ -125,42 +127,50 @@ The semantic tokens above map to `tailwind.config.js` classes as follows. **Alwa
 **Principle:** Color IS the emotion. The user learns to recognize their state by color, reducing the cognitive load of textual search (especially relevant in ASD).
 
 ```typescript
-// constants/colors.ts — add this block
+// constants/colors.ts — CANONICAL SET — locked 2026-03-10 by w4rw1ck
+// 8 emotions: calm, anxious, overwhelmed, sad, joyful, irritable, tired, unnamed
+// Note: "irritable" (not "frustrated") — sensory-triggered, not intent-based (ASD Level 1 clinical accuracy)
+// Note: "unnamed" = alexithymia catch-all (50–85% of autistic adults — Kinnaird et al. 2019)
 export const EmotionColors = {
   calm: {
-    bg: '#D4EAD0',     // soft green — peace, balance
+    bg: '#D4EAD1',     // soft green — peace, regulation, baseline
     dot: '#6BAF6B',    // mid green — confirmation
     text: '#2D4A2D',   // dark green — readable on bg
   },
   anxious: {
-    bg: '#FDE8C8',     // soft orange — alert without alarm
-    dot: '#E8943A',    // mid orange
+    bg: '#FFE8C4',     // warm amber — alert without alarm
+    dot: '#E8943A',    // mid amber
     text: '#5A3010',
   },
-  sad: {
-    bg: '#D0DCF0',     // soft blue — deep calm
-    dot: '#5A7EC8',    // mid blue
-    text: '#1C2E50',
-  },
-  overwhelm: {
-    bg: '#E8D4F0',     // lavender — processing too much
+  overwhelmed: {
+    bg: '#E8D5F0',     // soft purple — sensory/cognitive overload
     dot: '#9B6ABF',    // mid lavender
     text: '#3A1A50',
   },
-  joy: {
-    bg: '#FFF3C8',     // soft yellow — warmth
+  sad: {
+    bg: '#C4D8F0',     // muted blue — grief, disappointment, longing
+    dot: '#5A7EC8',    // mid blue
+    text: '#1C2E50',
+  },
+  joyful: {
+    bg: '#FFF3C4',     // warm yellow — light, energized
     dot: '#F0C040',    // mid yellow
     text: '#4A3800',
   },
+  irritable: {
+    bg: '#F5D0D0',     // soft red — sensory-triggered agitation (NOT anger — anger implies intent)
+    dot: '#D47070',    // mid rose
+    text: '#4A1A1A',
+  },
   tired: {
-    bg: '#E8E4D8',     // grayish beige — neutral exhaustion
-    dot: '#8A7E6A',    // warm gray
-    text: '#3A3020',
+    bg: '#D8D8E8',     // cool gray — includes social fatigue and masking exhaustion
+    dot: '#8A8AAA',    // mid cool gray
+    text: '#2A2A40',
   },
   unnamed: {
-    bg: '#E8EAF0',     // neutral blue-gray — what has no name yet
-    dot: '#7A80A0',
-    text: '#2A2E40',
+    bg: '#E8E8E8',     // neutral gray — "I feel something but have no word for it" (alexithymia)
+    dot: '#9A9AAA',    // neutral mid
+    text: '#2A2A30',
   },
 } as const;
 
@@ -169,18 +179,18 @@ export type EmotionKey = keyof typeof EmotionColors;
 
 **GPT label → EmotionKey mapping** (canonical — normalize in Edge Function):
 
-| GPT Label (normalized) | EmotionKey |
-|---|---|
-| `Calma` | `calm` |
-| `Ansiedad` | `anxious` |
-| `Incomodidad` | `anxious` |
-| `Tristeza` | `sad` |
-| `Sobrecarga sensorial` | `overwhelm` |
-| `Alegría` | `joy` |
-| `Cansancio` | `tired` |
-| `Algo que aún no tiene nombre` | `unnamed` |
+| GPT Output Label | EmotionKey | Notes |
+|---|---|---|
+| `Calma` | `calm` | |
+| `Ansioso` / `Ansiedad` / `Nervioso` | `anxious` | |
+| `Sobrecargado` / `Abrumado` / `Sobrecarga sensorial` | `overwhelmed` | |
+| `Triste` / `Tristeza` | `sad` | |
+| `Alegre` / `Alegría` / `Feliz` | `joyful` | |
+| `Irritable` / `Frustrado` / `Agitado` | `irritable` | GPT may say "frustrado" — always map to `irritable` |
+| `Cansado` / `Agotado` | `tired` | |
+| `Sin nombre` / `No lo sé` / `Algo que aún no tiene nombre` | `unnamed` | |
 
-> ⚠️ The `interpret-checkin` Edge Function MUST normalize its output to one of these 8 exact labels (no variations, no English). The frontend must not make inferences — it receives the exact label and maps it.
+> ⚠️ The `interpret-checkin` Edge Function MUST normalize its output to one of these 8 exact EmotionKeys before returning to the client. The frontend never infers — it receives the key directly and maps to `EmotionColors[key]`. Unmapped labels must fall back to `unnamed`.
 
 **Where emotional colors appear:**
 
@@ -573,7 +583,7 @@ These rules **override** all others when inside `/rescue/*`:
 
 | Item | Decision | Implements |
 |---|---|---|
-| Emotional color system | ✅ Approved — 7 emotions (§1.4) | Ana — Week 2 |
+| Emotional color system | ✅ Approved — 8 canonical emotions locked 2026-03-10 (§1.4) | Ana — Week 2 |
 | Atkinson Hyperlegible | ✅ Approved — replaces Inter (§2) | Aibus — Week 2 |
 | Double-layer shadows | ✅ Approved — `shadow-card` tokens (§4) | Aibus — Week 2 |
 | Mono-blue button gradient | ✅ Approved — blue → deeper blue (§4) | Aibus — Week 2 |

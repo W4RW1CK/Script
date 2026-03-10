@@ -484,7 +484,7 @@ Step 14: Create app/(onboarding)/contacts.tsx (S08 — Contact Setup):
          Ref: STATUS.md T-U2 (Aibus)
 
 2.A.2 Emotional color system (T-V1) — BLOCKING for T-V3, T-V4, T-V5
-    - Create constants/colors.ts with EmotionColors (7 emotions × {bg, dot, text})
+    - Create constants/colors.ts with EmotionColors (8 canonical emotions × {bg, dot, text} — keys: calm, anxious, overwhelmed, sad, joyful, irritable, tired, unnamed)
     - Export EmotionKey type
     - Ref: FRONTEND_GUIDELINES.md §1.4 (Ana)
 

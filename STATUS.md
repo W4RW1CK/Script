@@ -4,7 +4,7 @@
 > **How to read this file:**
 > ✅ Complete | 🔄 In progress | ⏳ Pending | ❌ Blocked
 
-**Last updated:** 2026-03-09 (🎉 **WEEK 1 COMPLETE** — email auth ✅ · RLS ✅ · Edge Functions deployed ✅ · onboarding_complete persists in SecureStore ✅ · B-52–B-62 fixed · Sprint 2.C–2.B planned · all 7 docs translated)
+**Last updated:** 2026-03-10 (Week 2 decisions locked: 8 canonical emotions · Atkinson Bold everywhere · S07 Profile mandatory · auth at end · `irritable` label · guest mode = rescue+scripts only · dictionary deferred "how to deal" · Friday scope = 2.C+2.A+S19+S21)
 **Current week:** 2  
 **Next delivery:** Sprint 2.C (Onboarding Flow Redesign) → Sprint 2.A (Visual Foundation) → Sprint 2.B (Screens)
 
@@ -61,7 +61,7 @@ Something fails → both attack the bug → w4rw1ck confirms fix
 | `PRD.md` | **v1.5** | ✅ | Onboarding redesigned: S01 two CTAs, ONE test per score, RAADS-R to Settings, S07 mandatory, S08 optional |
 | `APP_FLOW.md` | **v1.4** | ✅ | Flow 1 redesigned: S01 two CTAs, ONE test recommendation, RAADS-R Settings-only, S07 mandatory, S08 optional |
 | `TECH_STACK.md` | **v1.4** | ✅ | Inter → Atkinson Hyperlegible (T-U3); expo-symbols removed (B-07) |
-| `FRONTEND_GUIDELINES.md` | **v1.4** | ✅ | §1.4 emotional color; §2 Atkinson; §4 shadows+gradient; §7 useReduceMotion; §12 Visual Identity |
+| `FRONTEND_GUIDELINES.md` | **v1.5** | ✅ | §1.4 8 canonical emotions locked (keys + colors + GPT mapping); §2 Atkinson Bold everywhere; §12 Visual Identity |
 | `BACKEND_STRUCTURE.md` | **v1.4** | ✅ | sync-privy-user rewritten (Admin API, otp_token_hash); RAADS-R counts; RLS policies |
 | `IMPLEMENTATION_PLAN.md` | **v1.8** | ✅ | Sprint 2.C onboarding flow redesign (T-F1–T-F5) added; Week 2 sprints 2.A/2.B; T-U1 to T-V9 |
 | `REFERENCES.md` | v1.0 | ✅ | AQ-10 PMID corrected (22366774→22397989); clinical sources + tests (AQ, CAT-Q, RAADS-R) |
@@ -216,7 +216,7 @@ Something fails → both attack the bug → w4rw1ck confirms fix
 
 | Ticket | Description | Owner | Status |
 |---|---|---|---|
-| T-V1 | **Emotional color system in `constants/colors.ts`** — 7 emotions with `{ bg, dot, text }`. Create file `constants/colors.ts` with `EmotionColors` and `EmotionKey`. GPT label → EmotionKey mapping. Ref: FRONTEND_GUIDELINES.md §1.4 | **Ana** | ⏳ |
+| T-V1 | **Emotional color system in `constants/colors.ts`** — 8 canonical emotions with `{ bg, dot, text }`. Keys: `calm`, `anxious`, `overwhelmed`, `sad`, `joyful`, `irritable`, `tired`, `unnamed`. Create `constants/colors.ts` with `EmotionColors` and `EmotionKey`. GPT label → EmotionKey mapping. Ref: FRONTEND_GUIDELINES.md §1.4. Locked 2026-03-10. | **Ana** | ⏳ |
 | T-V2 | **Double-layer shadows in `tailwind.config.js`** — Add `shadow-card`, `shadow-card-elevated`, `shadow-card-pressed`, `shadow-card-dark`. Update `Card.tsx` to use `shadow-card` by default. Ref: FRONTEND_GUIDELINES.md §4 | **Aibus** | ⏳ |
 | T-V3 | **Emotion cards in `reflect.tsx`** — Selected card adopts `EmotionColors[key].bg` as background, `dot` as 1.5px border and 8px accent circle. Press animation scale 0.97→1.0 (100ms). Requires T-V1. Ref: FRONTEND_GUIDELINES.md §12.2 | **Ana** | ⏳ |
 | T-V4 | **`result.tsx` with emotional color background** — The check-in result screen (S13) adopts `EmotionColors[key].bg` as full-screen background. 300ms fade transition from the previous card color. This is the most emotionally significant screen. Requires T-V1. Ref: FRONTEND_GUIDELINES.md §12.2 | **Ana** | ⏳ |
@@ -485,7 +485,14 @@ Something fails → both attack the bug → w4rw1ck confirms fix
 | 2026-03-06 | `WebBrowser.maybeCompleteAuthSession()` is required for OAuth in Expo | Must be called at module level in the file that uses `useLoginWithOAuth`. Without this call, the OAuth browser hangs when it receives the provider's redirect (Google). It's the standard Expo pattern for any OAuth flow with `expo-web-browser` |
 | 2026-03-06 | `AuthGate` uses `usePrivy().user` as the auth source of truth, NOT `useAuthStore().user` | Zustand is in memory — it resets on every restart. Privy persists the session in SecureStore. The navigation guard must check Privy to prevent already-authenticated users from seeing the login screen on every restart. Zustand is still needed for `onboardingComplete` and profile data |
 | 2026-03-06 | Script palette maintained (`script-blue: #A8C5DA`) — lavender palette rejected | For ASD, grayish-blue is clinically more stable than lavender. Lavender is suitable for meditation apps (Calm, Headspace) but not for Script's profile. Only `script-accent` tokens (#10B981 confirmation) and `script-warning` (#F59E0B alert) are added |
-| 2026-03-06 | Emotional color system approved — 7 emotions × 3 values | Inspired by Daylio. Each emotion has `{ bg, dot, text }`. Color IS the emotion — primary visual signal. Reduces cognitive load of text-based search (especially relevant in ASD). GPT labels must be normalized to 8 canonical values |
+| 2026-03-06 | Emotional color system approved — 8 canonical emotions × 3 values | Inspired by Daylio. Each emotion has `{ bg, dot, text }`. Color IS the emotion — primary visual signal. Reduces cognitive load of text-based search (especially relevant in ASD). GPT labels must be normalized to 8 canonical EmotionKeys |
+| 2026-03-10 | **8 canonical emotion keys LOCKED** | `calm`, `anxious`, `overwhelmed`, `sad`, `joyful`, `irritable`, `tired`, `unnamed`. Label is `irritable` (not `frustrated`) — sensory-triggered, not intent-based, clinically more accurate for ASD Level 1. `unnamed` = alexithymia catch-all (Kinnaird 2019). Old keys `overwhelm`→`overwhelmed`, `joy`→`joyful`. Full color spec in FRONTEND_GUIDELINES.md §1.4 |
+| 2026-03-10 | **Atkinson Bold everywhere** | Atkinson Hyperlegible has no SemiBold (600). Decision: Bold (700) for all headings. No Inter fallback. Cleaner, more accessible for atypical visual processing |
+| 2026-03-10 | **S07 Profile is mandatory post-test** | After the second assessment test (or "skip test") the user ALWAYS goes to S07 Profile. Profile has no skip button. Name + 2 sensory sensitivities = required. Interests + tools = optional. Resolves C1 contradiction |
+| 2026-03-10 | **Auth position: end of onboarding** | Confirmed. Auth remains at end (after S08 Contacts). Current implementation correct |
+| 2026-03-10 | **Guest mode: rescue + scripts only (Week 2)** | Guest = anonymous local user. Can use rescue (local, not saved) + browse scripts (read-only). Cannot check-in, access history, or use dictionary. No data migration on account creation. Vision: expand to full guest mode in future weeks |
+| 2026-03-10 | **Dictionary content strategy** | Week 2 scope: definition + how it's expressed only. "How to deal with it" deferred to future sprint. When it ships: AI-generated with disclaimer *"For self-reflection, not clinical advice"* (needs clinical review before public launch) |
+| 2026-03-10 | **Friday delivery scope** | Hard target: Sprint 2.C (T-F1–T-F5) + Sprint 2.A (core) + S19 History + S21 Settings. Dictionary (S20) = stretch goal |
 | 2026-03-06 | Atkinson Hyperlegible replaces Inter as project font | Designed with empirical accessibility research. Distinct character shapes reduce confusion in users with atypical visual processing. Regular (400) and Bold (700) only — no SemiBold |
 | 2026-03-06 | Primary button gradient: mono-blue (#A8C5DA → #8BAEC4), NOT lavender | The blue→lavender gradient from the skill would introduce a hue not present in the palette. Mono-blue gives tactile depth without introducing new colors |
 | 2026-03-06 | SVG dot pattern background rejected | `backgroundImage` is not native in React Native without `react-native-svg` as an additional layer. ROI does not justify the dependency. Card shadows + emotional colors provide sufficient depth |
