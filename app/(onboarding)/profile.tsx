@@ -28,12 +28,16 @@ import { SafeScreen, Typography, Button, TextInput, Chip } from "@/components/ui
 import { supabase } from "@/lib/supabase";
 import { useAuthStore } from "@/stores/auth";
 
-// Sensory sensitivities — sound and light are primary (always shown first)
+// All 6 canonical ASD sensory types — multiselect, none required (pick as many as apply).
+// Source: Aibus sensory profile decision 2026-03-10 (w4rw1ck confirmed).
+// Stored as JSONB object: { sound: true, light: true, ... } (B-48).
 const SENSITIVITIES = [
-  { key: "sound",    label: "Sonido" },    // primary — listed first per T-F3 spec
-  { key: "light",    label: "Luz" },       // primary
-  { key: "textures", label: "Texturas" },
-  { key: "crowds",   label: "Multitudes" },
+  { key: "sound",    label: "Sonido" },           // auditory
+  { key: "light",    label: "Luz" },              // visual brightness
+  { key: "smell",    label: "Olores" },           // olfactory
+  { key: "touch",    label: "Tacto" },            // tactile / textures
+  { key: "patterns", label: "Patrones visuales" }, // visual patterns / movement
+  { key: "taste",    label: "Sabor" },            // gustatory
 ];
 
 // Interests — trimmed to 8 most relevant options (full list available in Settings later)
