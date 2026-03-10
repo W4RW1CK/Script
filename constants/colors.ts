@@ -223,19 +223,95 @@ export const VALID_EMOTION_KEYS: EmotionKey[] = [
 ];
 
 /**
- * toEmotionKey — safely cast any string to EmotionKey.
- * Falls back to "unnamed" if the input is not a valid key.
- * Use this whenever consuming emotion data from GPT, Supabase, or URL params.
+ * SPANISH_LABEL_MAP — maps Spanish GPT-generated emotion labels → EmotionKey.
  *
- * @param raw - any string (GPT output, DB value, URL param)
+ * Used by toEmotionKey() as a client-side fallback until T-V7 (Aibus) normalizes
+ * the interpret-checkin Edge Function to return proper EmotionKeys directly.
+ * Once T-V7 is active, the Edge Function returns keys and this map is only
+ * needed for historical Supabase data (emotion_confirmed column stores Spanish labels).
+ */
+const SPANISH_LABEL_MAP: Record<string, EmotionKey> = {
+  // calm
+  "calma":                        "calm",
+  "tranquilo":                    "calm",
+  "tranquila":                    "calm",
+  "tranquilidad":                 "calm",
+  "en paz":                       "calm",
+  // anxious
+  "ansioso":                      "anxious",
+  "ansiosa":                      "anxious",
+  "ansiedad":                     "anxious",
+  "nervioso":                     "anxious",
+  "nerviosa":                     "anxious",
+  "nerviosismo":                  "anxious",
+  "incomodidad":                  "anxious",
+  // overwhelmed
+  "sobrecargado":                 "overwhelmed",
+  "sobrecargada":                 "overwhelmed",
+  "sobrecarga sensorial":         "overwhelmed",
+  "sobrecarga":                   "overwhelmed",
+  "abrumado":                     "overwhelmed",
+  "abrumada":                     "overwhelmed",
+  // sad
+  "triste":                       "sad",
+  "tristeza":                     "sad",
+  "decepcionado":                 "sad",
+  "decepcionada":                 "sad",
+  "decepción":                    "sad",
+  // joyful
+  "alegre":                       "joyful",
+  "alegría":                      "joyful",
+  "feliz":                        "joyful",
+  "felicidad":                    "joyful",
+  "contento":                     "joyful",
+  "contenta":                     "joyful",
+  // irritable
+  "irritable":                    "irritable",
+  "frustrado":                    "irritable",
+  "frustrada":                    "irritable",
+  "frustración":                  "irritable",
+  "agitado":                      "irritable",
+  "agitada":                      "irritable",
+  "agitación":                    "irritable",
+  // tired
+  "cansado":                      "tired",
+  "cansada":                      "tired",
+  "cansancio":                    "tired",
+  "agotado":                      "tired",
+  "agotada":                      "tired",
+  "agotamiento":                  "tired",
+  // unnamed
+  "algo que aún no tiene nombre": "unnamed",
+  "sin nombre":                   "unnamed",
+  "no lo sé":                     "unnamed",
+  "no sé":                        "unnamed",
+};
+
+/**
+ * toEmotionKey — safely resolves any string to a valid EmotionKey.
+ *
+ * Resolution order:
+ *   1. Exact EmotionKey match (e.g. "calm", "anxious") — for T-V7 Edge Function output
+ *   2. Spanish label match via SPANISH_LABEL_MAP — for legacy Supabase data + GPT fallback
+ *   3. Falls back to "unnamed" for anything unrecognized
+ *
+ * Use this whenever consuming emotion data from GPT output, Supabase `emotion_confirmed`
+ * column, URL params, or any external source that might return either format.
+ *
+ * @param raw - any string (GPT output, DB value, URL param, null/undefined)
  * @returns a guaranteed valid EmotionKey
  *
  * @example
- *   const key = toEmotionKey(gptoOutput);         // "calm" | ... | "unnamed"
- *   const { bg, dot } = EmotionColors[key];
+ *   toEmotionKey("calm")       // → "calm"      (exact key match)
+ *   toEmotionKey("Ansiedad")   // → "anxious"   (Spanish label)
+ *   toEmotionKey("Cansancio")  // → "tired"     (Spanish label)
+ *   toEmotionKey(null)         // → "unnamed"   (safe fallback)
  */
 export function toEmotionKey(raw: string | null | undefined): EmotionKey {
   if (!raw) return "unnamed";
-  const lower = raw.toLowerCase().trim() as EmotionKey;
-  return VALID_EMOTION_KEYS.includes(lower) ? lower : "unnamed";
+  const lower = raw.toLowerCase().trim();
+  // 1. Exact EmotionKey match (T-V7 normalized output)
+  if (VALID_EMOTION_KEYS.includes(lower as EmotionKey)) return lower as EmotionKey;
+  // 2. Spanish label map (legacy DB data + GPT fallback)
+  return SPANISH_LABEL_MAP[lower] ?? "unnamed";
 }

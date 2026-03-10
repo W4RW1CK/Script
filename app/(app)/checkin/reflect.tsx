@@ -34,7 +34,7 @@ import { supabase } from "@/lib/supabase";
 import {
   EmotionColors,
   EmotionKey,
-  VALID_EMOTION_KEYS,
+  toEmotionKey,
 } from "@/constants/colors";
 
 // ── useReduceMotion (same pattern as protocol.tsx — Reanimated v4 workaround) ──
@@ -46,58 +46,6 @@ function useReduceMotion(): boolean {
     return () => sub.remove();
   }, []);
   return shouldReduce;
-}
-
-// ── Spanish label → EmotionKey mapping (client-side until T-V7 normalizes EF output) ──
-/**
- * Maps Spanish GPT-generated emotion labels to canonical EmotionKeys.
- * The Edge Function (T-V7, Aibus) will eventually return EmotionKeys directly —
- * this client-side map is the fallback for now.
- */
-const SPANISH_TO_KEY: Record<string, EmotionKey> = {
-  "calma":                          "calm",
-  "tranquilo":                      "calm",
-  "tranquilidad":                   "calm",
-  "ansioso":                        "anxious",
-  "ansiedad":                       "anxious",
-  "nervioso":                       "anxious",
-  "nerviosismo":                    "anxious",
-  "incomodidad":                    "anxious",
-  "sobrecargado":                   "overwhelmed",
-  "sobrecarga sensorial":           "overwhelmed",
-  "sobrecarga":                     "overwhelmed",
-  "abrumado":                       "overwhelmed",
-  "triste":                         "sad",
-  "tristeza":                       "sad",
-  "decepción":                      "sad",
-  "alegre":                         "joyful",
-  "alegría":                        "joyful",
-  "feliz":                          "joyful",
-  "felicidad":                      "joyful",
-  "irritable":                      "irritable",
-  "frustrado":                      "irritable",
-  "frustración":                    "irritable",
-  "agitado":                        "irritable",
-  "agitación":                      "irritable",
-  "cansado":                        "tired",
-  "cansancio":                      "tired",
-  "agotado":                        "tired",
-  "agotamiento":                    "tired",
-  "algo que aún no tiene nombre":   "unnamed",
-  "sin nombre":                     "unnamed",
-  "no lo sé":                       "unnamed",
-};
-
-/**
- * Resolves a Spanish GPT label (or already-normalized EmotionKey) → EmotionKey.
- * Falls back to "unnamed" for unrecognized strings.
- */
-function resolveEmotionKey(label: string): EmotionKey {
-  const lower = label.toLowerCase().trim();
-  // First try exact EmotionKey match (for when T-V7 is active)
-  if (VALID_EMOTION_KEYS.includes(lower as EmotionKey)) return lower as EmotionKey;
-  // Then try Spanish → EmotionKey map
-  return SPANISH_TO_KEY[lower] ?? "unnamed";
 }
 
 // ── Tipos ──────────────────────────────────────────────────────────────────
@@ -230,7 +178,7 @@ interface EmotionCardProps {
  *   - Reduce motion: skip scale animation, keep all other visual changes
  */
 function EmotionCard({ option, isSelected, onSelect, reduceMotion }: EmotionCardProps) {
-  const emotionKey = resolveEmotionKey(option.label);
+  const emotionKey = toEmotionKey(option.label);
   const colors     = EmotionColors[emotionKey];
 
   // Scale animation — 0.97 on press, 1.0 on release (100ms each)

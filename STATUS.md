@@ -4,7 +4,7 @@
 > **How to read this file:**
 > ✅ Complete | 🔄 In progress | ⏳ Pending | ❌ Blocked
 
-**Last updated:** 2026-03-10 (Sprint 2.C ✅ · Sprint 2.A ✅ · Sprint 2.B: T-V3 ✅ T-V4 ✅ T-V5 ✅ · Ana sprint complete · ACTION: w4rw1ck pull dev + npm install for Atkinson font)
+**Last updated:** 2026-03-10 (Sprint 2.C ✅ · Sprint 2.A ✅ · Sprint 2.B ✅ (Ana) · S19 History ✅ · toEmotionKey() now canonical shared util · ACTION: w4rw1ck pull dev + npm install)
 **Current week:** 2  
 **Next delivery:** Sprint 2.C (Onboarding Flow Redesign) → Sprint 2.A (Visual Foundation) → Sprint 2.B (Screens)
 
@@ -183,7 +183,7 @@ Something fails → both attack the bug → w4rw1ck confirms fix
 | Step | Description | Status | Notes |
 |---|---|---|---|
 | 2.1 | Settings → "Complete my profile" (S04, S05, S06 from Settings) | ⏳ | S04-S06 already exist; add entry point |
-| 2.2 | app/(app)/history.tsx **(S19)** | ⏳ | |
+| 2.2 | app/(app)/history/index.tsx **(S19)** | ✅ | Full history list + emotion filter chips + pull-to-refresh + empty state — fetches from Supabase |
 | 2.3 | app/(app)/dictionary.tsx **(S20)** | ⏳ | |
 | 2.4 | app/(app)/settings/index.tsx **(S21)** — theme + palette | ⏳ | |
 | 2.5 | "Unlocked insights" (3, 7, 15 check-ins) | ⏳ | |
