@@ -107,7 +107,9 @@ export default function CATQScreen() {
       }
     }
 
-    router.push("/(onboarding)/raads");
+    // T-F2 (2026-03-10): cascade broken — CAT-Q now routes to Profile, not RAADS-R.
+    // RAADS-R is accessible from Settings → "Complete my profile" (T-F5).
+    router.push("/(onboarding)/profile");
   };
 
   return (
@@ -117,7 +119,7 @@ export default function CATQScreen() {
       options={CATQ_OPTIONS}
       storageKey="catq-progress"
       onComplete={handleComplete}
-      onSkip={() => router.push("/(onboarding)/raads")}
+      onSkip={() => router.push("/(onboarding)/profile")}
     />
   );
 }

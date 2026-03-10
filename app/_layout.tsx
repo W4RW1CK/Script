@@ -182,6 +182,13 @@ function AuthGate({ children }: { children: React.ReactNode }) {
     const inRescueGroup = inAppGroup && segments[1] === "rescue";
     if (inRescueGroup) return;
 
+    // T-F5 (2026-03-10): Allow already-onboarded users to navigate to assessment tests
+    // from Settings → "Complete my profile". Without this exception the AuthGate would
+    // redirect them to /(app)/home when entering any (onboarding) screen.
+    const TEST_SCREENS = ["aq-full", "catq", "raads"];
+    const inTestScreen = inOnboardingGroup && TEST_SCREENS.includes(segments[1] ?? "");
+    if (inTestScreen) return;
+
     // `authenticated` responde inmediato desde SecureStore — no tiene el lag de `user`
     const hasSession = authenticated || !!storeUser;
 

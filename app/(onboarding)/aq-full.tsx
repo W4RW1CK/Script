@@ -156,8 +156,9 @@ export default function AQFullScreen() {
       }
     }
 
-    // Navegar al siguiente test
-    router.push("/(onboarding)/catq");
+    // T-F2 (2026-03-10): cascade broken — AQ Full now routes to Profile, not CAT-Q.
+    // CAT-Q and RAADS-R are accessible from Settings → "Complete my profile" (T-F5).
+    router.push("/(onboarding)/profile");
   };
 
   return (
@@ -167,7 +168,7 @@ export default function AQFullScreen() {
       options={AQ_OPTIONS}
       storageKey="aq-full-progress"
       onComplete={handleComplete}
-      onSkip={() => router.push("/(onboarding)/catq")}
+      onSkip={() => router.push("/(onboarding)/profile")}
     />
   );
 }

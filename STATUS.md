@@ -4,7 +4,7 @@
 > **How to read this file:**
 > ✅ Complete | 🔄 In progress | ⏳ Pending | ❌ Blocked
 
-**Last updated:** 2026-03-10 (Week 2 decisions locked: 8 canonical emotions · Atkinson Bold everywhere · S07 Profile mandatory · auth at end · `irritable` label · guest mode = rescue+scripts only · dictionary deferred "how to deal" · Friday scope = 2.C+2.A+S19+S21)
+**Last updated:** 2026-03-10 (Sprint 2.C COMPLETE — T-F1✅ T-F2✅ T-F3✅ T-F4✅ T-F5✅ · Week 2 decisions locked: 8 canonical emotions · Atkinson Bold · S07 mandatory · auth at end · `irritable` · guest rescue+scripts · dictionary deferred)
 **Current week:** 2  
 **Next delivery:** Sprint 2.C (Onboarding Flow Redesign) → Sprint 2.A (Visual Foundation) → Sprint 2.B (Screens)
 
@@ -284,11 +284,11 @@ Something fails → both attack the bug → w4rw1ck confirms fix
 
 | Ticket | Description | Owner | Status |
 |---|---|---|---|
-| T-F1 | **S01 Welcome — Add "I need help right now" CTA** → navigates to `/(app)/rescue/assess` without auth. Crisis access must never be blocked by auth walls (PRD §6). | **Ana** | ⏳ |
-| T-F2 | **S03 AQ-10 Result — Hide score, ONE test recommendation** — Do NOT display numerical score (grade-thinking / validation anxiety risk). Show only warm non-diagnostic message + one recommended test. Score ≥6 → Full AQ; Score <6 → CAT-Q. Remove cascade to S06. Add "Skip for now" → S07. Score stored silently in Supabase. (Decision: w4rw1ck 2026-03-08) | **Ana** | ⏳ |
-| T-F3 | **S07 Profile — Mandatory, trimmed** — Remove skip button. Trim to 4–5 questions (name, 2 sensitivities, 1–2 interests, tools). Update copy to "Tell us about you" framing. | **Ana** | ⏳ |
-| T-F4 | **S08 Contacts — Optional with warm copy** — Update skip text to "Skip for now — I'll add contacts later". Add explanation: "A trusted contact can receive a notification if you're in crisis." | **Ana** | ⏳ |
-| T-F5 | **RAADS-R → Settings only** — Remove from onboarding navigation. Add "Complete my profile" entry point in `settings/index.tsx` with test completion status (✅/⏳) for Full AQ, CAT-Q, RAADS-R. | **Aibus** | ⏳ |
+| T-F1 | **S01 Welcome — Add "I need help right now" CTA** → navigates to `/(app)/rescue/assess` without auth. Crisis access must never be blocked by auth walls (PRD §6). | **Ana** | ✅ Already implemented in Week 1 code · AuthGate rescue exception confirmed working |
+| T-F2 | **S03 AQ-10 Result — Hide score, ONE test recommendation** — Do NOT display numerical score (grade-thinking / validation anxiety risk). Show only warm non-diagnostic message + one recommended test. Score ≥6 → Full AQ; Score <6 → CAT-Q. Remove cascade to S06. Add "Skip for now" → S07. Score stored silently in Supabase. (Decision: w4rw1ck 2026-03-08) | **Ana** | ✅ `feat(onboarding): T-F2` — aq10-result.tsx rewritten; cascade broken in aq-full.tsx and catq.tsx |
+| T-F3 | **S07 Profile — Mandatory, trimmed** — Remove skip button. Trim to 4–5 questions (name, 2 sensitivities, 1–2 interests, tools). Update copy to "Tell us about you" framing. | **Ana** | ✅ `feat(onboarding): T-F3` — age field removed; name validated (required); subtitle updated; interests trimmed to 8 |
+| T-F4 | **S08 Contacts — Optional with warm copy** — Update skip text to "Skip for now — I'll add contacts later". Add explanation: "A trusted contact can receive a notification if you're in crisis." | **Ana** | ✅ `feat(onboarding): T-F4` — subtitle split into two paragraphs; skip button → "Saltar por ahora — lo agregaré después" |
+| T-F5 | **RAADS-R → Settings only** — Remove from onboarding navigation. Add "Complete my profile" entry point in `settings/index.tsx` with test completion status (✅/⏳) for Full AQ, CAT-Q, RAADS-R. | **Ana** | ✅ `feat(settings): T-F5` — Settings rebuilt with test status cards; AuthGate exception added for aq-full/catq/raads; raads.tsx routes to settings if onboardingComplete=true |
 
 ---
 

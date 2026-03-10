@@ -189,8 +189,16 @@ export default function ContactsScreen() {
               variant="body"
               className="text-script-text-secondary dark:text-script-dark-text-secondary"
             >
-              Estas personas serán notificadas si activas el protocolo de
-              crisis nivel 3. Puedes agregar o cambiar esto después.
+              Si en algún momento activas el protocolo de crisis nivel 3,
+              Script puede avisarle a alguien de confianza en tu nombre.
+            </Typography>
+            {/* T-F4: warm explanation of why contacts matter */}
+            <Typography
+              variant="caption"
+              className="text-script-text-secondary dark:text-script-dark-text-secondary mt-1"
+            >
+              No es obligatorio ahora — puedes agregar o cambiar tus contactos
+              en cualquier momento desde Ajustes.
             </Typography>
           </View>
 
@@ -276,8 +284,9 @@ export default function ContactsScreen() {
                 disabled={isSaving}
               />
             ) : null}
+            {/* T-F4: warm skip copy — reassures user they can return */}
             <Button
-              title="Omitir por ahora"
+              title="Saltar por ahora — lo agregaré después"
               variant="ghost"
               onPress={completeOnboarding}
               disabled={isSaving}

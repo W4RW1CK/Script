@@ -127,7 +127,9 @@ const QUESTIONS: TestQuestion[] = [
 
 export default function RAADSScreen() {
   const router = useRouter();
-  const supabaseUserId = useAuthStore((s) => s.user?.supabaseUserId);
+  const supabaseUserId     = useAuthStore((s) => s.user?.supabaseUserId);
+  // T-F5: detect context — if already onboarded, user came from Settings (not onboarding flow)
+  const onboardingComplete = useAuthStore((s) => s.onboardingComplete);
 
   const handleComplete = async (answerIndices: number[]) => {
     // Calcular scores por dominio
@@ -165,7 +167,23 @@ export default function RAADSScreen() {
       }
     }
 
-    router.push("/(onboarding)/profile");
+    // T-F5: route depends on context.
+    // If onboarding already complete → user came from Settings → go back to Settings.
+    // If still in onboarding flow → go to mandatory profile screen (S07).
+    if (onboardingComplete) {
+      router.replace("/(app)/settings");
+    } else {
+      router.push("/(onboarding)/profile");
+    }
+  };
+
+  // T-F5: same context logic for skip
+  const handleSkip = () => {
+    if (onboardingComplete) {
+      router.replace("/(app)/settings");
+    } else {
+      router.push("/(onboarding)/profile");
+    }
   };
 
   return (
@@ -175,7 +193,7 @@ export default function RAADSScreen() {
       options={RAADS_OPTIONS}
       storageKey="raads-progress"
       onComplete={handleComplete}
-      onSkip={() => router.push("/(onboarding)/profile")}
+      onSkip={handleSkip}
     />
   );
 }

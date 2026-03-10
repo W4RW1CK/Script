@@ -1,43 +1,55 @@
 /**
- * (onboarding)/profile.tsx — S07: Cuestionario Personal
+ * (onboarding)/profile.tsx — S07: Profile Questionnaire
  *
- * Formulario con react-hook-form + zod para recopilar datos básicos:
- * - Nombre, edad, intereses, sensibilidades, herramientas existentes
+ * Mandatory profile screen — no skip button (C1 decision 2026-03-10).
+ * Trimmed to 5 questions: name (required), sensory profile (sound + light + textures + crowds),
+ * interests (optional chips), existing tools (optional multiselect).
  *
- * Guarda en Supabase: datos de perfil → `profiles` (upsert B-41), display_name → `users` (B-46).
- * Nota: campo `age` eliminado del upsert — no existe en schema (B-47).
- * Nota: `sensitivities` convertido a JSONB object {key: boolean} (B-48).
- * Al completar: navega a contacts.tsx (S08).
+ * T-F3 changes (2026-03-10):
+ *   - Removed age field — not in DB schema, no clinical value without interpretation context
+ *   - Name is the only hard validation block — form cannot submit without it
+ *   - Sensitivities section always shown (sound + light are primary per profile spec)
+ *   - Interests trimmed to 8 most common options
+ *   - Subtitle updated: warm framing, name is the only required field
+ *   - No skip button
+ *
+ * Saves to Supabase:
+ *   display_name → users table (B-46)
+ *   interests, sensitivities {key: boolean}, existing_tools → profiles table (B-41/B-48)
+ *
+ * On success: navigates to contacts.tsx (S08).
+ * On Supabase failure: logs warning and continues — profile can be completed from Settings.
  */
 import React, { useState } from "react";
-import { View, ScrollView, Pressable } from "react-native";
+import { View, ScrollView } from "react-native";
 import { useRouter } from "expo-router";
 import { useForm, Controller } from "react-hook-form";
 import { SafeScreen, Typography, Button, TextInput, Chip } from "@/components/ui";
 import { supabase } from "@/lib/supabase";
 import { useAuthStore } from "@/stores/auth";
 
-// Opciones predefinidas
-const INTERESTS = [
-  "Tecnología", "Música", "Arte", "Ciencia", "Videojuegos",
-  "Lectura", "Naturaleza", "Cocina", "Deportes", "Cine",
-  "Escritura", "Fotografía", "Historia", "Matemáticas", "Idiomas",
-];
-
+// Sensory sensitivities — sound and light are primary (always shown first)
 const SENSITIVITIES = [
-  { key: "light", label: "Luz" },
-  { key: "sound", label: "Sonido" },
+  { key: "sound",    label: "Sonido" },    // primary — listed first per T-F3 spec
+  { key: "light",    label: "Luz" },       // primary
   { key: "textures", label: "Texturas" },
-  { key: "crowds", label: "Multitudes" },
+  { key: "crowds",   label: "Multitudes" },
 ];
 
+// Interests — trimmed to 8 most relevant options (full list available in Settings later)
+const INTERESTS = [
+  "Tecnología", "Música", "Arte", "Ciencia",
+  "Videojuegos", "Lectura", "Naturaleza", "Cine",
+];
+
+// Tools currently in use — optional multiselect
 const TOOLS = [
   "Journaling", "Terapia", "Meditación", "Ejercicio", "Ninguna",
 ];
 
 interface FormData {
+  /** Required — only hard validation block. Saved to users.display_name */
   name: string;
-  age: string;
 }
 
 export default function ProfileScreen() {
@@ -45,72 +57,67 @@ export default function ProfileScreen() {
   const supabaseUserId = useAuthStore((s) => s.user?.supabaseUserId);
   const [isSaving, setIsSaving] = useState(false);
 
-  // Multiselect states (managed outside react-hook-form for simplicity)
-  const [selectedInterests, setSelectedInterests] = useState<string[]>([]);
+  // Multiselect state — managed outside react-hook-form (no text input, chip toggles)
   const [selectedSensitivities, setSelectedSensitivities] = useState<string[]>([]);
-  const [selectedTools, setSelectedTools] = useState<string[]>([]);
+  const [selectedInterests,     setSelectedInterests]     = useState<string[]>([]);
+  const [selectedTools,         setSelectedTools]         = useState<string[]>([]);
 
-  const { control, handleSubmit } = useForm<FormData>({
-    defaultValues: { name: "", age: "" },
+  const {
+    control,
+    handleSubmit,
+    formState: { errors },
+  } = useForm<FormData>({
+    defaultValues: { name: "" },
   });
 
-  /** Toggle un item en un array de selección */
+  /** Toggle a chip item in a string array */
   const toggle = (
     item: string,
     selected: string[],
     setSelected: (v: string[]) => void
   ) => {
-    if (selected.includes(item)) {
-      setSelected(selected.filter((i) => i !== item));
-    } else {
-      setSelected([...selected, item]);
-    }
+    setSelected(
+      selected.includes(item)
+        ? selected.filter((i) => i !== item)
+        : [...selected, item]
+    );
   };
 
   const onSubmit = async (data: FormData) => {
     setIsSaving(true);
     try {
       if (!supabaseUserId) {
-        // M-04: supabaseUserId puede ser null si sync-privy-user falló (sin internet, etc.)
-        // En ese caso no intentamos el UPSERT (fallaría con RLS error) y continuamos el flujo.
-        // El perfil se puede completar más tarde desde Ajustes.
-        console.warn("[Profile] supabaseUserId es null — saltando guardado en Supabase");
+        // supabaseUserId can be null if sync-privy-user failed (no network, etc.).
+        // We skip the upsert and continue — profile can be completed from Settings (T-F5).
+        console.warn("[Profile] supabaseUserId is null — skipping Supabase save");
       } else {
         /**
-         * B-41: Usar upsert en vez de update (ya corregido).
+         * Two-operation save pattern (B-46):
+         *   1. profiles table: interests, sensitivities, existing_tools
+         *   2. users table: display_name
          *
-         * B-46 FIX: `display_name` pertenece a la tabla `users`, NO a `profiles`.
-         *   Schema.sql: users.display_name VARCHAR(100) — profiles no lo tiene.
-         *   Se actualiza en dos operaciones separadas.
-         *
-         * B-47 FIX: `age` no existe en ninguna tabla del schema. Eliminado.
-         *
-         * B-48 FIX: `sensitivities` es JSONB DEFAULT '{}' en profiles — diseñado
-         *   como objeto {key: boolean}, NO como array. Se convierte correctamente.
-         *   Antes: selectedSensitivities = ["light", "sound"] → JSONB array (incorrecto)
-         *   Ahora: { light: true, sound: true }             → JSONB object (correcto)
+         * B-41: using upsert (not update) to handle new rows safely.
+         * B-48: sensitivities saved as JSONB object {key: boolean}, not array.
+         * B-47: age field removed — does not exist in schema.
          */
 
-        // ── 1. Guardar datos de perfil en tabla `profiles` ──────────────────
+        // ── 1. Profile data → profiles table ──────────────────────────────
         await supabase
           .from("profiles")
           .upsert(
             {
               user_id:        supabaseUserId,
               interests:      selectedInterests,
-              // B-48: sensitivities como objeto JSONB {key: boolean}
+              // B-48: JSONB object format: { sound: true, light: true }
               sensitivities:  Object.fromEntries(
                 selectedSensitivities.map((k) => [k, true])
               ),
               existing_tools: selectedTools,
-              // display_name: va en users (B-46) — NO aquí
-              // age: no existe en schema (B-47) — eliminado
             },
             { onConflict: "user_id" }
           );
 
-        // ── 2. Actualizar display_name en tabla `users` (B-46) ──────────────
-        // display_name solo se actualiza si el usuario ingresó un nombre
+        // ── 2. Display name → users table (B-46) ──────────────────────────
         if (data.name.trim()) {
           await supabase
             .from("users")
@@ -119,8 +126,8 @@ export default function ProfileScreen() {
         }
       }
     } catch (e) {
-      console.warn("[Profile] Error guardando perfil:", e);
-      // No bloqueamos al usuario — puede completar perfil desde Ajustes (Semana 2)
+      console.warn("[Profile] Error saving profile:", e);
+      // Non-blocking — user can complete profile from Settings (T-F5)
     } finally {
       setIsSaving(false);
       router.push("/(onboarding)/contacts");
@@ -134,54 +141,88 @@ export default function ProfileScreen() {
         showsVerticalScrollIndicator={false}
       >
         <View className="flex-1 px-5 pt-6 pb-8 gap-6">
+
+          {/* Header — warm framing, name-only requirement */}
           <View className="gap-2">
             <Typography variant="headingL">Cuéntanos sobre ti</Typography>
             <Typography
               variant="body"
               className="text-script-text-secondary dark:text-script-dark-text-secondary"
             >
-              Esto nos ayuda a personalizar tu experiencia. Todo es opcional.
+              Solo tu nombre es necesario — el resto nos ayuda a personalizar
+              tu experiencia, pero puedes completarlo después.
             </Typography>
           </View>
 
-          {/* Nombre */}
+          {/* ── Question 1: Name (required) ── */}
           <View className="gap-2">
-            <Typography variant="headingS">¿Cómo te llamamos?</Typography>
+            <Typography variant="headingS">
+              ¿Cómo te llamamos?{" "}
+              <Typography
+                variant="headingS"
+                className="text-script-crisis-soft"
+              >
+                *
+              </Typography>
+            </Typography>
             <Controller
               control={control}
               name="name"
+              rules={{ required: "Necesitamos un nombre para continuar" }}
               render={({ field: { onChange, value } }) => (
                 <TextInput
                   value={value}
                   onChangeText={onChange}
                   placeholder="Tu nombre o apodo"
-                  accessibilityLabel="Nombre o apodo"
+                  accessibilityLabel="Nombre o apodo (obligatorio)"
                 />
               )}
             />
+            {/* Inline validation error */}
+            {errors.name && (
+              <Typography
+                variant="caption"
+                className="text-script-crisis-soft"
+              >
+                {errors.name.message}
+              </Typography>
+            )}
           </View>
 
-          {/* Edad */}
+          {/* ── Question 2: Sensory profile ── */}
           <View className="gap-2">
-            <Typography variant="headingS">Edad</Typography>
-            <Controller
-              control={control}
-              name="age"
-              render={({ field: { onChange, value } }) => (
-                <TextInput
-                  value={value}
-                  onChangeText={onChange}
-                  placeholder="Ej: 28"
-                  keyboardType="number-pad"
-                  accessibilityLabel="Edad"
+            <Typography variant="headingS">¿Qué estímulos te afectan?</Typography>
+            <Typography
+              variant="caption"
+              className="text-script-text-secondary dark:text-script-dark-text-secondary"
+            >
+              Selecciona los que apliquen — no tienes que elegir ninguno.
+            </Typography>
+            <View className="flex-row flex-wrap gap-2">
+              {SENSITIVITIES.map((s) => (
+                <Chip
+                  key={s.key}
+                  label={s.label}
+                  selected={selectedSensitivities.includes(s.key)}
+                  onPress={() =>
+                    toggle(s.key, selectedSensitivities, setSelectedSensitivities)
+                  }
                 />
-              )}
-            />
+              ))}
+            </View>
           </View>
 
-          {/* Intereses */}
+          {/* ── Question 3: Interests (optional) ── */}
           <View className="gap-2">
-            <Typography variant="headingS">Intereses</Typography>
+            <Typography variant="headingS">
+              ¿Qué cosas te interesan?{" "}
+              <Typography
+                variant="caption"
+                className="text-script-text-secondary dark:text-script-dark-text-secondary"
+              >
+                (opcional)
+              </Typography>
+            </Typography>
             <View className="flex-row flex-wrap gap-2">
               {INTERESTS.map((interest) => (
                 <Chip
@@ -196,37 +237,16 @@ export default function ProfileScreen() {
             </View>
           </View>
 
-          {/* Sensibilidades */}
-          <View className="gap-2">
-            <Typography variant="headingS">Sensibilidades</Typography>
-            <Typography
-              variant="caption"
-              className="text-script-text-secondary dark:text-script-dark-text-secondary"
-            >
-              ¿Qué estímulos te afectan más de lo habitual?
-            </Typography>
-            <View className="flex-row flex-wrap gap-2">
-              {SENSITIVITIES.map((s) => (
-                <Chip
-                  key={s.key}
-                  label={s.label}
-                  selected={selectedSensitivities.includes(s.key)}
-                  onPress={() =>
-                    toggle(
-                      s.key,
-                      selectedSensitivities,
-                      setSelectedSensitivities
-                    )
-                  }
-                />
-              ))}
-            </View>
-          </View>
-
-          {/* Herramientas existentes */}
+          {/* ── Question 4: Existing tools (optional) ── */}
           <View className="gap-2">
             <Typography variant="headingS">
-              ¿Qué herramientas ya usas?
+              ¿Qué herramientas ya usas?{" "}
+              <Typography
+                variant="caption"
+                className="text-script-text-secondary dark:text-script-dark-text-secondary"
+              >
+                (opcional)
+              </Typography>
             </Typography>
             <View className="flex-row flex-wrap gap-2">
               {TOOLS.map((tool) => (
@@ -244,6 +264,7 @@ export default function ProfileScreen() {
 
           <View className="flex-1" />
 
+          {/* Submit — disabled while saving */}
           <Button
             title={isSaving ? "Guardando..." : "Continuar →"}
             onPress={handleSubmit(onSubmit)}
