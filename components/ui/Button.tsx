@@ -1,19 +1,24 @@
 /**
- * Botón base de Script.
+ * Button — base button component for Script.
  *
- * Variantes:
- *  - primary:   fondo azul (acción principal)
- *  - secondary: borde azul, fondo transparente (acción secundaria)
- *  - danger:    fondo suave de crisis (acciones destructivas o de alerta)
- *  - ghost:     sin fondo ni borde (acciones terciarias o de navegación)
+ * Variants:
+ *  - primary:   mono-blue gradient background (#A8C5DA → #8BAEC4 at 135°) — main action
+ *  - secondary: blue border, transparent background — secondary action
+ *  - danger:    soft crisis background — destructive or alert actions
+ *  - ghost:     no background or border — tertiary actions
  *
- * Accesibilidad:
- *  - Tap target mínimo 44px (WCAG 2.1 AA)
- *  - accessibilityRole="button" siempre presente
- *  - Opacidad reduce al presionar como feedback visual
- *  - Opacidad 50% cuando disabled
+ * T-V6: primary variant uses LinearGradient for visual depth.
+ * Requires: npx expo install expo-linear-gradient
+ *
+ * Accessibility:
+ *  - Minimum 44px tap target (WCAG 2.1 AA)
+ *  - accessibilityRole="button" always present
+ *  - Opacity reduces on press as visual feedback
+ *  - 50% opacity when disabled
+ *  - B-39: accessibilityLabel prop overrides title for screen readers
  */
-import { Pressable, Text } from "react-native";
+import { Pressable, Text, View } from "react-native";
+import { LinearGradient } from "expo-linear-gradient";
 
 type ButtonVariant = "primary" | "secondary" | "danger" | "ghost";
 
@@ -23,38 +28,35 @@ interface ButtonProps {
   variant?: ButtonVariant;
   disabled?: boolean;
   /**
-   * Label para lectores de pantalla. Si no se pasa, se usa `title`.
-   * Útil cuando el título es corto y se necesita contexto adicional
-   * (ej: "Entiendo y acepto" → "Entiendo y acepto los términos. Comenzar mi evaluación.")
-   * B-39: la prop existía pero no era parte de la interfaz — los lectores leían `title` siempre.
+   * Label for screen readers. Falls back to `title` if not provided.
+   * Use when the button title is short and needs extra context.
+   * B-39: was always ignored before — now properly forwarded.
    */
   accessibilityLabel?: string;
-  /** Texto adicional que los lectores de pantalla leen después del label */
+  /** Additional text screen readers announce after the label */
   accessibilityHint?: string;
-  /** Clases NativeWind adicionales (márgenes, padding externo, etc.) */
+  /** Extra NativeWind classes (margins, external padding, etc.) */
   className?: string;
 }
 
-/** Clases NativeWind por variante — contenedor y texto separados */
-const variantStyles: Record<ButtonVariant, { container: string; text: string }> =
-  {
-    primary: {
-      container: "bg-script-blue dark:bg-script-dark-blue",
-      text: "text-white",
-    },
-    secondary: {
-      container: "bg-transparent border-[1.5px] border-script-blue dark:border-script-dark-blue",
-      text: "text-script-blue dark:text-script-dark-blue",
-    },
-    danger: {
-      container: "bg-script-crisis-soft dark:bg-script-dark-crisis",
-      text: "text-script-text dark:text-white",
-    },
-    ghost: {
-      container: "bg-transparent",
-      text: "text-script-text-secondary",
-    },
-  };
+/** T-V6: gradient stops for primary variant — mono-blue, 135° */
+const PRIMARY_GRADIENT: [string, string] = ["#A8C5DA", "#8BAEC4"];
+
+/** NativeWind classes for non-primary variants */
+const variantStyles: Partial<Record<ButtonVariant, { container: string; text: string }>> = {
+  secondary: {
+    container: "bg-transparent border-[1.5px] border-script-blue dark:border-script-dark-blue",
+    text: "text-script-blue dark:text-script-dark-blue",
+  },
+  danger: {
+    container: "bg-script-crisis-soft dark:bg-script-dark-crisis",
+    text: "text-script-text dark:text-white",
+  },
+  ghost: {
+    container: "bg-transparent",
+    text: "text-script-text-secondary",
+  },
+};
 
 export function Button({
   title,
@@ -65,22 +67,59 @@ export function Button({
   accessibilityHint,
   className = "",
 }: ButtonProps) {
+  const isPrimary = variant === "primary";
   const styles = variantStyles[variant];
+
+  // Shared inner text — same for all variants
+  const label = (
+    <Text
+      className={`font-bold text-base ${isPrimary ? "text-white" : styles?.text ?? ""}`}
+    >
+      {title}
+    </Text>
+  );
+
+  // Shared Pressable props
+  const pressableProps = {
+    onPress,
+    disabled,
+    accessibilityRole: "button" as const,
+    accessibilityLabel: accessibilityLabel ?? title,
+    accessibilityHint,
+    style: ({ pressed }: { pressed: boolean }) => ({
+      opacity: pressed && !disabled ? 0.85 : disabled ? 0.5 : 1,
+    }),
+  };
+
+  if (isPrimary) {
+    // T-V6: primary uses LinearGradient — mono-blue depth without new hues
+    return (
+      <Pressable {...pressableProps} className={`w-full rounded-2xl overflow-hidden ${className}`}>
+        <LinearGradient
+          colors={PRIMARY_GRADIENT}
+          start={{ x: 0, y: 1 }}
+          end={{ x: 1, y: 0 }}
+          style={{
+            width: "100%",
+            alignItems: "center",
+            justifyContent: "center",
+            paddingVertical: 16,
+            paddingHorizontal: 24,
+            borderRadius: 16,
+          }}
+        >
+          {label}
+        </LinearGradient>
+      </Pressable>
+    );
+  }
 
   return (
     <Pressable
-      onPress={onPress}
-      disabled={disabled}
-      accessibilityRole="button"
-      accessibilityLabel={accessibilityLabel ?? title} // B-39: usar label custom si se pasa
-      accessibilityHint={accessibilityHint}
-      className={`w-full items-center justify-center rounded-2xl py-4 px-6 ${styles.container} ${
-        disabled ? "opacity-50" : ""
-      } ${className}`}
-      // Feedback visual al presionar: reducir opacidad levemente
-      style={({ pressed }) => ({ opacity: pressed && !disabled ? 0.85 : 1 })}
+      {...pressableProps}
+      className={`w-full items-center justify-center rounded-2xl py-4 px-6 ${styles?.container ?? ""} ${className}`}
     >
-      <Text className={`font-semibold text-base ${styles.text}`}>{title}</Text>
+      {label}
     </Pressable>
   );
 }
