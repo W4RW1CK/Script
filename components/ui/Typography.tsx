@@ -1,31 +1,42 @@
 /**
- * Componente de texto tipado para Script.
+ * components/ui/Typography.tsx — Typed text component for Script.
  *
- * Aplica la escala tipográfica de Inter automáticamente según variant.
- * Tamaño mínimo: 14px (caption). Tamaño de crisis: 28px (FRONTEND_GUIDELINES §2.2).
+ * T-U3 (2026-03-10): Migrated from system font (NativeWind weight classes) to
+ * explicit Atkinson Hyperlegible font family from constants/typography.ts.
  *
- * Variantes disponibles:
- *  - headingXL:  32px bold  — títulos de pantalla principal
- *  - headingL:   24px semi  — títulos de sección
- *  - headingM:   20px semi  — subtítulos y cards
- *  - bodyLarge:  18px reg   — texto destacado, instrucciones importantes
- *  - body:       16px reg   — texto de contenido general
- *  - caption:    14px reg   — metadatos, timestamps, etiquetas
- *  - crisis:     28px bold  — instrucciones durante protocolo de crisis (S17/S18)
+ * The previous implementation used NativeWind `font-bold`/`font-semibold` classes
+ * which set fontWeight but not fontFamily — the app was rendering system font.
+ * This version explicitly sets fontFamily + fontSize + lineHeight via StyleSheet,
+ * matching the constants/typography.ts tokens exactly.
  *
- * Accesibilidad:
- *  - accessibilityRole se infiere automáticamente (heading vs text)
- *  - Puedes sobreescribirlo con la prop accessibilityRole
+ * Font: Atkinson Hyperlegible — designed for accessibility with distinct character
+ * shapes that reduce confusion (relevant for ASD + possible dyslexia co-occurrence).
+ * Only 2 weights used: 400Regular (body/caption) + 700Bold (ALL headings).
+ *
+ * Variants:
+ *   headingXL  32px Bold  — screen titles, app name
+ *   headingL   24px Bold  — section headers
+ *   headingM   20px Bold  — card headers, subtitles
+ *   headingS   16px Bold  — label groups, small card titles
+ *   heading    24px Bold  — alias for headingL (backward compat)
+ *   body       16px Reg   — primary content text
+ *   bodyLarge  18px Reg   — prominent descriptions
+ *   caption    14px Reg   — timestamps, hints, secondary info
+ *   crisis     28px Bold  — crisis protocol instructions (S17/S18) — minimum 28px
+ *
+ * Props:
+ *   style — inline StyleSheet/ViewStyle override (for dynamic values like emotion colors)
  */
-import { Text } from "react-native";
+import { Text, StyleSheet } from "react-native";
 import type { ReactNode } from "react";
+import type { TextStyle } from "react-native";
 
 type TypographyVariant =
   | "headingXL"
   | "headingL"
   | "headingM"
-  | "headingS"   // 18px semibold — subtítulos en cards y secciones
-  | "heading"    // alias de headingL — compatibilidad con código generado
+  | "headingS"
+  | "heading"     // alias for headingL — backward compat
   | "body"
   | "bodyLarge"
   | "caption"
@@ -34,39 +45,84 @@ type TypographyVariant =
 interface TypographyProps {
   children: ReactNode;
   variant?: TypographyVariant;
-  /** Clases NativeWind adicionales (color, margin, etc.) */
+  /** Additional NativeWind classes (color, margin, alignment, etc.) */
   className?: string;
+  /** Inline style override — use for dynamic values (e.g. emotion text colors) */
+  style?: TextStyle;
   accessibilityRole?: "header" | "text";
 }
 
-/** Mapa de variante → clases NativeWind de tamaño/peso */
-const variantClasses: Record<TypographyVariant, string> = {
-  headingXL: "text-[32px] leading-[40px] font-bold",
-  headingL:  "text-2xl leading-8 font-semibold",
-  headingM:  "text-xl leading-7 font-semibold",
-  headingS:  "text-lg leading-6 font-semibold",     // 18px — subtítulos en cards
-  heading:   "text-2xl leading-8 font-semibold",    // alias de headingL
-  body:      "text-base leading-6",
-  bodyLarge: "text-lg leading-7",
-  caption:   "text-sm leading-5",
-  // crisis: mínimo 28px para legibilidad bajo estrés (FRONTEND_GUIDELINES §2.2)
-  crisis:    "text-[28px] leading-9 font-bold",
-};
+/**
+ * Font styles per variant — explicit fontFamily + size + lineHeight.
+ * These values mirror constants/typography.ts exactly.
+ * Crisis variant mirrors FRONTEND_GUIDELINES §11 (28px minimum in crisis screens).
+ */
+const variantStyles = StyleSheet.create({
+  headingXL: {
+    fontFamily: "AtkinsonHyperlegible_700Bold",
+    fontSize: 32,
+    lineHeight: 40,
+  },
+  headingL: {
+    fontFamily: "AtkinsonHyperlegible_700Bold",
+    fontSize: 24,
+    lineHeight: 32,
+  },
+  headingM: {
+    fontFamily: "AtkinsonHyperlegible_700Bold",
+    fontSize: 20,
+    lineHeight: 28,
+  },
+  headingS: {
+    fontFamily: "AtkinsonHyperlegible_700Bold",
+    fontSize: 16,
+    lineHeight: 24,
+  },
+  heading: {
+    fontFamily: "AtkinsonHyperlegible_700Bold",
+    fontSize: 24,
+    lineHeight: 32,
+  },
+  body: {
+    fontFamily: "AtkinsonHyperlegible_400Regular",
+    fontSize: 16,
+    lineHeight: 24,
+  },
+  bodyLarge: {
+    fontFamily: "AtkinsonHyperlegible_400Regular",
+    fontSize: 18,
+    lineHeight: 28,
+  },
+  caption: {
+    fontFamily: "AtkinsonHyperlegible_400Regular",
+    fontSize: 14,
+    lineHeight: 20,
+  },
+  crisis: {
+    fontFamily: "AtkinsonHyperlegible_700Bold",
+    fontSize: 28,
+    lineHeight: 36,
+  },
+});
 
 export function Typography({
   children,
   variant = "body",
   className = "",
+  style,
   accessibilityRole,
 }: TypographyProps) {
-  // Headings y crisis son "header" para VoiceOver/TalkBack; resto es "text"
-  const isHeading = variant.startsWith("heading") || variant === "crisis";
+  // Headings and crisis use accessibilityRole "header" for VoiceOver/TalkBack
+  const isHeading = variant.startsWith("heading") || variant === "heading" || variant === "crisis";
 
   return (
     <Text
       accessibilityRole={accessibilityRole ?? (isHeading ? "header" : "text")}
-      // Color de texto por defecto — sobreescribible con className
-      className={`text-script-text dark:text-white ${variantClasses[variant]} ${className}`}
+      // NativeWind className handles color, margin, alignment, etc.
+      // variantStyles handles fontFamily + size + lineHeight explicitly.
+      // style prop allows dynamic overrides (emotion colors, etc.).
+      className={`text-script-text dark:text-white ${className}`}
+      style={[variantStyles[variant], style]}
     >
       {children}
     </Text>

@@ -4,7 +4,7 @@
 > **How to read this file:**
 > ✅ Complete | 🔄 In progress | ⏳ Pending | ❌ Blocked
 
-**Last updated:** 2026-03-10 (Sprint 2.C COMPLETE ✅ · Sprint 2.A COMPLETE (Ana) ✅ · Sprint 2.B: T-V3 ✅ T-V4 ✅ · T-V5 Home redesign next)
+**Last updated:** 2026-03-10 (Sprint 2.C ✅ · Sprint 2.A ✅ (T-U3 T-U4 T-U5 T-U6 T-V1) · Sprint 2.B: T-V3 ✅ T-V4 ✅ T-U3 ✅ · T-V5 Home redesign next · ACTION: w4rw1ck pull dev + npm install)
 **Current week:** 2  
 **Next delivery:** Sprint 2.C (Onboarding Flow Redesign) → Sprint 2.A (Visual Foundation) → Sprint 2.B (Screens)
 
@@ -207,7 +207,7 @@ Something fails → both attack the bug → w4rw1ck confirms fix
 
 | Ticket | Description | Owner | Status |
 |---|---|---|---|
-| T-U3 | **Atkinson Hyperlegible replaces Inter** — Font designed with empirical accessibility research. Each character is distinguishable. For ASD with possible dyslexia or atypical visual processing. Install `@expo-google-fonts/atkinson-hyperlegible`, update `_layout.tsx` and `constants/typography.ts`. Regular and Bold only (no SemiBold — headings migrate to Bold). Ref: FRONTEND_GUIDELINES.md §2 | **Aibus** | ⏳ |
+| T-U3 | **Atkinson Hyperlegible replaces Inter** — Font designed with empirical accessibility research. Each character is distinguishable. For ASD with possible dyslexia or atypical visual processing. Install `@expo-google-fonts/atkinson-hyperlegible`, update `_layout.tsx` and `constants/typography.ts`. Regular and Bold only (no SemiBold — headings migrate to Bold). Ref: FRONTEND_GUIDELINES.md §2 | **Ana** (took over — Aibus was blocked on npm install) | ✅ package.json + _layout.tsx + typography.ts + Typography.tsx all updated · Inter kept in bundle for backward compat · **w4rw1ck: pull dev + run `npm install`** |
 | T-U4 | **Tokens `script-accent` (#10B981) and `script-warning` (#F59E0B) in `tailwind.config.js`** — Missing confirmation/success and soft alert colors. `script-accent` for completed states and positive states. `script-warning` for non-crisis alerts. Ref: FRONTEND_GUIDELINES.md §1.2.1 | **Ana** | ✅ B-52 `0a0de01` |
 | T-U5 | **Confirmation before Level 3 notification in `protocol.tsx`** — If there is auto-sending to trust network without user confirmation, it may generate false positives. Add `Alert.alert("Confirm notification?", ...)` before sending. Ref: UX Guideline #35 Confirmation Dialogs | **Ana** | ✅ Alert.alert confirmation dialog added to Level 3 "Notify contact" button · actual send TODO Sprint 2.1 |
 | T-U6 | **Contrast audit `text-script-text-secondary` (WCAG AA)** — `#6B6B6B` on `#F8F6F2` ≈ 4.2:1 (slightly below WCAG AA 4.5:1). Verify all critical combinations. If it fails, darken slightly to `#606060`. Ref: FRONTEND_GUIDELINES.md §10 | **Ana** | ✅ Audit passed — actual ratio is **4.94:1** (not 4.2:1, estimate was off). Dark mode 6.09:1. No change needed |

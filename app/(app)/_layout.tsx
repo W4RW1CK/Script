@@ -42,7 +42,8 @@ export default function AppTabLayout() {
         },
         tabBarLabelStyle: {
           fontSize: 11,
-          fontFamily: "Inter_600SemiBold",
+          // T-U3: Atkinson has no SemiBold — use Bold (700) per decision 2026-03-10
+          fontFamily: "AtkinsonHyperlegible_700Bold",
           marginBottom: 4,
         },
         // El header lo gestiona cada pantalla individualmente

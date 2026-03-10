@@ -17,6 +17,13 @@ import "../polyfills";
 import "../global.css";
 
 import FontAwesome from "@expo/vector-icons/FontAwesome";
+// T-U3 (2026-03-10): Atkinson Hyperlegible — primary typeface for Script.
+// Only Regular (400) and Bold (700) exist. Decision: Bold everywhere for headings.
+import {
+  AtkinsonHyperlegible_400Regular,
+  AtkinsonHyperlegible_700Bold,
+} from "@expo-google-fonts/atkinson-hyperlegible";
+// Inter kept for backward compat (tab bar label + any remaining hardcoded refs)
 import {
   Inter_400Regular,
   Inter_600SemiBold,
@@ -216,6 +223,10 @@ function AuthGate({ children }: { children: React.ReactNode }) {
 export default function RootLayout() {
   // Carga Inter (tipografía principal de Script) + íconos FontAwesome
   const [loaded, error] = useFonts({
+    // T-U3: Atkinson Hyperlegible — primary typeface
+    AtkinsonHyperlegible_400Regular,
+    AtkinsonHyperlegible_700Bold,
+    // Inter — kept for backward compat, can be removed after full migration audit
     Inter_400Regular,
     Inter_600SemiBold,
     Inter_700Bold,
