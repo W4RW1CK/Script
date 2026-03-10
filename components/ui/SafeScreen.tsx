@@ -27,12 +27,18 @@ import type { ReactNode } from "react";
 
 interface SafeScreenProps {
   children: ReactNode;
-  /** Si true, el contenido es scrollable. Default: true */
+  /** If true, content is scrollable. Default: true */
   scrollable?: boolean;
-  /** Clases NativeWind adicionales para el contenedor raíz */
+  /** Additional NativeWind classes for the root container */
   className?: string;
-  /** Modo crisis: fondo script-crisis/script-dark-crisis, sin scroll indicator */
+  /** Crisis mode: script-crisis/script-dark-crisis background, no scroll indicator */
   crisis?: boolean;
+  /**
+   * Inline style override — use for dynamic values NativeWind can't handle
+   * (e.g. emotional color backgrounds from EmotionColors[key].bg in T-V4).
+   * Applied to the SafeAreaView root.
+   */
+  style?: import("react-native").ViewStyle;
 }
 
 export function SafeScreen({
@@ -40,24 +46,25 @@ export function SafeScreen({
   scrollable = true,
   className = "",
   crisis = false,
+  style,
 }: SafeScreenProps) {
   // Fondo de pantalla según modo crisis o tema normal
   const bgClass = crisis
     ? "bg-script-crisis dark:bg-script-dark-crisis"
     : "bg-script-bg dark:bg-script-dark-bg";
 
-  // Pantalla sin scroll — el contenido gestiona su propio layout
+  // Non-scrollable — content manages its own layout
   if (!scrollable) {
     return (
-      <SafeAreaView className={`flex-1 ${bgClass} ${className}`}>
+      <SafeAreaView className={`flex-1 ${bgClass} ${className}`} style={style}>
         {children}
       </SafeAreaView>
     );
   }
 
-  // Pantalla scrollable (default) — padding horizontal px-5
+  // Scrollable (default) — standard horizontal padding px-5
   return (
-    <SafeAreaView className={`flex-1 ${bgClass}`}>
+    <SafeAreaView className={`flex-1 ${bgClass}`} style={style}>
       <ScrollView
         className={`flex-1 px-5 ${className}`}
         showsVerticalScrollIndicator={false}

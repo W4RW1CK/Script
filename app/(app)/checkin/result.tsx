@@ -1,33 +1,36 @@
 /**
- * result.tsx — S13: Resultado del Check-in
+ * result.tsx — S13: Check-in Result
  *
- * Última pantalla del flujo de check-in. Muestra la emoción confirmada,
- * permite guardarla en Supabase y ofrece marcarla como "delicada".
+ * Final screen of the check-in flow. Shows the confirmed emotion,
+ * allows saving it to Supabase, and offers flagging it as sensitive.
  *
- * Flujo: S12 (reflect) → S13 → S09 (home) [replace, no push]
+ * Flow: S12 (reflect) → S13 → S09 (home) [replace, no push]
  *
- * IMPORTANTE: El INSERT incluye user_id explícitamente porque RLS
- * no inyecta campos automáticamente — solo los valida. Sin user_id
- * el INSERT falla con "new row violates row-level security policy".
+ * T-V4 (2026-03-10): Full-screen emotional color background.
+ * The screen adopts EmotionColors[key].bg as its background color —
+ * this is the most emotionally significant moment in the check-in flow.
+ * The emotion card inside also reflects the color for visual harmony.
  *
- * El user_id se obtiene del auth store (Zustand), no de Supabase auth,
- * porque usamos Privy para autenticación.
+ * IMPORTANT: INSERT includes user_id explicitly — RLS validates but
+ * does not inject it. Without user_id the INSERT fails with RLS error.
+ * user_id comes from Zustand auth store (not Supabase auth) because
+ * Privy manages authentication.
  *
- * B-40: Antes este archivo navegaba a home silenciosamente aunque el
- * INSERT fallara (por user_id null o error RLS). Ahora muestra un Alert
- * explicativo con opción de reintentar o continuar sin guardar.
+ * B-40: If supabaseUserId is null or INSERT fails, a visible Alert is
+ * shown with retry option — never navigates silently on failure.
  */
-import React, { useState } from "react";
-import { View, Alert } from "react-native";
+import React, { useState, useEffect, useRef } from "react";
+import { View, Alert, Animated } from "react-native";
 import { useLocalSearchParams, useRouter } from "expo-router";
-import { SafeScreen, Typography, Button, Card } from "@/components/ui";
+import { SafeScreen, Typography, Button } from "@/components/ui";
 import { supabase } from "@/lib/supabase";
 import { useAuthStore } from "@/stores/auth";
+import { EmotionColors, toEmotionKey } from "@/constants/colors";
 
 export default function CheckinResultScreen() {
   const router = useRouter();
 
-  // Obtener user_id del auth store (NO de Supabase auth)
+  // user_id from auth store (NOT Supabase auth — Privy manages sessions)
   const supabaseUserId = useAuthStore((s) => s.user?.supabaseUserId);
 
   const { zones: zonesParam, notes, emotion } = useLocalSearchParams<{
@@ -38,6 +41,26 @@ export default function CheckinResultScreen() {
 
   const zones = zonesParam?.split(",").filter(Boolean) ?? [];
   const [isSaving, setIsSaving] = useState(false);
+
+  // T-V4: resolve emotion key → emotional color palette
+  const emotionKey = toEmotionKey(emotion);
+  const colors     = EmotionColors[emotionKey];
+
+  // T-V4: 300ms fade-in animation for emotional background (feels gentle, not jarring)
+  const bgOpacity = useRef(new Animated.Value(0)).current;
+  useEffect(() => {
+    Animated.timing(bgOpacity, {
+      toValue: 1,
+      duration: 300,
+      useNativeDriver: false, // backgroundColor cannot use native driver
+    }).start();
+  }, [bgOpacity]);
+
+  // Interpolate opacity → backgroundColor for the fade effect
+  const animatedBg = bgOpacity.interpolate({
+    inputRange:  [0, 1],
+    outputRange: ["transparent", colors.bg],
+  });
 
   /**
    * Navegar al home después de guardar (o decidir no guardar).
@@ -131,44 +154,69 @@ export default function CheckinResultScreen() {
   };
 
   return (
-    <SafeScreen>
-      <View className="flex-1 px-5 pt-6 pb-8 gap-6">
-
-        {/* ── Mensaje de cierre ─────────────────────────────────────── */}
-        <View className="gap-2">
-          <Typography variant="headingL">Tiene sentido.</Typography>
-          <Typography
-            variant="body"
-            className="text-script-text-secondary dark:text-script-dark-text-secondary"
-          >
+    // T-V4: SafeScreen bg is transparent; animated Animated.View provides the fade
+    <SafeScreen scrollable={false}>
+      {/* T-V4: Full-screen emotional color — 300ms fade from transparent */}
+      <Animated.View
+        style={{
+          flex: 1,
+          backgroundColor: animatedBg,
+          paddingHorizontal: 20,
+          paddingTop: 24,
+          paddingBottom: 32,
+          gap: 24,
+        }}
+      >
+        {/* ── Closing message ──────────────────────────────────────── */}
+        <View style={{ gap: 8 }}>
+          <Typography variant="headingL" style={{ color: colors.text }}>
+            Tiene sentido.
+          </Typography>
+          <Typography variant="body" style={{ color: colors.text, opacity: 0.75 }}>
             Gracias por explorar esto. Lo que sientes es válido.
           </Typography>
         </View>
 
-        {/* ── Card con emoción identificada ────────────────────────── */}
-        <Card variant="elevated">
-          <Typography
-            variant="caption"
-            className="text-script-text-secondary dark:text-script-dark-text-secondary mb-1"
-          >
+        {/* ── Emotion summary card — colored to match bg ───────────── */}
+        <View
+          style={{
+            borderRadius: 24,
+            padding: 20,
+            backgroundColor: colors.dot + "22", // dot color at 13% opacity — subtle tint
+            borderWidth: 1.5,
+            borderColor: colors.dot,
+          }}
+        >
+          {/* 8px accent circle — mirrors EmotionCard visual language (T-V3) */}
+          <View
+            style={{
+              width: 8,
+              height: 8,
+              borderRadius: 4,
+              backgroundColor: colors.dot,
+              marginBottom: 8,
+            }}
+          />
+          <Typography variant="caption" style={{ color: colors.text, opacity: 0.7 }}>
             Hoy identificaste:
           </Typography>
-          <Typography variant="headingM">{emotion ?? "—"}</Typography>
+          <Typography variant="headingM" style={{ color: colors.text, marginTop: 4 }}>
+            {emotion ?? "—"}
+          </Typography>
           {notes ? (
             <Typography
               variant="caption"
-              className="text-script-text-secondary dark:text-script-dark-text-secondary mt-2"
+              style={{ color: colors.text, opacity: 0.7, marginTop: 8 }}
             >
               "{notes}"
             </Typography>
           ) : null}
-        </Card>
+        </View>
 
-        <View className="flex-1" />
+        <View style={{ flex: 1 }} />
 
         {/* ── CTAs ─────────────────────────────────────────────────── */}
-        <View className="gap-3">
-          {/* Guardar — acción principal */}
+        <View style={{ gap: 12 }}>
           <Button
             title={isSaving ? "Guardando..." : "Guardar ✓"}
             onPress={() => saveCheckin(false)}
@@ -176,8 +224,6 @@ export default function CheckinResultScreen() {
             disabled={isSaving}
             accessibilityLabel={isSaving ? "Guardando tu check-in" : "Guardar check-in y volver al inicio"}
           />
-
-          {/* Marcar como delicado — acción secundaria */}
           <Button
             title="🚩 Esto no se siente bien"
             onPress={() => saveCheckin(true)}
@@ -187,8 +233,7 @@ export default function CheckinResultScreen() {
             accessibilityHint="Lo guardamos marcado para que puedas revisarlo más tarde"
           />
         </View>
-
-      </View>
+      </Animated.View>
     </SafeScreen>
   );
 }

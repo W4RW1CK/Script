@@ -41,24 +41,30 @@ export type CardVariant = "default" | "elevated";
 
 interface CardProps {
   children: ReactNode;
-  /** Clases NativeWind adicionales (márgenes, padding, etc.) */
+  /** Additional NativeWind classes (margins, padding, etc.) */
   className?: string;
   /**
-   * Variante visual:
-   *   "default"  — bg-secondary + shadow-sm (por defecto)
-   *   "elevated" — bg-elevated + shadow-md (seleccionada / destacada)
+   * Inline style override — use for dynamic values that NativeWind can't handle
+   * (e.g. emotion background colors from EmotionColors[key].bg).
+   * Applied in addition to, not instead of, variant classes.
+   */
+  style?: import("react-native").ViewStyle;
+  /**
+   * Visual variant:
+   *   "default"  — secondary bg + subtle shadow (general use)
+   *   "elevated" — elevated bg + medium shadow (selected / featured)
    */
   variant?: CardVariant;
   /**
-   * Si se proporciona, la card se vuelve tocable (Pressable).
-   * Sin este prop, la card es un View estático (no interactivo).
+   * If provided, the card becomes tappable (Pressable).
+   * Without this prop, the card is a static View (non-interactive).
    */
   onPress?: () => void;
-  /** accessibilityRole para screen readers (e.g. "button") */
+  /** accessibilityRole for screen readers (e.g. "button") */
   accessibilityRole?: AccessibilityRole;
-  /** Estado de accesibilidad (e.g. { selected: true }) */
+  /** Accessibility state (e.g. { selected: true }) */
   accessibilityState?: { selected?: boolean; disabled?: boolean };
-  /** Label de accesibilidad */
+  /** Accessibility label */
   accessibilityLabel?: string;
 }
 
@@ -82,23 +88,24 @@ function getVariantClasses(variant: CardVariant): string {
 export function Card({
   children,
   className = "",
+  style,
   variant = "default",
   onPress,
   accessibilityRole,
   accessibilityState,
   accessibilityLabel,
 }: CardProps) {
-  // Clases compartidas entre View y Pressable
+  // Shared classes between View and Pressable
   const baseClasses = `rounded-3xl p-5 ${getVariantClasses(variant)} ${className}`;
 
-  // ── Modo táctil (con onPress) ──────────────────────────────────────────
+  // ── Tappable mode (with onPress) ──────────────────────────────────────
   if (onPress) {
     return (
       <Pressable
         onPress={onPress}
         className={baseClasses}
-        // Opacidad sutil al presionar — no intrusivo, mantiene tono calmado
-        style={({ pressed }) => ({ opacity: pressed ? 0.85 : 1 })}
+        // Subtle opacity on press — non-intrusive, keeps calm tone
+        style={({ pressed }) => [{ opacity: pressed ? 0.85 : 1 }, style]}
         accessibilityRole={accessibilityRole}
         accessibilityState={accessibilityState}
         accessibilityLabel={accessibilityLabel}
@@ -108,10 +115,11 @@ export function Card({
     );
   }
 
-  // ── Modo estático (sin onPress) ────────────────────────────────────────
+  // ── Static mode (no onPress) ───────────────────────────────────────────
   return (
     <View
       className={baseClasses}
+      style={style}
       accessibilityRole={accessibilityRole}
       accessibilityState={accessibilityState}
       accessibilityLabel={accessibilityLabel}
