@@ -4,7 +4,7 @@
 > **How to read this file:**
 > ✅ Complete | 🔄 In progress | ⏳ Pending | ❌ Blocked
 
-**Last updated:** 2026-03-10 (Sprint 2.C COMPLETE — T-F1✅ T-F2✅ T-F3✅ T-F4✅ T-F5✅ · Week 2 decisions locked: 8 canonical emotions · Atkinson Bold · S07 mandatory · auth at end · `irritable` · guest rescue+scripts · dictionary deferred)
+**Last updated:** 2026-03-10 (Sprint 2.C COMPLETE T-F1–T-F5 ✅ · Sprint 2.A started: T-V1 ✅ · sensory profile expanded to 6 types · guest entry = auth screen only · history filter = emotion only)
 **Current week:** 2  
 **Next delivery:** Sprint 2.C (Onboarding Flow Redesign) → Sprint 2.A (Visual Foundation) → Sprint 2.B (Screens)
 
@@ -216,7 +216,7 @@ Something fails → both attack the bug → w4rw1ck confirms fix
 
 | Ticket | Description | Owner | Status |
 |---|---|---|---|
-| T-V1 | **Emotional color system in `constants/colors.ts`** — 8 canonical emotions with `{ bg, dot, text }`. Keys: `calm`, `anxious`, `overwhelmed`, `sad`, `joyful`, `irritable`, `tired`, `unnamed`. Create `constants/colors.ts` with `EmotionColors` and `EmotionKey`. GPT label → EmotionKey mapping. Ref: FRONTEND_GUIDELINES.md §1.4. Locked 2026-03-10. | **Ana** | ⏳ |
+| T-V1 | **Emotional color system in `constants/colors.ts`** — 8 canonical emotions with `{ bg, dot, text }`. Keys: `calm`, `anxious`, `overwhelmed`, `sad`, `joyful`, `irritable`, `tired`, `unnamed`. Create `constants/colors.ts` with `EmotionColors` and `EmotionKey`. GPT label → EmotionKey mapping. Ref: FRONTEND_GUIDELINES.md §1.4. Locked 2026-03-10. | **Ana** | ✅ `feat(colors): T-V1` — EmotionColors + EmotionKey + VALID_EMOTION_KEYS + toEmotionKey() helper |
 | T-V2 | **Double-layer shadows in `tailwind.config.js`** — Add `shadow-card`, `shadow-card-elevated`, `shadow-card-pressed`, `shadow-card-dark`. Update `Card.tsx` to use `shadow-card` by default. Ref: FRONTEND_GUIDELINES.md §4 | **Aibus** | ⏳ |
 | T-V3 | **Emotion cards in `reflect.tsx`** — Selected card adopts `EmotionColors[key].bg` as background, `dot` as 1.5px border and 8px accent circle. Press animation scale 0.97→1.0 (100ms). Requires T-V1. Ref: FRONTEND_GUIDELINES.md §12.2 | **Ana** | ⏳ |
 | T-V4 | **`result.tsx` with emotional color background** — The check-in result screen (S13) adopts `EmotionColors[key].bg` as full-screen background. 300ms fade transition from the previous card color. This is the most emotionally significant screen. Requires T-V1. Ref: FRONTEND_GUIDELINES.md §12.2 | **Ana** | ⏳ |
@@ -493,6 +493,9 @@ Something fails → both attack the bug → w4rw1ck confirms fix
 | 2026-03-10 | **Guest mode: rescue + scripts only (Week 2)** | Guest = anonymous local user. Can use rescue (local, not saved) + browse scripts (read-only). Cannot check-in, access history, or use dictionary. No data migration on account creation. Vision: expand to full guest mode in future weeks |
 | 2026-03-10 | **Dictionary content strategy** | Week 2 scope: definition + how it's expressed only. "How to deal with it" deferred to future sprint. When it ships: AI-generated with disclaimer *"For self-reflection, not clinical advice"* (needs clinical review before public launch) |
 | 2026-03-10 | **Friday delivery scope** | Hard target: Sprint 2.C (T-F1–T-F5) + Sprint 2.A (core) + S19 History + S21 Settings. Dictionary (S20) = stretch goal |
+| 2026-03-10 | **Guest mode entry point** | Auth screen ONLY — S01 has exactly 2 CTAs ("Start my journey" + "I need help now"). No third "Continue as guest" button on S01. When rescue protocol ends → redirects to S01 (not home) |
+| 2026-03-10 | **Sensory profile — 6 canonical types** | sound, light, smell, touch, visual patterns, taste. Multiselect, none required (pick as many as apply). Stored as JSONB {key: boolean}. Expands from original 4 — Aibus observation, w4rw1ck confirmed |
+| 2026-03-10 | **History filters — emotion only** | S19 History: emotion filter chip row for Friday. Date range deferred to Week 3 |
 | 2026-03-06 | Atkinson Hyperlegible replaces Inter as project font | Designed with empirical accessibility research. Distinct character shapes reduce confusion in users with atypical visual processing. Regular (400) and Bold (700) only — no SemiBold |
 | 2026-03-06 | Primary button gradient: mono-blue (#A8C5DA → #8BAEC4), NOT lavender | The blue→lavender gradient from the skill would introduce a hue not present in the palette. Mono-blue gives tactile depth without introducing new colors |
 | 2026-03-06 | SVG dot pattern background rejected | `backgroundImage` is not native in React Native without `react-native-svg` as an additional layer. ROI does not justify the dependency. Card shadows + emotional colors provide sufficient depth |
