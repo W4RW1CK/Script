@@ -62,7 +62,10 @@ export default function AppTabLayout() {
         }}
       />
 
-      {/* Tab 2 — Check-in corporal (S10–S13) */}
+      {/* Tab 2 — Check-in corporal (S10–S13)
+          unmountOnBlur: true — ensures the entire check-in stack is dismounted
+          when the user navigates away from this tab. On return, the stack
+          mounts fresh (index → body) with no stale state from a previous flow. */}
       <Tabs.Screen
         name="checkin"
         options={{
@@ -71,6 +74,7 @@ export default function AppTabLayout() {
             <Ionicons name="body" size={24} color={color} />
           ),
           tabBarAccessibilityLabel: "Hacer un check-in corporal",
+          unmountOnBlur: true,
         }}
       />
 

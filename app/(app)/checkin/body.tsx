@@ -31,8 +31,7 @@ export default function CheckinBodyScreen() {
    * Formato: "head,chest,legs" (coma-separado, sin espacios)
    */
   const handleContinue = useCallback(() => {
-    // replace instead of push — prevents stale state when user re-opens check-in tab
-    router.replace({
+    router.push({
       pathname: "/(app)/checkin/notes",
       params: { zones: selectedZones.join(",") },
     });
