@@ -40,7 +40,11 @@ export default function CheckinResultScreen() {
   }>();
 
   const zones = zonesParam?.split(",").filter(Boolean) ?? [];
-  const [isSaving, setIsSaving] = useState(false);
+  const [isSaving,  setIsSaving]  = useState(false);
+  // B-70: guard against double-save when Android back button returns to this screen
+  // after a successful save. Once saved, any subsequent "Guardar" press skips INSERT
+  // and goes directly home.
+  const [hasSaved, setHasSaved] = useState(false);
 
   // B-DS: useRef guard prevents race-condition double-save.
   // useState(disabled) updates on next render cycle — if the user taps "Guardar"
@@ -149,6 +153,7 @@ export default function CheckinResultScreen() {
       }
 
       // Guardado exitoso → ir al inicio
+      setHasSaved(true); // B-70: lock against future presses on this screen instance
       goHome();
 
     } catch (e) {
