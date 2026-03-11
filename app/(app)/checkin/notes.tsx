@@ -30,7 +30,7 @@ export default function CheckinNotesScreen() {
   const router = useRouter();
 
   // Zonas recibidas desde S10 como string coma-separado
-  const { zones: zonesParam } = useLocalSearchParams<{ zones: string }>();
+  const { zones: zonesParam, sessionId } = useLocalSearchParams<{ zones: string; sessionId: string }>();
 
   // Reconstruir array de ZoneId desde el param
   const selectedZones = (
@@ -48,7 +48,7 @@ export default function CheckinNotesScreen() {
       params: {
         zones: zonesParam ?? "",
         notes: notes.trim(),
-      },
+        sessionId: sessionId ?? "",
     });
   };
 

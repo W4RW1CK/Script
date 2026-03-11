@@ -78,7 +78,11 @@ CREATE TABLE checkins (
   checkin_at        TIMESTAMPTZ DEFAULT NOW(),
   synced            BOOLEAN DEFAULT TRUE,
   created_offline_at TIMESTAMPTZ,
-  suggested_script_id UUID REFERENCES scripts(id)
+  suggested_script_id UUID REFERENCES scripts(id),
+  -- B-72: idempotency key — generated client-side at the START of the check-in flow.
+  -- Unique constraint prevents any duplicate INSERT regardless of JS-level race conditions.
+  -- If the same session_id is submitted twice, the DB rejects the second with a unique error.
+  session_id        UUID UNIQUE
 );
 
 CREATE INDEX idx_checkins_user_id ON checkins(user_id);

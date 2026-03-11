@@ -19,12 +19,19 @@ import { ScrollView, View } from "react-native";
 import { useRouter } from "expo-router";
 import { SafeScreen, Typography, Button, Chip } from "@/components/ui";
 import { BodyMap, ZoneId, ZONE_META, ZONE_ORDER } from "@/components/body-map/BodyMap";
+import * as Crypto from "expo-crypto";
 
 export default function CheckinBodyScreen() {
   const router = useRouter();
 
   // Zonas seleccionadas por el usuario — array vacío = ninguna
   const [selectedZones, setSelectedZones] = useState<ZoneId[]>([]);
+
+  // B-72: idempotency key — generated ONCE when this screen mounts (= start of flow).
+  // Passed as a param through every screen to result.tsx, which includes it in the INSERT.
+  // The DB has a UNIQUE constraint on session_id — any duplicate INSERT is rejected at
+  // the database level, regardless of what happens in JS (race conditions, double-tap, etc.)
+  const sessionId = useRef(Crypto.randomUUID()).current;
 
   /**
    * Navegar a S11 pasando las zonas seleccionadas como query param.
@@ -37,7 +44,7 @@ export default function CheckinBodyScreen() {
     // forward-only clinical flow. Prevents stale stack → duplicate saves.
     router.replace({
       pathname: "/(app)/checkin/notes",
-      params: { zones: selectedZones.join(",") },
+      params: { zones: selectedZones.join(","), sessionId },
     });
   }, [selectedZones, router]);
 

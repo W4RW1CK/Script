@@ -275,9 +275,10 @@ export default function CheckinReflectScreen() {
   const reduceMotion = useReduceMotion();
   const spinnerColor = isDark ? "#5A7E92" : "#A8C5DA";
 
-  const { zones: zonesParam, notes: notesParam } = useLocalSearchParams<{
+  const { zones: zonesParam, notes: notesParam, sessionId } = useLocalSearchParams<{
     zones: string;
     notes: string;
+    sessionId: string;
   }>();
 
   const [isLoading, setIsLoading] = useState(true);
@@ -315,6 +316,7 @@ export default function CheckinReflectScreen() {
       params: {
         zones: zonesParam ?? "",
         notes: notesParam ?? "",
+        sessionId: sessionId ?? "",
         emotion: confirmedEmotion,
       },
     });

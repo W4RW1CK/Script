@@ -33,10 +33,11 @@ export default function CheckinResultScreen() {
   // user_id from auth store (NOT Supabase auth — Privy manages sessions)
   const supabaseUserId = useAuthStore((s) => s.user?.supabaseUserId);
 
-  const { zones: zonesParam, notes, emotion } = useLocalSearchParams<{
+  const { zones: zonesParam, notes, emotion, sessionId } = useLocalSearchParams<{
     zones: string;
     notes: string;
     emotion: string;
+    sessionId: string;
   }>();
 
   const zones = zonesParam?.split(",").filter(Boolean) ?? [];
@@ -123,11 +124,14 @@ export default function CheckinResultScreen() {
 
     try {
       const { error } = await supabase.from("checkins").insert({
-        user_id: supabaseUserId,       // ⚠️ EXPLÍCITO — RLS no lo inyecta
-        body_zones: zones,
-        free_text: notes ?? "",
+        user_id:           supabaseUserId, // ⚠️ EXPLÍCITO — RLS no lo inyecta
+        body_zones:        zones,
+        free_text:         notes ?? "",
         emotion_confirmed: emotion ?? "",
         flagged_for_review: flagged,
+        // B-72: idempotency key — DB unique constraint rejects any duplicate INSERT
+        // with the same session_id, regardless of JS race conditions.
+        session_id: sessionId || undefined,
       });
 
       if (error) {
