@@ -12,7 +12,7 @@
  *  - accessibilityState={{ selected }} comunica el estado a lectores de pantalla
  *  - Opacidad 70% al presionar como feedback visual
  */
-import { Pressable, Text } from "react-native";
+import { Pressable, StyleSheet, Text } from "react-native";
 
 interface ChipProps {
   label: string;
@@ -22,6 +22,18 @@ interface ChipProps {
   /** Label para lectores de pantalla (default: usa label) */
   accessibilityLabel?: string;
 }
+
+/**
+ * T-U3: NativeWind font-semibold only sets fontWeight — Atkinson has no SemiBold.
+ * Use Bold (700) via StyleSheet so fontFamily is actually set.
+ */
+const chipTextStyle = StyleSheet.create({
+  label: {
+    fontFamily: "AtkinsonHyperlegible_700Bold",
+    fontSize: 14,
+    lineHeight: 18,
+  },
+});
 
 export function Chip({
   label,
@@ -44,12 +56,14 @@ export function Chip({
       }`}
       style={({ pressed }) => ({ opacity: pressed ? 0.7 : 1 })}
     >
+      {/* T-U3: fontFamily via StyleSheet; color via NativeWind className */}
       <Text
-        className={`text-sm font-semibold ${
+        style={chipTextStyle.label}
+        className={
           selected
             ? "text-script-blue dark:text-script-dark-blue"
             : "text-script-text-secondary"
-        }`}
+        }
       >
         {label}
       </Text>
