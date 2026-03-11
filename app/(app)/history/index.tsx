@@ -22,7 +22,6 @@ import {
   View,
   FlatList,
   Pressable,
-  ScrollView,
   RefreshControl,
   ActivityIndicator,
   useColorScheme,
@@ -122,10 +121,9 @@ function EmotionFilterChips({
   };
 
   return (
-    <ScrollView
-      horizontal
-      showsHorizontalScrollIndicator={false}
-      contentContainerStyle={{ gap: 8, paddingHorizontal: 4 }}
+    // Wrapping View so all chips are visible without horizontal scroll
+    <View
+      style={{ flexDirection: "row", flexWrap: "wrap", gap: 8 }}
       accessibilityRole="menu"
       accessibilityLabel="Filtrar por emoción"
     >
@@ -195,7 +193,7 @@ function EmotionFilterChips({
           </Pressable>
         );
       })}
-    </ScrollView>
+    </View>
   );
 }
 

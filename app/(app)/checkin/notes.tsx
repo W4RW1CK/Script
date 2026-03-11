@@ -42,7 +42,8 @@ export default function CheckinNotesScreen() {
 
   /** Navegar a S12 pasando zonas + notas */
   const handleContinue = () => {
-    router.push({
+    // replace instead of push — prevents stale state when user re-opens check-in tab
+    router.replace({
       pathname: "/(app)/checkin/reflect",
       params: {
         zones: zonesParam ?? "",

@@ -298,7 +298,8 @@ export default function CheckinReflectScreen() {
 
   const handleContinue = () => {
     if (!confirmedEmotion) return;
-    router.push({
+    // replace instead of push — prevents stale state when user re-opens check-in tab
+    router.replace({
       pathname: "/(app)/checkin/result",
       params: {
         zones: zonesParam ?? "",

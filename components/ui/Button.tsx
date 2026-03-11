@@ -67,7 +67,8 @@ const variantStyles: Partial<Record<ButtonVariant, { container: string; text: st
   },
   ghost: {
     container: "bg-transparent",
-    text: "text-script-text-secondary",
+    // dark: variant required — without it ghost text becomes unreadable on dark bg
+    text: "text-script-text-secondary dark:text-script-dark-text-secondary",
   },
 };
 
@@ -84,16 +85,13 @@ export function Button({
   const styles = variantStyles[variant];
 
   // Shared inner text — same for all variants.
-  // T-U3: fontFamily set via StyleSheet (NativeWind font-bold sets weight only, not family).
+  // T-U3: fontFamily via StyleSheet (NativeWind font-bold sets weight only, not family).
+  // Primary: white color in style (no className needed).
+  // Non-primary: color via NativeWind className only — no color in style to avoid overriding dark: tokens.
   const label = (
     <Text
-      style={[
-        labelStyles.base,
-        // Color via NativeWind className would require a Text wrapper with className support.
-        // Use inline style instead to keep it explicit and dark-mode safe.
-        { color: isPrimary ? "#FFFFFF" : undefined },
-      ]}
-      className={isPrimary ? "" : styles?.text ?? ""}
+      style={isPrimary ? [labelStyles.base, { color: "#FFFFFF" }] : labelStyles.base}
+      className={isPrimary ? "" : (styles?.text ?? "")}
     >
       {title}
     </Text>
