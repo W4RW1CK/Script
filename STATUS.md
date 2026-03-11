@@ -4,9 +4,9 @@
 > **How to read this file:**
 > ✅ Complete | 🔄 In progress | ⏳ Pending | ❌ Blocked
 
-**Last updated:** 2026-03-11 (Ana: T-V5 live data ✅ · T-U7 ✅ · 2.4 ✅ · 2.8 ✅ · 2.10 ✅ · 2.12 ✅ · B-DM dark mode ✅ · B-DS race condition ✅ · Button/Chip fonts ✅ · unmountOnBlur checkin ✅ · history useFocusEffect ✅)
+**Last updated:** 2026-03-11 (Ana: T-V5 ✅ · T-U7 ✅ · 2.4 ✅ · 2.8 ✅ · 2.10 ✅ · 2.12 ✅ · B-DM ✅ · B-DS ✅ · fonts ✅ | Aibus: B-64/B-65/B-66/B-69/B-71/B-72 ✅ · SETUP.md ✅ · **ACTION: redeploy sync-privy-user + interpret-checkin --no-verify-jwt · run migration add_checkin_session_id.sql**)
 **Current week:** 2  
-**Next delivery:** Sprint 2.C (Onboarding Flow Redesign) → Sprint 2.A (Visual Foundation) → Sprint 2.B (Screens)
+**Next delivery:** S21 Settings (theme/motion/font) + D-01 Home data wire-up (Ana) · New computer setup
 
 ---
 
@@ -182,29 +182,31 @@ Something fails → both attack the bug → w4rw1ck confirms fix
 
 | Step | Description | Status | Notes |
 |---|---|---|---|
-| 2.1 | Settings → "Complete my profile" (S04, S05, S06 from Settings) | ⏳ | S04-S06 already exist; add entry point |
+| 2.1 | Settings → "Complete my profile" (S04, S05, S06 from Settings) | ✅ | T-F5 — RAADS-R + AQ-Full + CAT-Q accessible from Settings with completion status (✅/⏳) per test. `settings/index.tsx` rebuilt with test status cards (Aibus, confirmed 2026-03-11) |
 | 2.2 | app/(app)/history/index.tsx **(S19)** | ✅ | Full history list + emotion filter chips + pull-to-refresh + empty state — fetches from Supabase |
-| 2.3 | app/(app)/dictionary.tsx **(S20)** | ⏳ | |
+| 2.3 | app/(app)/dictionary.tsx **(S20)** | ⏳ | Stretch goal — AI-generated definitions + "for self-reflection, not clinical advice" disclaimer (Ana) |
 | 2.4 | app/(app)/settings/index.tsx **(S21)** — theme + palette | ✅ | Appearance section: System/Light/Dark theme selector. Persists in AsyncStorage (key: `script:theme`), applied via `Appearance.setColorScheme()` on mount. commit `ffd0ebc` (Ana) |
-| 2.5 | "Unlocked insights" (3, 7, 15 check-ins) | ⏳ | |
-| 2.6 | **Script progress persistence** (S16) | ⏳ | If user exits mid-script and returns, currently restarts from block 1. Options: (a) Zustand in memory (persists while app is not closed); (b) `script_sessions` table in Supabase for persistence across closes. MVP uses (a) — decide in Week 2 sprint |
-| 2.7 | **Persist test scores in Supabase immediately** | ⏳ | `profile-seed.ts` is runtime-only — if user closes the app post-onboarding, AQ/CAT-Q/RAADS-R results are lost. Fix: INSERT into `profiles` when each individual test is completed, not at the end of onboarding. Impact: loss of 30 min of user work (Aibus) |
+| 2.5 | "Unlocked insights" (3, 7, 15 check-ins) | ⏳ | Week 3 — deferred |
+| 2.6 | **Script progress persistence** (S16) | ⏳ | MVP: Zustand in memory (persists while app is not closed). Full persistence (script_sessions table) deferred to Week 3 |
+| 2.7 | **Persist test scores in Supabase immediately** | ✅ | Already implemented — `aq10.tsx`, `aq-full.tsx`, `catq.tsx`, `raads.tsx` all upsert to `profiles` immediately on completion. `profile-seed.ts` is additive, not the save path. (Aibus, confirmed 2026-03-11) |
 | 2.8 | **INSERT `crisis_events` in `protocol.tsx`** | ✅ | Inserts on exit: `protocol_completed=true` when user completes protocol (handleComplete), `false` on early exit (handleExit). Tracks `started_at` via useRef, `duration_seconds`, `intensity_level`. Non-blocking — crisis flow never delayed. commit `9344fe2` (Ana) |
 | 2.9 | **Reduce GPT temperature 0.7 → 0.4 in `interpret-checkin`** | ✅ | B-55 fixed in code `0a0de01` · deployed `2026-03-09` |
 | 2.10 | **INSERT `script_executions` in `execute.tsx`** | ✅ | Inserts when last block is completed in `handleNext`. Fields: `user_id`, `script_id`, `mode='execution'`, `completed=true`. Fire and forget, guest mode silently skipped. commit `9344fe2` (Ana) |
 | 2.11 | **Fix AQ-10 PMID in `REFERENCES.md`** | ✅ | PMID `22366774` → `22397989` (Allison et al., 2012, Arch Dis Child). Commit `1116147`. (Ana) |
-| 2.12 | **UI feedback when profile save fails in `profile.tsx`** | ✅ | Warm Alert with "Reintentar" + "Continuar" options. Navigation deferred until user confirms. Catches both supabaseUserId=null and DB errors explicitly. commit `ffd0ebc` (Ana) |
+| 2.12 | **UI feedback when profile save fails in `profile.tsx`** | ✅ | Alert.alert shown for null userId + DB errors. "Reintentar"/"Continuar" options. Warm copy per ASD UX guidelines. commit `ffd0ebc` (Ana) + `39ade85` (Aibus) |
 
 ### 🐛 Week 2 Bug Fixes (2026-03-11)
 
 | ID | Description | Status | Commits |
 |---|---|---|---|
-| B-DM | EmotionColors dark mode — light-only pastels jarring on dark app. Added `EmotionColorsDark` (8 keys) + `getEmotionColors(key, scheme)` helper. result.tsx + reflect.tsx now use dark-aware palettes | ✅ | `9e2e45e` (Ana) |
+| B-DM | EmotionColors dark mode — light-only pastels jarring on dark app. Added `EmotionColorsDark` (8 keys) + `getEmotionColors(key, scheme)` helper. result.tsx + reflect.tsx now use dark-aware palettes | ✅ | `9e2e45e` (Ana) · `baf841d` (Aibus) |
 | B-DM2 | history/index.tsx — initial fix wrongly changed `checkin_at` → `created_at`. Schema has `checkin_at` (custom column). Reverted. | ✅ | `ea5a33a` (Ana) |
 | B-Focus | History + Home tabs used `useEffect` — fires only on mount. With tab screens staying mounted, new check-ins never appeared. Fixed with `useFocusEffect` on both. | ✅ | `754886f`, `e36844e` (Ana) |
-| B-UnmountBlur | Check-in tab kept stale form state (body zones, notes) between sessions. `unmountOnBlur: true` on checkin tab — full stack unmounts when user leaves tab. | ✅ | `0bc9b46` (Ana) |
-| B-Font | Button.tsx + Chip.tsx used NativeWind `font-bold`/`font-semibold` — only sets `fontWeight`, not `fontFamily`. Replaced with `StyleSheet` using `fontFamily: 'AtkinsonHyperlegible_700Bold'`. | ✅ | `754886f`, `4985024` (Ana) |
-| B-DS | result.tsx double-save race condition — `useState(isSaving)` updates async; rapid double-tap fires two INSERTs before button re-renders as disabled. Added `useRef` synchronous guard. | ✅ | `96e12c9` (Ana) |
+| B-UnmountBlur | Check-in tab kept stale form state (body zones, notes) between sessions. `unmountOnBlur: true` on checkin tab — full stack unmounts when user leaves tab. | ✅ | `0bc9b46` (Ana) · `290c561` (Aibus) |
+| B-Font | Button.tsx + Chip.tsx used NativeWind `font-bold`/`font-semibold` — only sets `fontWeight`, not `fontFamily`. Replaced with `StyleSheet` using `fontFamily: 'AtkinsonHyperlegible_700Bold'`. | ✅ | `754886f`, `4985024` (Ana) · `02408a0` (Aibus) |
+| B-DS / B-72 | result.tsx double-save race condition — `useState(isSaving)` updates async; rapid double-tap fires two INSERTs before button re-renders as disabled. Added `useRef` synchronous guard (`isSavingRef`). DB-level `session_id UUID UNIQUE` added as final defense. | ✅ | `96e12c9` (Ana) · `bc32f0a`, `c393fe9` (Aibus) · ⏳ migration pending |
+| B-66 | sync-privy-user used real email for generateLink — if that email existed under different UUID in auth.users, auth.uid() was wrong → RLS blocked history + inserts silently. Fix: always `${userId}@privy.script.app` as authEmail. | ✅ | `02408a0` (Aibus) · ⏳ redeploy needed |
+| B-Ghost | Ghost Button dark mode text — `text-script-text-secondary` (#6B6B6B) illegible on dark bg. Added `dark:text-script-dark-text-secondary`. | ✅ | `b32d965` (Ana) · `7156296` (Aibus) |
 
 ---
 
@@ -370,6 +372,15 @@ Something fails → both attack the bug → w4rw1ck confirms fix
 | B-60 | `lib/supabase.ts` `setSupabaseToken()` called `verifyOtp` with `type: "email"` — but the token was generated by `auth.admin.generateLink({ type: 'magiclink' })`. Type must match the generator. Result: silent session failure, Supabase session never established, `auth.uid()` always null, RLS broken for all users. No visible error shown. Fix: `type: "magiclink"`. Also translated all Spanish comments to English. Commit: `d1fe697` | 🔴 Critical | auth | ✅ `d1fe697` |
 | B-62 | **onboarding→home flash on restart** — `onboardingComplete` lived only in Zustand (in-memory, resets on restart). AuthGate briefly saw `false` before Supabase sync returned `true` → flash of onboarding screen. Fix: persist `onboardingComplete` in SecureStore (key `script_onboarding_complete`); `loadPersistedState()` called before `navReady` is set — `navReady` now waits for BOTH `privyReady` AND `storeLoaded`. Commits: `706bd15` + `3ef64bb` | 🟡 Medium | UX | ✅ `3ef64bb` |
 | B-63 | **Edge Functions returning 401** — `EXPO_PUBLIC_SUPABASE_ANON_KEY` uses new Supabase Publishable key format (`sb_...`) which is NOT a JWT. By default, Supabase Edge Functions verify JWT on each request. The new key fails verification → non-2xx response. Fix: deploy all Edge Functions with `--no-verify-jwt`. Affects: `sync-privy-user`, `interpret-checkin`. | 🔴 Critical | infra | ✅ deployed 2026-03-09 |
+| B-64 | **Dark mode emotion colors** — `EmotionColors` in `constants/colors.ts` had light-mode hex values only. In dark mode, `result.tsx` and `reflect.tsx` showed jarring bright backgrounds (e.g. `#E8E8E8` for `unnamed` on `#1C1C22` bg). Fix: added `EmotionColorsDark` parallel palette (same hue, dark-surface compatible) + `getEmotionColors(key, isDark)` helper. Consumers updated: `result.tsx`, `reflect.tsx`, `history/index.tsx`. `EmotionColors` alone is now DEPRECATED for screen use. Commit `140fcf4` (Aibus, 2026-03-11) | 🔴 High | colors | ✅ Resolved |
+| B-65 | **Button text rendering system font instead of Atkinson** — NativeWind's `font-bold` class sets `fontWeight: 700` but does NOT set `fontFamily`. `Button.tsx` was displaying system font even after T-U3 Atkinson migration. Fix: added explicit `style={{ fontFamily: "AtkinsonHyperlegible_700Bold" }}` to the Text inside Button. All NativeWind font-weight classes have the same limitation — always use style prop for custom font families in React Native. Commit `0da0f49` (Aibus, 2026-03-11) | 🟡 Medium | fonts | ✅ Resolved |
+| B-66 | **RLS UUID mismatch — history empty, inserts blocked** — `sync-privy-user` used the user's real email for `auth.admin.generateLink`. If that email already existed in `auth.users` under a different UUID (from previous test sessions), `verifyOtp` established a session where `auth.uid()` ≠ `public.users.id`. Result: RLS blocked both SELECT (history showed empty) and INSERT. Fix: always use `${userId}@privy.script.app` as `authEmail` — never the real email. Fake email is guaranteed unique per user UUID. Requires redeploy with `--no-verify-jwt`. Commit `0da0f49` (Aibus, 2026-03-11) | 🔴 Critical | auth/RLS | ✅ Code fixed · ⏳ Redeploy needed |
+| B-67 | **interpret-checkin returning non-2xx** — Edge Function deployed without `--no-verify-jwt` after T-V7 changes. Publishable key `sb_...` is not a JWT → default JWT verification fails → 401. `reflect.tsx` falls back to mock silently. Requires redeploy. | 🟡 Medium | infra | ⏳ Redeploy needed |
+| B-68 | **History showing "column checkins.created_at does not exist"** — Diagnosed as stale Expo Go bundle. Column is confirmed `checkin_at` in Supabase. Old bundle (from before Ana's S19 implementation) still referencing `created_at`. Fix: full Expo Go restart + QR rescan with `--clear` flag. | 🟢 Low | bundling | ✅ Diagnosed (clears on fresh restart) |
+| B-69 | **Ghost button text unreadable in dark mode** — `ghost` variant in `Button.tsx` used `text-script-text-secondary` (`#6B6B6B`) without a dark override. On `#1C1C22` background: contrast ratio ~3:1, fails WCAG AA. Visible as near-black "Continuar sin describir" text. Fix: `dark:text-script-dark-text-secondary` (`#9A9AA5`) added to ghost variant. Contrast ratio dark mode: ~6:1 ✅. Commit `0791914` (Aibus, 2026-03-11) | 🔴 High | accessibility | ✅ Resolved |
+| B-70 | **Duplicate check-in save (initial attempt)** — `hasSaved` useState guard didn't prevent double-save because React state is async (batched). Between press and `disabled={true}` re-render, a second press could get through. Superseded by B-71/B-72. Commit `0791914` (Aibus, 2026-03-11) | — | — | ✅ Superseded by B-71/B-72 |
+| B-71 | **Check-in stack duplicate saves — navigation root cause** — After saving in `result.tsx`, `router.replace("/(app)/home")` switched to home tab but left the check-in stack intact (`body → notes → reflect`). When user tapped Check-in tab, Expo Router restored the tab to its last position (`reflect.tsx`) with old URL params → re-ran Edge Function → pushed to `result.tsx` again → second "Guardar" → duplicate INSERT. v1: push→replace in steps (didn't help). v2: StackActions.replace("body") silently failed (internal route name mismatch). v3 (FINAL): `unmountOnBlur: true` on the check-in tab in `_layout.tsx` — unmounts entire stack when leaving, fresh `body.tsx` on every return. All steps also changed from `router.push` to `router.replace`. Commit `3c0c570` (Aibus, 2026-03-11) | 🔴 High | navigation | ✅ Resolved |
+| B-72 | **Duplicate check-in save — race condition root cause** — Even with navigation fixed, two concurrent presses (double-tap, pressing both buttons before `disabled={true}` re-renders) could start two async INSERT operations because `useState` guards are asynchronous. Fix A: `useRef saveLock` — synchronous lock acquired before any async work; second call sees `true` immediately, before any render cycle. Fix B (FINAL, bulletproof): `session_id UUID` column added to `checkins` table with `UNIQUE` constraint + `expo-crypto` UUID generated in `body.tsx` and passed through all screens to `result.tsx` INSERT. Any duplicate INSERT is rejected at database level regardless of JS behavior. Requires running migration `supabase/migrations/add_checkin_session_id.sql` in Supabase SQL Editor. Commits: `b29be83` (saveLock) + `d6b74aa` (session_id) (Aibus, 2026-03-11) | 🔴 Critical | data integrity | ✅ Code fixed · ⏳ Migration needed |
 | B-59 | `contacts.tsx` "Done" and "Skip" buttons appeared to do nothing. Root cause: `useRouter` was removed (comment M-03) — navigation relied entirely on AuthGate. AuthGate's nav effect has `if (!navReady) return` guard. In dev bypass mode, `privyReady` never becomes `true` → `navReady` stays `false` forever → effect permanently disabled → buttons freeze. Fix: re-add `useRouter`; call `router.replace("/(app)/home")` explicitly after `setOnboardingComplete(true)`. | 🔴 High | navigation | ✅ `HEAD` |
 
 **B-01 — Fix:** Columns `hour_of_day` and `day_of_week` removed from `checkins`. `EXTRACT()` usable in queries. Commit: `864e435`.
@@ -518,6 +529,32 @@ Something fails → both attack the bug → w4rw1ck confirms fix
 ---
 
 ## 📝 Sprint Notes
+
+### Week 2
+
+**2026-03-11 — Bug sprint (Aibus) — B-64 through B-72 + Week 2 ticket review**
+
+Computer change mid-sprint. w4rw1ck reported 4 issues from device testing; investigation revealed more. Full session summary:
+
+- **B-64** `EmotionColorsDark` — dark mode emotion backgrounds were jarring (light hex on dark surface). Added dark palette + `getEmotionColors(key, isDark)` helper. Updated `result.tsx`, `reflect.tsx`. Commit `140fcf4`
+- **B-65** Button font — NativeWind `font-bold` = `fontWeight:700` only, not `fontFamily`. Added explicit `style={{ fontFamily: "AtkinsonHyperlegible_700Bold" }}` to `Button.tsx`. Commit `0da0f49`
+- **B-66** RLS UUID mismatch — `sync-privy-user` used real email for `generateLink`; if email existed under different UUID in `auth.users`, `auth.uid()` was wrong → history empty, inserts blocked. Fix: always use `${userId}@privy.script.app`. Commit `0da0f49`
+- **B-67/B-68** Edge Function + stale bundle — interpreted in terminal logs; `interpret-checkin` needs redeploy with `--no-verify-jwt`; `created_at` error = old cached bundle
+- **B-69** Ghost button dark mode — `text-script-text-secondary` (`#6B6B6B`) has no dark override → near-invisible text. Added `dark:text-script-dark-text-secondary`. Commit `0791914`
+- **B-71** Duplicate saves (navigation) — `router.replace` to home left check-in stack intact; returning to Check-in tab restored `reflect.tsx` with old params. Investigated 3 approaches; final fix: `unmountOnBlur: true` on check-in tab + all steps use `router.replace`. Commits `0791914` → `39c8f40` → `c3ecb3a` → `3c0c570`
+- **B-72** Duplicate saves (race condition) — `useState` guards async; second press before re-render bypasses `isSaving`/`hasSaved`. Fix A: `useRef saveLock` (synchronous). Fix B (bulletproof): `session_id UUID` passed from `body.tsx` through all screens → `UNIQUE` constraint on DB rejects duplicate. Commits `b29be83` → `5731cfc` → `d6b74aa`
+- **2.12** Profile save alert — null `supabaseUserId` and exceptions now show `Alert.alert` instead of silent `console.warn`. Commit `65f877e`
+- **2.1 + 2.7** Confirmed already done — Settings RAADS-R entry ✅ + test score persistence ✅ (existing code)
+- **SETUP.md** created — complete new computer setup guide at repo root. Commit `d6b74aa`
+
+**Pending actions for w4rw1ck (new computer):**
+1. Follow `SETUP.md` at repo root
+2. Run in Supabase SQL Editor: `supabase/migrations/add_checkin_session_id.sql`
+3. Deploy: `supabase functions deploy sync-privy-user --project-ref dijyzkxnnyvonpknkbpp --no-verify-jwt`
+4. Deploy: `supabase functions deploy interpret-checkin --project-ref dijyzkxnnyvonpknkbpp --no-verify-jwt`
+5. Log out → log in fresh (new token from redeployed sync-privy-user)
+
+---
 
 ### Week 1
 
