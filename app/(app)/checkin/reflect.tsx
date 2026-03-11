@@ -309,7 +309,8 @@ export default function CheckinReflectScreen() {
 
   const handleContinue = () => {
     if (!confirmedEmotion) return;
-    router.push({
+    // B-71: replace keeps the stack at 1 screen deep — no stale stack on back
+    router.replace({
       pathname: "/(app)/checkin/result",
       params: {
         zones: zonesParam ?? "",

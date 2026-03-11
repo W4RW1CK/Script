@@ -42,7 +42,8 @@ export default function CheckinNotesScreen() {
 
   /** Navegar a S12 pasando zonas + notas */
   const handleContinue = () => {
-    router.push({
+    // B-71: replace keeps the stack at 1 screen deep at all times
+    router.replace({
       pathname: "/(app)/checkin/reflect",
       params: {
         zones: zonesParam ?? "",

@@ -31,7 +31,11 @@ export default function CheckinBodyScreen() {
    * Formato: "head,chest,legs" (coma-separado, sin espacios)
    */
   const handleContinue = useCallback(() => {
-    router.push({
+    // B-71: replace (not push) so the check-in stack never accumulates.
+    // If the user presses Android back from any step, they leave the flow
+    // entirely instead of going to a previous step — intentional for a
+    // forward-only clinical flow. Prevents stale stack → duplicate saves.
+    router.replace({
       pathname: "/(app)/checkin/notes",
       params: { zones: selectedZones.join(",") },
     });

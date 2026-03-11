@@ -78,7 +78,13 @@ export default function CheckinResultScreen() {
    * Navegar al home después de guardar (o decidir no guardar).
    * Siempre usa replace para que el usuario no pueda volver al resultado.
    */
-  const goHome = () => router.replace("/(app)/home");
+  const goHome = () => {
+    // B-71: dismissAll clears any leftover check-in screens from the stack
+    // before navigating to home, so tapping Check-in tab next time always
+    // lands on a fresh body.tsx instead of a stale reflect/result screen.
+    try { router.dismissAll(); } catch { /* already at root — safe to ignore */ }
+    router.replace("/(app)/home");
+  };
 
   /**
    * Guarda el check-in en Supabase.
