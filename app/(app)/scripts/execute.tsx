@@ -32,6 +32,7 @@ import {
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { SafeScreen, Typography, Card, Button } from "@/components/ui";
 import { supabase } from "@/lib/supabase";
+import { useAuthStore } from "@/stores/auth";
 
 // ── Tipos ──────────────────────────────────────────────────────────────────
 type BlockType = "apertura" | "contexto" | "accion" | "salida";
@@ -68,7 +69,8 @@ const BLOCK_HINT: Record<BlockType, string> = {
 
 // ── Componente ─────────────────────────────────────────────────────────────
 export default function ScriptExecuteScreen() {
-  const router = useRouter();
+  const router         = useRouter();
+  const supabaseUserId = useAuthStore((s) => s.user?.supabaseUserId);
 
   // `id` pasado como query param desde S15
   const { id } = useLocalSearchParams<{ id: string }>();
@@ -121,10 +123,25 @@ export default function ScriptExecuteScreen() {
     if (currentBlockIndex < script.blocks.length - 1) {
       setCurrentBlockIndex((prev) => prev + 1);
     } else {
+      // 2.10: INSERT script_executions on completion — fire and forget, non-blocking
+      if (supabaseUserId && script?.id) {
+        supabase
+          .from("script_executions")
+          .insert({
+            user_id:    supabaseUserId,
+            script_id:  script.id,
+            mode:       "execution",
+            completed:  true,
+            // executed_at: DEFAULT NOW() in schema
+          })
+          .then(({ error }) => {
+            if (error) console.warn("[ScriptExecute] script_executions INSERT error:", error.message);
+          });
+      }
       // Último bloque completado → pantalla de celebración
       setIsComplete(true);
     }
-  }, [script, currentBlockIndex]);
+  }, [script, currentBlockIndex, supabaseUserId]);
 
   // ── Estado de carga ──────────────────────────────────────────────────────
   if (isLoading) {

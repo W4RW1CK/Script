@@ -56,6 +56,7 @@ function useReduceMotion(): boolean {
 }
 import * as Haptics from "expo-haptics";
 import { SafeScreen, Typography } from "@/components/ui";
+import { supabase } from "@/lib/supabase";
 import { useAuthStore } from "@/stores/auth";
 
 // ── Constantes de nivel ────────────────────────────────────────────────────
@@ -102,6 +103,44 @@ export default function RescueProtocolScreen() {
    */
   const onboardingComplete = useAuthStore((s) => s.onboardingComplete);
   const postProtocolDestination = onboardingComplete ? "/(app)/home" : "/(onboarding)";
+  const supabaseUserId = useAuthStore((s) => s.user?.supabaseUserId);
+
+  // 2.8: Track when this protocol screen mounted (for duration_seconds calc)
+  const startedAtRef = useRef(new Date().toISOString());
+
+  /**
+   * 2.8: Save crisis event to Supabase. NEVER blocks navigation — fire and forget.
+   * Skips silently if user is in guest mode (supabaseUserId null).
+   *
+   * @param completed - true if user finished the full protocol, false if exited early
+   */
+  const saveCrisisEvent = useCallback(async (completed: boolean) => {
+    if (!supabaseUserId) return;
+    const now            = new Date().toISOString();
+    const durationSec    = Math.round((Date.now() - new Date(startedAtRef.current).getTime()) / 1000);
+    try {
+      await supabase.from("crisis_events").insert({
+        user_id:            supabaseUserId,
+        intensity_level:    level,
+        protocol_completed: completed,
+        started_at:         startedAtRef.current,
+        resolved_at:        completed ? now : null,
+        duration_seconds:   durationSec,
+      });
+    } catch (e) {
+      // Crisis flow must NEVER be blocked — swallow the error silently
+      console.warn("[Protocol] crisis_events INSERT error:", e);
+    }
+  }, [supabaseUserId, level]);
+
+  /**
+   * Called when the user successfully completes the protocol and taps exit.
+   * Saves a completed crisis event then navigates home.
+   */
+  const handleComplete = useCallback(() => {
+    saveCrisisEvent(true); // fire and forget
+    router.replace(postProtocolDestination);
+  }, [saveCrisisEvent, router, postProtocolDestination]);
 
   /**
    * T-U1: Reducción de animaciones accesible.
@@ -242,8 +281,9 @@ export default function RescueProtocolScreen() {
   // ── Salir del protocolo ───────────────────────────────────────────────────
   const handleExit = useCallback(() => {
     if (timerRef.current) clearInterval(timerRef.current);
+    saveCrisisEvent(false); // fire and forget — protocol exited early
     router.back();
-  }, [router]);
+  }, [router, saveCrisisEvent]);
 
   // ── Pantallas de cierre ───────────────────────────────────────────────────
   if (groundingComplete || breathingComplete) {
@@ -251,7 +291,7 @@ export default function RescueProtocolScreen() {
       <SafeScreen crisis scrollable={false}>
         <View style={styles.container}>
           <Pressable
-            onPress={() => router.replace(postProtocolDestination)}
+            onPress={handleComplete}
             style={({ pressed }) => [styles.exitBtn, pressed && styles.exitBtnPressed]}
             accessibilityRole="button"
             accessibilityLabel="Volver al inicio"
@@ -268,7 +308,7 @@ export default function RescueProtocolScreen() {
             </Text>
             <View style={{ height: 40 }} />
             <Pressable
-              onPress={() => router.replace(postProtocolDestination)}
+              onPress={handleComplete}
               style={({ pressed }) => [styles.primaryBtn, { backgroundColor: primaryBtnBg }, pressed && styles.primaryBtnPressed]}
               accessibilityRole="button"
             >
