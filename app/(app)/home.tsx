@@ -1,39 +1,47 @@
 /**
  * home.tsx — S09: Home Screen
  *
- * T-V5 (2026-03-10): Full redesign inspired by Finch.
+ * T-V5 (2026-03-11): Live data wired to Supabase.
  *
  * Layout:
- *   1. Warm greeting + time of day  → "Buenos días, [name]"
- *   2. Last emotion card            → EmotionColors[key] + label + relative time
+ *   1. Warm greeting + time of day   → "Buenas noches"
+ *   2. Last emotion card             → EmotionColors[key] (dark-aware) + label + relative time
  *      Empty state: warm illustration + "Tu primer momento aparecerá aquí"
- *   3. 7-day dot strip              → emotion dots for days with check-ins,
- *                                     faint rings for days without
- *   4. Check-in CTA                 → "¿Cómo estás ahora?"
- *   5. 2 quick-access tiles         → Scripts + History
+ *   3. 7-day dot strip               → emotion dots for days with check-ins,
+ *                                      faint rings for days without
+ *   4. Check-in CTA                  → "¿Cómo estás ahora?"
+ *   5. 2 quick-access tiles          → Scripts + Historial
  *
- * Data notes:
- *   - Last check-in from Supabase: D-01 (deferred) — shows empty state for now
- *   - Username from Supabase: D-06 (deferred) — shows generic greeting for now
- *   - 7-day strip: built from static empty state until D-01 fetches real data
- *   The structure is wired and ready — add the Supabase query in Sprint 2.1.
+ * Data:
+ *   - Fetches last 7 check-ins on each focus (useFocusEffect — same as history tab)
+ *   - lastCheckin: most recent row → emotion card
+ *   - weekDots:   one entry per calendar day (YYYY-MM-DD) → dot strip
+ *   - Username: D-06 (deferred) — generic greeting for now
  */
-import React, { useMemo } from "react";
+import React, { useState, useCallback } from "react";
 import { View, Pressable, useColorScheme } from "react-native";
 import { useRouter } from "expo-router";
+import { useFocusEffect } from "@react-navigation/native";
 import { Ionicons } from "@expo/vector-icons";
 import { SafeScreen, Typography } from "@/components/ui";
-import { EmotionColors, EmotionKey } from "@/constants/colors";
+import { supabase } from "@/lib/supabase";
+import { useAuthStore } from "@/stores/auth";
+import {
+  EmotionColors,
+  EmotionKey,
+  getEmotionColors,
+  toEmotionKey,
+} from "@/constants/colors";
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Types
 // ─────────────────────────────────────────────────────────────────────────────
 
 interface LastCheckin {
-  emotionKey: EmotionKey;
-  label:      string;
-  /** Minutes ago */
-  minutesAgo: number;
+  emotionKey:  EmotionKey;
+  label:       string;
+  /** ISO timestamp from DB */
+  checkin_at:  string;
 }
 
 interface DayDot {
@@ -59,31 +67,34 @@ function getGreeting(): string {
   return "Buenas noches";
 }
 
-/** Formats a minutesAgo value into a human-readable relative time string */
-function formatRelativeTime(minutesAgo: number): string {
+/**
+ * Formats a checkin_at ISO timestamp into a warm relative-time string.
+ * "Hace un momento" for <1h, "Hace N horas" for <24h, "Ayer" or "Hace N días" for older.
+ */
+function formatRelativeTime(isoString: string): string {
+  const minutesAgo = Math.floor((Date.now() - new Date(isoString).getTime()) / 60_000);
   if (minutesAgo < 60) return "Hace un momento";
   const hours = Math.floor(minutesAgo / 60);
-  if (hours < 24)  return hours === 1 ? "Hace 1 hora" : `Hace ${hours} horas`;
+  if (hours < 24) return hours === 1 ? "Hace 1 hora" : `Hace ${hours} horas`;
   const days = Math.floor(hours / 24);
   return days === 1 ? "Ayer" : `Hace ${days} días`;
 }
 
-/** Short Spanish day labels, Monday-first */
+/** Short Spanish day labels, Monday-first (L M X J V S D) */
 const DAY_LABELS = ["L", "M", "X", "J", "V", "S", "D"];
 
 /**
- * Generates the last 7 days as DayDot entries (today last, 6 days ago first).
- * In the empty state (no Supabase data), all emotionKey values are null.
- * D-01: replace the null values with real data from Supabase when fetching check-ins.
+ * Generates the last 7 days as DayDot entries.
+ * checkinsMap: Map<"YYYY-MM-DD", EmotionKey> from Supabase fetch.
+ * Days without a check-in get emotionKey = null (renders as empty ring).
  */
-function buildWeekDots(checkinsMap: Map<string, EmotionKey> = new Map()): DayDot[] {
+function buildWeekDots(checkinsMap: Map<string, EmotionKey>): DayDot[] {
   const dots: DayDot[] = [];
   for (let i = 6; i >= 0; i--) {
     const d = new Date();
     d.setDate(d.getDate() - i);
-    const iso  = d.toISOString().split("T")[0]; // "2026-03-10"
-    // getDay(): 0=Sun, 1=Mon...6=Sat → map to Mon-first index
-    const dayIndex = (d.getDay() + 6) % 7;
+    const iso      = d.toISOString().split("T")[0]; // "2026-03-11"
+    const dayIndex = (d.getDay() + 6) % 7;           // getDay() 0=Sun → Mon-first
     dots.push({
       date:       iso,
       dayLabel:   DAY_LABELS[dayIndex],
@@ -99,7 +110,8 @@ function buildWeekDots(checkinsMap: Map<string, EmotionKey> = new Map()): DayDot
 
 /**
  * LastEmotionCard — shows the user's most recent check-in with emotion color.
- * Tapping it navigates to History to see full context.
+ * Uses getEmotionColors() for dark mode support.
+ * Tapping navigates to History for full context.
  */
 function LastEmotionCard({
   checkin,
@@ -108,6 +120,8 @@ function LastEmotionCard({
   checkin: LastCheckin | null;
   onPress: () => void;
 }) {
+  const colorScheme = useColorScheme();
+
   if (!checkin) {
     // Empty state — no check-ins yet
     return (
@@ -129,12 +143,13 @@ function LastEmotionCard({
     );
   }
 
-  const colors = EmotionColors[checkin.emotionKey];
+  // T-V5: dark-aware emotion palette
+  const colors = getEmotionColors(checkin.emotionKey, colorScheme);
   return (
     <Pressable
       onPress={onPress}
       accessibilityRole="button"
-      accessibilityLabel={`Último check-in: ${checkin.label}, ${formatRelativeTime(checkin.minutesAgo)}`}
+      accessibilityLabel={`Último check-in: ${checkin.label}, ${formatRelativeTime(checkin.checkin_at)}`}
       style={({ pressed }) => ({ opacity: pressed ? 0.85 : 1 })}
     >
       <View
@@ -145,11 +160,14 @@ function LastEmotionCard({
         <View
           style={{ width: 10, height: 10, borderRadius: 5, backgroundColor: colors.dot }}
         />
+        <Typography variant="caption" style={{ color: colors.text, opacity: 0.7 }}>
+          Hoy identificaste:
+        </Typography>
         <Typography variant="headingS" style={{ color: colors.text }}>
           {checkin.label}
         </Typography>
         <Typography variant="caption" style={{ color: colors.text, opacity: 0.7 }}>
-          {formatRelativeTime(checkin.minutesAgo)}
+          {formatRelativeTime(checkin.checkin_at)}
         </Typography>
       </View>
     </Pressable>
@@ -157,9 +175,9 @@ function LastEmotionCard({
 }
 
 /**
- * WeekStrip — 7 dots representing the last 7 days.
- * Filled dot = check-in that day (emotion color).
- * Faint ring = no check-in (empty state indicator).
+ * WeekStrip — 7 dots representing the last 7 calendar days.
+ * Filled dot = at least one check-in that day (most recent emotion's color).
+ * Faint ring = no check-in that day.
  */
 function WeekStrip({ dots }: { dots: DayDot[] }) {
   const isDark = useColorScheme() === "dark";
@@ -176,7 +194,7 @@ function WeekStrip({ dots }: { dots: DayDot[] }) {
               height: 28,
               borderRadius: 14,
               backgroundColor: dot.emotionKey
-                ? EmotionColors[dot.emotionKey].dot
+                ? EmotionColors[dot.emotionKey].dot  // dot color is same in light/dark
                 : "transparent",
               borderWidth: 1.5,
               borderColor: dot.emotionKey
@@ -208,20 +226,76 @@ function WeekStrip({ dots }: { dots: DayDot[] }) {
 // ─────────────────────────────────────────────────────────────────────────────
 
 export default function HomeScreen() {
-  const router = useRouter();
-  const isDark = useColorScheme() === "dark";
-  const iconColor = isDark ? "#5A7E92" : "#A8C5DA";
+  const router         = useRouter();
+  const isDark         = useColorScheme() === "dark";
+  const iconColor      = isDark ? "#5A7E92" : "#A8C5DA";
+  const supabaseUserId = useAuthStore((s) => s.user?.supabaseUserId);
 
-  // D-06: username from Supabase/Privy (deferred to Sprint 2.1)
+  // D-06: username from Supabase/Privy (deferred)
   const userName = "";
 
-  // D-01: last check-in from Supabase (deferred to Sprint 2.1)
-  // Replace null with real data: { emotionKey, label, minutesAgo }
-  const lastCheckin: LastCheckin | null = null;
+  const [lastCheckin, setLastCheckin] = useState<LastCheckin | null>(null);
+  const [weekDots,    setWeekDots]    = useState<DayDot[]>(() => buildWeekDots(new Map()));
 
-  // D-01: real check-ins map from Supabase — replace empty Map with actual data
-  // Format: Map<"YYYY-MM-DD", EmotionKey>
-  const weekDots = useMemo(() => buildWeekDots(), []);
+  /**
+   * Fetches the 7 most recent check-ins from Supabase.
+   * Used for both the last-emotion card and the 7-day dot strip.
+   * RLS ensures only the current user's data is returned.
+   */
+  const fetchCheckins = useCallback(async () => {
+    if (!supabaseUserId) return;
+
+    try {
+      const { data, error } = await supabase
+        .from("checkins")
+        .select("emotion_confirmed, checkin_at")
+        .eq("user_id", supabaseUserId)
+        .order("checkin_at", { ascending: false })
+        .limit(7);
+
+      if (error) {
+        console.warn("[Home] Supabase fetch error:", error.message);
+        return;
+      }
+
+      if (!data || data.length === 0) {
+        // No check-ins yet — keep empty states
+        setLastCheckin(null);
+        setWeekDots(buildWeekDots(new Map()));
+        return;
+      }
+
+      // Most recent → lastCheckin card
+      const most = data[0];
+      const key  = toEmotionKey(most.emotion_confirmed);
+      setLastCheckin({
+        emotionKey: key,
+        label:      most.emotion_confirmed ?? "Sin nombre",
+        checkin_at: most.checkin_at,
+      });
+
+      // Build one dot per CALENDAR DAY (take the most recent check-in per day)
+      const dayMap = new Map<string, EmotionKey>();
+      for (const row of data) {
+        const day = (row.checkin_at as string).split("T")[0]; // "YYYY-MM-DD"
+        if (!dayMap.has(day)) {
+          // First (most recent) for that day wins
+          dayMap.set(day, toEmotionKey(row.emotion_confirmed));
+        }
+      }
+      setWeekDots(buildWeekDots(dayMap));
+
+    } catch (e) {
+      console.warn("[Home] Unexpected error:", e);
+    }
+  }, [supabaseUserId]);
+
+  // Refetch every time the Home tab gains focus (catches new check-ins)
+  useFocusEffect(
+    useCallback(() => {
+      fetchCheckins();
+    }, [fetchCheckins])
+  );
 
   const greeting = getGreeting();
 
@@ -265,7 +339,7 @@ export default function HomeScreen() {
           </Typography>
         </Pressable>
 
-        {/* ── 5. Quick-access tiles ────────────────────────────────── */}
+        {/* ── 5. Quick-access tiles ─────────────────────────────────── */}
         <View className="flex-row gap-3">
           {/* Scripts */}
           <Pressable
@@ -281,7 +355,7 @@ export default function HomeScreen() {
             </Typography>
           </Pressable>
 
-          {/* History */}
+          {/* Historial */}
           <Pressable
             onPress={() => router.push("/(app)/history")}
             accessibilityRole="button"
