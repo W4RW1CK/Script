@@ -127,7 +127,11 @@ serve(async (req) => {
     console.log("[sync] onboarding_complete:", onboardingComplete);
 
     // ── 4. Ensure auth.users entry exists ─────────────────────────────────
-    const authEmail = email ?? `${userId}@privy.script.app`;
+    // ALWAYS use fake UUID-based email for auth operations — never the real email.
+    // If the real email exists in auth.users under a different UUID (previous test sessions),
+    // generateLink returns a token for that UUID → auth.uid() ≠ public.users.id → RLS fails
+    // silently (SELECT returns 0 rows, no error). Fake email is guaranteed unique per user.
+    const authEmail = `${userId}@privy.script.app`;
     let otpTokenHash: string | null = null;
 
     try {
