@@ -42,6 +42,12 @@ export default function CheckinResultScreen() {
   const zones = zonesParam?.split(",").filter(Boolean) ?? [];
   const [isSaving, setIsSaving] = useState(false);
 
+  // B-DS: useRef guard prevents race-condition double-save.
+  // useState(disabled) updates on next render cycle — if the user taps "Guardar"
+  // twice within ~16ms (one frame), both taps fire before the button re-renders
+  // as disabled. useRef updates synchronously so the second tap is blocked immediately.
+  const isSavingRef = useRef(false);
+
   // T-V4: resolve emotion key → emotional color palette
   // B-DM: use getEmotionColors() to support dark mode — EmotionColors are light-only
   const colorScheme = useColorScheme();
@@ -80,8 +86,14 @@ export default function CheckinResultScreen() {
    * @param flagged - true si el usuario marcó el check-in como "delicado"
    */
   const saveCheckin = async (flagged: boolean = false) => {
+    // B-DS: synchronous guard — blocks any second call that arrives before
+    // the first render cycle disables the button via isSaving state.
+    if (isSavingRef.current) return;
+    isSavingRef.current = true;
+
     // B-40: verificar userId antes de intentar INSERT
     if (!supabaseUserId) {
+      isSavingRef.current = false; // reset ref — no INSERT attempted
       Alert.alert(
         "No se pudo guardar",
         "Tu sesión no está sincronizada todavía. Puedes reintentar desde Inicio → Perfil → Ajustes, o continuar sin guardar este check-in.",
@@ -151,6 +163,8 @@ export default function CheckinResultScreen() {
         { cancelable: false }
       );
     } finally {
+      // Reset both ref and state — ref allows retry after error, state re-enables button UI
+      isSavingRef.current = false;
       setIsSaving(false);
     }
   };
