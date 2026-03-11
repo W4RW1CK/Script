@@ -40,16 +40,17 @@ export default function CheckinResultScreen() {
   }>();
 
   const zones = zonesParam?.split(",").filter(Boolean) ?? [];
-  const [isSaving,  setIsSaving]  = useState(false);
-  // B-70: guard against double-save when Android back button returns to this screen
-  // after a successful save. Once saved, any subsequent "Guardar" press skips INSERT
-  // and goes directly home.
-  const [hasSaved, setHasSaved] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
 
-  // B-DS: useRef guard prevents race-condition double-save.
-  // useState(disabled) updates on next render cycle — if the user taps "Guardar"
-  // twice within ~16ms (one frame), both taps fire before the button re-renders
-  // as disabled. useRef updates synchronously so the second tap is blocked immediately.
+    // B-DS / B-72: useRef lock prevents ANY double-save regardless of cause.
+  //
+  // useState-based guards (isSaving, hasSaved) are ASYNC — React batches state
+  // updates and only applies them on the next render. Between the first press and
+  // the re-render with disabled={true}, a second press (double-tap, pressing both
+  // buttons, Pressable Android double-fire) can slip through and start a second INSERT.
+  //
+  // useRef updates are SYNCHRONOUS — the second call sees isSavingRef.current = true
+  // immediately, in the same JS event loop tick, before any re-render occurs.
   const isSavingRef = useRef(false);
 
   // T-V4: resolve emotion key → emotional color palette
@@ -132,6 +133,7 @@ export default function CheckinResultScreen() {
       if (error) {
         // B-40: error visible — no continuar silenciosamente si el INSERT falló
         console.warn("[CheckinResult] INSERT error:", error.message);
+        isSavingRef.current = false; // B-72: release lock so user can retry
         Alert.alert(
           "No se pudo guardar",
           "Hubo un problema al guardar tu check-in. ¿Quieres reintentar?",
@@ -154,16 +156,15 @@ export default function CheckinResultScreen() {
           ],
           { cancelable: false }
         );
-        return; // No navegar todavía — esperamos la decisión del usuario
+        return;
       }
 
-      // Guardado exitoso → ir al inicio
-      setHasSaved(true); // B-70: lock against future presses on this screen instance
+      // Guardado exitoso → ir al inicio (lock stays true — screen navigates away)
       goHome();
 
     } catch (e) {
       console.warn("[CheckinResult] Exception:", e);
-      // B-40: exception también muestra feedback visible
+      isSavingRef.current = false; // B-72: release lock on exception so user can retry
       Alert.alert(
         "Sin conexión",
         "No se pudo conectar al servidor. Tu check-in no fue guardado.",
