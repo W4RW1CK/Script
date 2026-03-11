@@ -17,7 +17,7 @@
  * Flow: Home → S19 (via History tab)
  * Future: tap a row → S19 detail (Sprint 2.x)
  */
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useCallback } from "react";
 import {
   View,
   FlatList,
@@ -28,6 +28,7 @@ import {
   useColorScheme,
 } from "react-native";
 import { useRouter } from "expo-router";
+import { useFocusEffect } from "@react-navigation/native";
 import { Ionicons } from "@expo/vector-icons";
 import { SafeScreen, Typography, Button } from "@/components/ui";
 import { supabase } from "@/lib/supabase";
@@ -353,9 +354,15 @@ export default function HistoryScreen() {
     }
   }, [supabaseUserId]);
 
-  useEffect(() => {
-    fetchCheckins();
-  }, [fetchCheckins]);
+  // useFocusEffect: refetch every time this tab gains focus.
+  // Tab screens stay mounted — useEffect only fires on first mount, so newly
+  // saved check-ins would never appear without re-fetching on focus.
+  useFocusEffect(
+    useCallback(() => {
+      setIsLoading(true);
+      fetchCheckins();
+    }, [fetchCheckins])
+  );
 
   /** Pull-to-refresh handler */
   const handleRefresh = useCallback(() => {

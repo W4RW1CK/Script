@@ -17,7 +17,7 @@
  *  - 50% opacity when disabled
  *  - B-39: accessibilityLabel prop overrides title for screen readers
  */
-import { Pressable, Text, View } from "react-native";
+import { Pressable, StyleSheet, Text, View } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
 
 type ButtonVariant = "primary" | "secondary" | "danger" | "ghost";
@@ -41,6 +41,19 @@ interface ButtonProps {
 
 /** T-V6: gradient stops for primary variant — mono-blue, 135° */
 const PRIMARY_GRADIENT: [string, string] = ["#A8C5DA", "#8BAEC4"];
+
+/**
+ * T-U3: NativeWind `font-bold` only sets fontWeight — it does NOT set fontFamily.
+ * Custom fonts require explicit StyleSheet with fontFamily string.
+ * AtkinsonHyperlegible_700Bold is the only bold weight available in this family.
+ */
+const labelStyles = StyleSheet.create({
+  base: {
+    fontFamily: "AtkinsonHyperlegible_700Bold",
+    fontSize: 16,
+    lineHeight: 22,
+  },
+});
 
 /** NativeWind classes for non-primary variants */
 const variantStyles: Partial<Record<ButtonVariant, { container: string; text: string }>> = {
@@ -70,10 +83,17 @@ export function Button({
   const isPrimary = variant === "primary";
   const styles = variantStyles[variant];
 
-  // Shared inner text — same for all variants
+  // Shared inner text — same for all variants.
+  // T-U3: fontFamily set via StyleSheet (NativeWind font-bold sets weight only, not family).
   const label = (
     <Text
-      className={`font-bold text-base ${isPrimary ? "text-white" : styles?.text ?? ""}`}
+      style={[
+        labelStyles.base,
+        // Color via NativeWind className would require a Text wrapper with className support.
+        // Use inline style instead to keep it explicit and dark-mode safe.
+        { color: isPrimary ? "#FFFFFF" : undefined },
+      ]}
+      className={isPrimary ? "" : styles?.text ?? ""}
     >
       {title}
     </Text>
