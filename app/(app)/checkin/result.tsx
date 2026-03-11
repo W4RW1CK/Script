@@ -21,14 +21,18 @@
  */
 import React, { useState, useEffect, useRef } from "react";
 import { View, Alert, Animated, useColorScheme } from "react-native";
-import { useLocalSearchParams, useRouter } from "expo-router";
+import { useLocalSearchParams, useRouter, useNavigation } from "expo-router";
+import { StackActions } from "@react-navigation/native";
 import { SafeScreen, Typography, Button } from "@/components/ui";
 import { supabase } from "@/lib/supabase";
 import { useAuthStore } from "@/stores/auth";
 import { getEmotionColors, toEmotionKey } from "@/constants/colors";
 
 export default function CheckinResultScreen() {
-  const router = useRouter();
+  const router     = useRouter();
+  // B-71 v2: useNavigation gives us the check-in Stack's navigator directly,
+  // so we can dispatch StackActions to it — router alone can only cross tabs.
+  const navigation = useNavigation();
 
   // user_id from auth store (NOT Supabase auth — Privy manages sessions)
   const supabaseUserId = useAuthStore((s) => s.user?.supabaseUserId);
@@ -79,11 +83,13 @@ export default function CheckinResultScreen() {
    * Siempre usa replace para que el usuario no pueda volver al resultado.
    */
   const goHome = () => {
-    // B-71: dismissAll clears any leftover check-in screens from the stack
-    // before navigating to home, so tapping Check-in tab next time always
-    // lands on a fresh body.tsx instead of a stale reflect/result screen.
-    try { router.dismissAll(); } catch { /* already at root — safe to ignore */ }
-    router.replace("/(app)/home");
+    // B-71 v2: Replace result.tsx with body.tsx IN the check-in Stack before
+    // switching to the home tab. router.dismissAll() only works for modal
+    // stacks; for regular stacks we must use StackActions directly on the
+    // current navigator. This ensures the Check-in tab's stack is [body] (fresh)
+    // the next time the user taps it — stale params gone, no duplicate saves.
+    navigation.dispatch(StackActions.replace("body"));
+    router.navigate("/(app)/home");
   };
 
   /**
