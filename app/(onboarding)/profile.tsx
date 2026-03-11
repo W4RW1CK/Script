@@ -92,10 +92,15 @@ export default function ProfileScreen() {
     let failed = false;
     try {
       if (!supabaseUserId) {
-        // supabaseUserId can be null if sync-privy-user hasn't completed yet.
-        // 2.12: Show visible info instead of silent console.warn.
-        console.warn("[Profile] supabaseUserId is null — skipping Supabase save");
-        failed = true;
+        // supabaseUserId null = sync-privy-user failed. Show visible alert (2.12).
+        Alert.alert(
+          "Perfil no guardado",
+          "Tu sesión no pudo sincronizarse. Puedes completar tu perfil desde Ajustes más tarde.",
+          [{ text: "Continuar", onPress: () => router.push("/(onboarding)/contacts") }],
+          { cancelable: false }
+        );
+        setIsSaving(false);
+        return;
       } else {
         /**
          * Two-operation save pattern (B-46):
@@ -135,8 +140,16 @@ export default function ProfileScreen() {
         }
       }
     } catch (e) {
+      // 2.12: visible alert on save error — never fail silently
       console.warn("[Profile] Error saving profile:", e);
-      failed = true;
+      Alert.alert(
+        "No se pudo guardar",
+        "Hubo un problema al guardar tu perfil. Puedes completarlo desde Ajustes.",
+        [{ text: "Continuar", onPress: () => router.push("/(onboarding)/contacts") }],
+        { cancelable: false }
+      );
+      setIsSaving(false);
+      return;
     } finally {
       setIsSaving(false);
     }
