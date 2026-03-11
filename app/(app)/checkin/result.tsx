@@ -20,12 +20,12 @@
  * shown with retry option — never navigates silently on failure.
  */
 import React, { useState, useEffect, useRef } from "react";
-import { View, Alert, Animated } from "react-native";
+import { View, Alert, Animated, useColorScheme } from "react-native";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { SafeScreen, Typography, Button } from "@/components/ui";
 import { supabase } from "@/lib/supabase";
 import { useAuthStore } from "@/stores/auth";
-import { EmotionColors, toEmotionKey } from "@/constants/colors";
+import { getEmotionColors, toEmotionKey } from "@/constants/colors";
 
 export default function CheckinResultScreen() {
   const router = useRouter();
@@ -43,8 +43,10 @@ export default function CheckinResultScreen() {
   const [isSaving, setIsSaving] = useState(false);
 
   // T-V4: resolve emotion key → emotional color palette
-  const emotionKey = toEmotionKey(emotion);
-  const colors     = EmotionColors[emotionKey];
+  // B-DM: use getEmotionColors() to support dark mode — EmotionColors are light-only
+  const colorScheme = useColorScheme();
+  const emotionKey  = toEmotionKey(emotion);
+  const colors      = getEmotionColors(emotionKey, colorScheme);
 
   // T-V4: 300ms fade-in animation for emotional background (feels gentle, not jarring)
   const bgOpacity = useRef(new Animated.Value(0)).current;

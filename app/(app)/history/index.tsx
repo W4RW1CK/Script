@@ -5,7 +5,7 @@
  * Includes an emotion filter chip row (emotion only — date range deferred Week 3).
  *
  * Features:
- *   - Fetches checkins from Supabase on mount (SELECT ordered by checkin_at DESC)
+ *   - Fetches checkins from Supabase on mount (SELECT ordered by created_at DESC)
  *   - Emotion filter: horizontal chip row, "Todas" + 8 emotion keys with colors
  *   - Each row: emotion dot (EmotionColors[key].dot) + label + formatted date + flag
  *   - Empty state (no check-ins ever): warm copy + CTA to start check-in
@@ -47,7 +47,7 @@ interface Checkin {
   id:               string;
   emotion_confirmed: string | null;
   flagged_for_review: boolean;
-  checkin_at:       string; // ISO timestamp
+  created_at:       string; // ISO timestamp — Supabase default column name
   free_text:        string | null;
   body_zones:       string[];
 }
@@ -57,7 +57,7 @@ interface Checkin {
 // ─────────────────────────────────────────────────────────────────────────────
 
 /**
- * Formats a checkin_at ISO timestamp into a human-readable Spanish string.
+ * Formats a created_at ISO timestamp into a human-readable Spanish string.
  *   Today:     "Hoy, 14:30"
  *   Yesterday: "Ayer, 09:15"
  *   This week: "Lunes, 18:00"
@@ -212,7 +212,7 @@ function CheckinRow({
   const isDark     = useColorScheme() === "dark";
   const emotionKey = toEmotionKey(item.emotion_confirmed);
   const colors     = EmotionColors[emotionKey];
-  const dateStr    = formatCheckinDate(item.checkin_at);
+  const dateStr    = formatCheckinDate(item.created_at);
 
   // Display label: use the stored Spanish label if available, else the key
   const displayLabel = item.emotion_confirmed ?? "Sin nombre";
@@ -331,11 +331,12 @@ export default function HistoryScreen() {
     }
 
     try {
+      // B-DM2: column is `created_at` — not `checkin_at` (which doesn't exist in schema)
       const { data, error } = await supabase
         .from("checkins")
-        .select("id, emotion_confirmed, flagged_for_review, checkin_at, free_text, body_zones")
+        .select("id, emotion_confirmed, flagged_for_review, created_at, free_text, body_zones")
         .eq("user_id", supabaseUserId)
-        .order("checkin_at", { ascending: false })
+        .order("created_at", { ascending: false })
         .limit(50);
 
       if (error) {

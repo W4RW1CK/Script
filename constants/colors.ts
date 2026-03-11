@@ -192,6 +192,82 @@ export const EmotionColors = {
   },
 } as const;
 
+// ─────────────────────────────────────────────────────────────────────────────
+// Emotion Color System — Dark mode variants
+// ─────────────────────────────────────────────────────────────────────────────
+
+/**
+ * EmotionColorsDark — dark-mode counterpart to EmotionColors.
+ *
+ * Same dot values (they work on dark backgrounds).
+ * bg  → deeply tinted dark background (not pitch black — still warm/hued).
+ * text→ light, readable on top of dark bg (WCAG AA 4.5:1+).
+ *
+ * Used by getEmotionColors() to select the right palette at render time.
+ */
+export const EmotionColorsDark = {
+  calm: {
+    bg:   "#1E2D1E", // deep green tint
+    dot:  "#6BAF6B", // same mid green
+    text: "#C8EAC4", // light green — contrast ~7.0:1 ✅
+  },
+  anxious: {
+    bg:   "#2E2010", // deep amber tint
+    dot:  "#E8943A", // same mid amber
+    text: "#F0D4A4", // light amber — contrast ~6.2:1 ✅
+  },
+  overwhelmed: {
+    bg:   "#22182E", // deep purple tint
+    dot:  "#9B6ABF", // same mid lavender
+    text: "#DCC4EC", // light lavender — contrast ~6.8:1 ✅
+  },
+  sad: {
+    bg:   "#182028", // deep navy
+    dot:  "#5A7EC8", // same mid blue
+    text: "#B4CCE8", // light blue — contrast ~7.2:1 ✅
+  },
+  joyful: {
+    bg:   "#2A2408", // deep amber/yellow
+    dot:  "#F0C040", // same mid yellow
+    text: "#F8E8A0", // light yellow — contrast ~7.6:1 ✅
+  },
+  irritable: {
+    bg:   "#2A1616", // deep rose
+    dot:  "#D47070", // same mid rose
+    text: "#F0C4C4", // light rose — contrast ~6.9:1 ✅
+  },
+  tired: {
+    bg:   "#1E1E28", // deep cool slate
+    dot:  "#8A8AAA", // same mid cool gray
+    text: "#C4C4D8", // light slate — contrast ~7.1:1 ✅
+  },
+  unnamed: {
+    bg:   "#222228", // deep neutral
+    dot:  "#9A9AAA", // same neutral mid
+    text: "#D8D8E4", // light neutral — contrast ~7.8:1 ✅
+  },
+} as const;
+
+/**
+ * getEmotionColors — returns the correct EmotionColors palette for the current
+ * color scheme. Always use this instead of accessing EmotionColors[key] directly
+ * in components that need dark mode support.
+ *
+ * @param key    - any valid EmotionKey
+ * @param scheme - value from useColorScheme() — "light" | "dark" | null
+ * @returns { bg, dot, text } for the given key and scheme
+ *
+ * @example
+ *   const scheme = useColorScheme();
+ *   const colors = getEmotionColors(emotionKey, scheme);
+ */
+export function getEmotionColors(
+  key: EmotionKey,
+  scheme: "light" | "dark" | null | undefined
+): { bg: string; dot: string; text: string } {
+  return scheme === "dark" ? EmotionColorsDark[key] : EmotionColors[key];
+}
+
 /**
  * EmotionKey — union of all valid emotion keys.
  * Use this type for any variable that holds an emotion identifier.

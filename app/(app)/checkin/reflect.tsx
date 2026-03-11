@@ -32,7 +32,7 @@ import { SafeScreen, Typography, Button, TextInput } from "@/components/ui";
 import { ZoneId } from "@/components/body-map/BodyMap";
 import { supabase } from "@/lib/supabase";
 import {
-  EmotionColors,
+  getEmotionColors,
   EmotionKey,
   toEmotionKey,
 } from "@/constants/colors";
@@ -178,8 +178,10 @@ interface EmotionCardProps {
  *   - Reduce motion: skip scale animation, keep all other visual changes
  */
 function EmotionCard({ option, isSelected, onSelect, reduceMotion }: EmotionCardProps) {
-  const emotionKey = toEmotionKey(option.label);
-  const colors     = EmotionColors[emotionKey];
+  // B-DM: resolve dark-aware palette — EmotionColors are light-only
+  const colorScheme = useColorScheme();
+  const emotionKey  = toEmotionKey(option.label);
+  const colors      = getEmotionColors(emotionKey, colorScheme);
 
   // Scale animation — 0.97 on press, 1.0 on release (100ms each)
   const scale = useRef(new Animated.Value(1)).current;
