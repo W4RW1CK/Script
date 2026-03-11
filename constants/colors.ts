@@ -274,7 +274,7 @@ export function getEmotionColors(
  *
  * @example
  *   const emotion: EmotionKey = "calm";
- *   const colors = EmotionColors[emotion]; // { bg, dot, text }
+ *   const colors = getEmotionColors(emotion, isDark); // { bg, dot, text }
  */
 export type EmotionKey = keyof typeof EmotionColors;
 

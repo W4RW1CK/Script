@@ -325,7 +325,9 @@ export default function HistoryScreen() {
    */
   const fetchCheckins = useCallback(async () => {
     if (!supabaseUserId) {
-      setIsLoading(false);
+      // B-64: keep isLoading=true when supabaseUserId is null — shows spinner
+      // instead of misleading "no check-ins" empty state. The effect re-runs
+      // automatically once supabaseUserId is populated by AuthGate sync.
       return;
     }
 
