@@ -312,6 +312,9 @@ function EmptyState({ onStartCheckin }: { onStartCheckin: () => void }) {
 export default function HistoryScreen() {
   const router         = useRouter();
   const supabaseUserId = useAuthStore((s) => s.user?.supabaseUserId);
+  // BUG-5: spinner/refresh colors must be dark-aware — were hardcoded to #A8C5DA (light only)
+  const isDark         = (useColorScheme() ?? 'light') === 'dark';
+  const spinnerColor   = isDark ? "#5A7E92" : "#A8C5DA"; // script-dark-blue / script-blue
 
   const [checkins,    setCheckins]    = useState<Checkin[]>([]);
   const [isLoading,   setIsLoading]   = useState(true);
@@ -413,7 +416,7 @@ export default function HistoryScreen() {
         {isLoading ? (
           // Loading state
           <View className="flex-1 items-center justify-center">
-            <ActivityIndicator size="large" color="#A8C5DA" />
+            <ActivityIndicator size="large" color={spinnerColor} />
           </View>
 
         ) : !hasAnyCheckins ? (
@@ -445,7 +448,7 @@ export default function HistoryScreen() {
               <RefreshControl
                 refreshing={isRefreshing}
                 onRefresh={handleRefresh}
-                tintColor="#A8C5DA"
+                tintColor={spinnerColor}
               />
             }
             renderItem={({ item }) => (

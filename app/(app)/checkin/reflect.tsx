@@ -184,7 +184,9 @@ function EmotionCard({ option, isSelected, onSelect, reduceMotion }: EmotionCard
   const colors      = getEmotionColors(emotionKey, colorScheme);
   // T-U7: default bg for unselected/unpressed state — computed inline so the
   // Pressable style function can reference it (className can't access pressed)
-  const defaultBg   = colorScheme === "dark" ? "#26262E" : "#EFEFEA";
+  const defaultBg     = colorScheme === "dark" ? "#26262E" : "#EFEFEA";
+  // BUG-4: neutral border must also be dark-aware — was hardcoded to light-only #E0DDD8
+  const defaultBorder = colorScheme === "dark" ? "#3A3A44" : "#E0DDD8";
 
   // Scale animation — 0.97 on press, 1.0 on release (100ms each)
   const scale = useRef(new Animated.Value(1)).current;
@@ -230,7 +232,7 @@ function EmotionCard({ option, isSelected, onSelect, reduceMotion }: EmotionCard
           borderColor:
             isSelected || pressed
               ? colors.dot           // dot color on both pressed and selected
-              : "#E0DDD8",           // script-border neutral
+              : defaultBorder,        // script-border neutral (dark-aware)
           backgroundColor:
             isSelected
               ? colors.bg
