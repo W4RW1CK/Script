@@ -4,7 +4,7 @@
 > **How to read this file:**
 > ✅ Complete | 🔄 In progress | ⏳ Pending | ❌ Blocked
 
-**Last updated:** 2026-03-10 (Sprint 2.C ✅ · Sprint 2.A ✅ · Sprint 2.B ✅ · S19 History ✅ · T-V2 T-V6 T-V7 ✅ (Aibus) · Friday target COMPLETE · ACTION: w4rw1ck pull dev + npm install + redeploy interpret-checkin Edge Function)
+**Last updated:** 2026-03-11 (Ana: T-V5 live data ✅ · T-U7 ✅ · 2.4 ✅ · 2.8 ✅ · 2.10 ✅ · 2.12 ✅ · B-DM dark mode ✅ · B-DS race condition ✅ · Button/Chip fonts ✅ · unmountOnBlur checkin ✅ · history useFocusEffect ✅)
 **Current week:** 2  
 **Next delivery:** Sprint 2.C (Onboarding Flow Redesign) → Sprint 2.A (Visual Foundation) → Sprint 2.B (Screens)
 
@@ -185,15 +185,26 @@ Something fails → both attack the bug → w4rw1ck confirms fix
 | 2.1 | Settings → "Complete my profile" (S04, S05, S06 from Settings) | ⏳ | S04-S06 already exist; add entry point |
 | 2.2 | app/(app)/history/index.tsx **(S19)** | ✅ | Full history list + emotion filter chips + pull-to-refresh + empty state — fetches from Supabase |
 | 2.3 | app/(app)/dictionary.tsx **(S20)** | ⏳ | |
-| 2.4 | app/(app)/settings/index.tsx **(S21)** — theme + palette | ⏳ | |
+| 2.4 | app/(app)/settings/index.tsx **(S21)** — theme + palette | ✅ | Appearance section: System/Light/Dark theme selector. Persists in AsyncStorage (key: `script:theme`), applied via `Appearance.setColorScheme()` on mount. commit `ffd0ebc` (Ana) |
 | 2.5 | "Unlocked insights" (3, 7, 15 check-ins) | ⏳ | |
 | 2.6 | **Script progress persistence** (S16) | ⏳ | If user exits mid-script and returns, currently restarts from block 1. Options: (a) Zustand in memory (persists while app is not closed); (b) `script_sessions` table in Supabase for persistence across closes. MVP uses (a) — decide in Week 2 sprint |
 | 2.7 | **Persist test scores in Supabase immediately** | ⏳ | `profile-seed.ts` is runtime-only — if user closes the app post-onboarding, AQ/CAT-Q/RAADS-R results are lost. Fix: INSERT into `profiles` when each individual test is completed, not at the end of onboarding. Impact: loss of 30 min of user work (Aibus) |
-| 2.8 | **INSERT `crisis_events` in `protocol.tsx`** | ⏳ | The `crisis_events` table exists in the schema but is never written to. Record: `user_id`, `level` (1/2/3), `started_at`, `completed_at`, `resolved` (boolean). Critical data for the therapist module in Week 4 (Ana) |
+| 2.8 | **INSERT `crisis_events` in `protocol.tsx`** | ✅ | Inserts on exit: `protocol_completed=true` when user completes protocol (handleComplete), `false` on early exit (handleExit). Tracks `started_at` via useRef, `duration_seconds`, `intensity_level`. Non-blocking — crisis flow never delayed. commit `9344fe2` (Ana) |
 | 2.9 | **Reduce GPT temperature 0.7 → 0.4 in `interpret-checkin`** | ✅ | B-55 fixed in code `0a0de01` · deployed `2026-03-09` |
-| 2.10 | **INSERT `script_executions` in `execute.tsx`** | ⏳ | The `script_executions` table exists in the schema but `execute.tsx` does not INSERT. Record: `script_id`, `user_id`, `options_chosen` (JSONB), `completed` (boolean), `executed_at`. Input for history S19 and therapist S23 (Ana) |
+| 2.10 | **INSERT `script_executions` in `execute.tsx`** | ✅ | Inserts when last block is completed in `handleNext`. Fields: `user_id`, `script_id`, `mode='execution'`, `completed=true`. Fire and forget, guest mode silently skipped. commit `9344fe2` (Ana) |
 | 2.11 | **Fix AQ-10 PMID in `REFERENCES.md`** | ✅ | PMID `22366774` → `22397989` (Allison et al., 2012, Arch Dis Child). Commit `1116147`. (Ana) |
-| 2.12 | **UI feedback when profile save fails in `profile.tsx`** | ⏳ | The guard `if (!supabaseUserId)` only does `console.warn` — the user doesn't know if their profile wasn't saved. Add visible Alert or Toast with retry option (Aibus) |
+| 2.12 | **UI feedback when profile save fails in `profile.tsx`** | ✅ | Warm Alert with "Reintentar" + "Continuar" options. Navigation deferred until user confirms. Catches both supabaseUserId=null and DB errors explicitly. commit `ffd0ebc` (Ana) |
+
+### 🐛 Week 2 Bug Fixes (2026-03-11)
+
+| ID | Description | Status | Commits |
+|---|---|---|---|
+| B-DM | EmotionColors dark mode — light-only pastels jarring on dark app. Added `EmotionColorsDark` (8 keys) + `getEmotionColors(key, scheme)` helper. result.tsx + reflect.tsx now use dark-aware palettes | ✅ | `9e2e45e` (Ana) |
+| B-DM2 | history/index.tsx — initial fix wrongly changed `checkin_at` → `created_at`. Schema has `checkin_at` (custom column). Reverted. | ✅ | `ea5a33a` (Ana) |
+| B-Focus | History + Home tabs used `useEffect` — fires only on mount. With tab screens staying mounted, new check-ins never appeared. Fixed with `useFocusEffect` on both. | ✅ | `754886f`, `e36844e` (Ana) |
+| B-UnmountBlur | Check-in tab kept stale form state (body zones, notes) between sessions. `unmountOnBlur: true` on checkin tab — full stack unmounts when user leaves tab. | ✅ | `0bc9b46` (Ana) |
+| B-Font | Button.tsx + Chip.tsx used NativeWind `font-bold`/`font-semibold` — only sets `fontWeight`, not `fontFamily`. Replaced with `StyleSheet` using `fontFamily: 'AtkinsonHyperlegible_700Bold'`. | ✅ | `754886f`, `4985024` (Ana) |
+| B-DS | result.tsx double-save race condition — `useState(isSaving)` updates async; rapid double-tap fires two INSERTs before button re-renders as disabled. Added `useRef` synchronous guard. | ✅ | `96e12c9` (Ana) |
 
 ---
 
@@ -220,7 +231,7 @@ Something fails → both attack the bug → w4rw1ck confirms fix
 | T-V2 | **Double-layer shadows in `tailwind.config.js`** — Add `shadow-card`, `shadow-card-elevated`, `shadow-card-pressed`, `shadow-card-dark`. Update `Card.tsx` to use `shadow-card` by default. Ref: FRONTEND_GUIDELINES.md §4 | **Aibus** | ✅ `900e57e` — shadow tokens + emotion color tokens added to tailwind.config.js |
 | T-V3 | **Emotion cards in `reflect.tsx`** — Selected card adopts `EmotionColors[key].bg` as background, `dot` as 1.5px border and 8px accent circle. Press animation scale 0.97→1.0 (100ms). Requires T-V1. Ref: FRONTEND_GUIDELINES.md §12.2 | **Ana** | ✅ EmotionCard component + Spanish→EmotionKey mapping + Animated scale + Card style prop added |
 | T-V4 | **`result.tsx` with emotional color background** — The check-in result screen (S13) adopts `EmotionColors[key].bg` as full-screen background. 300ms fade transition from the previous card color. This is the most emotionally significant screen. Requires T-V1. Ref: FRONTEND_GUIDELINES.md §12.2 | **Ana** | ✅ 300ms Animated.View fade + emotion card with dot tint + text in emotion colors + SafeScreen style prop added |
-| T-V5 | **Home S09 redesign — inspired by Finch** — Layout: greeting + time of day, "last emotion" card with emotional color, 7-day mini history (emotional dots), "Start check-in" CTA button, quick script tiles. Requires T-V1. Ref: FRONTEND_GUIDELINES.md §0 (table) + §12.2 | **Ana** | ✅ Greeting + time-of-day · LastEmotionCard (empty state ✅, D-01 hook ready) · WeekStrip 7 dots · Check-in CTA · 2 quick tiles |
+| T-V5 | **Home S09 redesign — inspired by Finch** — Layout: greeting + time of day, "last emotion" card with emotional color, 7-day mini history (emotional dots), "Start check-in" CTA button, quick script tiles. Requires T-V1. Ref: FRONTEND_GUIDELINES.md §0 (table) + §12.2 | **Ana** | ✅ `e36844e` — LIVE DATA: useFocusEffect + Supabase fetch (7 most recent checkins). LastEmotionCard with EmotionColorsDark support. WeekStrip one dot per calendar day. Empty state preserved. |
 | T-V6 | **Mono-blue gradient on primary button** — 135° gradient from `#A8C5DA → #8BAEC4`. Visual depth without introducing new hues. Update `Button.tsx` variant="primary". Ref: FRONTEND_GUIDELINES.md §4 | **Aibus** | ✅ `900e57e` — LinearGradient on primary Button · **w4rw1ck: npm install** for expo-linear-gradient ~55.0.8 (added to package.json by Ana) |
 | T-V7 | **GPT label normalization in Edge Function `interpret-checkin`** — Ensure model output is always one of the 8 canonical labels (see FRONTEND_GUIDELINES.md §1.4). Post-process with mapping before returning to client. Without this normalization, the emotion color system fails silently | **Aibus** | ✅ `900e57e` — interpret-checkin now returns EmotionKey directly; Edge Function needs redeploy |
 
@@ -239,7 +250,7 @@ Something fails → both attack the bug → w4rw1ck confirms fix
 | 3.5 | SMS offline fallback | ⏳ | expo-sms for when there is no connection. See IMPLEMENTATION_PLAN.md §3.5 |
 | T-3.1 | **Rate limiting in `interpret-checkin`** | ⏳ | Per `user_id` limit via `rate_limits` in Supabase or Upstash Redis. 10 calls/hour MVP (Aibus) |
 | T-3.2 | **AI output logging** | ⏳ | `ai_logs` table: `user_id`, `input_hash` (not raw — privacy), `output`, `timestamp`, `flagged` (Aibus) |
-| T-U7 | **Active/pressed state on emotion cards** — immediate visual feedback on press (before selection). UX Guideline #30 | **Ana** | ⏳ |
+| T-U7 | **Active/pressed state on emotion cards** — immediate visual feedback on press (before selection). UX Guideline #30 | **Ana** | ✅ `ffd0ebc` — `({ pressed })` style function: emotion dot border preview + dot+22 (~13%) bg tint on pressIn; selected+pressed = 0.85 opacity. defaultBg computed from colorScheme (no className) |
 | T-U8 | **Focus rings audit on `Card` and `Pressable`** — `focus:ring-2` visible on all interactive elements. UX Guideline #28 | **Aibus** | ⏳ |
 | T-V8 | **S19 Calendar Year in Pixels** — 36x36px dots with `EmotionColors[key].dot`. Tap → bottom sheet. Requires T-V1 (already in Week 2) | **Aibus** | ⏳ |
 
