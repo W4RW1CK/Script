@@ -180,20 +180,20 @@ Something fails → both attack the bug → w4rw1ck confirms fix
 
 ## 🗓️ Week 2 — History, Dictionary and Customization
 
-| Step | Description | Status | Notes |
-|---|---|---|---|
-| 2.1 | Settings → "Complete my profile" (S04, S05, S06 from Settings) | ✅ | T-F5 — RAADS-R + AQ-Full + CAT-Q accessible from Settings with completion status (✅/⏳) per test. `settings/index.tsx` rebuilt with test status cards (Aibus, confirmed 2026-03-11) |
-| 2.2 | app/(app)/history/index.tsx **(S19)** | ✅ | Full history list + emotion filter chips + pull-to-refresh + empty state — fetches from Supabase |
-| 2.3 | app/(app)/dictionary.tsx **(S20)** | ⏳ | Stretch goal — AI-generated definitions + "for self-reflection, not clinical advice" disclaimer (Ana) |
-| 2.4 | app/(app)/settings/index.tsx **(S21)** — theme + palette | ✅ | Appearance section: System/Light/Dark theme selector. Persists in AsyncStorage (key: `script:theme`), applied via `Appearance.setColorScheme()` on mount. commit `ffd0ebc` (Ana) |
-| 2.5 | "Unlocked insights" (3, 7, 15 check-ins) | ⏳ | Week 3 — deferred |
-| 2.6 | **Script progress persistence** (S16) | ⏳ | MVP: Zustand in memory (persists while app is not closed). Full persistence (script_sessions table) deferred to Week 3 |
-| 2.7 | **Persist test scores in Supabase immediately** | ✅ | Already implemented — `aq10.tsx`, `aq-full.tsx`, `catq.tsx`, `raads.tsx` all upsert to `profiles` immediately on completion. `profile-seed.ts` is additive, not the save path. (Aibus, confirmed 2026-03-11) |
-| 2.8 | **INSERT `crisis_events` in `protocol.tsx`** | ✅ | Inserts on exit: `protocol_completed=true` when user completes protocol (handleComplete), `false` on early exit (handleExit). Tracks `started_at` via useRef, `duration_seconds`, `intensity_level`. Non-blocking — crisis flow never delayed. commit `9344fe2` (Ana) |
-| 2.9 | **Reduce GPT temperature 0.7 → 0.4 in `interpret-checkin`** | ✅ | B-55 fixed in code `0a0de01` · deployed `2026-03-09` |
-| 2.10 | **INSERT `script_executions` in `execute.tsx`** | ✅ | Inserts when last block is completed in `handleNext`. Fields: `user_id`, `script_id`, `mode='execution'`, `completed=true`. Fire and forget, guest mode silently skipped. commit `9344fe2` (Ana) |
-| 2.11 | **Fix AQ-10 PMID in `REFERENCES.md`** | ✅ | PMID `22366774` → `22397989` (Allison et al., 2012, Arch Dis Child). Commit `1116147`. (Ana) |
-| 2.12 | **UI feedback when profile save fails in `profile.tsx`** | ✅ | Alert.alert shown for null userId + DB errors. "Reintentar"/"Continuar" options. Warm copy per ASD UX guidelines. commit `ffd0ebc` (Ana) + `39ade85` (Aibus) |
+| Step | Description | Owner | Status | Notes |
+|---|---|---|---|---|
+| 2.1 | Settings → "Complete my profile" (S04, S05, S06 from Settings) | Aibus | ✅ | T-F5 — RAADS-R + AQ-Full + CAT-Q accessible from Settings with completion status (✅/⏳) per test. `settings/index.tsx` rebuilt with test status cards |
+| 2.2 | app/(app)/history/index.tsx **(S19)** | Ana | ✅ | Full history list + emotion filter chips + pull-to-refresh + empty state — fetches from Supabase |
+| 2.3 | app/(app)/dictionary.tsx **(S20)** | Ana | ⏳ | Stretch goal — AI-generated definitions + "for self-reflection, not clinical advice" disclaimer |
+| 2.4 | app/(app)/settings/index.tsx **(S21)** — theme + palette | Ana | ✅ | Appearance section: System/Light/Dark theme selector. Persists in AsyncStorage (key: `script:theme`), applied via `Appearance.setColorScheme()` on mount. commit `ffd0ebc` |
+| 2.5 | "Unlocked insights" (3, 7, 15 check-ins) | — | ⏳ | Week 3 — deferred |
+| 2.6 | **Script progress persistence** (S16) | — | ⏳ | MVP: Zustand in memory (persists while app is not closed). Full persistence (`script_sessions` table) deferred to Week 3 |
+| 2.7 | **Persist test scores in Supabase immediately** | Aibus | ✅ | Already implemented — all 4 test screens upsert to `profiles` immediately on completion. `profile-seed.ts` is additive, not the save path |
+| 2.8 | **INSERT `crisis_events` in `protocol.tsx`** | Ana | ✅ | Inserts on exit: `protocol_completed=true` on completion, `false` on early exit. Tracks `started_at`, `duration_seconds`, `intensity_level`. Non-blocking. commit `9344fe2` |
+| 2.9 | **Reduce GPT temperature 0.7 → 0.4 in `interpret-checkin`** | Aibus | ✅ | B-55 — code `0a0de01` · deployed `2026-03-09` |
+| 2.10 | **INSERT `script_executions` in `execute.tsx`** | Ana | ✅ | Inserts when last block is completed in `handleNext`. Fields: `user_id`, `script_id`, `mode='execution'`, `completed=true`. Guest mode silently skipped. commit `9344fe2` |
+| 2.11 | **Fix AQ-10 PMID in `REFERENCES.md`** | Ana | ✅ | PMID `22366774` → `22397989` (Allison et al., 2012, Arch Dis Child). Commit `1116147` |
+| 2.12 | **UI feedback when profile save fails in `profile.tsx`** | Ana + Aibus | ✅ | Alert.alert for null userId + DB errors. "Reintentar"/"Continuar" options. Warm copy per ASD UX guidelines. commits `ffd0ebc` + `39ade85` |
 
 ### 🐛 Week 2 Bug Fixes (2026-03-11)
 
@@ -209,6 +209,21 @@ Something fails → both attack the bug → w4rw1ck confirms fix
 | B-Ghost | Ghost Button dark mode text — `text-script-text-secondary` (#6B6B6B) illegible on dark bg. Added `dark:text-script-dark-text-secondary`. | ✅ | `b32d965` (Ana) · `7156296` (Aibus) |
 
 ---
+
+
+### 🟡 Onboarding Flow Redesign (Sprint 2.C) — Decision 2026-03-08
+
+> **Decision by w4rw1ck 2026-03-08.** Full rationale in PRD.md v1.5 §3.1, APP_FLOW.md v1.4 Flow 1, IMPLEMENTATION_PLAN.md Sprint 2.C.
+
+| Ticket | Description | Owner | Status |
+|---|---|---|---|
+| T-F1 | **S01 Welcome — Add "I need help right now" CTA** → navigates to `/(app)/rescue/assess` without auth. Crisis access must never be blocked by auth walls (PRD §6). | **Ana** | ✅ Already implemented in Week 1 code · AuthGate rescue exception confirmed working |
+| T-F2 | **S03 AQ-10 Result — Hide score, ONE test recommendation** — Do NOT display numerical score (grade-thinking / validation anxiety risk). Show only warm non-diagnostic message + one recommended test. Score ≥6 → Full AQ; Score <6 → CAT-Q. Remove cascade to S06. Add "Skip for now" → S07. Score stored silently in Supabase. (Decision: w4rw1ck 2026-03-08) | **Ana** | ✅ `feat(onboarding): T-F2` — aq10-result.tsx rewritten; cascade broken in aq-full.tsx and catq.tsx |
+| T-F3 | **S07 Profile — Mandatory, trimmed** — Remove skip button. Trim to 4–5 questions (name, 2 sensitivities, 1–2 interests, tools). Update copy to "Tell us about you" framing. | **Ana** | ✅ `feat(onboarding): T-F3` — age field removed; name validated (required); subtitle updated; interests trimmed to 8 |
+| T-F4 | **S08 Contacts — Optional with warm copy** — Update skip text to "Skip for now — I'll add contacts later". Add explanation: "A trusted contact can receive a notification if you're in crisis." | **Ana** | ✅ `feat(onboarding): T-F4` — subtitle split into two paragraphs; skip button → "Saltar por ahora — lo agregaré después" |
+| T-F5 | **RAADS-R → Settings only** — Remove from onboarding navigation. Add "Complete my profile" entry point in `settings/index.tsx` with test completion status (✅/⏳) for Full AQ, CAT-Q, RAADS-R. | **Ana** | ✅ `feat(settings): T-F5` — Settings rebuilt with test status cards; AuthGate exception added for aq-full/catq/raads; raads.tsx routes to settings if onboardingComplete=true |
+
+
 
 ## 🎨 UI/UX Tickets + Visual Identity — Week 2
 
@@ -291,20 +306,6 @@ Something fails → both attack the bug → w4rw1ck confirms fix
 
 ---
 
-### 🟡 Onboarding Flow Redesign (Sprint 2.C) — Decision 2026-03-08
-
-> **Decision by w4rw1ck 2026-03-08.** Full rationale in PRD.md v1.5 §3.1, APP_FLOW.md v1.4 Flow 1, IMPLEMENTATION_PLAN.md Sprint 2.C.
-
-| Ticket | Description | Owner | Status |
-|---|---|---|---|
-| T-F1 | **S01 Welcome — Add "I need help right now" CTA** → navigates to `/(app)/rescue/assess` without auth. Crisis access must never be blocked by auth walls (PRD §6). | **Ana** | ✅ Already implemented in Week 1 code · AuthGate rescue exception confirmed working |
-| T-F2 | **S03 AQ-10 Result — Hide score, ONE test recommendation** — Do NOT display numerical score (grade-thinking / validation anxiety risk). Show only warm non-diagnostic message + one recommended test. Score ≥6 → Full AQ; Score <6 → CAT-Q. Remove cascade to S06. Add "Skip for now" → S07. Score stored silently in Supabase. (Decision: w4rw1ck 2026-03-08) | **Ana** | ✅ `feat(onboarding): T-F2` — aq10-result.tsx rewritten; cascade broken in aq-full.tsx and catq.tsx |
-| T-F3 | **S07 Profile — Mandatory, trimmed** — Remove skip button. Trim to 4–5 questions (name, 2 sensitivities, 1–2 interests, tools). Update copy to "Tell us about you" framing. | **Ana** | ✅ `feat(onboarding): T-F3` — age field removed; name validated (required); subtitle updated; interests trimmed to 8 |
-| T-F4 | **S08 Contacts — Optional with warm copy** — Update skip text to "Skip for now — I'll add contacts later". Add explanation: "A trusted contact can receive a notification if you're in crisis." | **Ana** | ✅ `feat(onboarding): T-F4` — subtitle split into two paragraphs; skip button → "Saltar por ahora — lo agregaré después" |
-| T-F5 | **RAADS-R → Settings only** — Remove from onboarding navigation. Add "Complete my profile" entry point in `settings/index.tsx` with test completion status (✅/⏳) for Full AQ, CAT-Q, RAADS-R. | **Ana** | ✅ `feat(settings): T-F5` — Settings rebuilt with test status cards; AuthGate exception added for aq-full/catq/raads; raads.tsx routes to settings if onboardingComplete=true |
-
----
-
 ## 🐛 Known Bugs
 
 | ID | Description | Severity | Phase | Status |
@@ -367,9 +368,9 @@ Something fails → both attack the bug → w4rw1ck confirms fix
 | B-56 | `app.json` missing `android.package` and `ios.bundleIdentifier` — EAS Build would fail; Play Store upload would be rejected | 🔴 High | build | ✅ `0a0de01` |
 | B-57 | `app.json` splash `backgroundColor: "#ffffff"` — white flash on warm-background app caused visual jarring on launch | 🟡 Medium | UX | ✅ `0a0de01` |
 | B-58 | `protocol.tsx` always navigated to `/(app)/home` after rescue completion — but if rescue was triggered from S01 welcome screen (pre-onboarding), user had no home to go to; AuthGate would redirect them back to onboarding in a confusing flash. Fix: check `onboardingComplete` in auth store → redirect to `/(onboarding)` if false, `/(app)/home` if true. | 🟡 Medium | navigation | ✅ `HEAD` |
+| B-59 | `contacts.tsx` "Done" and "Skip" buttons appeared to do nothing. Root cause: `useRouter` removed (M-03) — navigation relied entirely on AuthGate. AuthGate's nav effect has `if (!navReady) return` guard. In dev bypass mode, `privyReady` never becomes `true` → `navReady` stays `false` forever → buttons freeze. Fix: re-add `useRouter`; call `router.replace("/(app)/home")` explicitly after `setOnboardingComplete(true)`. | 🔴 High | navigation | ✅ `HEAD` |
+| B-60 | `lib/supabase.ts` `setSupabaseToken()` called `verifyOtp` with `type: "email"` — but the token was generated by `auth.admin.generateLink({ type: 'magiclink' })`. Type must match the generator. Result: silent session failure, Supabase session never established, `auth.uid()` always null, RLS broken for all users. No visible error shown. Fix: `type: "magiclink"`. Commit: `d1fe697` | 🔴 Critical | auth | ✅ `d1fe697` |
 | B-61 | `protocol.tsx` crashed on load — `useReduceMotion` from `react-native-reanimated` is exported but `undefined` at runtime in Reanimated v4.x (breaking API change from v3). Fix: removed from Reanimated imports; replaced with a local hook using `AccessibilityInfo.isReduceMotionEnabled` (React Native built-in). Same behavior — respects OS `prefers-reduced-motion` (T-U1). | 🔴 Critical | rescue | ✅ `8d42e31` |
-| B-62 | `onboarding_complete` was not persisting across app restarts — stored only in Zustand memory, not in SecureStore. On restart, Zustand reset to `false` and AuthGate redirected to onboarding. Fix (Aibus): persist `onboarding_complete` to SecureStore so it survives app restarts independently of the Supabase sync. | 🔴 Critical | auth | ✅ `2026-03-09` |
-| B-60 | `lib/supabase.ts` `setSupabaseToken()` called `verifyOtp` with `type: "email"` — but the token was generated by `auth.admin.generateLink({ type: 'magiclink' })`. Type must match the generator. Result: silent session failure, Supabase session never established, `auth.uid()` always null, RLS broken for all users. No visible error shown. Fix: `type: "magiclink"`. Also translated all Spanish comments to English. Commit: `d1fe697` | 🔴 Critical | auth | ✅ `d1fe697` |
 | B-62 | **onboarding→home flash on restart** — `onboardingComplete` lived only in Zustand (in-memory, resets on restart). AuthGate briefly saw `false` before Supabase sync returned `true` → flash of onboarding screen. Fix: persist `onboardingComplete` in SecureStore (key `script_onboarding_complete`); `loadPersistedState()` called before `navReady` is set — `navReady` now waits for BOTH `privyReady` AND `storeLoaded`. Commits: `706bd15` + `3ef64bb` | 🟡 Medium | UX | ✅ `3ef64bb` |
 | B-63 | **Edge Functions returning 401** — `EXPO_PUBLIC_SUPABASE_ANON_KEY` uses new Supabase Publishable key format (`sb_...`) which is NOT a JWT. By default, Supabase Edge Functions verify JWT on each request. The new key fails verification → non-2xx response. Fix: deploy all Edge Functions with `--no-verify-jwt`. Affects: `sync-privy-user`, `interpret-checkin`. | 🔴 Critical | infra | ✅ deployed 2026-03-09 |
 | B-64 | **Dark mode emotion colors** — `EmotionColors` in `constants/colors.ts` had light-mode hex values only. In dark mode, `result.tsx` and `reflect.tsx` showed jarring bright backgrounds (e.g. `#E8E8E8` for `unnamed` on `#1C1C22` bg). Fix: added `EmotionColorsDark` parallel palette (same hue, dark-surface compatible) + `getEmotionColors(key, isDark)` helper. Consumers updated: `result.tsx`, `reflect.tsx`, `history/index.tsx`. `EmotionColors` alone is now DEPRECATED for screen use. Commit `140fcf4` (Aibus, 2026-03-11) | 🔴 High | colors | ✅ Resolved |
@@ -381,91 +382,11 @@ Something fails → both attack the bug → w4rw1ck confirms fix
 | B-70 | **Duplicate check-in save (initial attempt)** — `hasSaved` useState guard didn't prevent double-save because React state is async (batched). Between press and `disabled={true}` re-render, a second press could get through. Superseded by B-71/B-72. Commit `0791914` (Aibus, 2026-03-11) | — | — | ✅ Superseded by B-71/B-72 |
 | B-71 | **Check-in stack duplicate saves — navigation root cause** — After saving in `result.tsx`, `router.replace("/(app)/home")` switched to home tab but left the check-in stack intact (`body → notes → reflect`). When user tapped Check-in tab, Expo Router restored the tab to its last position (`reflect.tsx`) with old URL params → re-ran Edge Function → pushed to `result.tsx` again → second "Guardar" → duplicate INSERT. v1: push→replace in steps (didn't help). v2: StackActions.replace("body") silently failed (internal route name mismatch). v3 (FINAL): `unmountOnBlur: true` on the check-in tab in `_layout.tsx` — unmounts entire stack when leaving, fresh `body.tsx` on every return. All steps also changed from `router.push` to `router.replace`. Commit `3c0c570` (Aibus, 2026-03-11) | 🔴 High | navigation | ✅ Resolved |
 | B-72 | **Duplicate check-in save — race condition root cause** — Even with navigation fixed, two concurrent presses (double-tap, pressing both buttons before `disabled={true}` re-renders) could start two async INSERT operations because `useState` guards are asynchronous. Fix A: `useRef saveLock` — synchronous lock acquired before any async work; second call sees `true` immediately, before any render cycle. Fix B (FINAL, bulletproof): `session_id UUID` column added to `checkins` table with `UNIQUE` constraint + `expo-crypto` UUID generated in `body.tsx` and passed through all screens to `result.tsx` INSERT. Any duplicate INSERT is rejected at database level regardless of JS behavior. Requires running migration `supabase/migrations/add_checkin_session_id.sql` in Supabase SQL Editor. Commits: `b29be83` (saveLock) + `d6b74aa` (session_id) (Aibus, 2026-03-11) | 🔴 Critical | data integrity | ✅ Code fixed · ⏳ Migration needed |
-| B-59 | `contacts.tsx` "Done" and "Skip" buttons appeared to do nothing. Root cause: `useRouter` was removed (comment M-03) — navigation relied entirely on AuthGate. AuthGate's nav effect has `if (!navReady) return` guard. In dev bypass mode, `privyReady` never becomes `true` → `navReady` stays `false` forever → effect permanently disabled → buttons freeze. Fix: re-add `useRouter`; call `router.replace("/(app)/home")` explicitly after `setOnboardingComplete(true)`. | 🔴 High | navigation | ✅ `HEAD` |
-
-**B-01 — Fix:** Columns `hour_of_day` and `day_of_week` removed from `checkins`. `EXTRACT()` usable in queries. Commit: `864e435`.
-
-**B-02 — Fix:** `_layout.tsx` now imports and registers `Inter_400Regular`, `Inter_600SemiBold`, `Inter_700Bold` via `@expo-google-fonts/inter`. Commit: `1edc8c6`.
-
-**B-03 — Fix:** Replaced `text-top` with `style={{ textAlignVertical: 'top' }}` as native prop. Also removed hardcoded `dark:border-[#3A3A44]` → token `dark:border-script-dark-border`. Commit: `1edc8c6`.
-
-**B-04 — Fix:** Created `metro.config.js` with `withNativeWind(config, { input: './global.css' })`. NativeWind v4 requires this file to process Tailwind CSS — `babel.config.js` only does the JSX transform; CSS processing is Metro's responsibility. Without `metro.config.js`, all `className` are ignored. Commit: `30fec72`.
-
-**B-05 — Fix v1 (insufficient):** Added `zIndex: 999` and increased `elevation: 6→10` in `RescueFAB.tsx` StyleSheet. Commit: `b7e9b6e`.
-**B-05 — Fix v2 (definitive):** `RescueFAB` moved from `app/(app)/_layout.tsx` to `app/_layout.tsx` (root). Rendering it inside the Tab Navigator causes Android to hide it under its own UI layer regardless of `zIndex`. By being at the root of the tree — outside Stack and Tab Navigator — no navigation layer can cover it. Commit: `6562449`.
-
-**B-06 — Fix:** Added `<Tabs.Screen name="rescue" options={{ href: null }} />` in `app/(app)/_layout.tsx`. Expo Router auto-discovers all folders in `(app)/`; without this Screen with `href: null`, the `rescue/` folder appeared as a 6th tab in the navigation bar. Commit: `7ccfd0f`.
-
-**B-07 — Fix:** Replaced `expo-symbols` → `Ionicons` from `@expo/vector-icons` in all project files. SF Symbols is an Apple-exclusive technology that does not work on Android. Additionally: FAB redesigned with `View` overlay (`StyleSheet.absoluteFillObject` + `pointerEvents="box-none"` + flexbox) and visual circle separated as `View` with `borderRadius` (on Android, `Pressable` does not render `borderRadius+backgroundColor` correctly). Commits: `485284c`, `0698ac2`, `cdff16c`, `3d9801e`, `7b9d9a2`.
-
-**B-08 — Fix:** `Card.tsx` updated with `variant` ("default"|"elevated") and `onPress` (Pressable with `opacity:0.85`) props. "elevated" variant uses `bg-elevated + shadow-md + border script-blue`. Backward compatible. `reflect.tsx` corrected: `ActivityIndicator` uses `useColorScheme()` for color (#A8C5DA light / #5A7E92 dark). Commit: `c157bdb`. Found by Aibus in audit.
-
-**B-09 — Fix:** `result.tsx` — corrected field names in Supabase INSERT: `raw_text→free_text`, `confirmed_emotion→emotion_confirmed`. Verified against `supabase/schema.sql`. Commit: `a1f5aab`.
-
-**B-10 — Fix:** `TextInput.tsx` — added `numberOfLines?: number` and `accessibilityHint?: string` to interface; both forwarded to `RNTextInput`. `numberOfLines` only applies when `multiline=true`. Commit: `a1f5aab`.
-
-**B-11 — Fix:** `protocol.tsx` — SAPTEL phone number corrected from `800 290-0024` to `(55) 5259-8121`. Verified directly at saptel.org.mx. Affected `Linking.openURL("tel:...")` and text shown to user in Level 3 (Emergency). Detected by w4rw1ck. Commit: `e974d66`.
-
-**B-12 — Fix:** `assess.tsx` + `protocol.tsx` — all hardcoded light mode colors are now dynamically calculated with `useColorScheme()`. Buttons: `#6A3E3E` (dark) / `#E8C4C4` (light). Text: `#F0D0D0` (dark) / `#2D2D2D` (light). Applied on all crisis screens: assess, grounding, breathing, emergency, and closing screen. StyleSheet maintains sizes/layout (critical §11); only colors are dynamic. Detected by w4rw1ck on Android device. Commit: `a2f3d41`.
-
-**B-13 — Fix:** `protocol.tsx` — replaced `elapsed += 100` (cumulative drift) with `Date.now() - startTime` (real timestamp). `setInterval` on JS thread is not precise (each tick can take 100-115ms); after ~10s the label was already out of sync with the Reanimated circle (UI thread, precise). With real timestamps the label always reflects the exact moment. Interval reduced to 80ms for more responsive labels. Detected by w4rw1ck on Android device. Commit: `67bb9d5`.
-
-**B-14 — Fix:** `protocol.tsx` — added `Haptics.impactAsync(Light)` on each phase transition (Inhale↔Pause↔Exhale). Only vibrates when phase changes, not on every tick. `notificationAsync(Success)` vibration when completing 4 cycles. 12 subtle vibrations + 1 final per complete session. Commit: `cf3db00`.
-
-**B-15 — Fix:** `auth.tsx` — code field now has `value={code}` + `onChangeText={setCode}` (local state). Added explicit "Verify code" button with `disabled` when field is empty. Field with only `onSubmitEditing` does not work reliably on physical Android. Commit: `57d4947`.
-
-**B-16 — Fix:** `auth.tsx` — `handleVerifyCode` now shows `Alert` with error message when the code is incorrect. The previous `catch` lowered `isLoading` without user feedback. Commit: `57d4947`.
-
-**B-17 — Fix:** `sync-privy-user/index.ts` — added `corsHeaders` with `Access-Control-Allow-Origin: *` and `Access-Control-Allow-Headers`. All JSON responses use `corsHeaders`. Preflight `OPTIONS` responds with `200 ok`. Commit: `fe855c2`.
-
-**B-18 — Fix:** `contacts.tsx` — removed `import { useRouter }` and `const router = useRouter()` that were never used. Post-onboarding navigation is handled automatically by `AuthGate` in `_layout.tsx` when it detects `onboardingComplete=true`. Commit: `8372e4e`.
-
-**B-19 — Fix:** `profile.tsx` — guard `if (!supabaseUserId)` with explicit `console.warn` and comment documenting that the profile can be completed from Settings in Week 2. User can always continue onboarding even if save fails. Commit: `fa66ce1`.
-
-**B-20 — Fix:** `VIABILITY_TEST.md` removed from repo with `git rm`. It was an analysis document unrelated to the project that was accidentally tracked. Commit: `6eaae73`.
-
-**B-21 — Fix:** `Typography.tsx` — added variants `headingS` (18px semibold) and `heading` (alias for headingL). Used in `aq10-result.tsx` and other Phase 1.8 screens. Without these variants, the component failed silently showing `undefined` as CSS classes. Commit: `523e50a`.
-
-**B-22 — Fix:** `_layout.tsx` — `AuthGate` now includes explicit exception for rescue routes (`segments[0] === "(app)" && segments[1] === "rescue"`). If the user is on rescue, the guard returns without redirecting — regardless of auth state. Rule: crisis must never be blocked by an authentication wall. Commit: `05fb4e8`.
-
-**B-23 — Fix:** `aq10.tsx`, `TestScreen.tsx`, `contacts.tsx` — replaced non-existent token `bg-script-surface dark:bg-script-dark-surface` with `bg-script-bg-secondary dark:bg-script-dark-secondary` (valid tokens defined in `tailwind.config.js`). Affected progress bar in tests and contacts card. Commit: `38bfacb`.
-
-**B-24 — Fix:** `components/ui/Button.tsx` — added `className?: string` to `ButtonProps` and interpolated in `Pressable`'s `className`. Allows passing external margins (`mt-3`, `mb-4`, etc.) from the parent component. Backward compatible — default value `""`. Commit: `f733e23`.
-
-**B-25 — Fix:** `package.json` + `metro.config.js` — added `"buffer": "^6.0.3"` to dependencies; `metro.config.js` adds `buffer: require.resolve("buffer")` to `extraNodeModules`. Metro no longer treats `buffer` as a Node stdlib module. Requires `npm install` in user's project. Commits: `aac43e1`.
-
-**B-26 — Fix:** `lib/supabase.ts` — added conditional adapter by `Platform.OS`. On web uses `localStorage`; on native (Android/iOS) uses `SecureStore`. The web adapter does not throw errors even if SecureStore doesn't exist in that environment. Commits: `aac43e1`.
-
-**B-27 — Fix:** `polyfills.ts` + `package.json` — added `react-native-get-random-values ~1.11.0`; imported as first import in polyfills.ts. This package injects `global.crypto.getRandomValues` using the native RN API and safely registers `global.crypto`. Avoids the Hermes ReferenceError that occurs when accessing non-existent global properties. Requires `npm install` in user's project. Commit: `d9e562c`.
-
-**B-28 — Fix:** `lib/supabase.ts` — all `localStorage` accesses are now guarded with `typeof localStorage !== "undefined"`. The Metro SSR renderer runs in Node.js where `localStorage` doesn't exist even though `Platform.OS === "web"`. Without the guard, the Metro process crashed on initialization. Commit: `f80d5e0`.
-
-**B-29 — Fix:** `metro.config.js` + `package.json` — installed `uuid ^9.0.1`; added `uuid: require.resolve("uuid")` to `extraNodeModules`. With the "browser" condition active, Metro resolved `import 'uuid'` (from inside `wrapper.mjs`) back to the same `wrapper.mjs` — circular import that produces `undefined`. Forcing resolution to the CJS root breaks the cycle. Requires `npm install`. Commit: `c29f4c6`.
-
-**B-30 — Fix:** `app/_layout.tsx` + `.env.local.example` — added prop `clientId={process.env.EXPO_PUBLIC_PRIVY_CLIENT_ID}` to `<PrivyProvider>`. Privy Expo in native mode requires a separate Client ID from the App ID to identify the correct instance in Expo Go (bundle ID `host.exp.exponent`). w4rw1ck must create a Client in Privy Dashboard → Clients tab and add `EXPO_PUBLIC_PRIVY_CLIENT_ID` to `.env.local`. Commit: `120b10d`. ⚠️ Original commit labeled "B-27" (numbering collision — renamed B-30 in STATUS.md).
-
-**B-31 — Fix (partial):** `app/auth.tsx` — Aibus added `redirectUrl: Linking.createURL('/auth')` to `sendCode()`. The underlying problem is that Privy doesn't accept Expo Go's `exp://` scheme. See B-32 for the real solution. Commits: `fdbde71` + `f9011b2`. ⚠️ Original commits labeled "B-28" (collision — renamed B-31 in STATUS.md).
-
-**B-32 — Fix:** `app/auth.tsx` — removed `redirectUrl` from `sendCode()` and `import * as Linking`. In OTP flow (6-digit code), Privy does NOT need `redirectUrl` — that param is only for clickable magic link flow where the user is redirected to the app from the email. By passing it with scheme `exp://`, Privy validated it against its allowed schemes list and failed. Without `redirectUrl`, the email only contains the numeric code and the flow works without additional configuration in the dashboard. Commit: `297ca72`.
-
-**B-37 — Fix:** `app/auth.tsx` — consolidation of existing session guard. A single `useEffect` that: (1) extracts `privyId/userEmail` from `privyUser`; (2) calls `setUser(...)` synchronously; (3) navigates with `router.replace` BEFORE any await; (4) syncs with Supabase in background via `.then()/.catch()` — never blocks. Removed the `useEffect` from B-35 that called `handlePostLogin` with await. In `handlePostLogin` (for new OTP/OAuth logins) adds `Promise.race([supabase.functions.invoke(...), timeout5s])` — if Edge Function doesn't respond in 5s, navigates anyway. Commit: `5e5e87a`.
-
-**B-36 — Fix:** `app/auth.tsx` — two main changes: (1) Early return with `ActivityIndicator` spinner when `!privyReady || privyUser`. While Privy loads or there's already a session, the login form never renders — impossible to touch `sendCode`/`loginWithOAuth` in that state. (2) `handlePostLogin` now explicitly navigates when sync finishes: `router.replace("/(app)/home")` if `onboarding_complete` is true, `router.replace("/(onboarding)")` if not. The catch also navigates to `/(onboarding)` as fallback (Edge Function may fail). Without relying exclusively on `AuthGate`. `router` added to `useCallback` dependency array. Commit: `325e400`.
-
-**B-35 — Fix:** `app/auth.tsx` — added `useEffect` + `useCallback` + `usePrivy()`. When `AuthScreen` mounts, if `privyReady=true` and `privyUser` exists (session in SecureStore), automatically calls `handlePostLogin(privyUser)` to sync with Supabase and update Zustand → `AuthGate` detects the user and redirects to `/(onboarding)` or `/(app)/home`. `handlePostLogin` wrapped in `useCallback` to stabilize the reference in the `useEffect` dependency array. Safety net in case `AuthGate` doesn't redirect in time. Commit: `ffacd2d`.
-
-**B-34 — Fix:** `app/_layout.tsx` — `AuthGate` refactored to use `usePrivy()` as the source of truth for authentication. Two key changes: (1) `{ user: privyUser, ready: privyReady } = usePrivy()` — the presence of `privyUser` (not `storeUser`) determines if there is a session; (2) sync effect on startup: if Privy has a session but Zustand is empty (app restart), automatically calls `sync-privy-user` Edge Function to restore `user` and `onboardingComplete` without re-login. `privyReady` prevents redirect flashes while Privy loads. Also imported `supabase` in `_layout.tsx`. Commit: `d30290d`.
-
-**B-33 — Fix:** `app/auth.tsx` — added `import * as WebBrowser from 'expo-web-browser'` and call to `WebBrowser.maybeCompleteAuthSession()` at module level. This function is mandatory in Expo to complete the OAuth flow: when Google redirects back to the app after login, Expo Web Browser needs to know the OAuth session has ended and can close the browser. Without this call, the browser stays open or hangs and `useLoginWithOAuth` never receives the callback. Commit: `5f4bad5`.
-
 ---
 
 ## 🔒 Technical Decisions Made
 
 | Date | Decision | Reason |
-
-| 2026-03-06 | **B-51 Option A (superseded)** — sync-privy-user minted HS256 JWT signed with SUPABASE_JWT_SECRET. Required `SUPABASE_JWT_SECRET` env var (Legacy JWT Secret), not exposed in new Supabase dashboard UI. | Superseded by B-51 v2 below |
-| 2026-03-06 | **B-51 v2 (current)** — Switched to Admin API: `auth.admin.createUser()` + `auth.admin.generateLink({ type: 'magiclink' })`. Returns `otp_token_hash` (not `access_token`). Client calls `supabase.auth.verifyOtp({ token_hash, type: 'email' })`. `SUPABASE_SERVICE_ROLE_KEY` auto-injected — no additional secrets needed. `autoRefreshToken: false` (Privy manages lifecycle). Commit: `4aa48b3` | Privy ↔ Supabase session bridge without needing Legacy JWT Secret |
 |---|---|---|
 | 2026-02-26 | Expo SDK 55 as base | Current stable version |
 | 2026-02-26 | expo-audio instead of expo-av | expo-av deprecated in Expo 55 |
@@ -525,10 +446,14 @@ Something fails → both attack the bug → w4rw1ck confirms fix
 | 2026-03-06 | `react-native-get-random-values` as crypto polyfill in RN/Hermes | Hermes throws ReferenceError when accessing non-existent global.crypto (unlike V8 which returns undefined); this package is the standard for Privy in RN |
 | 2026-03-06 | `typeof localStorage !== "undefined"` required in web code | Metro SSR renderer runs in pure Node.js; `Platform.OS === "web"` can be true but localStorage doesn't exist — always check before accessing |
 | 2026-03-06 | Packages with circular ESM imports must go in `extraNodeModules` in metro.config.js | With "browser" condition, Metro can create cycles in uuid's `wrapper.mjs` — forcing CJS root resolution breaks them |
+| 2026-03-06 | **B-51 Option A (superseded)** — sync-privy-user minted HS256 JWT signed with SUPABASE_JWT_SECRET. Required `SUPABASE_JWT_SECRET` env var (Legacy JWT Secret), not exposed in new Supabase dashboard UI. | Superseded by B-51 v2 below |
+| 2026-03-06 | **B-51 v2 (current)** — Switched to Admin API: `auth.admin.createUser()` + `auth.admin.generateLink({ type: 'magiclink' })`. Returns `otp_token_hash` (not `access_token`). Client calls `supabase.auth.verifyOtp({ token_hash, type: 'email' })`. `SUPABASE_SERVICE_ROLE_KEY` auto-injected — no additional secrets needed. `autoRefreshToken: false` (Privy manages lifecycle). Commit: `4aa48b3` | Privy ↔ Supabase session bridge without needing Legacy JWT Secret |
 
 ---
 
 ## 📝 Sprint Notes
+
+> Ordered most-recent first.
 
 ### Week 2
 
