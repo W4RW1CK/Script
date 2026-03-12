@@ -251,7 +251,9 @@ export default function HomeScreen() {
         .select("emotion_confirmed, checkin_at")
         .eq("user_id", supabaseUserId)
         .order("checkin_at", { ascending: false })
-        .limit(7);
+        // D-02: limit 30 (not 7) — user may do multiple check-ins per day;
+        // buildWeekDots needs 1 per CALENDAR DAY across 7 days, so 30 safely covers all cases
+        .limit(30);
 
       if (error) {
         console.warn("[Home] Supabase fetch error:", error.message);

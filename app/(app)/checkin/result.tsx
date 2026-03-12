@@ -107,7 +107,7 @@ export default function CheckinResultScreen() {
       isSavingRef.current = false; // reset ref — no INSERT attempted
       Alert.alert(
         "No se pudo guardar",
-        "Tu sesión no está sincronizada todavía. Puedes reintentar desde Inicio → Perfil → Ajustes, o continuar sin guardar este check-in.",
+        "Tu sesión no está sincronizada todavía. Intenta de nuevo o ve a Ajustes desde el menú inferior para verificar tu cuenta.",
         [
           {
             text: "Continuar sin guardar",

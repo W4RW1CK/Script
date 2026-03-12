@@ -35,6 +35,7 @@ import { Ionicons } from "@expo/vector-icons";
 import { SafeScreen, Typography, Button, TextInput } from "@/components/ui";
 import { useAuthStore } from "@/stores/auth";
 import { supabase, setSupabaseToken } from "@/lib/supabase"; // B-51: setSupabaseToken activa RLS
+import { getPrivyEmail } from "@/lib/privy-helpers"; // S-03: shared email extraction
 
 /**
  * Pantalla de carga mientras Privy inicializa.
@@ -131,10 +132,7 @@ export default function AuthScreen() {
     if (useAuthStore.getState().user?.supabaseUserId) return; // ya sincronizado
 
     const privyId = privyUser.id;
-    const userEmail =
-      (privyUser as any).email?.address ||
-      (privyUser as any).linked_accounts?.find((a: any) => a.type === "email")?.address ||
-      null;
+    const userEmail = getPrivyEmail(privyUser); // S-03: centralized helper
     setUser({ privyId, email: userEmail, supabaseUserId: null });
 
     supabase.functions
@@ -194,10 +192,7 @@ export default function AuthScreen() {
     try {
       // Extraer datos del usuario de Privy
       const privyId = user.id;
-      const userEmail =
-        user.email?.address ||
-        user.linked_accounts?.find((a: any) => a.type === "email")?.address ||
-        null;
+      const userEmail = getPrivyEmail(user); // S-03: centralized helper
 
       // Guardar en auth store inmediatamente
       setUser({ privyId, email: userEmail, supabaseUserId: null });

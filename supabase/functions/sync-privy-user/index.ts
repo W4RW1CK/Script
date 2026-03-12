@@ -155,13 +155,13 @@ serve(async (req) => {
         // Auth user doesn't exist with correct UUID — check if authEmail is
         // already taken by a different auth user (stale entry from before B-66).
         // Use generateLink first; if it returns wrong UUID, delete and recreate.
-        // Also try direct email lookup via listUsers as a safety net.
-        const { data: listData } = await supabase.auth.admin.listUsers({ perPage: 1000 });
-        const existingByEmail = listData?.users?.find((u: any) => u.email === authEmail);
+        // D-04: getUserByEmail — O(1) direct lookup instead of listUsers (downloads ALL users at scale)
+        const { data: { user: byEmail } } = await supabase.auth.admin.getUserByEmail(authEmail);
 
-        if (existingByEmail && existingByEmail.id !== userId) {
-          console.warn("[sync] UUID mismatch via email lookup — deleting stale auth user:", existingByEmail.id);
-          await supabase.auth.admin.deleteUser(existingByEmail.id);
+
+        if (byEmail && byEmail.id !== userId) {
+          console.warn("[sync] UUID mismatch via email lookup — deleting stale auth user:", byEmail.id);
+          await supabase.auth.admin.deleteUser(byEmail.id);
         }
 
         console.log("[sync] Creating auth user with id:", userId);

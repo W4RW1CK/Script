@@ -41,13 +41,14 @@ export default function CheckinNotesScreen() {
   const [notes, setNotes] = useState("");
 
   /** Navegar a S12 pasando zonas + notas */
-  const handleContinue = () => {
+  const handleContinue = (includeNotes: boolean = true) => {
     // B-71: replace keeps the stack at 1 screen deep at all times
+    // D-03: pass empty string when user explicitly skips description
     router.replace({
       pathname: "/(app)/checkin/reflect",
       params: {
         zones: zonesParam ?? "",
-        notes: notes.trim(),
+        notes: includeNotes ? notes.trim() : "",
         sessionId: sessionId ?? "",
       },
     });
@@ -113,14 +114,14 @@ export default function CheckinNotesScreen() {
               {/* Botón principal — activo siempre (description es opcional) */}
               <Button
                 title="Listo →"
-                onPress={handleContinue}
+                onPress={() => handleContinue(true)}
                 variant="primary"
               />
 
-              {/* Opción de saltar la descripción */}
+              {/* D-03: skip button explicitly passes empty notes — distinct from "Listo" */}
               <Button
                 title="Continuar sin describir"
-                onPress={handleContinue}
+                onPress={() => handleContinue(false)}
                 variant="ghost"
                 accessibilityHint="Omite la descripción y continúa al análisis de emoción"
               />

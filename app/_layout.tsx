@@ -45,6 +45,7 @@ import { SafeAreaProvider } from "react-native-safe-area-context";
 import { RescueFAB } from "@/components/rescue/RescueFAB";
 import { useAuthStore } from "@/stores/auth";
 import { supabase, setSupabaseToken } from "@/lib/supabase"; // B-51
+import { getPrivyEmail } from "@/lib/privy-helpers"; // S-03: shared Privy email extraction
 
 // Re-exporta el ErrorBoundary de Expo Router para capturar errores en pantallas
 export { ErrorBoundary } from "expo-router";
@@ -110,12 +111,7 @@ function AuthGate({ children }: { children: React.ReactNode }) {
 
     // Privy tiene sesión pero Zustand está vacío → restaurar
     const privyId = privyUser.id;
-    const userEmail =
-      (privyUser as any).email?.address ||
-      (privyUser as any).linked_accounts?.find(
-        (a: any) => a.type === "email"
-      )?.address ||
-      null;
+    const userEmail = getPrivyEmail(privyUser); // S-03: centralized helper
 
     // Setear usuario básico en Zustand de inmediato
     setUser({ privyId, email: userEmail, supabaseUserId: null });
