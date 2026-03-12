@@ -1,8 +1,9 @@
 # APP_FLOW.md — Navigation Flows
 ## Script — Digital Companion for Adults with ASD Level 1
 
-**Version:** 1.4  
-**Last updated:** 2026-03-08  
+**Version:** 1.5  
+**Last updated:** 2026-03-11  
+**Changes v1.5:** Route references updated to Expo Router segment format (e.g., `/(app)/history`). `unmountOnBlur: true` on checkin tab noted — check-in stack resets on tab blur. `useFocusEffect` pattern documented for Home and History (live data on tab focus). See TEAM.md for task assignments.  
 **Changes v1.4:** Flow 1 (Onboarding) redesigned per w4rw1ck 2026-03-08. S01 now has two explicit CTAs. AQ-10 → ONE additional test (not cascade). RAADS-R removed from onboarding; moved to Settings. S07 profile made mandatory. S08 contacts remain optional. S06 marked as Settings-only.  
 **Changes v1.3:** Screen IDs renumbered to eliminate duplicates. Cross-references corrected. New screens S03-S06 (screening tests).
 

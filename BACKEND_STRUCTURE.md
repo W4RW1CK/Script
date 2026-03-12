@@ -1,9 +1,10 @@
 # BACKEND_STRUCTURE.md — Backend and Database Architecture
 ## Script — Digital Companion for Adults with ASD Level 1
 
-**Version:** 1.4  
-**Last updated:** 2026-03-08  
-**Changes v1.4:** §4 `sync-privy-user` updated to Admin API approach (B-51 v2): `auth.admin.createUser` + `auth.admin.generateLink`. Output changed from `supabase_token` to `otp_token_hash`. No `SUPABASE_JWT_SECRET` required. Client flow updated: `verifyOtp({ token_hash, type: 'email' })` instead of `setSession()`.  
+**Version:** 1.5  
+**Last updated:** 2026-03-11  
+**Changes v1.5:** B-60 fix — `verifyOtp` type corrected from `'email'` to `'magiclink'`. The `type: 'email'` value was causing session activation failures. Correct value for tokens generated via `auth.admin.generateLink({ type: 'magiclink' })` is `type: 'magiclink'`. All code and docs updated.  
+**Changes v1.4:** §4 `sync-privy-user` updated to Admin API approach (B-51 v2): `auth.admin.createUser` + `auth.admin.generateLink`. Output changed from `supabase_token` to `otp_token_hash`. No `SUPABASE_JWT_SECRET` required. Client flow updated: `verifyOtp({ token_hash, type: 'magiclink' })` instead of `setSession()`.  
 **Changes v1.3:** §4 interpret-checkin trigger corrected S11→S12 (the edge function is called from reflect.tsx). §4 send-crisis-notification corrected "level 2-3" → "level 3 only" (consistent with PRD/APP_FLOW/IMPLEMENTATION_PLAN). §5 Storage: note about audio bundled in assets for offline; filenames standardized.  
 **Changes v1.2:** RAADS-R domain counts corrected (64→80 items). RLS with WITH CHECK on all tables. RLS added for emotional_dictionary, script_executions, therapist_patients. sync-privy-user documented in §4. Screen reference S07→S11.
 
@@ -388,7 +389,8 @@ CREATE POLICY "tp_patient_manage" ON therapist_patients
 **Client-side flow (after receiving response):**
 ```typescript
 // lib/supabase.ts — setSupabaseToken()
-await supabase.auth.verifyOtp({ token_hash: otp_token_hash, type: 'email' })
+// B-60: type MUST be 'magiclink' — 'email' causes AuthApiError "link invalid"
+await supabase.auth.verifyOtp({ token_hash: otp_token_hash, type: 'magiclink' })
 // This establishes a real Supabase session → auth.uid() returns correct UUID → RLS resolves
 ```
 > **Note:** `autoRefreshToken` is set to `false` in the Supabase client — Privy manages the session lifecycle. Supabase session is re-established on each app startup via AuthGate sync.

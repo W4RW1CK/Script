@@ -1,9 +1,10 @@
 # FRONTEND_GUIDELINES.md — Design System
 ## Script — Digital Companion for Adults with ASD Level 1
 
-**Version:** 1.5  
-**Last updated:** 2026-03-10  
-**Changes v1.4:** §1.4 Emotional color system added (7 emotions with bg/dot/text). Tokens `script-accent` and `script-warning` added. §2 Typography migrated to Atkinson Hyperlegible (replaces Inter — empirical accessibility research). §4 Cards: double-layer shadows. §4 Buttons: approved mono-blue gradient. §7 Animations: `useReduceMotion()` pattern canonized. §12 Visual Identity (new section): 2026-03-06 redesign decisions (Aibus + Ana).
+**Version:** 1.6  
+**Last updated:** 2026-03-11  
+**Changes v1.6:** §1.4 Dark mode emotion palettes — `EmotionColorsDark` (8 keys) and `getEmotionColors(key, scheme)` helper added to `constants/colors.ts`. All components using emotion colors MUST use `getEmotionColors()` instead of `EmotionColors[key]` directly. T-U7 pressed state pattern documented.  
+**Changes v1.5 (2026-03-10):** §1.4 Emotional color system added (7 emotions with bg/dot/text). Tokens `script-accent` and `script-warning` added. §2 Typography migrated to Atkinson Hyperlegible (replaces Inter — empirical accessibility research). §4 Cards: double-layer shadows. §4 Buttons: approved mono-blue gradient. §7 Animations: `useReduceMotion()` pattern canonized. §12 Visual Identity (new section): 2026-03-06 redesign decisions (Aibus + Ana).
 
 **Changes v1.5 (2026-03-10):** §1.4 emotion set finalized — 8 canonical emotions locked by w4rw1ck: `calm`, `anxious`, `overwhelmed`, `sad`, `joyful`, `irritable`, `tired`, `unnamed`. Keys `overwhelm`→`overwhelmed`, `joy`→`joyful`, added `irritable` (replaces previous `frustrated` proposal — clinically more accurate for ASD Level 1). §2 font weight finalized — Atkinson Bold (700) everywhere for headings; no Inter fallback, no SemiBold. Dictionary content strategy: definition + how expressed in Week 2; "how to deal" deferred (AI-generated with disclaimer when it ships).  
 **Changes v1.3:** §8 Iconography updated — `expo-symbols` → `Ionicons` from `@expo/vector-icons` (B-07: SF Symbols does not work on Android).  
@@ -196,11 +197,40 @@ export type EmotionKey = keyof typeof EmotionColors;
 
 | Context | What it shows |
 |---|---|
-| `reflect.tsx` — selected card | `EmotionColors[key].bg` as background, `dot` as border and accent circle |
-| `result.tsx` — result screen | Full-screen background with `EmotionColors[key].bg` |
+| `reflect.tsx` — selected card | `getEmotionColors(key, scheme).bg` as background, `dot` as border and accent circle |
+| `result.tsx` — result screen | Full-screen background with `getEmotionColors(key, scheme).bg` |
 | `home.tsx` — "last emotion" card | Card background with the color of the last recorded emotion |
-| `history.tsx` — S19 calendar | 36x36px dots with `EmotionColors[key].dot` per day |
+| `history.tsx` — S19 — dot strip | 28x28px dots with `EmotionColors[key].dot` (dot values same in light/dark) |
 | Visual companion (Week 3) | Companion state reflects the emotion from the last check-in |
+
+**Dark mode — MANDATORY pattern (v1.6):**
+
+```typescript
+// ✅ Always use getEmotionColors — supports dark mode
+import { getEmotionColors } from "@/constants/colors";
+const colorScheme = useColorScheme();
+const colors = getEmotionColors(emotionKey, colorScheme);
+
+// ❌ Never access EmotionColors[key] directly in rendering components
+// (EmotionColors contains light-mode pastels only — jarring on dark bg)
+const colors = EmotionColors[emotionKey]; // ← WRONG in components
+```
+
+`EmotionColorsDark` provides deep-tinted backgrounds and light text (WCAG AA+).
+The `dot` value is the same in light and dark — it works on both backgrounds.
+
+**T-U7 — Pressed state on emotion cards:**
+
+Use `({ pressed })` style function on Pressable for immediate (synchronous) feedback:
+```typescript
+style={({ pressed }) => ({
+  borderColor: isSelected || pressed ? colors.dot : "#E0DDD8",
+  backgroundColor: isSelected ? colors.bg : pressed ? colors.dot + "22" : defaultBg,
+  opacity: isSelected && pressed ? 0.85 : 1,
+})}
+// defaultBg = colorScheme === "dark" ? "#26262E" : "#EFEFEA"
+// className CANNOT be used for pressed-dependent styles (can't access pressed)
+```
 
 ---
 

@@ -1,8 +1,9 @@
 # TECH_STACK.md — Technology Stack
 ## Script — Digital Companion for Adults with ASD Level 1
 
-**Version:** 1.4  
-**Last updated:** 2026-03-06  
+**Version:** 1.5  
+**Last updated:** 2026-03-11  
+**Changes v1.5:** Route `history.tsx` → `history/index.tsx` (folder structure). `@expo-google-fonts/atkinson-hyperlegible` version pinned to `^0.4.1`. `@react-native-async-storage/async-storage` version updated to `2.2.0`. `history/index.tsx` and `settings/index.tsx` now reflect implemented screens. `dictionary.tsx` marked as Week 2 pending.  
 **Changes v1.4:** `@expo-google-fonts/inter` → `@expo-google-fonts/atkinson-hyperlegible` (T-U3 — accessible font for ASD). Ref: FRONTEND_GUIDELINES.md §2.  
 **Changes v1.3:** Removed `expo-symbols` (SF Symbols only works on iOS/web — B-07); icon standard updated to `@expo/vector-icons` (Ionicons), already bundled with Expo.  
 **Changes v1.2:** Added `expo-symbols` to Styles and UI and to the install command (required by FRONTEND_GUIDELINES §8).  
@@ -59,8 +60,9 @@ app/
 │   ├── rescue/
 │   │   ├── assess.tsx     → S17 Crisis Assessment
 │   │   └── protocol.tsx   → S18 Rescue Protocol
-│   ├── history.tsx        → S19 History
-│   ├── dictionary.tsx     → S20 Emotional Dictionary
+│   ├── history/
+│   │   └── index.tsx      → S19 History (implemented Week 2)
+│   ├── dictionary.tsx     → S20 Emotional Dictionary (⏳ Sprint 2.3)
 │   └── settings/
 │       ├── index.tsx      → S21 Settings
 │       └── contacts.tsx   → S22 Contact Management
@@ -80,7 +82,7 @@ app/
 | **react-native-svg** | **15.15.3** | Interactive body silhouette + breathing circle |
 | **react-native-reanimated** | **4.2.2** | Smooth animations |
 | **react-native-worklets** | **0.7.4** | ⚠️ NEW — Peer dependency required by Reanimated 4 |
-| **@expo-google-fonts/atkinson-hyperlegible** | **latest** | Atkinson Hyperlegible font (replaces Inter — designed for accessibility) |
+| **@expo-google-fonts/atkinson-hyperlegible** | **^0.4.1** | Atkinson Hyperlegible font (T-U3 — replaces Inter — accessibility-first design) |
 | **expo-font** | **13.x** | Custom font loading |
 | **@expo/vector-icons** (Ionicons) | bundled with Expo | Cross-platform icons iOS/Android/web — project standard. ⚠️ NEVER use `expo-symbols` (iOS/web only) |
 

@@ -1,8 +1,9 @@
 # PRD.md — Product Requirements Document
 ## Script — Digital Companion for Adults with ASD Level 1
 
-**Version:** 1.5  
-**Last updated:** 2026-03-08  
+**Version:** 1.6  
+**Last updated:** 2026-03-11  
+**Changes v1.6:** §4 Week 2 updated — theme/palette done (2.4 ✅), Unlocked Insights moved from Week 3 to Week 2 (2.5 ⏳). "🚩 Esto no se siente bien" button was implemented in Week 1 MVP (result.tsx), NOT Week 4. `crisis_events` and `script_executions` INSERTs wired in Week 2 (2.8 ✅, 2.10 ✅).  
 **Changes v1.5:** §3.1 Onboarding redesigned — S01 now has two explicit CTAs ("Begin my journey" / "I need help right now"). AQ-10 → ONE additional test based on score (AQ Full if ≥6, CAT-Q if <6); cascade of 3 tests removed. RAADS-R removed from onboarding; accessible only from Settings → "Complete my profile". Personal questionnaire (S07) is now MANDATORY (no skip). Contacts (S08) remain OPTIONAL with warm recommendation. Decision by w4rw1ck 2026-03-08.  
 **Changes v1.4:** §3.4 Level 1 (grounding 5-4-3-2-1) updated to multimodal (visual + audio/voice + haptic) — decision confirmed in planning session 2026-02-27.  
 **Changes v1.3:** §3.1 Deep Phase — clarified that Settings access is Week 1 (Phase 1.8). §4 Week 2 — screening tests removed (they are Week 1). §4 Week 5 — "fully offline" scoped to avoid confusion with offline-first base of Week 1.  
@@ -193,16 +194,18 @@ Each block has 2–3 language options. The user chooses in the moment, does not 
 ## 4. Features — Post-MVP (Weeks 2–5)
 
 ### Week 2
-- Check-in history with basic pattern visualization (S19)
-- Personal emotional dictionary (vocabulary that grows with use) (S20)
-- Customization: light/dark mode, color palette, animations on/off (S21)
+- Check-in history with basic pattern visualization (S19) ✅
+- Personal emotional dictionary (vocabulary that grows with use) (S20) ⏳
+- Customization: light/dark mode theme toggle (S21) ✅
+- Unlocked Insights system (after 3, 7, 15 check-ins) ⏳
+- "🚩 Esto no se siente bien" flag button in result.tsx ✅ (implemented Week 1)
+- `crisis_events` + `script_executions` DB writes wired ✅
 
 > ℹ️ **Note:** The Full AQ (S04), CAT-Q (S05), and RAADS-R (S06) tests are implemented from **Week 1** (Phase 1.8) and are accessible from onboarding and from Settings → "Complete my profile".
 
 ### Week 3
 - Complete trusted network (add contacts, configure what they see, bilateral communication)
 - Configurable notifications (time, frequency, tone)
-- "Unlocked Insights" system (after 3, 7, 15 check-ins)
 - Telegram Bot for trusted contacts without the app
 
 ### Week 4

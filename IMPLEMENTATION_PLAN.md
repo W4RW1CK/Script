@@ -1,8 +1,9 @@
 # IMPLEMENTATION_PLAN.md — Implementation Plan
 ## Script — Digital Companion for Adults with ASD Level 1
 
-**Version:** 1.8  
-**Last updated:** 2026-03-08  
+**Version:** 1.9  
+**Last updated:** 2026-03-11  
+**Changes v1.9:** Sprint 2.C marked ✅ COMPLETE (all T-F1–T-F5 done). Week 2 progress: T-V1/T-V3/T-V4/T-V5/T-U3/T-U7 ✅ (Ana); T-V2/T-V6/T-V7 ✅ (Aibus). Bug fixes: B-DM dark mode emotion colors, B-DS race condition double-save, B-Focus useFocusEffect, B-UnmountBlur checkin tab, B-Font Button/Chip Atkinson. Data wiring: 2.8 crisis_events INSERT, 2.10 script_executions INSERT, 2.12 profile save alert, 2.4 settings appearance done. See STATUS.md for full ticket list.  
 **Changes v1.8:** Sprint 2.C (Onboarding Flow Redesign) added — 5 tickets (T-F1 to T-F5) implementing w4rw1ck flow decisions: S01 two CTAs, AQ-10 → ONE test, RAADS-R to Settings, S07 mandatory, S08 optional. Ref: PRD.md v1.5, APP_FLOW.md v1.4.  
 **Changes v1.7:** Week 2 — sprints 2.A (Visual Foundation) and 2.B (Identity Screens) added. Emotional color system, Atkinson Hyperlegible, shadows, button gradient, emotion cards, home redesign, Y-i-P calendar. Ref: STATUS.md T-U1 to T-V9, FRONTEND_GUIDELINES.md v1.4.  
 **Changes v1.6:** Step 5.1 replaced from smart contract to EAS attestations.  
