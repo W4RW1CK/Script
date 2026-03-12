@@ -165,18 +165,34 @@ serve(async (req) => {
         }
 
         console.log("[sync] Creating auth user with id:", userId);
-        const { error: createError } = await supabase.auth.admin.createUser({
+        const { data: createdAuthUser, error: createError } = await supabase.auth.admin.createUser({
           id: userId,
           email: authEmail,
           email_confirm: true,
           user_metadata: { privy_user_id },
         });
+
         if (createError) {
-          console.warn("[sync] auth.admin.createUser error:", createError.message);
+          // ROOT CAUSE FIX: if createUser fails, DO NOT call generateLink.
+          // generateLink auto-creates a new auth user with a RANDOM UUID when
+          // no user exists for that email — producing a new UUID mismatch and
+          // breaking RLS silently on every subsequent login.
+          console.error("[sync] auth.admin.createUser FAILED — aborting to prevent UUID mismatch:", createError.message);
+          throw new Error(`createUser failed: ${createError.message}`);
         }
+
+        // Verify the created user has the correct UUID before proceeding
+        if (createdAuthUser?.user?.id && createdAuthUser.user.id !== userId) {
+          console.error("[sync] createUser returned wrong UUID:", createdAuthUser.user.id, "≠", userId);
+          throw new Error(`createUser UUID mismatch: got ${createdAuthUser.user.id}, expected ${userId}`);
+        }
+
+        console.log("[sync] Auth user created with correct UUID:", userId);
       }
 
       // ── 5. Generate magic link token ──────────────────────────────────
+      // At this point auth user with id=userId MUST exist — verified above.
+      // generateLink will find the user by email and return a token for userId.
       const { data: linkData, error: linkError } =
         await supabase.auth.admin.generateLink({
           type: "magiclink",
@@ -186,16 +202,16 @@ serve(async (req) => {
       if (linkError) {
         console.warn("[sync] generateLink error:", linkError.message);
       } else {
-        // B-AUTH: Verify the returned token is for the correct user (UUID match).
-        // If generateLink returned a token for a different auth user, the session
-        // will have auth.uid() ≠ user_id → RLS will reject all writes.
+        // Final safety check: verify the token is for the correct user.
         const returnedUserId = (linkData as any)?.user?.id;
         if (returnedUserId && returnedUserId !== userId) {
-          console.warn("[sync] generateLink UUID mismatch:", returnedUserId, "≠", userId, "— skipping token");
-          // Don't use this token — it would cause RLS failures on the client
+          // This should never happen after the createUser fix above,
+          // but log loudly so we can diagnose if it somehow occurs.
+          console.error("[sync] generateLink still returned wrong UUID:", returnedUserId, "≠", userId, "— RLS WILL FAIL");
           otpTokenHash = null;
         } else {
           otpTokenHash = linkData?.properties?.hashed_token ?? null;
+          console.log("[sync] Token generated for correct UUID:", userId);
         }
       }
     } catch (authError) {
