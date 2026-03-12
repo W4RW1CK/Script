@@ -143,7 +143,7 @@ export default function ContactsScreen() {
           .from("profiles")
           .update({ onboarding_complete: true })
           .eq("user_id", resolvedSupabaseId)
-          .select("user_id", { count: "exact", head: true });
+          .select("user_id");
 
         if (updateError) {
           console.warn("[Contacts] profiles update error:", updateError.message);

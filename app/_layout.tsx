@@ -70,7 +70,8 @@ SplashScreen.preventAutoHideAsync();
  */
 function AuthGate({ children }: { children: React.ReactNode }) {
   const router = useRouter();
-  const segments = useSegments();
+  // useSegments() type is inferred as a 1-tuple; cast to string[] for multi-level route checks
+  const segments = useSegments() as string[];
 
   // Privy es la fuente de verdad para auth — persiste en SecureStore entre arranques.
   // useAuthStore().user es solo una copia en memoria (se resetea al reiniciar la app).

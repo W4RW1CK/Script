@@ -49,6 +49,7 @@ export default function CheckinNotesScreen() {
         zones: zonesParam ?? "",
         notes: notes.trim(),
         sessionId: sessionId ?? "",
+      },
     });
   };
 

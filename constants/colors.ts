@@ -50,7 +50,7 @@ export const Colors = {
     },
     border:  "#E0DDD8",
     // Semantic tokens (v1.4) — must match tailwind.config.js script-accent / script-warning
-    accent:  "#10B981", // Emerald — positive confirmation, completion states
+    success: "#10B981", // Emerald — positive confirmation, completion states (was: accent)
     warning: "#F59E0B", // Amber   — soft alert, non-crisis attention
   },
   dark: {
@@ -77,7 +77,7 @@ export const Colors = {
     },
     border:  "#3A3A44",
     // Semantic tokens (v1.4)
-    accent:  "#059669", // Emerald dark
+    success: "#059669", // Emerald dark (was: accent)
     warning: "#D97706", // Amber dark
   },
 } as const;
@@ -263,7 +263,7 @@ export const EmotionColorsDark = {
  */
 export function getEmotionColors(
   key: EmotionKey,
-  scheme: "light" | "dark" | null | undefined
+  scheme: "light" | "dark" | "unspecified" | null | undefined
 ): { bg: string; dot: string; text: string } {
   return scheme === "dark" ? EmotionColorsDark[key] : EmotionColors[key];
 }

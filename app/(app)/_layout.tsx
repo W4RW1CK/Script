@@ -74,6 +74,7 @@ export default function AppTabLayout() {
             <Ionicons name="body" size={24} color={color} />
           ),
           tabBarAccessibilityLabel: "Hacer un check-in corporal",
+          // @ts-expect-error — unmountOnBlur is valid Expo Router option but missing from TabsProps typedef
           unmountOnBlur: true,
         }}
       />

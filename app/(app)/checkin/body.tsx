@@ -14,7 +14,7 @@
  *   - Chips que muestran las zonas seleccionadas (tapping un chip lo quita)
  *   - Botón deshabilitado hasta seleccionar ≥1 zona
  */
-import React, { useState, useCallback } from "react";
+import React, { useState, useCallback, useRef } from "react";
 import { ScrollView, View } from "react-native";
 import { useRouter } from "expo-router";
 import { SafeScreen, Typography, Button, Chip } from "@/components/ui";

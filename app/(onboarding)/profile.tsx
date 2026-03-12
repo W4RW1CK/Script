@@ -89,7 +89,6 @@ export default function ProfileScreen() {
 
   const onSubmit = async (data: FormData) => {
     setIsSaving(true);
-    let failed = false;
     try {
       if (!supabaseUserId) {
         // supabaseUserId null = sync-privy-user failed. Show visible alert (2.12).
@@ -152,28 +151,6 @@ export default function ProfileScreen() {
       return;
     } finally {
       setIsSaving(false);
-    }
-
-    if (failed) {
-      // 2.12: Visible feedback — user knows their profile wasn't saved.
-      // Warm, non-alarming copy per ASD UX guidelines (no "error", no "failed").
-      Alert.alert(
-        "Tus datos no se guardaron",
-        "Algo impidió guardar tu perfil en este momento. Puedes completarlo desde Ajustes cuando quieras — no afecta el resto de la app.",
-        [
-          {
-            text: "Reintentar",
-            onPress: () => onSubmit(data),
-          },
-          {
-            text: "Continuar",
-            style: "cancel",
-            onPress: () => router.push("/(onboarding)/contacts"),
-          },
-        ],
-        { cancelable: false }
-      );
-      return; // Wait for user's choice before navigating
     }
 
     router.push("/(onboarding)/contacts");

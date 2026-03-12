@@ -11,7 +11,7 @@
  * Nota: placeholderTextColor no es configurable por NativeWind —
  * se pasa como prop nativa directamente (#ABABAB = script-text disabled).
  */
-import { TextInput as RNTextInput, View, Text } from "react-native";
+import { TextInput as RNTextInput, View, Text, KeyboardTypeOptions, TextInputProps as RNTextInputProps } from "react-native";
 import { useState } from "react";
 
 interface TextInputProps {
@@ -32,6 +32,14 @@ interface TextInputProps {
   accessibilityLabel?: string;
   /** Texto adicional que TalkBack/VoiceOver lee después del label */
   accessibilityHint?: string;
+  /** Keyboard type (e.g. "email-address", "phone-pad", "number-pad") */
+  keyboardType?: KeyboardTypeOptions;
+  /** Auto-capitalization behavior */
+  autoCapitalize?: RNTextInputProps["autoCapitalize"];
+  /** Auto-complete hint for password managers / system keyboards */
+  autoComplete?: RNTextInputProps["autoComplete"];
+  /** Whether to disable spell-check/autocorrect */
+  autoCorrect?: boolean;
 }
 
 export function TextInput({
@@ -43,6 +51,10 @@ export function TextInput({
   numberOfLines,
   accessibilityLabel,
   accessibilityHint,
+  keyboardType,
+  autoCapitalize,
+  autoComplete,
+  autoCorrect,
 }: TextInputProps) {
   // Controla el estado de foco para cambiar el borde
   const [focused, setFocused] = useState(false);
@@ -64,6 +76,10 @@ export function TextInput({
         multiline={multiline}
         // numberOfLines: solo en multiline — define altura inicial visible
         numberOfLines={multiline ? numberOfLines : undefined}
+        keyboardType={keyboardType}
+        autoCapitalize={autoCapitalize}
+        autoComplete={autoComplete}
+        autoCorrect={autoCorrect}
         onFocus={() => setFocused(true)}
         onBlur={() => setFocused(false)}
         accessibilityLabel={accessibilityLabel ?? label}
