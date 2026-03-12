@@ -242,7 +242,15 @@ export function TestScreen({
               variant="ghost"
               onPress={handlePause}
             />
-            <Button title="Omitir test" variant="ghost" onPress={onSkip} />
+            {/* H-NEW-02: save partial progress before skipping — prevents losing answered questions */}
+            <Button
+              title="Omitir test"
+              variant="ghost"
+              onPress={async () => {
+                if (currentIndex > 0) await saveProgress(answers, currentIndex);
+                onSkip();
+              }}
+            />
           </View>
         </View>
       </ScrollView>

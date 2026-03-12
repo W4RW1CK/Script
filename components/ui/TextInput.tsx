@@ -86,7 +86,11 @@ export function TextInput({
         accessibilityLabel={accessibilityLabel ?? label}
         accessibilityHint={accessibilityHint}
         // textAlignVertical no es clase NativeWind válida — requiere style prop nativo
-        style={multiline ? { textAlignVertical: "top" } : undefined}
+        // F-01: explicit fontFamily — NativeWind text-base sets fontSize only (B-65 lesson)
+        style={[
+          { fontFamily: "AtkinsonHyperlegible_400Regular" },
+          multiline ? { textAlignVertical: "top" } : {},
+        ]}
         className={`rounded-2xl bg-script-bg dark:bg-script-dark-bg p-4 text-base text-script-text dark:text-white border-[1.5px] ${
           // Borde azul al enfocar, gris neutro en reposo
           focused

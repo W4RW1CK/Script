@@ -14,7 +14,7 @@
  * NOTE: DB field is "relationship" (not "relation").
  */
 import React, { useState } from "react";
-import { View, ScrollView, Alert } from "react-native";
+import { View, ScrollView, Alert, Pressable } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import { SafeScreen, Typography, Button, TextInput, Chip } from "@/components/ui";
@@ -58,21 +58,28 @@ export default function ContactsScreen() {
       relationship: relationship || "Otro",
     };
 
-    // Guardar en Supabase inmediatamente
+    // F-03: Persist to Supabase BEFORE updating local state — rollback on failure
     if (supabaseUserId) {
       try {
-        await supabase.from("trusted_contacts").insert({
+        const { error: insertError } = await supabase.from("trusted_contacts").insert({
           user_id: supabaseUserId,
           name: newContact.name,
           phone: newContact.phone,
           relationship: newContact.relationship, // Campo correcto: "relationship"
           is_active: true,
         });
+        if (insertError) {
+          Alert.alert("No se pudo guardar", "Verifica tu conexión e inténtalo de nuevo.");
+          return; // Don't add to local state if DB failed
+        }
       } catch (e) {
         console.warn("[Contacts] Error guardando contacto:", e);
+        Alert.alert("No se pudo guardar", "Verifica tu conexión e inténtalo de nuevo.");
+        return;
       }
     }
 
+    // Only add to local state after confirmed DB save (or when no userId = offline mode)
     setContacts([...contacts, newContact]);
     // Limpiar formulario
     setName("");
@@ -139,7 +146,7 @@ export default function ContactsScreen() {
          * Ahora (correcto):
          *   supabase.from("profiles").update({ onboarding_complete: true }).eq("user_id", ...)
          */
-        const { error: updateError, count } = await supabase
+        const { data: updatedRows, error: updateError } = await supabase
           .from("profiles")
           .update({ onboarding_complete: true })
           .eq("user_id", resolvedSupabaseId)
@@ -147,8 +154,9 @@ export default function ContactsScreen() {
 
         if (updateError) {
           console.warn("[Contacts] profiles update error:", updateError.message);
-        } else if (count === 0) {
-          // profiles row missing — upsert it
+        } else if (!updatedRows || updatedRows.length === 0) {
+          // F-02: check data.length not count — count is null without { count: "exact" }
+          // If no rows were updated, the profiles row is missing — upsert it
           console.log("[Contacts] profiles row missing — inserting with onboarding_complete=true");
           const { error: upsertError } = await supabase
             .from("profiles")
@@ -219,12 +227,15 @@ export default function ContactsScreen() {
                       {c.phone} · {c.relationship}
                     </Typography>
                   </View>
-                  <Ionicons
-                    name="close-circle"
-                    size={24}
-                    color="#999"
+                  {/* H-NEW-01: Ionicons has no onPress — must wrap in Pressable */}
+                  <Pressable
                     onPress={() => removeContact(idx)}
-                  />
+                    accessibilityRole="button"
+                    accessibilityLabel={`Eliminar contacto ${c.name}`}
+                    hitSlop={8}
+                  >
+                    <Ionicons name="close-circle" size={24} color="#999" />
+                  </Pressable>
                 </View>
               ))}
             </View>

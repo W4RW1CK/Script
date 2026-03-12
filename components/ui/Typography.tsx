@@ -121,7 +121,8 @@ export function Typography({
       // NativeWind className handles color, margin, alignment, etc.
       // variantStyles handles fontFamily + size + lineHeight explicitly.
       // style prop allows dynamic overrides (emotion colors, etc.).
-      className={`text-script-text dark:text-white ${className}`}
+      // H-NEW-04: dark:text-script-dark-text (#E8E8E8) — softer than pure white, less visually fatiguing
+      className={`text-script-text dark:text-script-dark-text ${className}`}
       style={[variantStyles[variant], style]}
     >
       {children}

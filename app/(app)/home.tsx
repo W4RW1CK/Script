@@ -279,6 +279,8 @@ export default function HomeScreen() {
       // Build one dot per CALENDAR DAY (take the most recent check-in per day)
       const dayMap = new Map<string, EmotionKey>();
       for (const row of data) {
+        // M-NEW-06: guard against null/invalid checkin_at before string operations
+        if (!row.checkin_at) continue;
         const day = (row.checkin_at as string).split("T")[0]; // "YYYY-MM-DD"
         if (!dayMap.has(day)) {
           // First (most recent) for that day wins
