@@ -650,6 +650,11 @@ backgroundColor: dot.emotionKey ? getEmotionColors(dot.emotionKey, colorScheme).
 | A-M07 | S07 `profile.tsx` | Verify name field label reads "¿Cómo te llamamos?" not "Nombre completo" | Ana |
 | A-C04 | All data screens | Skeleton loading states (S09, S14, S19, S12) — layout-shaped placeholders, `opacity: 0.4`, pulse animation disabled when `reduceMotion` | Both |
 | A-M06 | S08 `contacts.tsx` | Verify successful contact INSERT triggers visible re-render of new contact in list | Ana |
+| M-NEW-01 | S08 `contacts.tsx` | Guard `completeOnboarding`: only call `setOnboardingComplete(true)` locally if DB write succeeds OR if we have a valid `resolvedSupabaseId`. Currently sets local state even when DB is skipped, causing onboarding loop on next login. | Aibus |
+| M-NEW-02 | `aq10.tsx` + `TestScreen.tsx` | Add explanatory comments clarifying the two scoring models: AQ-10 uses `agree: boolean` (binary scoring), TestScreen uses option INDEX (prevents double-select bug on numeric scales). Not a bug — needs documentation to prevent future developer error. | Aibus |
+| S-04 | `rescue/protocol.tsx` | Level 3 "notify trusted contact" button is a **clinical no-op** — shows confirmation dialog but does nothing. Must either (A) hide button with "Próximamente" note, or (B) implement actual contact loading + notification. Do NOT ship a non-functional crisis safety button. | Ana (hide) / Both (implement) |
+| S-05 | `home.tsx` + `history/index.tsx` | Surface `flagged_for_review` check-ins to user. If ≥1 flagged check-in in last 7 days, show gentle home card: "Has tenido momentos difíciles esta semana. ¿Quieres explorarlos?" → History filtered to flagged only. Clinical gap — flagging a check-in is a distress signal that must not be ignored. | Ana |
+| H-NEW-03 | `lib/profile-seed.ts` | Wire up `generateProfileSeed()` to onboarding completion flow (seeds script priorities + sensory defaults from test scores). Or if deferred, add explicit `// TODO Sprint 3.X: wire this to contacts.tsx completeOnboarding` comment to prevent confusion. Currently 148 lines of dead code. | Aibus |
 
 ---
 

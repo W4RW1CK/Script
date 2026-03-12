@@ -412,6 +412,25 @@ Something fails → both attack the bug → w4rw1ck confirms fix
 | A-M07 | **Profile name field label may pressure users** — Field label/placeholder must read "¿Cómo te llamamos?" not "Nombre completo" or "Nombre legal." | 🟠 Medium | tone/clinical | ⏳ Week 2 |
 | T-Guest | **Guest mode — "Continuar sin cuenta"** — User can access Rescue + Scripts without creating an account. Entry point: auth screen (S24) only — NOT S01 (which has exactly 2 CTAs per PRD). Flow: ghost button "Continuar sin cuenta" → sets `isGuest: true` in auth store → AuthGate allows `(app)` access → home shows limited view (no check-in CTA, no history; shows "Crear cuenta" prompt instead). Rescue protocol already skips saving when `supabaseUserId` is null. Scripts list already works with anon key. Backend: Aibus adds `isGuest: boolean` flag to `stores/auth.ts`. Frontend: Ana implements button, AuthGate routing, and home feature gating. | 🟡 High | UX/auth | ⏳ Sprint 2.D (Ana + Aibus) |
 
+### Full Deep Code Audit — Round 2 (2026-03-12)
+
+> Full deep audit — all 51 source files read line by line. Gist: <https://gist.github.com/dumbleclaw/f37deaed8fd7957499da52ea8c820f9b>
+
+| ID | Issue | Severity | Area | Status |
+|---|---|---|---|---|
+| F-01 | **`TextInput` missing Atkinson font family** — `RNTextInput` used NativeWind `text-base` (sets fontSize only). All text typed in any input rendered in system font, not Atkinson Hyperlegible. B-65 pattern missed `TextInput`. Fix: `style={[{ fontFamily: "AtkinsonHyperlegible_400Regular" }, ...]}`. Commit `eb68a43` | 🔴 Critical | fonts | ✅ Resolved |
+| F-02 | **`contacts.tsx` `count` vs `data.length` — onboarding upsert fallback never triggered** — `.update().select()` returns `count: null` without `{ count: "exact" }` option. `null === 0` is always false → fallback upsert for missing profiles row never ran → `onboarding_complete` not saved → users could loop back to onboarding on restart. Fix: `!updatedRows || updatedRows.length === 0`. Commit `eb68a43` | 🔴 Critical | data/onboarding | ✅ Resolved |
+| F-03 | **`contacts.tsx` optimistic UI — contact shown before Supabase INSERT confirms** — `setContacts()` called after try/catch regardless of INSERT result. On failure, contact appears in UI but not in DB. Fix: only call `setContacts()` after confirmed INSERT; show Alert on failure and `return` early. Commit `eb68a43` | 🟡 High | UX/data | ✅ Resolved |
+| H-NEW-01 | **`contacts.tsx` `Ionicons` `onPress` silently ignored on Android** — `@expo/vector-icons` `Ionicons` does NOT have an `onPress` prop. Delete-contact button appeared interactive but was a no-op on Android. Fix: wrap in `<Pressable onPress={...} hitSlop={8}>`. Commit `eb68a43` | 🟡 High | Android/UX | ✅ Resolved |
+| H-NEW-02 | **`TestScreen` "Omitir test" discards partial progress** — "Skip" called `onSkip()` without saving to SecureStore. A user halfway through RAADS-R (40/80 questions) would lose all answers. Fix: `if (currentIndex > 0) await saveProgress(answers, currentIndex)` before `onSkip()`. Commit `eb68a43` | 🟡 High | UX/data | ✅ Resolved |
+| H-NEW-03 | **`lib/profile-seed.ts` is dead code — never imported** — 148 lines of `generateProfileSeed()` fully implemented but zero files import it. Bundle weight with no benefit. Action: wire up in Sprint 3.X to seed script priorities from test scores, or mark clearly as `// TODO Sprint 3.X`. | 🟠 Medium | architecture | ⏳ Week 3 |
+| H-NEW-04 | **`Typography` `dark:text-white` — pure white in dark mode** — All Typography in dark mode rendered as #FFFFFF (pure white). Design system uses `#E8E8E8` (script-dark-text) — softer, less visually fatiguing for ASD users with light sensitivity. Fix: `dark:text-script-dark-text`. Commit `eb68a43` | 🟡 High | accessibility/dark mode | ✅ Resolved |
+| H-NEW-05 | **`polyfills.ts` `crypto.subtle` may be undefined on old Android** — Shim only adds `subtle` if `globalThis.crypto.subtle` exists. On Android < API 23, `subtle` is undefined → any module using `crypto.subtle` at import time crashes. Root cause of the settings import crash (fixed separately by removing `usePrivy` from settings). Documented as known. | 🟠 Medium | infrastructure | ⚠️ Known / Mitigated |
+| M-NEW-01 | **`contacts.tsx` `completeOnboarding` sets local `onboardingComplete` even when DB write skipped** — If `supabaseUserId` is null AND retry sync fails, the code skips DB write but still calls `setOnboardingComplete(true)` locally (SecureStore). On next login, `sync-privy-user` may return `onboarding_complete: false` → AuthGate sends back to onboarding. | 🟠 Medium | auth/onboarding | ⏳ Week 2 |
+| M-NEW-02 | **AQ-10 scoring model (`agree: boolean`) vs TestScreen model (option index)** — AQ-10 uses boolean `agree` field; TestScreen uses array index comparison. Not a bug (by design), but undocumented. A developer could accidentally apply wrong model. Add explanatory comments. | 🟠 Medium | documentation | ⏳ Week 2 |
+| M-NEW-03 | **`rescue/protocol.tsx` Level escalation already uses `router.replace`** — Escalation (Level 1→2) correctly uses `replace` not `push`. No action needed. Already correct. | ✅ — | rescue | ✅ Verified correct |
+| M-NEW-06 | **`home.tsx` no null guard before `.split("T")` on `checkin_at`** — If `checkin_at` is null in a DB row, `(null).split("T")` throws. Fix: `if (!row.checkin_at) continue`. Commit `eb68a43` | 🟠 Medium | data safety | ✅ Resolved |
+
 ---
 
 ## 🔒 Technical Decisions Made
@@ -486,6 +505,29 @@ Something fails → both attack the bug → w4rw1ck confirms fix
 > Ordered most-recent first.
 
 ### Week 2
+
+**2026-03-12 — Full Deep Code Audit Round 2 (Aibus)**
+
+All 51 source files read line by line. Gist: <https://gist.github.com/dumbleclaw/f37deaed8fd7957499da52ea8c820f9b>
+
+- **F-01** ✅ — `TextInput` Atkinson font missing (same root cause as B-65 for Button)
+- **F-02** ✅ — `contacts.tsx` upsert fallback `count === 0` was always false (`count` is null without `{ count: "exact" }`)
+- **F-03** ✅ — `contacts.tsx` optimistic UI — contact shown before INSERT confirmed; no rollback on failure
+- **H-NEW-01** ✅ — `Ionicons` `onPress` silently ignored on Android — delete button was no-op; wrapped in `Pressable`
+- **H-NEW-02** ✅ — TestScreen "Omitir" discarded partial answers; now saves progress to SecureStore before skipping
+- **H-NEW-04** ✅ — Typography `dark:text-white` → `dark:text-script-dark-text` (#E8E8E8, softer for dark mode)
+- **M-NEW-06** ✅ — `home.tsx` null guard added before `.split("T")` on `checkin_at`
+- **Deep audit first pass** ✅ — D-02/D-03/D-04/D-05/S-03 fixed in commit `e317b6c`
+- **Commit:** `eb68a43`
+
+**Open items from this audit:**
+- H-NEW-03: `profile-seed.ts` dead code (148 lines, never imported) — wire up Sprint 3 or mark TODO
+- M-NEW-01: `completeOnboarding` sets local state even when DB write skipped — defensive guard needed
+- M-NEW-02: AQ-10 vs TestScreen scoring model inconsistency — needs documenting comments only
+- S-04: Level 3 "notify contact" no-op — hide button until Sprint 2.1 implementation
+- S-05: `flagged_for_review` never surfaced to user — clinical gap, Week 3
+
+---
 
 **2026-03-12 — UI/UX Audit + Quick Fixes (Aibus)**
 

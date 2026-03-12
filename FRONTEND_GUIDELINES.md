@@ -603,6 +603,31 @@ Skeleton implementation:
 - Pulse animation: `Animated.sequence([Animated.timing(opacity, 0.4), Animated.timing(opacity, 0.8)])`, loop
 - Always check `useReduceMotion()` — if true, show static skeleton (no pulse)
 
+### 10.3 Component Font Rules (B-65 Pattern)
+
+> **Rule:** In React Native, NativeWind font-weight classes (`font-bold`, `text-base`) set `fontWeight`/`fontSize` ONLY — they do NOT set `fontFamily`. Any component that wants Atkinson Hyperlegible must set `fontFamily` explicitly via `style` prop in `StyleSheet` or inline.
+
+Applied to these components (do not revert):
+
+| Component | Required style |
+|---|---|
+| `Button.tsx` (text label) | `style={{ fontFamily: "AtkinsonHyperlegible_700Bold" }}` |
+| `TextInput.tsx` (RNTextInput) | `style={[{ fontFamily: "AtkinsonHyperlegible_400Regular" }, ...]}` |
+| `Typography.tsx` | Uses `variantStyles` from `StyleSheet.create()` with explicit fontFamily per variant |
+| Tab bar labels | `fontFamily: "AtkinsonHyperlegible_700Bold"` in `tabBarLabelStyle` in `(app)/_layout.tsx` |
+
+**Any new component that renders text must follow this rule.** Do not rely on NativeWind alone.
+
+### 10.4 Supabase Data Safety Rules
+
+> From Full Deep Audit 2026-03-12 — apply these patterns everywhere.
+
+1. **Never use `count` from `.select()` without `{ count: "exact" }`** — without the option, `count` is always `null`. Use `data?.length === 0` to check if an update matched zero rows.
+2. **Optimistic UI requires rollback** — only update local state AFTER a confirmed Supabase write. On failure, show `Alert.alert()` and return early. Do not show data in the UI that isn't in the database.
+3. **Guard null timestamps before string operations** — `checkin_at`, `created_at`, and similar nullable columns must be guarded: `if (!row.checkin_at) continue` before `.split("T")` or `new Date(...)`.
+4. **`Ionicons` has no `onPress` prop** — `@expo/vector-icons` components are pure display. Always wrap in `<Pressable onPress={...}>` for tappable icons.
+5. **`router.replace` for crisis escalation** — Level transitions in rescue protocol must use `replace` not `push` to prevent back-navigation between crisis levels.
+
 ---
 
 ## 11. Crisis Screen — Special Rules
