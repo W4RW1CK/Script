@@ -275,19 +275,22 @@ export default function SettingsScreen() {
           </View>
 
           {/* ── Sign Out ── */}
-          <Pressable
-            onPress={handleSignOut}
-            accessibilityRole="button"
-            accessibilityLabel="Cerrar sesión"
-            className="items-center py-3"
-          >
-            <Typography
-              variant="body"
-              className="text-red-500 dark:text-red-400"
+          <View className="border-t border-script-border dark:border-script-dark-border pt-4 mt-2">
+            <Pressable
+              onPress={handleSignOut}
+              accessibilityRole="button"
+              accessibilityLabel="Cerrar sesión"
+              style={({ pressed }) => ({ opacity: pressed ? 0.6 : 1 })}
+              className="items-center py-3 rounded-2xl bg-script-bg-secondary dark:bg-script-dark-secondary"
             >
-              Cerrar sesión
-            </Typography>
-          </Pressable>
+              <Typography
+                variant="headingS"
+                className="text-red-500 dark:text-red-400"
+              >
+                Cerrar sesión
+              </Typography>
+            </Pressable>
+          </View>
 
         </View>
       </ScrollView>

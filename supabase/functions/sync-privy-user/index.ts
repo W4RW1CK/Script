@@ -135,10 +135,22 @@ serve(async (req) => {
     let otpTokenHash: string | null = null;
 
     try {
+      // ── Check if auth user exists by UUID ─────────────────────────────
       const { data: authUserData } = await supabase.auth.admin.getUserById(userId);
 
       if (!authUserData?.user) {
-        console.log("[sync] Creating auth user...");
+        // Auth user doesn't exist by UUID — check if authEmail is already taken
+        // by a different auth user (UUID mismatch from previous failed creates).
+        // If so, delete it first to ensure we can create with the correct UUID.
+        const { data: { users: existingUsers } } = await supabase.auth.admin.listUsers({ perPage: 1000 });
+        const existingByEmail = existingUsers?.find((u: any) => u.email === authEmail);
+
+        if (existingByEmail && existingByEmail.id !== userId) {
+          console.warn("[sync] UUID mismatch — deleting stale auth user:", existingByEmail.id);
+          await supabase.auth.admin.deleteUser(existingByEmail.id);
+        }
+
+        console.log("[sync] Creating auth user with id:", userId);
         const { error: createError } = await supabase.auth.admin.createUser({
           id: userId,
           email: authEmail,
@@ -160,7 +172,17 @@ serve(async (req) => {
       if (linkError) {
         console.warn("[sync] generateLink error:", linkError.message);
       } else {
-        otpTokenHash = linkData?.properties?.hashed_token ?? null;
+        // B-AUTH: Verify the returned token is for the correct user (UUID match).
+        // If generateLink returned a token for a different auth user, the session
+        // will have auth.uid() ≠ user_id → RLS will reject all writes.
+        const returnedUserId = (linkData as any)?.user?.id;
+        if (returnedUserId && returnedUserId !== userId) {
+          console.warn("[sync] generateLink UUID mismatch:", returnedUserId, "≠", userId, "— skipping token");
+          // Don't use this token — it would cause RLS failures on the client
+          otpTokenHash = null;
+        } else {
+          otpTokenHash = linkData?.properties?.hashed_token ?? null;
+        }
       }
     } catch (authError) {
       // Auth operations failed — app still works but RLS may not
