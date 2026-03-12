@@ -27,12 +27,22 @@ interface AuthState {
   user: AuthUser | null;
   /** Si el onboarding ya fue completado — persiste en SecureStore */
   onboardingComplete: boolean;
+  /**
+   * Guest mode — user chose "Continuar sin cuenta" on auth screen.
+   * Can access: Rescue (local, not saved) + Scripts (read-only).
+   * Cannot access: check-in, history, dictionary.
+   * No supabaseUserId — all Supabase writes are silently skipped.
+   * T-Guest: set by Ana's auth screen button; read by home.tsx + AuthGate.
+   */
+  isGuest: boolean;
   /** Setear usuario tras login exitoso */
   setUser: (user: AuthUser) => void;
   /** Actualizar el supabaseUserId tras sync */
   setSupabaseUserId: (id: string) => void;
   /** Marcar onboarding como completo (persiste en SecureStore) */
   setOnboardingComplete: (complete: boolean) => void;
+  /** Activar modo invitado (sin cuenta) */
+  setGuest: (guest: boolean) => void;
   /** Limpiar sesión (logout) — borra SecureStore también */
   clearUser: () => void;
   /** Cargar onboardingComplete desde SecureStore al arrancar */
@@ -42,6 +52,7 @@ interface AuthState {
 export const useAuthStore = create<AuthState>((set) => ({
   user: null,
   onboardingComplete: false,
+  isGuest: false,
 
   setUser: (user) => set({ user }),
 
@@ -58,10 +69,12 @@ export const useAuthStore = create<AuthState>((set) => ({
     set({ onboardingComplete: complete });
   },
 
+  setGuest: (guest) => set({ isGuest: guest }),
+
   clearUser: () => {
-    // Clear persisted onboarding state on logout
+    // Clear persisted onboarding state on logout — also resets guest mode
     SecureStore.deleteItemAsync(ONBOARDING_KEY).catch(() => {});
-    set({ user: null, onboardingComplete: false });
+    set({ user: null, onboardingComplete: false, isGuest: false });
   },
 
   loadPersistedState: async () => {

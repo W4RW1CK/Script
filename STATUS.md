@@ -410,6 +410,7 @@ Something fails → both attack the bug → w4rw1ck confirms fix
 | A-M05 | **Scripts list has no empty state** — If Supabase returns 0 rows (network issue), `ActivityIndicator` disappears and user sees a blank list. Need: icon + "Los scripts se están cargando. Verifica tu conexión." | 🟠 Medium | UX | ⏳ Week 2 |
 | A-M06 | **No visible feedback on successful contact save in `contacts.tsx`** — No success confirmation after INSERT; only errors are surfaced. | 🟠 Medium | feedback | ⏳ Week 3 |
 | A-M07 | **Profile name field label may pressure users** — Field label/placeholder must read "¿Cómo te llamamos?" not "Nombre completo" or "Nombre legal." | 🟠 Medium | tone/clinical | ⏳ Week 2 |
+| T-Guest | **Guest mode — "Continuar sin cuenta"** — User can access Rescue + Scripts without creating an account. Entry point: auth screen (S24) only — NOT S01 (which has exactly 2 CTAs per PRD). Flow: ghost button "Continuar sin cuenta" → sets `isGuest: true` in auth store → AuthGate allows `(app)` access → home shows limited view (no check-in CTA, no history; shows "Crear cuenta" prompt instead). Rescue protocol already skips saving when `supabaseUserId` is null. Scripts list already works with anon key. Backend: Aibus adds `isGuest: boolean` flag to `stores/auth.ts`. Frontend: Ana implements button, AuthGate routing, and home feature gating. | 🟡 High | UX/auth | ⏳ Sprint 2.D (Ana + Aibus) |
 
 ---
 
