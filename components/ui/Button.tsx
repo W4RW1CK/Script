@@ -17,8 +17,9 @@
  *  - 50% opacity when disabled
  *  - B-39: accessibilityLabel prop overrides title for screen readers
  */
-import { Pressable, StyleSheet, Text, View } from "react-native";
+import { Pressable, StyleSheet, Text, View, useColorScheme } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
+import { useState } from "react";
 
 type ButtonVariant = "primary" | "secondary" | "danger" | "ghost";
 
@@ -84,6 +85,13 @@ export function Button({
   const isPrimary = variant === "primary";
   const styles = variantStyles[variant];
 
+  // T-U8: focus ring for switch access / keyboard navigation
+  const [focused, setFocused] = useState(false);
+  const isDark = useColorScheme() === "dark";
+  // Calm ripple — script-blue low opacity (non-jarring, sensory-safe for ASD)
+  const rippleColor = isDark ? "rgba(90, 126, 146, 0.25)" : "rgba(168, 197, 218, 0.35)";
+  const focusBorderColor = isDark ? "#5A7E92" : "#A8C5DA";
+
   // Shared inner text — same for all variants.
   // T-U3: fontFamily via StyleSheet (NativeWind font-bold sets weight only, not family).
   // Primary: white color in style (no className needed).
@@ -104,8 +112,14 @@ export function Button({
     accessibilityRole: "button" as const,
     accessibilityLabel: accessibilityLabel ?? title,
     accessibilityHint,
+    // T-U8: android_ripple gives tactile visual feedback on Android
+    android_ripple: disabled ? undefined : { color: rippleColor, borderless: false },
+    onFocus: () => setFocused(true),
+    onBlur: () => setFocused(false),
     style: ({ pressed }: { pressed: boolean }) => ({
       opacity: pressed && !disabled ? 0.85 : disabled ? 0.5 : 1,
+      // T-U8: 2px focus ring visible during switch access / keyboard navigation
+      ...(focused && !disabled && { borderWidth: 2, borderColor: focusBorderColor }),
     }),
   };
 
