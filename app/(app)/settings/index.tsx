@@ -15,6 +15,9 @@
  * Test completion detected via profiles.{aq_full,catq,raads}_completed_at timestamps.
  * Null timestamp = test not yet taken (⏳). Non-null = completed (✅).
  */
+// ⚠️ Polyfill FIRST — @privy-io/expo accesses bare `crypto` global at module eval time.
+// Without this, Hermes throws ReferenceError on first lazy load of this screen.
+import "@/polyfills";
 import React, { useEffect, useState, useCallback } from "react";
 import { View, ScrollView, Pressable, Appearance, useColorScheme, Alert } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
