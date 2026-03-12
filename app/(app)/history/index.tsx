@@ -103,7 +103,7 @@ function EmotionFilterChips({
   selected: EmotionKey | null;
   onSelect: (key: EmotionKey | null) => void;
 }) {
-  const isDark = useColorScheme() === "dark";
+  const isDark = (useColorScheme() ?? 'light') === 'dark';
   const defaultBg     = isDark ? "#26262E" : "#EFEFEA"; // script-dark-secondary / script-bg-secondary
   const defaultBorder = isDark ? "#3A3A44" : "#E0DDD8"; // script-dark-border / script-border
   const defaultText   = isDark ? "#E8E8E8" : "#2D2D2D";
@@ -208,7 +208,7 @@ function CheckinRow({
   item:    Checkin;
   onPress: () => void;
 }) {
-  const isDark     = useColorScheme() === "dark";
+  const isDark     = (useColorScheme() ?? 'light') === 'dark';
   const emotionKey = toEmotionKey(item.emotion_confirmed);
   const colors     = EmotionColors[emotionKey];
   const dateStr    = formatCheckinDate(item.checkin_at);

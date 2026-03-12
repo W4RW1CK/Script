@@ -80,7 +80,7 @@ export default function ScriptDetailScreen() {
   // `id` viene del segmento de ruta dinámica [id]
   const { id } = useLocalSearchParams<{ id: string }>();
 
-  const isDark = useColorScheme() === "dark";
+  const isDark = (useColorScheme() ?? 'light') === 'dark';
   const spinnerColor = isDark ? "#5A7E92" : "#A8C5DA";
 
   const [script, setScript] = useState<ScriptDetail | null>(null);

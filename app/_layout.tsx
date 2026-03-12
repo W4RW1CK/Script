@@ -261,7 +261,7 @@ export default function RootLayout() {
  * AuthGate: redirige según estado de autenticación
  */
 function RootLayoutNav() {
-  const colorScheme = useColorScheme();
+  const colorScheme = useColorScheme() ?? 'light';
 
   return (
     <PrivyProvider

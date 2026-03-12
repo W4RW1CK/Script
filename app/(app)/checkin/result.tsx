@@ -56,7 +56,7 @@ export default function CheckinResultScreen() {
 
   // T-V4: resolve emotion key → emotional color palette
   // B-DM: use getEmotionColors() to support dark mode — EmotionColors are light-only
-  const colorScheme = useColorScheme();
+  const colorScheme = useColorScheme() ?? 'light';
   const emotionKey  = toEmotionKey(emotion);
   const colors      = getEmotionColors(emotionKey, colorScheme);
 

@@ -89,7 +89,7 @@ const CIRCLE_COLOR_DARK  = "rgba(90,126,146,0.55)";  // script-dark-blue 55%
 // ── Componente ─────────────────────────────────────────────────────────────
 export default function RescueProtocolScreen() {
   const router = useRouter();
-  const isDark = useColorScheme() === "dark";
+  const isDark = (useColorScheme() ?? 'light') === 'dark';
   const { level: levelParam } = useLocalSearchParams<{ level: string }>();
 
   // Parsear nivel (default 1 si el param es inválido)

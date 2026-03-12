@@ -18,7 +18,7 @@ import { Ionicons } from "@expo/vector-icons";
 import { useColorScheme } from "react-native";
 
 export default function AppTabLayout() {
-  const colorScheme = useColorScheme();
+  const colorScheme = useColorScheme() ?? 'light';
   const isDark = colorScheme === "dark";
 
   // Tokens de color mapeados desde constants/colors.ts

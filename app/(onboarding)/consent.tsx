@@ -159,7 +159,7 @@ function ConsentItem({
   desc: string;
 }) {
   // Ionicons requiere color como prop (no soporta className de NativeWind)
-  const isDark     = useColorScheme() === "dark";
+  const isDark     = (useColorScheme() ?? 'light') === 'dark';
   const iconColor  = isDark ? "#5A7E92" : "#A8C5DA"; // script-dark-blue / script-blue
 
   return (

@@ -120,7 +120,7 @@ function LastEmotionCard({
   checkin: LastCheckin | null;
   onPress: () => void;
 }) {
-  const colorScheme = useColorScheme();
+  const colorScheme = useColorScheme() ?? 'light';
 
   if (!checkin) {
     // Empty state — no check-ins yet
@@ -180,7 +180,7 @@ function LastEmotionCard({
  * Faint ring = no check-in that day.
  */
 function WeekStrip({ dots }: { dots: DayDot[] }) {
-  const isDark = useColorScheme() === "dark";
+  const isDark = (useColorScheme() ?? 'light') === 'dark';
   const emptyRingColor = isDark ? "#3A3A44" : "#E0DDD8"; // script-dark-border / script-border
 
   return (
@@ -227,7 +227,7 @@ function WeekStrip({ dots }: { dots: DayDot[] }) {
 
 export default function HomeScreen() {
   const router         = useRouter();
-  const isDark         = useColorScheme() === "dark";
+  const isDark         = (useColorScheme() ?? 'light') === 'dark';
   const iconColor      = isDark ? "#5A7E92" : "#A8C5DA";
   const supabaseUserId = useAuthStore((s) => s.user?.supabaseUserId);
 

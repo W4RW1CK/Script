@@ -94,7 +94,7 @@ function PrivyLoadingScreen({ isDark, onDevBypass }: { isDark: boolean; onDevByp
 }
 
 export default function AuthScreen() {
-  const colorScheme = useColorScheme();
+  const colorScheme = useColorScheme() ?? 'light';
   const isDark = colorScheme === "dark";
   const setUser = useAuthStore((s) => s.setUser);
   const setSupabaseUserId = useAuthStore((s) => s.setSupabaseUserId);

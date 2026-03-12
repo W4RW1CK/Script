@@ -16,7 +16,7 @@ import { SafeScreen, Typography, Button } from "@/components/ui";
 
 export default function OnboardingWelcomeScreen() {
   const router = useRouter();
-  const isDark = useColorScheme() === "dark";
+  const isDark = (useColorScheme() ?? 'light') === 'dark';
 
   return (
     <SafeScreen>

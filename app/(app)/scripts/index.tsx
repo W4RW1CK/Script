@@ -68,7 +68,7 @@ function getCategoryMeta(id: CategoryId) {
 // ── Componente ─────────────────────────────────────────────────────────────
 export default function ScriptsIndexScreen() {
   const router = useRouter();
-  const isDark = useColorScheme() === "dark";
+  const isDark = (useColorScheme() ?? 'light') === 'dark';
   const spinnerColor = isDark ? "#5A7E92" : "#A8C5DA";
 
   // Lista completa + estado de carga

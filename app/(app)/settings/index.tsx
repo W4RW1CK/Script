@@ -38,7 +38,7 @@ interface TestStatus {
 
 export default function SettingsScreen() {
   const router         = useRouter();
-  const isDark         = useColorScheme() === "dark";
+  const isDark         = (useColorScheme() ?? 'light') === 'dark';
   const supabaseUserId = useAuthStore((s) => s.user?.supabaseUserId);
 
   const [testStatus, setTestStatus] = useState<TestStatus>({

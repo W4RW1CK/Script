@@ -77,7 +77,7 @@ const SAPTEL_TEL     = "tel:5552598121";    // SAPTEL México — (55) 5259-8121
 // ── Componente ─────────────────────────────────────────────────────────────
 export default function RescueAssessScreen() {
   const router  = useRouter();
-  const isDark  = useColorScheme() === "dark";
+  const isDark  = (useColorScheme() ?? 'light') === 'dark';
 
   /**
    * T-C1: paso actual del flujo de evaluación.

@@ -75,7 +75,7 @@ export default function ScriptExecuteScreen() {
   // `id` pasado como query param desde S15
   const { id } = useLocalSearchParams<{ id: string }>();
 
-  const isDark = useColorScheme() === "dark";
+  const isDark = (useColorScheme() ?? 'light') === 'dark';
   const spinnerColor = isDark ? "#5A7E92" : "#A8C5DA";
   // Color del progress bar inline (no puede ser NativeWind dinámico)
   const progressColor = isDark ? "#5A7E92" : "#A8C5DA";

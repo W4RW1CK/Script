@@ -179,7 +179,7 @@ interface EmotionCardProps {
  */
 function EmotionCard({ option, isSelected, onSelect, reduceMotion }: EmotionCardProps) {
   // B-DM: resolve dark-aware palette — EmotionColors are light-only
-  const colorScheme = useColorScheme();
+  const colorScheme = useColorScheme() ?? 'light';
   const emotionKey  = toEmotionKey(option.label);
   const colors      = getEmotionColors(emotionKey, colorScheme);
   // T-U7: default bg for unselected/unpressed state — computed inline so the
@@ -271,7 +271,7 @@ function EmotionCard({ option, isSelected, onSelect, reduceMotion }: EmotionCard
 // ── Main Component ─────────────────────────────────────────────────────────
 export default function CheckinReflectScreen() {
   const router = useRouter();
-  const isDark = useColorScheme() === "dark";
+  const isDark = (useColorScheme() ?? 'light') === 'dark';
   const reduceMotion = useReduceMotion();
   const spinnerColor = isDark ? "#5A7E92" : "#A8C5DA";
 
