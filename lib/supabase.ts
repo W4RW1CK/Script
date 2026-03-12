@@ -5,11 +5,10 @@
  * For RLS-protected operations, the client needs a valid JWT configured
  * via setSupabaseToken() (B-51 v2 — Admin API approach).
  *
- * Why autoRefreshToken: false?
- *   We use Privy as the auth provider, not Supabase Auth.
- *   The Supabase refresh token does not apply here — the session token is
- *   established via sync-privy-user (generateLink + verifyOtp) on every app start
- *   when a Privy session exists. See AuthGate in _layout.tsx and handlePostLogin in auth.tsx.
+ * autoRefreshToken: true (B-AUTH fix)
+ *   Access tokens expire after 1h. autoRefreshToken:true keeps the session alive via
+ *   the refresh token (~7 days). verifyOtp only needs to succeed once (initial login).
+ *   On restart, Supabase loads + auto-refreshes the session from SecureStore.
  *
  * Session storage:
  *   Supabase stores the session token in our storage adapter (SecureStore on native,
@@ -59,12 +58,18 @@ const supabaseAnonKey = process.env.EXPO_PUBLIC_SUPABASE_ANON_KEY!;
 export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
   auth: {
     storage,
-    // autoRefreshToken: false — Privy manages the session lifecycle.
-    // sync-privy-user generates a new token on each app launch via
-    // generateLink + verifyOtp. We don't want Supabase attempting
-    // automatic refresh (it could try to use old/invalid tokens from SecureStore).
-    autoRefreshToken:  false,
-    persistSession:     true,  // Session persists in SecureStore across app restarts
+    // B-AUTH: autoRefreshToken MUST be true.
+    //
+    // Supabase access_tokens expire after 3600s (1h). With false, after 1h:
+    // access_token expires → auth.uid() = null → ALL RLS queries fail silently.
+    // The refresh_token (~7 days) renews it automatically — no extra requests needed.
+    //
+    // Previous reasoning ("Privy manages auth") was wrong: Privy manages Privy's
+    // session. Supabase manages its own session separately. They don't conflict.
+    // With true: verifyOtp only needs to succeed ONCE (initial login).
+    // Every restart loads the session from SecureStore and auto-refreshes if needed.
+    autoRefreshToken:  true,
+    persistSession:    true,   // Session persists in SecureStore across app restarts
     detectSessionInUrl: false,
   },
 });
