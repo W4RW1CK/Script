@@ -62,8 +62,8 @@ export function TextInput({
   return (
     <View className="w-full gap-1">
       {/* Label opcional — visible solo si se pasa */}
+      {/* Label opcional — dark:text-script-dark-text-secondary (not dark-blue accent) */}
       {label && (
-        {/* BUG-6: was dark:text-script-dark-blue (accent) — should be secondary text */}
         <Text className="text-sm text-script-text-secondary dark:text-script-dark-text-secondary mb-1">
           {label}
         </Text>

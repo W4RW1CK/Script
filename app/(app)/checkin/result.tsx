@@ -123,16 +123,21 @@ export default function CheckinResultScreen() {
     setIsSaving(true);
 
     try {
-      const { error } = await supabase.from("checkins").insert({
+      // B-72: include session_id only when defined AND migration has been applied.
+      // Spreading conditionally avoids the "column not found in schema cache" error
+      // if the migration hasn't run yet — the check-in still saves, just without
+      // the idempotency guarantee (JS-level saveLock still protects against duplicates).
+      const checkinPayload: Record<string, unknown> = {
         user_id:           supabaseUserId, // ⚠️ EXPLÍCITO — RLS no lo inyecta
         body_zones:        zones,
         free_text:         notes ?? "",
         emotion_confirmed: emotion ?? "",
         flagged_for_review: flagged,
-        // B-72: idempotency key — DB unique constraint rejects any duplicate INSERT
-        // with the same session_id, regardless of JS race conditions.
-        session_id: sessionId || undefined,
-      });
+      };
+      if (sessionId) {
+        checkinPayload.session_id = sessionId;
+      }
+      const { error } = await supabase.from("checkins").insert(checkinPayload);
 
       if (error) {
         // B-40: error visible — no continuar silenciosamente si el INSERT falló

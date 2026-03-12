@@ -59,8 +59,12 @@ export default function SettingsScreen() {
       const valid = ["system", "light", "dark"];
       if (saved && valid.includes(saved)) {
         setThemePreference(saved as ThemeOption);
-        // @ts-expect-error — Appearance.setColorScheme accepts null (system default) but typedef omits it
-        Appearance.setColorScheme(saved === "system" ? null : (saved as "light" | "dark"));
+        // On Android, passing null to setColorScheme crashes (native NPE).
+        // When system theme is selected, skip the call entirely — the OS color
+        // scheme is used by default when no override is set.
+        if (saved !== "system") {
+          Appearance.setColorScheme(saved as "light" | "dark");
+        }
       }
     });
   }, []);
@@ -71,8 +75,11 @@ export default function SettingsScreen() {
   const applyTheme = useCallback(async (theme: ThemeOption) => {
     setThemePreference(theme);
     await AsyncStorage.setItem(THEME_STORAGE_KEY, theme);
-    // @ts-expect-error — null resets to system default; valid at runtime but missing from typedef
-    Appearance.setColorScheme(theme === "system" ? null : theme);
+    // On Android, passing null to setColorScheme causes a native crash (NPE).
+    // System theme = no override set; light/dark = explicit override.
+    if (theme !== "system") {
+      Appearance.setColorScheme(theme);
+    }
   }, []);
 
   /**
