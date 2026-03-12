@@ -138,15 +138,29 @@ serve(async (req) => {
       // ── Check if auth user exists by UUID ─────────────────────────────
       const { data: authUserData } = await supabase.auth.admin.getUserById(userId);
 
-      if (!authUserData?.user) {
-        // Auth user doesn't exist by UUID — check if authEmail is already taken
-        // by a different auth user (UUID mismatch from previous failed creates).
-        // If so, delete it first to ensure we can create with the correct UUID.
-        const { data: { users: existingUsers } } = await supabase.auth.admin.listUsers({ perPage: 1000 });
-        const existingByEmail = existingUsers?.find((u: any) => u.email === authEmail);
+      // B-66 v3: If auth user exists but UUID doesn't match public.users.id,
+      // delete and recreate. This catches stale auth entries created before the
+      // fake-email fix (B-66) or created by a previous generateLink call that
+      // auto-created an auth user with a different UUID.
+      const existingAuthUser = authUserData?.user;
+
+      if (existingAuthUser && existingAuthUser.id !== userId) {
+        // Auth user found by UUID but it's the wrong UUID — should not happen,
+        // but handle defensively: delete and recreate below.
+        console.warn("[sync] Auth user UUID mismatch via getUserById:", existingAuthUser.id, "≠", userId, "— deleting");
+        await supabase.auth.admin.deleteUser(existingAuthUser.id);
+      }
+
+      if (!existingAuthUser || existingAuthUser.id !== userId) {
+        // Auth user doesn't exist with correct UUID — check if authEmail is
+        // already taken by a different auth user (stale entry from before B-66).
+        // Use generateLink first; if it returns wrong UUID, delete and recreate.
+        // Also try direct email lookup via listUsers as a safety net.
+        const { data: listData } = await supabase.auth.admin.listUsers({ perPage: 1000 });
+        const existingByEmail = listData?.users?.find((u: any) => u.email === authEmail);
 
         if (existingByEmail && existingByEmail.id !== userId) {
-          console.warn("[sync] UUID mismatch — deleting stale auth user:", existingByEmail.id);
+          console.warn("[sync] UUID mismatch via email lookup — deleting stale auth user:", existingByEmail.id);
           await supabase.auth.admin.deleteUser(existingByEmail.id);
         }
 
