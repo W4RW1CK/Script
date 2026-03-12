@@ -574,6 +574,34 @@ import { Ionicons } from "@expo/vector-icons";
 - Contrast in crisis mode: minimum 3:1 (intentionally reduced for sensory relief)
 - Correct `accessibilityRole` on all elements (`button`, `text`, `image`)
 - `accessible={true}` on body map zones with `accessibilityLabel` per zone
+- **Form inputs:** always include `accessibilityLabel` explicitly — `label` prop is visual only (A-H01)
+- **Focus rings:** all `Pressable` components must have `onFocus`/`onBlur` 2px ring + `android_ripple` (T-U8). Color: `#A8C5DA` light / `#5A7E92` dark. Applied to: `Button`, `Card`, `Chip` (components) and all inline Pressables in screens.
+
+### 10.1 ASD-Specific Accessibility Rules
+
+These go beyond WCAG and are specific to ASD Level 1 clinical context:
+
+1. **Step progress in multi-screen flows** — Any flow with 3+ screens must show `<StepIndicator current={n} total={N} />` at the top. Unpredictability = anxiety trigger. (A-C01)
+2. **No sudden content pop-in** — All async-loading screens must show skeleton cards (matching actual layout) before data arrives. `ActivityIndicator` alone is insufficient — it creates blank-then-sudden transitions which are a known startle trigger. (A-C04)
+3. **Immediate tap feedback on Android** — All inline `Pressable` elements (not just component wrappers) must have `android_ripple`. Low opacity only. Absence of feedback causes repeated tapping. (A-C02)
+4. **Haptic closure on emotional acts** — Check-in save (result.tsx), check-in start, and any action that closes an emotional loop must have `Haptics.notificationAsync(Success)`. Crisis protocol already does this. Apply consistently. (A-H04)
+5. **Always provide a named-emotion exit** — On the reflect screen (S12), a user must always be able to say "I don't know yet" and continue. The option "Sin nombre" / `key: "unnamed"` must be accessible without selecting AI-generated options. This directly addresses alexithymia. (A-H05)
+6. **Tone — never clinical** — App icons, labels, and error messages must not evoke clinical/institutional context. Icons that suggest "forms," "reports," or "diagnosis" are prohibited on emotional-context screens. (A-H02)
+7. **Error messages must be actionable** — Error text must always tell the user what to do next with a real, existing path in the app. Non-existent navigation paths in error messages increase cognitive load in moments of failure. (A-H03)
+
+### 10.2 Loading State Rules (Anti-Sensory-Trigger)
+
+```
+Under 200ms:   no indicator needed
+200ms–1.5s:    subtle opacity-pulsing skeleton (Animated.loop, disabled when reduceMotion)
+Over 1.5s:     full skeleton + optional descriptive text ("Cargando tus check-ins...")
+```
+
+Skeleton implementation:
+- Shape matches real content (card-shaped, not generic rectangle)
+- Background: `bg-script-bg-secondary dark:bg-script-dark-secondary` at `opacity: 0.4`
+- Pulse animation: `Animated.sequence([Animated.timing(opacity, 0.4), Animated.timing(opacity, 0.8)])`, loop
+- Always check `useReduceMotion()` — if true, show static skeleton (no pulse)
 
 ---
 
@@ -648,5 +676,6 @@ These rules **override** all others when inside `/rescue/*`:
 
 ---
 
-**→ Cross-references:** §1.4 (emotional colors), §2 (Atkinson), §4 (shadows + gradient), §7 (animation reduction)  
-**→ See also:** STATUS.md tickets T-V1 to T-V8, IMPLEMENTATION_PLAN.md §Week 2
+**→ Cross-references:** §1.4 (emotional colors), §2 (Atkinson), §4 (shadows + gradient), §7 (animation reduction), §10.1 (ASD-specific rules), §10.2 (loading states)  
+**→ See also:** STATUS.md tickets T-V1 to T-V8 + A-C01 to A-M07, IMPLEMENTATION_PLAN.md §Sprint 2.D  
+**→ Audit reference:** UI/UX Full Audit 2026-03-12 — <https://gist.github.com/dumbleclaw/1a1402427ad0d1c1c77cb7b485b22c1d>

@@ -571,6 +571,88 @@ Step 14: Create app/(onboarding)/contacts.tsx (S08 — Contact Setup):
 
 ---
 
+### Sprint 2.D — UI/UX Audit Fixes (ASD Clinical Lens)
+
+> **Source:** Full audit 2026-03-12 using UI UX Pro Max + Designer Skills Collection + clinical/psychological framework for ASD Level 1.  
+> **Gist:** <https://gist.github.com/dumbleclaw/1a1402427ad0d1c1c77cb7b485b22c1d>  
+> **Priority order:** Complete critical + high before Friday delivery.
+
+#### 🔴 Critical — Do This Week
+
+| Ticket | Screen | Change | Owner | Priority |
+|---|---|---|---|---|
+| A-C01 | S10–S13 check-in flow | Add step progress indicator (`● ○ ○ ○` or `Paso 1 de 4`) at top of each check-in screen. Must respect `useReduceMotion()`. New `StepIndicator` component in `components/ui/`. | Ana | 🔴 Critical |
+| A-C02 | S09 `home.tsx` | Add `android_ripple={{ color: "rgba(168,197,218,0.3)" }}` + `onFocus`/`onBlur` focus ring to check-in CTA Pressable and both quick-access tiles (Scripts, Historial). Add `Haptics.impactAsync(Light)` on check-in CTA press. | Aibus | 🔴 Critical |
+| A-C03 | S09 `home.tsx` `WeekStrip` | Replace `EmotionColors[key].dot` with `getEmotionColors(key, colorScheme).dot` for dark mode contrast. 1-line fix. | Aibus | 🔴 Critical |
+
+#### A-C01 — Step Progress Indicator
+
+```tsx
+// components/ui/StepIndicator.tsx
+// Accessible step indicator for multi-screen flows
+// Props: current (1-indexed), total
+// Renders: filled dot for current/done, empty ring for upcoming
+// Respects useReduceMotion() — no animated transitions
+// Usage: <StepIndicator current={1} total={4} />
+```
+
+```tsx
+// In body.tsx (step 1), notes.tsx (step 2), reflect.tsx (step 3), result.tsx (step 4):
+<StepIndicator current={1} total={4} />
+```
+
+#### A-C02 — Home Pressable Feedback
+
+```tsx
+// home.tsx — check-in CTA (already a Pressable)
+android_ripple={{ color: isDark ? "rgba(90,126,146,0.25)" : "rgba(168,197,218,0.3)", borderless: false }}
+onFocus={() => setCheckinFocused(true)}
+onBlur={() => setCheckinFocused(false)}
+// In style callback: spread focused && { borderWidth: 2, borderColor: focusBorderColor }
+// On press: Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light)
+```
+
+#### A-C03 — WeekStrip Dark Mode
+
+```tsx
+// home.tsx WeekStrip component
+// Replace:
+backgroundColor: dot.emotionKey ? EmotionColors[dot.emotionKey].dot : "transparent"
+// With:
+backgroundColor: dot.emotionKey ? getEmotionColors(dot.emotionKey, colorScheme).dot : "transparent"
+// Same for borderColor
+```
+
+---
+
+#### 🟡 High — Complete This Week
+
+| Ticket | Screen | Change | Owner | Priority |
+|---|---|---|---|---|
+| A-H01 | S24 `auth.tsx` | Add `accessibilityLabel="Correo electrónico"` to email `TextInput` | Ana | 🟡 High |
+| A-H02 | S01 `index.tsx` + S24 `auth.tsx` loading state | Replace `document-text-outline` icon (clinical/bureaucratic) with warmer icon — `person-outline`, `heart-outline`, or breathing-circle motif | Ana | 🟡 High |
+| A-H03 | S13 `result.tsx` | Fix error Alert copy: remove non-existent "Inicio → Perfil → Ajustes" path. Replace with: "No pudimos guardar este momento. Intenta de nuevo o ve a Ajustes para verificar tu cuenta." | Aibus | 🟡 High |
+| A-H04 | S13 `result.tsx` | Add `Haptics.notificationAsync(NotificationFeedbackType.Success)` immediately after successful INSERT in `saveCheckin` | Aibus | 🟡 High |
+| A-H05 | S12 `reflect.tsx` | Add ghost button below emotion options: "No sé todavía — guardar como 'Sin nombre'" → navigates to `result.tsx` with `emotion: "Sin nombre"`, `key: "unnamed"`. Respects alexithymia design intent from PRD §1. | Ana | 🟡 High |
+| A-H06 | S19 `history/index.tsx` | Add right-side fade gradient overlay on emotion filter chip row (40px, `transparent → bg-color`) to signal horizontal scrollability | Ana | 🟡 High |
+| A-H07 | `(app)/_layout.tsx` | Verify/set `tabBarActiveTintColor` = `#A8C5DA` (script-blue) + `tabBarInactiveTintColor` = `#9A9AA5` (script-text-secondary) explicitly | Ana | 🟡 High |
+
+---
+
+#### 🟠 Medium — Week 3
+
+| Ticket | Screen | Change | Owner |
+|---|---|---|---|
+| A-M01 | S09 `home.tsx` `LastEmotionCard` | Add `chevron-forward` Ionicon in bottom-right corner to signal tappability | Ana |
+| A-M02 | S01.5 `consent.tsx` | Audit text: must be ≤200 words, use bullet points, warm CTA | Ana |
+| A-M04 | S03 `aq10-result.tsx` | Verify copy is warm/non-diagnostic. Must not use "Based on your responses..." language | Ana |
+| A-M05 | S14 `scripts/index.tsx` | Add empty state: icon + "Los scripts se están cargando. Verifica tu conexión." | Ana |
+| A-M07 | S07 `profile.tsx` | Verify name field label reads "¿Cómo te llamamos?" not "Nombre completo" | Ana |
+| A-C04 | All data screens | Skeleton loading states (S09, S14, S19, S12) — layout-shaped placeholders, `opacity: 0.4`, pulse animation disabled when `reduceMotion` | Both |
+| A-M06 | S08 `contacts.tsx` | Verify successful contact INSERT triggers visible re-render of new contact in list | Ana |
+
+---
+
 ## WEEK 3 — Trust Network and Notifications
 
 ```

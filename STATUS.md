@@ -382,6 +382,35 @@ Something fails → both attack the bug → w4rw1ck confirms fix
 | B-70 | **Duplicate check-in save (initial attempt)** — `hasSaved` useState guard didn't prevent double-save because React state is async (batched). Between press and `disabled={true}` re-render, a second press could get through. Superseded by B-71/B-72. Commit `0791914` (Aibus, 2026-03-11) | — | — | ✅ Superseded by B-71/B-72 |
 | B-71 | **Check-in stack duplicate saves — navigation root cause** — After saving in `result.tsx`, `router.replace("/(app)/home")` switched to home tab but left the check-in stack intact (`body → notes → reflect`). When user tapped Check-in tab, Expo Router restored the tab to its last position (`reflect.tsx`) with old URL params → re-ran Edge Function → pushed to `result.tsx` again → second "Guardar" → duplicate INSERT. v1: push→replace in steps (didn't help). v2: StackActions.replace("body") silently failed (internal route name mismatch). v3 (FINAL): `unmountOnBlur: true` on the check-in tab in `_layout.tsx` — unmounts entire stack when leaving, fresh `body.tsx` on every return. All steps also changed from `router.push` to `router.replace`. Commit `3c0c570` (Aibus, 2026-03-11) | 🔴 High | navigation | ✅ Resolved |
 | B-72 | **Duplicate check-in save — race condition root cause** — Even with navigation fixed, two concurrent presses (double-tap, pressing both buttons before `disabled={true}` re-renders) could start two async INSERT operations because `useState` guards are asynchronous. Fix A: `useRef saveLock` — synchronous lock acquired before any async work; second call sees `true` immediately, before any render cycle. Fix B (FINAL, bulletproof): `session_id UUID` column added to `checkins` table with `UNIQUE` constraint + `expo-crypto` UUID generated in `body.tsx` and passed through all screens to `result.tsx` INSERT. Any duplicate INSERT is rejected at database level regardless of JS behavior. Requires running migration `supabase/migrations/add_checkin_session_id.sql` in Supabase SQL Editor. Commits: `b29be83` (saveLock) + `d6b74aa` (session_id) (Aibus, 2026-03-11) | 🔴 Critical | data integrity | ✅ Code fixed · ⏳ Migration needed |
+| B-Android | **`Appearance.setColorScheme(null)` crash on Android** — Settings theme toggle called `setColorScheme(null)` for "System" option; Android `AppearanceModule.setColorScheme` throws NPE on null arg. Fix: skip call entirely when theme = "system" (Android uses OS theme by default). Commit `8ec7160` (Aibus, 2026-03-12) | 🔴 Critical | settings | ✅ Resolved |
+| B-SignOut | **No sign-out button in Settings** — User had no way to log out and re-login to test fresh auth session. Added "Cerrar sesión" at bottom of Settings scroll with confirmation Alert; uses `supabase.auth.signOut()` + `clearUser()` + `router.replace("/auth")`. Note: `usePrivy` must NOT be imported in settings — crypto shim conflict. Commits `ed59db7` + `4380741` (Aibus, 2026-03-12) | 🟡 Medium | UX | ✅ Resolved |
+
+### UI/UX Audit Findings (2026-03-12) — Sprint 2.D
+
+> Full audit: <https://gist.github.com/dumbleclaw/1a1402427ad0d1c1c77cb7b485b22c1d>  
+> Method: full codebase review × UI UX Pro Max skill × Designer Skills Collection × clinical/psychological lens for ASD Level 1.
+
+| ID | Issue | Severity | Area | Status |
+|---|---|---|---|---|
+| A-C01 | **No step progress in check-in flow** — User navigates S10→S11→S12→S13 with no indication of position. Unpredictability = anxiety for ASD Level 1 users in emotionally vulnerable moment. Need: `● ○ ○ ○` step indicator at top of each check-in screen (respects `useReduceMotion`). | 🔴 Critical | UX/ASD | ⏳ Week 2 |
+| A-C02 | **Home Pressables missing `android_ripple`** — The check-in CTA, Scripts tile, and Historial tile in `home.tsx` are inline `<Pressable>` — T-U8 only covered `Button`/`Card`/`Chip` components. Zero feedback on Android until opacity kicks in → users tap repeatedly → unintended navigation. | 🔴 Critical | Android | ⏳ Week 2 |
+| A-C03 | **WeekStrip uses light-mode emotion colors in dark mode** — `home.tsx` `WeekStrip` uses `EmotionColors[key].dot` (light hex) directly. In dark mode, insufficient contrast on `#1C1C22`. Fix: replace with `getEmotionColors(key, colorScheme).dot`. 1-line change. | 🔴 Critical | dark mode | ⏳ Week 2 |
+| A-C04 | **Skeleton loading states missing everywhere** — All data screens show bare `ActivityIndicator`. Content pops in suddenly — a known sensory trigger for ASD users (startle response). Need skeleton cards matching actual layout dimensions. Affects: S09 Home, S14 Scripts, S19 History, S12 Reflect. | 🔴 Critical | UX/accessibility | ⏳ Week 3 |
+| A-H01 | **Email `TextInput` missing `accessibilityLabel` on auth screen** — `label` prop is visual only; screen reader may read nothing. Fix: `accessibilityLabel="Correo electrónico"`. | 🟡 High | accessibility | ⏳ Week 2 |
+| A-H02 | **Welcome + auth loading screen icon is `document-text-outline`** — "Paperwork/clinic" connotation, wrong tone for a companion app. Triggers anxiety in users with negative clinical history. Need a warmer icon (`person-outline`, `heart-outline`, or breathing-circle motif). | 🟡 High | tone/brand | ⏳ Week 2 |
+| A-H03 | **result.tsx error copy has invalid navigation path** — Alert says "Inicio → Perfil → Ajustes" which doesn't exist. Users cannot follow the instruction. Fix: "Intenta de nuevo o ve a Ajustes para verificar tu cuenta." | 🟡 High | UX/error | ⏳ Week 2 |
+| A-H04 | **No haptic feedback on successful check-in save** — Rescue protocol uses `notificationAsync(Success)` on completion, but check-in save (equally important emotional act) is silent. Fix: `Haptics.notificationAsync(Success)` after successful INSERT in `result.tsx`. | 🟡 High | haptics | ⏳ Week 2 |
+| A-H05 | **Reflect screen (S12) has no "skip AI / save as unnamed" path** — If Edge Function fails or options feel wrong, user must pick from options to proceed. Violates PRD alexithymia intent. Fix: ghost button "No sé todavía — guardar como 'Sin nombre'" → `result.tsx` with `key: "unnamed"`. | 🟡 High | UX/clinical | ⏳ Week 2 |
+| A-H06 | **History filter chip row has no scroll affordance** — Horizontal `ScrollView` with no fade edge or indicator. Non-scrollable appearance = hidden options for users who don't try scrolling. Fix: right-side fade overlay (40px, `transparent → bg-color`). | 🟡 High | UX | ⏳ Week 2 |
+| A-H07 | **Bottom tab nav active state unverified** — FRONTEND_GUIDELINES §4 specifies `script-blue` active indicator, but tab bar may use Expo defaults. Need explicit `tabBarActiveTintColor` / `tabBarInactiveTintColor` in `(app)/_layout.tsx`. | 🟡 High | navigation | ⏳ Week 2 |
+| A-M01 | **`LastEmotionCard` on Home has no tappable affordance** — Pressable but no chevron or "Ver historial" cue. Discoverable interaction hidden. | 🟠 Medium | UX | ⏳ Week 3 |
+| A-M02 | **Consent screen not audited — wall-of-text risk** — Common failure point for ASD users. Must be ≤200 words, bullet points, clear CTA. | 🟠 Medium | onboarding | ⏳ Week 2 |
+| A-M03 | **Auth loading screen uses same `document-text-outline` icon** — Same issue as A-H02, both screens need the same fix. | 🟠 Medium | tone | ⏳ Week 2 |
+| A-M04 | **AQ-10 result transition copy not verified** — Must be warm, not diagnostic. "Based on your responses..." is wrong tone. Need to verify actual copy in `aq10-result.tsx`. | 🟠 Medium | tone/clinical | ⏳ Week 2 |
+| A-M05 | **Scripts list has no empty state** — If Supabase returns 0 rows (network issue), `ActivityIndicator` disappears and user sees a blank list. Need: icon + "Los scripts se están cargando. Verifica tu conexión." | 🟠 Medium | UX | ⏳ Week 2 |
+| A-M06 | **No visible feedback on successful contact save in `contacts.tsx`** — No success confirmation after INSERT; only errors are surfaced. | 🟠 Medium | feedback | ⏳ Week 3 |
+| A-M07 | **Profile name field label may pressure users** — Field label/placeholder must read "¿Cómo te llamamos?" not "Nombre completo" or "Nombre legal." | 🟠 Medium | tone/clinical | ⏳ Week 2 |
+
 ---
 
 ## 🔒 Technical Decisions Made
@@ -456,6 +485,27 @@ Something fails → both attack the bug → w4rw1ck confirms fix
 > Ordered most-recent first.
 
 ### Week 2
+
+**2026-03-12 — UI/UX Audit + Quick Fixes (Aibus)**
+
+Full UI/UX audit using UI UX Pro Max + Designer Skills Collection (interaction-design, ui-design, design-systems plugins). Medical/psychological lens for ASD Level 1. Gist: <https://gist.github.com/dumbleclaw/1a1402427ad0d1c1c77cb7b485b22c1d>
+
+- **T-U8** ✅ — `android_ripple` + `onFocus`/`onBlur` focus rings on `Button`, `Card`, `Chip`. Commit `d7af69a`
+- **B-SignOut** ✅ — Sign-out button added to Settings (bottom of scroll, confirmation Alert). Commits `ed59db7` + `4380741` (crypto shim fix)
+- **UI/UX Audit** ✅ — 4 Critical + 7 High + 7 Medium findings documented. Tickets A-C01–A-M07 added to STATUS.md. Sprint 2.D added to IMPLEMENTATION_PLAN.md
+- **Skills added** ✅ — `.skills/` directory with UI UX Pro Max data + Designer Skills (49 files). Commit `df7e92e`
+- **TS null guard** ✅ — `_layout.tsx` `s != null` check before `s.expires_at`. Commit `6013dac`
+- Added new rules to FRONTEND_GUIDELINES.md: step indicators, haptics pattern, skeleton loading, skip-to-unnamed path
+
+**Pending quick wins from audit (Week 2, ready to implement):**
+1. A-C03 — WeekStrip dark mode fix (1 line, `home.tsx`)
+2. A-C02 — `android_ripple` on Home inline Pressables
+3. A-H04 — Haptic on check-in save (`result.tsx`, 1 line)
+4. A-H03 — Fix error copy in `result.tsx`
+5. A-H05 — "Sin nombre" skip path in `reflect.tsx`
+6. A-H02/A-M03 — Replace `document-text-outline` icon
+
+---
 
 **2026-03-11 — Bug sprint (Aibus) — B-64 through B-72 + Week 2 ticket review**
 
