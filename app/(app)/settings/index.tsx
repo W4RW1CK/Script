@@ -96,7 +96,7 @@ export default function SettingsScreen() {
       .from("profiles")
       .select("aq_full_completed_at, catq_completed_at, raads_completed_at")
       .eq("user_id", supabaseUserId)
-      .single()
+      .maybeSingle() // .single() throws when 0 rows; .maybeSingle() returns null safely
       .then(({ data, error }) => {
         if (error) {
           console.warn("[Settings] Error fetching test status:", error.message);

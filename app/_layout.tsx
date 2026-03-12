@@ -131,13 +131,43 @@ function AuthGate({ children }: { children: React.ReactNode }) {
           if (data.onboarding_complete) {
             setOnboardingComplete(true);
           }
-          // B-51 v2: restaurar sesión Supabase al reiniciar la app.
-          // sync-privy-user retorna otp_token_hash → verifyOtp genera sesión real.
-          // auth.uid() funciona → RLS policies se resuelven correctamente.
+          // B-51 v3: Only call verifyOtp if no valid Supabase session exists.
+          //
+          // Magic link tokens (otp_token_hash) are SINGLE-USE — calling verifyOtp
+          // a second time with the same or a stale token produces:
+          //   AuthApiError: Email link is invalid or has expired
+          //
+          // On every app restart: Zustand is empty (in-memory store resets) so
+          // sync-privy-user runs again and returns a fresh token. But if the
+          // Supabase session from the PREVIOUS restart is still valid in SecureStore
+          // (persistSession: true), we can reuse it — no need to call verifyOtp again.
+          //
+          // Fix: check SecureStore session first. Only call verifyOtp when:
+          //   a) No persisted session exists, OR
+          //   b) Persisted session is for a different user, OR
+          //   c) Persisted session has expired (no autoRefreshToken)
           if (data.otp_token_hash) {
-            setSupabaseToken(data.otp_token_hash).catch((e) =>
-              console.warn("[AuthGate] setSupabaseToken failed:", e)
-            );
+            supabase.auth.getSession()
+              .then(({ data: sessionData }) => {
+                const s = sessionData?.session;
+                const isValid =
+                  s?.user?.id === data.user_id &&
+                  s.expires_at != null &&
+                  s.expires_at * 1000 > Date.now() + 10_000; // 10s safety buffer
+                if (isValid) {
+                  console.log("[AuthGate] Existing Supabase session still valid — skipping verifyOtp");
+                } else {
+                  setSupabaseToken(data.otp_token_hash).catch((e) =>
+                    console.warn("[AuthGate] setSupabaseToken failed:", e)
+                  );
+                }
+              })
+              .catch(() => {
+                // getSession failed — fallback: always try to set token
+                setSupabaseToken(data.otp_token_hash).catch((e) =>
+                  console.warn("[AuthGate] setSupabaseToken failed:", e)
+                );
+              });
           }
         }
       })
