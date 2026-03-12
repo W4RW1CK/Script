@@ -16,10 +16,11 @@
  * Null timestamp = test not yet taken (⏳). Non-null = completed (✅).
  */
 import React, { useEffect, useState, useCallback } from "react";
-import { View, ScrollView, Pressable, Appearance, useColorScheme } from "react-native";
+import { View, ScrollView, Pressable, Appearance, useColorScheme, Alert } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useRouter } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
+import { usePrivy } from "@privy-io/expo";
 import { SafeScreen, Typography, Card } from "@/components/ui";
 import { supabase } from "@/lib/supabase";
 import { useAuthStore } from "@/stores/auth";
@@ -40,6 +41,39 @@ export default function SettingsScreen() {
   const router         = useRouter();
   const isDark         = (useColorScheme() ?? 'light') === 'dark';
   const supabaseUserId = useAuthStore((s) => s.user?.supabaseUserId);
+  const clearUser      = useAuthStore((s) => s.clearUser);
+  const { logout }     = usePrivy();
+
+  /**
+   * Sign out: clear Privy session + Supabase session + Zustand store.
+   * Navigates back to /auth after cleanup.
+   */
+  const handleSignOut = useCallback(async () => {
+    Alert.alert(
+      "Cerrar sesión",
+      "¿Seguro que quieres salir?",
+      [
+        { text: "Cancelar", style: "cancel" },
+        {
+          text: "Cerrar sesión",
+          style: "destructive",
+          onPress: async () => {
+            try {
+              await supabase.auth.signOut();
+              await logout();
+              clearUser();
+              router.replace("/auth");
+            } catch (e) {
+              console.warn("[Settings] Sign out error:", e);
+              // Clear local state even if remote logout fails
+              clearUser();
+              router.replace("/auth");
+            }
+          },
+        },
+      ]
+    );
+  }, [logout, clearUser, router]);
 
   const [testStatus, setTestStatus] = useState<TestStatus>({
     aqFull: false,
@@ -237,6 +271,21 @@ export default function SettingsScreen() {
             <ComingSoonCard emoji="👤" label="Mi perfil sensorial" />
             <ComingSoonCard emoji="🤝" label="Contactos de confianza" />
           </View>
+
+          {/* ── Sign Out ── */}
+          <Pressable
+            onPress={handleSignOut}
+            accessibilityRole="button"
+            accessibilityLabel="Cerrar sesión"
+            className="items-center py-3"
+          >
+            <Typography
+              variant="body"
+              className="text-red-500 dark:text-red-400"
+            >
+              Cerrar sesión
+            </Typography>
+          </Pressable>
 
         </View>
       </ScrollView>
