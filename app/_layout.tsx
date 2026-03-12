@@ -151,7 +151,8 @@ function AuthGate({ children }: { children: React.ReactNode }) {
               .then(({ data: sessionData }) => {
                 const s = sessionData?.session;
                 const isValid =
-                  s?.user?.id === data.user_id &&
+                  s != null &&
+                  s.user?.id === data.user_id &&
                   s.expires_at != null &&
                   s.expires_at * 1000 > Date.now() + 10_000; // 10s safety buffer
                 if (isValid) {
