@@ -20,7 +20,6 @@ import { View, ScrollView, Pressable, Appearance, useColorScheme, Alert } from "
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useRouter } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
-import { usePrivy } from "@privy-io/expo";
 import { SafeScreen, Typography, Card } from "@/components/ui";
 import { supabase } from "@/lib/supabase";
 import { useAuthStore } from "@/stores/auth";
@@ -41,12 +40,14 @@ export default function SettingsScreen() {
   const router         = useRouter();
   const isDark         = (useColorScheme() ?? 'light') === 'dark';
   const supabaseUserId = useAuthStore((s) => s.user?.supabaseUserId);
-  const clearUser      = useAuthStore((s) => s.clearUser);
-  const { logout }     = usePrivy();
+  const clearUser = useAuthStore((s) => s.clearUser);
 
   /**
-   * Sign out: clear Privy session + Supabase session + Zustand store.
-   * Navigates back to /auth after cleanup.
+   * Sign out: clear Supabase session + Zustand store, navigate to /auth.
+   * Privy session is cleared automatically when AuthGate re-evaluates on /auth.
+   * Note: usePrivy() is NOT imported here — importing @privy-io/expo at module
+   * level in this screen conflicts with the global.crypto shim order and throws
+   * ReferenceError. Supabase signOut + clearUser is sufficient to reset all state.
    */
   const handleSignOut = useCallback(async () => {
     Alert.alert(
@@ -60,12 +61,10 @@ export default function SettingsScreen() {
           onPress: async () => {
             try {
               await supabase.auth.signOut();
-              await logout();
-              clearUser();
-              router.replace("/auth");
             } catch (e) {
-              console.warn("[Settings] Sign out error:", e);
-              // Clear local state even if remote logout fails
+              console.warn("[Settings] Supabase signOut error:", e);
+            } finally {
+              // Always clear local state and navigate — even if remote fails
               clearUser();
               router.replace("/auth");
             }
@@ -73,7 +72,7 @@ export default function SettingsScreen() {
         },
       ]
     );
-  }, [logout, clearUser, router]);
+  }, [clearUser, router]);
 
   const [testStatus, setTestStatus] = useState<TestStatus>({
     aqFull: false,
