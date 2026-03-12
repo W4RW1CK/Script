@@ -182,6 +182,9 @@ function EmotionCard({ option, isSelected, onSelect, reduceMotion }: EmotionCard
   const colorScheme = useColorScheme();
   const emotionKey  = toEmotionKey(option.label);
   const colors      = getEmotionColors(emotionKey, colorScheme);
+  // T-U7: default bg for unselected/unpressed state — computed inline so the
+  // Pressable style function can reference it (className can't access pressed)
+  const defaultBg   = colorScheme === "dark" ? "#26262E" : "#EFEFEA";
 
   // Scale animation — 0.97 on press, 1.0 on release (100ms each)
   const scale = useRef(new Animated.Value(1)).current;
@@ -213,21 +216,29 @@ function EmotionCard({ option, isSelected, onSelect, reduceMotion }: EmotionCard
         accessibilityRole="button"
         accessibilityState={{ selected: isSelected }}
         accessibilityLabel={`${option.label}: ${option.description}`}
-        style={[
-          {
-            borderRadius: 24,
-            padding: 20,
-            // Selected: emotion background color. Unselected: transparent (let NW class handle it)
-            backgroundColor: isSelected ? colors.bg : undefined,
-            borderWidth: 1.5,
-            borderColor: isSelected ? colors.dot : "#E0DDD8", // script-border fallback
-          },
-        ]}
-        className={
-          isSelected
-            ? "" // background handled by inline style above
-            : "bg-script-bg-secondary dark:bg-script-dark-secondary"
-        }
+        // T-U7: ({ pressed }) gives synchronous visual feedback — fires in the same
+        // render frame as the touch, before onPress or the scale animation completes.
+        // All background/border values are inline (className can't access pressed).
+        //   pressed + not selected → emotion border preview + subtle dot tint (~13%)
+        //   pressed + selected     → slight opacity (re-confirm tap)
+        //   selected               → full emotion colors
+        //   default                → neutral border + scheme-appropriate bg
+        style={({ pressed }) => ({
+          borderRadius: 24,
+          padding: 20,
+          borderWidth: 1.5,
+          borderColor:
+            isSelected || pressed
+              ? colors.dot           // dot color on both pressed and selected
+              : "#E0DDD8",           // script-border neutral
+          backgroundColor:
+            isSelected
+              ? colors.bg
+              : pressed
+                ? colors.dot + "22"  // ~13% opacity tint preview on pressIn
+                : defaultBg,
+          opacity: isSelected && pressed ? 0.85 : 1,
+        })}
       >
         {/* Selected indicator — 8px accent circle (top-right) */}
         {isSelected && (

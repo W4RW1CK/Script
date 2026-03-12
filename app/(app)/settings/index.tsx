@@ -8,19 +8,25 @@
  * for users who skipped them during onboarding. The AuthGate has been updated
  * to allow navigation to assessment screens post-onboarding (see app/_layout.tsx).
  *
+ * 2.4 (2026-03-11): Appearance section — theme toggle (System/Light/Dark).
+ * Preference is persisted in AsyncStorage (key: "script:theme") and applied
+ * via Appearance.setColorScheme() on mount and on change.
+ *
  * Test completion detected via profiles.{aq_full,catq,raads}_completed_at timestamps.
  * Null timestamp = test not yet taken (⏳). Non-null = completed (✅).
- *
- * Other settings sections (sensory profile, contacts, appearance) are
- * planned for Sprint 2.1 — displayed as coming soon placeholders for now.
  */
-import React, { useEffect, useState } from "react";
-import { View, ScrollView, Pressable } from "react-native";
+import React, { useEffect, useState, useCallback } from "react";
+import { View, ScrollView, Pressable, Appearance, useColorScheme } from "react-native";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useRouter } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
 import { SafeScreen, Typography, Card } from "@/components/ui";
 import { supabase } from "@/lib/supabase";
 import { useAuthStore } from "@/stores/auth";
+
+/** Theme preference stored in AsyncStorage */
+type ThemeOption = "system" | "light" | "dark";
+const THEME_STORAGE_KEY = "script:theme";
 
 /** Test completion status fetched from profiles table */
 interface TestStatus {
@@ -31,7 +37,8 @@ interface TestStatus {
 }
 
 export default function SettingsScreen() {
-  const router = useRouter();
+  const router         = useRouter();
+  const isDark         = useColorScheme() === "dark";
   const supabaseUserId = useAuthStore((s) => s.user?.supabaseUserId);
 
   const [testStatus, setTestStatus] = useState<TestStatus>({
@@ -40,6 +47,31 @@ export default function SettingsScreen() {
     raads:  false,
     loading: true,
   });
+
+  // 2.4: Theme preference — loaded from AsyncStorage, applied on mount
+  const [themePreference, setThemePreference] = useState<ThemeOption>("system");
+
+  /**
+   * Load saved theme preference and apply it on mount.
+   */
+  useEffect(() => {
+    AsyncStorage.getItem(THEME_STORAGE_KEY).then((saved) => {
+      const valid = ["system", "light", "dark"];
+      if (saved && valid.includes(saved)) {
+        setThemePreference(saved as ThemeOption);
+        Appearance.setColorScheme(saved === "system" ? null : (saved as "light" | "dark"));
+      }
+    });
+  }, []);
+
+  /**
+   * Apply a theme preference: persists to AsyncStorage + updates Appearance.
+   */
+  const applyTheme = useCallback(async (theme: ThemeOption) => {
+    setThemePreference(theme);
+    await AsyncStorage.setItem(THEME_STORAGE_KEY, theme);
+    Appearance.setColorScheme(theme === "system" ? null : theme);
+  }, []);
 
   /**
    * Fetch test completion timestamps from profiles.
@@ -126,13 +158,75 @@ export default function SettingsScreen() {
             />
           </View>
 
-          {/* ── Coming soon sections (Sprint 2.1) ── */}
+          {/* ── 2.4: Apariencia ── */}
+          <View className="gap-3">
+            <Typography variant="headingS">Apariencia</Typography>
+            <Typography
+              variant="caption"
+              className="text-script-text-secondary dark:text-script-dark-text-secondary"
+            >
+              Elige cómo se ve Script. Adaptar la pantalla puede reducir la
+              fatiga visual.
+            </Typography>
+
+            <View className="gap-2">
+              {(
+                [
+                  { value: "system", label: "Sistema",          emoji: "📱",  desc: "Sigue el modo de tu teléfono" },
+                  { value: "light",  label: "Claro",            emoji: "☀️",  desc: "Fondo blanco cálido" },
+                  { value: "dark",   label: "Oscuro",           emoji: "🌙",  desc: "Fondo oscuro — menos fatiga nocturna" },
+                ] as { value: ThemeOption; label: string; emoji: string; desc: string }[]
+              ).map(({ value, label, emoji, desc }) => {
+                const isActive = themePreference === value;
+                return (
+                  <Pressable
+                    key={value}
+                    onPress={() => applyTheme(value)}
+                    accessibilityRole="radio"
+                    accessibilityState={{ selected: isActive }}
+                    accessibilityLabel={`Tema ${label}: ${desc}`}
+                    style={({ pressed }) => ({ opacity: pressed ? 0.8 : 1 })}
+                  >
+                    <Card
+                      style={{
+                        flexDirection: "row",
+                        alignItems: "center",
+                        gap: 12,
+                        borderWidth: isActive ? 2 : 1,
+                        borderColor: isActive
+                          ? (isDark ? "#5A7E92" : "#A8C5DA")  // script-blue
+                          : (isDark ? "#3A3A44" : "#E0DDD8"), // script-border
+                      }}
+                    >
+                      <Typography variant="headingM">{emoji}</Typography>
+                      <View style={{ flex: 1, gap: 2 }}>
+                        <Typography variant="headingS">{label}</Typography>
+                        <Typography
+                          variant="caption"
+                          className="text-script-text-secondary dark:text-script-dark-text-secondary"
+                        >
+                          {desc}
+                        </Typography>
+                      </View>
+                      {isActive && (
+                        <Ionicons
+                          name="checkmark-circle"
+                          size={22}
+                          color={isDark ? "#5A7E92" : "#A8C5DA"}
+                        />
+                      )}
+                    </Card>
+                  </Pressable>
+                );
+              })}
+            </View>
+          </View>
+
+          {/* ── Coming soon sections ── */}
           <View className="gap-3">
             <Typography variant="headingS">Próximamente</Typography>
-
             <ComingSoonCard emoji="👤" label="Mi perfil sensorial" />
             <ComingSoonCard emoji="🤝" label="Contactos de confianza" />
-            <ComingSoonCard emoji="🎨" label="Apariencia y accesibilidad" />
           </View>
 
         </View>

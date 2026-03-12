@@ -21,7 +21,7 @@
  * On Supabase failure: logs warning and continues — profile can be completed from Settings.
  */
 import React, { useState } from "react";
-import { View, ScrollView } from "react-native";
+import { View, ScrollView, Alert } from "react-native";
 import { useRouter } from "expo-router";
 import { useForm, Controller } from "react-hook-form";
 import { SafeScreen, Typography, Button, TextInput, Chip } from "@/components/ui";
@@ -89,11 +89,13 @@ export default function ProfileScreen() {
 
   const onSubmit = async (data: FormData) => {
     setIsSaving(true);
+    let failed = false;
     try {
       if (!supabaseUserId) {
-        // supabaseUserId can be null if sync-privy-user failed (no network, etc.).
-        // We skip the upsert and continue — profile can be completed from Settings (T-F5).
+        // supabaseUserId can be null if sync-privy-user hasn't completed yet.
+        // 2.12: Show visible info instead of silent console.warn.
         console.warn("[Profile] supabaseUserId is null — skipping Supabase save");
+        failed = true;
       } else {
         /**
          * Two-operation save pattern (B-46):
@@ -106,7 +108,7 @@ export default function ProfileScreen() {
          */
 
         // ── 1. Profile data → profiles table ──────────────────────────────
-        await supabase
+        const { error: profileError } = await supabase
           .from("profiles")
           .upsert(
             {
@@ -121,21 +123,47 @@ export default function ProfileScreen() {
             { onConflict: "user_id" }
           );
 
+        if (profileError) throw profileError;
+
         // ── 2. Display name → users table (B-46) ──────────────────────────
         if (data.name.trim()) {
-          await supabase
+          const { error: nameError } = await supabase
             .from("users")
             .update({ display_name: data.name.trim() })
             .eq("id", supabaseUserId);
+          if (nameError) throw nameError;
         }
       }
     } catch (e) {
       console.warn("[Profile] Error saving profile:", e);
-      // Non-blocking — user can complete profile from Settings (T-F5)
+      failed = true;
     } finally {
       setIsSaving(false);
-      router.push("/(onboarding)/contacts");
     }
+
+    if (failed) {
+      // 2.12: Visible feedback — user knows their profile wasn't saved.
+      // Warm, non-alarming copy per ASD UX guidelines (no "error", no "failed").
+      Alert.alert(
+        "Tus datos no se guardaron",
+        "Algo impidió guardar tu perfil en este momento. Puedes completarlo desde Ajustes cuando quieras — no afecta el resto de la app.",
+        [
+          {
+            text: "Reintentar",
+            onPress: () => onSubmit(data),
+          },
+          {
+            text: "Continuar",
+            style: "cancel",
+            onPress: () => router.push("/(onboarding)/contacts"),
+          },
+        ],
+        { cancelable: false }
+      );
+      return; // Wait for user's choice before navigating
+    }
+
+    router.push("/(onboarding)/contacts");
   };
 
   return (
