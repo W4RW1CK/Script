@@ -103,41 +103,44 @@ function AuthGate({ children }: { children: React.ReactNode }) {
    * Usamos `authenticated` en lugar de `privyUser` para no depender del objeto user
    * que puede tardar más en popularse.
    */
+  // B-RLS-FIX: ref lock prevents concurrent/repeated sync calls.
+  // storeUser is intentionally NOT in the dep array — setSupabaseUserId updates
+  // storeUser which would re-trigger the effect in an infinite loop.
+  const isSyncingRef = React.useRef(false);
+
   useEffect(() => {
-    if (!privyReady) return;           // Esperar a que Privy termine de cargar
-    if (!authenticated) return;        // Sin sesión, nada que sincronizar
-    if (!privyUser) return;            // Necesitamos el objeto user para extraer email/id
+    if (!privyReady) return;
+    if (!authenticated) return;
+    if (!privyUser) return;
+    if (isSyncingRef.current) return; // Already syncing — block concurrent calls
 
-    // B-RLS-FIX: Always verify the Supabase session is valid, even if storeUser exists.
-    // Previously: `if (storeUser) return` — this skipped sync on every restart.
-    // Problem: the Supabase session in SecureStore can expire or have the wrong UUID
-    // (from a previous UUID mismatch bug), with no recovery path.
-    // Fix: always check session validity. Only skip re-sync if session is valid
-    // AND the session UUID matches storeUser.supabaseUserId.
     const privyId = privyUser.id;
-    const userEmail = getPrivyEmail(privyUser); // S-03: centralized helper
+    const userEmail = getPrivyEmail(privyUser);
 
+    // Check if existing Supabase session is valid before deciding to re-sync
     supabase.auth.getSession().then(({ data: sessionData }) => {
+      if (isSyncingRef.current) return; // Double-check after async getSession
+
       const s = sessionData?.session;
-      const expectedId = storeUser?.supabaseUserId;
+      // Read current supabaseUserId synchronously from store snapshot (not from closure)
+      const expectedId = useAuthStore.getState().user?.supabaseUserId;
       const sessionValid =
         s != null &&
         expectedId != null &&
         s.user?.id === expectedId &&
         s.expires_at != null &&
-        s.expires_at * 1000 > Date.now() + 10_000; // 10s buffer
+        s.expires_at * 1000 > Date.now() + 10_000;
 
       if (sessionValid) {
-        // Session is valid and UUID matches — nothing to do
-        console.log("[AuthGate] Supabase session valid for", expectedId, "— skipping sync");
+        console.log("[AuthGate] Supabase session valid — skipping sync");
         return;
       }
 
-      // Session missing, expired, or UUID mismatch → full re-sync
+      // Session missing, expired, or UUID mismatch → sync once
+      isSyncingRef.current = true;
       console.log("[AuthGate] Session invalid or UUID mismatch — re-syncing");
 
-      // Set user in Zustand immediately (preserves supabaseUserId if we had it)
-      if (!storeUser) {
+      if (!useAuthStore.getState().user) {
         setUser({ privyId, email: userEmail, supabaseUserId: null });
       }
 
@@ -148,12 +151,7 @@ function AuthGate({ children }: { children: React.ReactNode }) {
         .then(({ data, error }) => {
           if (!error && data?.user_id) {
             setSupabaseUserId(data.user_id);
-            if (data.onboarding_complete) {
-              setOnboardingComplete(true);
-            }
-            // Always call verifyOtp here — we only reach this branch when the
-            // session was missing, expired, or had the wrong UUID. A fresh token
-            // from sync-privy-user always needs to be verified to establish RLS.
+            if (data.onboarding_complete) setOnboardingComplete(true);
             if (data.otp_token_hash) {
               setSupabaseToken(data.otp_token_hash).catch((e) =>
                 console.warn("[AuthGate] setSupabaseToken failed:", e)
@@ -164,10 +162,14 @@ function AuthGate({ children }: { children: React.ReactNode }) {
           }
         })
         .catch((e) => {
-          console.warn("[AuthGate] Error sincronizando sesión al arranque:", e);
+          console.warn("[AuthGate] Error sincronizando sesión:", e);
+        })
+        .finally(() => {
+          isSyncingRef.current = false; // Release lock after sync completes
         });
     });
-  }, [privyReady, authenticated, privyUser, storeUser]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [privyReady, authenticated, privyUser]); // storeUser intentionally excluded — see isSyncingRef note above
 
   /**
    * B-SignOut: detect when Zustand user was explicitly cleared (sign-out from Settings)
