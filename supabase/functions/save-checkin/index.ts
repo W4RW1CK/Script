@@ -58,7 +58,7 @@ serve(async (req: Request) => {
       .from("users")
       .select("id")
       .eq("id", user_id)
-      .eq("privy_id", privy_user_id)
+      .eq("privy_user_id", privy_user_id) // column is privy_user_id not privy_id
       .maybeSingle();
 
     if (userError || !userRow) {
