@@ -16,6 +16,9 @@
 import "../polyfills";
 import "../global.css";
 
+// Module-level flag — survives AuthGate remounts during navigation (useRef resets on unmount)
+let _moduleHadUser = false;
+
 import FontAwesome from "@expo/vector-icons/FontAwesome";
 // T-U3 (2026-03-10): Atkinson Hyperlegible — primary typeface for Script.
 // Only Regular (400) and Bold (700) exist. Decision: Bold everywhere for headings.
@@ -215,9 +218,11 @@ function AuthGate({ children }: { children: React.ReactNode }) {
    * Gate on storeLoaded + hadUserRef to avoid false positive on cold start
    * (Zustand is null before SecureStore hydrates, Privy restores session immediately).
    */
-  const hadUserRef = React.useRef(false);
+  // Module-level flag — persists across component remounts (unlike useRef which resets on unmount)
+  // This prevents false-positive sign-out detection when AuthGate remounts during navigation
+  const hadUserRef = React.useRef(_moduleHadUser);
   React.useEffect(() => {
-    if (storeUser) hadUserRef.current = true;
+    if (storeUser) { hadUserRef.current = true; _moduleHadUser = true; }
   }, [storeUser]);
   React.useEffect(() => {
     if (storeLoaded && privyReady && privyUser && !storeUser && hadUserRef.current) {

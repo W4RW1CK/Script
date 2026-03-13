@@ -69,11 +69,15 @@ serve(async (req: Request) => {
 
     // ── ACTION: save_profile ──────────────────────────────────────────────
     if (action === "save_profile") {
+      // Column names must match profiles schema exactly:
+      //   sensitivities (JSONB)  NOT sensory_sensitivities
+      //   interests (text[])
+      //   existing_tools (text[])
+      //   display_name lives in users table, NOT profiles
       const profilePayload: Record<string, unknown> = { user_id };
-      if (display_name !== undefined) profilePayload.display_name = display_name;
-      if (sensory_sensitivities !== undefined) profilePayload.sensory_sensitivities = sensory_sensitivities;
+      if (sensory_sensitivities !== undefined) profilePayload.sensitivities = sensory_sensitivities;
       if (interests !== undefined) profilePayload.interests = interests;
-      if (communication_style !== undefined) profilePayload.communication_style = communication_style;
+      if (communication_style !== undefined) profilePayload.existing_tools = communication_style;
 
       const { error } = await supabase
         .from("profiles")

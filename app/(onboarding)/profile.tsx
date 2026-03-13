@@ -121,11 +121,12 @@ export default function ProfileScreen() {
             privy_user_id: privyId,
             user_id: supabaseUserId,
             action: "save_profile",
-            display_name: data.name.trim() || undefined,
+            // sensory_sensitivities maps to profiles.sensitivities (JSONB)
             sensory_sensitivities: Object.fromEntries(
               selectedSensitivities.map((k) => [k, true])
             ),
             interests: selectedInterests,
+            // display_name goes to users table separately (see below)
           },
         });
 
