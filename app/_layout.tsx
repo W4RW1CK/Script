@@ -83,7 +83,7 @@ function AuthGate({ children }: { children: React.ReactNode }) {
   //   auth.tsx redirige a /(onboarding) → AuthGate ve user=null → manda de vuelta a /auth
     // @privy-io/expo v0.63 API: `ready` → `isReady`, no `authenticated` field.
   // `authenticated` = !!user (user is null when not logged in)
-  const { user: privyUser, isReady: privyReady } = usePrivy();
+  const { user: privyUser, isReady: privyReady, logout } = usePrivy();
   const authenticated = !!privyUser;
 
   const storeUser = useAuthStore((s) => s.user);
@@ -172,6 +172,22 @@ function AuthGate({ children }: { children: React.ReactNode }) {
         console.warn("[AuthGate] Error sincronizando sesión al arranque:", e);
       });
   }, [privyReady, authenticated, privyUser, storeUser]);
+
+  /**
+   * B-SignOut: detect when Zustand user was explicitly cleared (sign-out from Settings)
+   * but Privy session is still active. When this mismatch occurs, call Privy logout()
+   * to fully clear the Privy session — this prevents AuthGate from auto-routing
+   * back to (app) on the next render cycle.
+   *
+   * Why here and not in settings.tsx: importing @privy-io/expo at module level in
+   * settings triggers a crypto shim conflict. _layout.tsx is the safe Privy boundary.
+   */
+  React.useEffect(() => {
+    if (privyReady && privyUser && !storeUser) {
+      console.log("[AuthGate] Zustand cleared but Privy session active — calling Privy logout()");
+      logout().catch((e) => console.warn("[AuthGate] Privy logout error:", e));
+    }
+  }, [storeUser, privyUser, privyReady]);
 
   /**
    * Flag que indica que ya esperamos el ciclo completo de Privy.

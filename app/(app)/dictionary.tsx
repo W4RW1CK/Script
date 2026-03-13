@@ -166,7 +166,7 @@ export default function DictionaryScreen() {
 interface EmotionCardProps {
   entry:       EmotionEntry;
   count:       number;
-  colorScheme: "light" | "dark";
+  colorScheme: "light" | "dark" | "unspecified" | null;
   isDark:      boolean;
 }
 
