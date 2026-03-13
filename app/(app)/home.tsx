@@ -222,6 +222,47 @@ function WeekStrip({ dots }: { dots: DayDot[] }) {
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
+// InsightBanner — 2.5 Unlocked insights
+// ─────────────────────────────────────────────────────────────────────────────
+
+/**
+ * Non-intrusive insight banner shown below the week strip when a milestone
+ * insight is available. Hidden at 0–2 check-ins (nothing to show yet).
+ */
+function InsightBanner({ message }: { message: string | null }) {
+  const isDark = (useColorScheme() ?? 'light') === 'dark';
+  if (!message) return null;
+
+  return (
+    <View
+      style={{
+        backgroundColor: isDark ? "#26262E" : "#EFEFEA",
+        borderRadius: 16,
+        paddingHorizontal: 14,
+        paddingVertical: 10,
+        flexDirection: "row",
+        alignItems: "center",
+        gap: 8,
+      }}
+      accessibilityRole="text"
+      accessibilityLabel={`Insight: ${message}`}
+    >
+      <Ionicons
+        name="sparkles-outline"
+        size={16}
+        color={isDark ? "#5A7E92" : "#A8C5DA"}
+      />
+      <Typography
+        variant="caption"
+        className="flex-1 text-script-text-secondary dark:text-script-dark-text-secondary"
+      >
+        {message}
+      </Typography>
+    </View>
+  );
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
 // Main Screen
 // ─────────────────────────────────────────────────────────────────────────────
 
@@ -234,8 +275,11 @@ export default function HomeScreen() {
   // D-06: username from Supabase/Privy (deferred)
   const userName = "";
 
-  const [lastCheckin, setLastCheckin] = useState<LastCheckin | null>(null);
-  const [weekDots,    setWeekDots]    = useState<DayDot[]>(() => buildWeekDots(new Map()));
+  const [lastCheckin,    setLastCheckin]    = useState<LastCheckin | null>(null);
+  const [weekDots,       setWeekDots]       = useState<DayDot[]>(() => buildWeekDots(new Map()));
+  // 2.5: Unlocked insights — milestone messages at 3, 7, 15 check-ins
+  const [checkinCount,   setCheckinCount]   = useState<number>(0);
+  const [insightMessage, setInsightMessage] = useState<string | null>(null);
 
   /**
    * Fetches the 7 most recent check-ins from Supabase.
@@ -248,11 +292,10 @@ export default function HomeScreen() {
     try {
       const { data, error } = await supabase
         .from("checkins")
-        .select("emotion_confirmed, checkin_at")
+        .select("emotion_confirmed, checkin_at, body_zones")
         .eq("user_id", supabaseUserId)
         .order("checkin_at", { ascending: false })
-        // D-02: limit 30 (not 7) — user may do multiple check-ins per day;
-        // buildWeekDots needs 1 per CALENDAR DAY across 7 days, so 30 safely covers all cases
+        // D-02: limit 30 — covers 7-day dots + insight computation
         .limit(30);
 
       if (error) {
@@ -288,6 +331,40 @@ export default function HomeScreen() {
         }
       }
       setWeekDots(buildWeekDots(dayMap));
+
+      // ── 2.5: Compute unlocked insights ──────────────────────────────────
+      const total = data.length;
+      setCheckinCount(total);
+
+      if (total >= 7) {
+        // Insight 2: temporal pattern — which weekday has the most check-ins
+        const DAY_NAMES = ["domingo", "lunes", "martes", "miércoles", "jueves", "viernes", "sábado"];
+        const dayCounts: Record<number, number> = {};
+        for (const row of data) {
+          if (!row.checkin_at) continue;
+          const dow = new Date(row.checkin_at).getDay(); // 0=Sun
+          dayCounts[dow] = (dayCounts[dow] ?? 0) + 1;
+        }
+        const peakDay = Object.entries(dayCounts).sort((a, b) => b[1] - a[1])[0];
+        if (peakDay) {
+          setInsightMessage(`Esta semana registraste más momentos los ${DAY_NAMES[Number(peakDay[0])]}.`);
+        }
+      } else if (total >= 3) {
+        // Insight 1: most active body zone
+        const zoneCounts: Record<string, number> = {};
+        for (const row of data) {
+          const zones: string[] = Array.isArray(row.body_zones) ? row.body_zones : [];
+          for (const z of zones) zoneCounts[z] = (zoneCounts[z] ?? 0) + 1;
+        }
+        const topZone = Object.entries(zoneCounts).sort((a, b) => b[1] - a[1])[0];
+        if (topZone) {
+          setInsightMessage(`Tu zona más activa últimamente: ${topZone[0].toLowerCase()}.`);
+        } else {
+          setInsightMessage("Ya tienes 3 momentos registrados. Tu patrón está tomando forma.");
+        }
+      } else {
+        setInsightMessage(null);
+      }
 
     } catch (e) {
       console.warn("[Home] Unexpected error:", e);
@@ -328,6 +405,9 @@ export default function HomeScreen() {
 
         {/* ── 3. 7-day dot strip ────────────────────────────────────── */}
         <WeekStrip dots={weekDots} />
+
+        {/* ── 3b. 2.5 Insight banner (milestone at 3/7 check-ins) ─────── */}
+        <InsightBanner message={insightMessage} />
 
         {/* ── 4. Check-in CTA ───────────────────────────────────────── */}
         <Pressable

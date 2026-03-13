@@ -30,6 +30,7 @@ import {
   useColorScheme,
 } from "react-native";
 import { useLocalSearchParams, useRouter } from "expo-router";
+import { useScriptProgressStore } from "@/stores/scriptProgress";
 import { SafeScreen, Typography, Card, Button } from "@/components/ui";
 import { supabase } from "@/lib/supabase";
 import { useAuthStore } from "@/stores/auth";
@@ -80,12 +81,24 @@ export default function ScriptExecuteScreen() {
   // Color del progress bar inline (no puede ser NativeWind dinámico)
   const progressColor = isDark ? "#5A7E92" : "#A8C5DA";
 
+  // ── 2.6: Script progress (in-memory Zustand — survives tab switches) ──────
+  const savedProgress   = useScriptProgressStore((s) => s.getProgress)(id as string);
+  const setStoreProgress = useScriptProgressStore((s) => s.setProgress);
+  const clearStoreProgress = useScriptProgressStore((s) => s.clearProgress);
+
   // Estado del script y navegación por bloques
+  // Restored from Zustand on mount if available
   const [script, setScript] = useState<ScriptForExecution | null>(null);
   const [isLoading, setIsLoading] = useState(true);
-  const [currentBlockIndex, setCurrentBlockIndex] = useState(0);
-  const [selectedOption, setSelectedOption] = useState<string | null>(null);
-  const [isComplete, setIsComplete] = useState(false);
+  const [currentBlockIndex, setCurrentBlockIndex] = useState(
+    savedProgress?.currentBlockIndex ?? 0
+  );
+  const [selectedOption, setSelectedOption] = useState<string | null>(
+    savedProgress?.selectedOption ?? null
+  );
+  const [isComplete, setIsComplete] = useState(
+    savedProgress?.isComplete ?? false
+  );
 
   // Fetch del script al montar
   useEffect(() => {
@@ -121,7 +134,14 @@ export default function ScriptExecuteScreen() {
     setSelectedOption(null);
 
     if (currentBlockIndex < script.blocks.length - 1) {
-      setCurrentBlockIndex((prev) => prev + 1);
+      const nextIndex = currentBlockIndex + 1;
+      setCurrentBlockIndex(nextIndex);
+      // 2.6: Persist progress to Zustand (survives tab switches)
+      setStoreProgress(script.id, {
+        currentBlockIndex: nextIndex,
+        selectedOption:    null,
+        isComplete:        false,
+      });
     } else {
       // 2.10: INSERT script_executions on completion — fire and forget, non-blocking
       if (supabaseUserId && script?.id) {
@@ -132,16 +152,16 @@ export default function ScriptExecuteScreen() {
             script_id:  script.id,
             mode:       "execution",
             completed:  true,
-            // executed_at: DEFAULT NOW() in schema
           })
           .then(({ error }) => {
             if (error) console.warn("[ScriptExecute] script_executions INSERT error:", error.message);
           });
       }
-      // Último bloque completado → pantalla de celebración
+      // 2.6: Clear progress on completion — script is done, no need to resume
+      clearStoreProgress(script.id);
       setIsComplete(true);
     }
-  }, [script, currentBlockIndex, supabaseUserId]);
+  }, [script, currentBlockIndex, supabaseUserId, setStoreProgress, clearStoreProgress]);
 
   // ── Estado de carga ──────────────────────────────────────────────────────
   if (isLoading) {
@@ -292,7 +312,11 @@ export default function ScriptExecuteScreen() {
                 <Card
                   key={option}
                   variant={selectedOption === option ? "elevated" : "default"}
-                  onPress={() => setSelectedOption(option)}
+                  onPress={() => {
+                    setSelectedOption(option);
+                    // 2.6: persist option selection to Zustand
+                    if (script?.id) setStoreProgress(script.id, { selectedOption: option });
+                  }}
                   accessibilityRole="button"
                   accessibilityState={{ selected: selectedOption === option }}
                   accessibilityLabel={option}

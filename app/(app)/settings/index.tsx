@@ -267,6 +267,32 @@ export default function SettingsScreen() {
             </View>
           </View>
 
+          {/* ── Dictionary ───────────────────────────────────────────── */}
+          <View className="gap-3">
+            <Typography variant="headingS">Explorar</Typography>
+            <Pressable
+              onPress={() => router.push("/(app)/dictionary")}
+              accessibilityRole="button"
+              style={({ pressed }) => ({ opacity: pressed ? 0.8 : 1 })}
+            >
+              <Card className="flex-row items-center gap-3">
+                <View className="w-10 h-10 items-center justify-center">
+                  <Ionicons name="book-outline" size={24} color={isDark ? "#5A7E92" : "#A8C5DA"} />
+                </View>
+                <View className="flex-1 gap-0.5">
+                  <Typography variant="headingS">Diccionario emocional</Typography>
+                  <Typography
+                    variant="caption"
+                    className="text-script-text-secondary dark:text-script-dark-text-secondary"
+                  >
+                    Qué es cada emoción · cómo se siente en el cuerpo
+                  </Typography>
+                </View>
+                <Ionicons name="chevron-forward" size={20} color="#ABABAB" />
+              </Card>
+            </Pressable>
+          </View>
+
           {/* ── Coming soon sections ── */}
           <View className="gap-3">
             <Typography variant="headingS">Próximamente</Typography>
