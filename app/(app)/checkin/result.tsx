@@ -33,6 +33,7 @@ export default function CheckinResultScreen() {
 
   // user_id from auth store (NOT Supabase auth — Privy manages sessions)
   const supabaseUserId = useAuthStore((s) => s.user?.supabaseUserId);
+  const privyId = useAuthStore((s) => s.user?.privyId);
 
   const { zones: zonesParam, notes, emotion, sessionId } = useLocalSearchParams<{
     zones: string;
@@ -124,21 +125,24 @@ export default function CheckinResultScreen() {
     setIsSaving(true);
 
     try {
-      // B-72: include session_id only when defined AND migration has been applied.
-      // Spreading conditionally avoids the "column not found in schema cache" error
-      // if the migration hasn't run yet — the check-in still saves, just without
-      // the idempotency guarantee (JS-level saveLock still protects against duplicates).
+      // B-RLS-BYPASS: Use save-checkin Edge Function (service role) instead of
+      // direct INSERT. The direct INSERT requires auth.uid() = user_id (RLS), but
+      // users authenticated via Google OAuth through Privy cannot establish a
+      // Supabase magic link session. The Edge Function validates privy_user_id +
+      // user_id server-side and inserts with service role key (same security guarantee).
       const checkinPayload: Record<string, unknown> = {
-        user_id:           supabaseUserId, // ⚠️ EXPLÍCITO — RLS no lo inyecta
+        privy_user_id:     privyId,
+        user_id:           supabaseUserId,
         body_zones:        zones,
         free_text:         notes ?? "",
         emotion_confirmed: emotion ?? "",
         flagged_for_review: flagged,
       };
-      if (sessionId) {
-        checkinPayload.session_id = sessionId;
-      }
-      const { error } = await supabase.from("checkins").insert(checkinPayload);
+      if (sessionId) checkinPayload.session_id = sessionId;
+
+      const { error } = await supabase.functions.invoke("save-checkin", {
+        body: checkinPayload,
+      });
 
       if (error) {
         // B-40: error visible — no continuar silenciosamente si el INSERT falló
