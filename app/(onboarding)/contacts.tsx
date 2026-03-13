@@ -59,18 +59,22 @@ export default function ContactsScreen() {
     };
 
     // F-03: Persist to Supabase BEFORE updating local state — rollback on failure
-    if (supabaseUserId) {
+    // Uses save-onboarding Edge Function (service role) to bypass RLS for Google OAuth users
+    if (supabaseUserId && privyId) {
       try {
-        const { error: insertError } = await supabase.from("trusted_contacts").insert({
-          user_id: supabaseUserId,
-          name: newContact.name,
-          phone: newContact.phone,
-          relationship: newContact.relationship, // Campo correcto: "relationship"
-          is_active: true,
+        const { error: insertError } = await supabase.functions.invoke("save-onboarding", {
+          body: {
+            privy_user_id: privyId,
+            user_id: supabaseUserId,
+            action: "save_contact",
+            contact_name: newContact.name,
+            contact_phone: newContact.phone,
+            contact_relationship: newContact.relationship,
+          },
         });
         if (insertError) {
           Alert.alert("No se pudo guardar", "Verifica tu conexión e inténtalo de nuevo.");
-          return; // Don't add to local state if DB failed
+          return;
         }
       } catch (e) {
         console.warn("[Contacts] Error guardando contacto:", e);
@@ -146,24 +150,19 @@ export default function ContactsScreen() {
          * Ahora (correcto):
          *   supabase.from("profiles").update({ onboarding_complete: true }).eq("user_id", ...)
          */
-        const { data: updatedRows, error: updateError } = await supabase
-          .from("profiles")
-          .update({ onboarding_complete: true })
-          .eq("user_id", resolvedSupabaseId)
-          .select("user_id");
-
-        if (updateError) {
-          console.warn("[Contacts] profiles update error:", updateError.message);
-        } else if (!updatedRows || updatedRows.length === 0) {
-          // F-02: check data.length not count — count is null without { count: "exact" }
-          // If no rows were updated, the profiles row is missing — upsert it
-          console.log("[Contacts] profiles row missing — inserting with onboarding_complete=true");
-          const { error: upsertError } = await supabase
-            .from("profiles")
-            .upsert({ user_id: resolvedSupabaseId, onboarding_complete: true });
-          if (upsertError) console.warn("[Contacts] profiles upsert error:", upsertError.message);
+        // Use save-onboarding Edge Function (service role) — bypasses RLS
+        // for Google OAuth users who can't establish verifyOtp session
+        const { error: onboardingError } = await supabase.functions.invoke("save-onboarding", {
+          body: {
+            privy_user_id: privyId,
+            user_id: resolvedSupabaseId,
+            action: "complete_onboarding",
+          },
+        });
+        if (onboardingError) {
+          console.warn("[Contacts] complete_onboarding error:", onboardingError.message);
         } else {
-          console.log("[Contacts] onboarding_complete=true saved to Supabase ✅");
+          console.log("[Contacts] onboarding_complete=true saved via Edge Function ✅");
         }
       }
 

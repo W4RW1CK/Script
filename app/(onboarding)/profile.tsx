@@ -59,6 +59,7 @@ interface FormData {
 export default function ProfileScreen() {
   const router = useRouter();
   const supabaseUserId = useAuthStore((s) => s.user?.supabaseUserId);
+  const privyId = useAuthStore((s) => s.user?.privyId);
   const [isSaving, setIsSaving] = useState(false);
 
   // Multiselect state — managed outside react-hook-form (no text input, chip toggles)
@@ -111,31 +112,33 @@ export default function ProfileScreen() {
          * B-47: age field removed — does not exist in schema.
          */
 
-        // ── 1. Profile data → profiles table ──────────────────────────────
-        const { error: profileError } = await supabase
-          .from("profiles")
-          .upsert(
-            {
-              user_id:        supabaseUserId,
-              interests:      selectedInterests,
-              // B-48: JSONB object format: { sound: true, light: true }
-              sensitivities:  Object.fromEntries(
-                selectedSensitivities.map((k) => [k, true])
-              ),
-              existing_tools: selectedTools,
-            },
-            { onConflict: "user_id" }
-          );
+        // ── 1. Profile data → save-onboarding Edge Function (service role) ──
+        // Direct INSERT/UPDATE to profiles requires Supabase RLS session which
+        // fails for Google OAuth users (verifyOtp incompatibility). Service role
+        // Edge Function validates privy_user_id + user_id server-side.
+        const { error: profileError } = await supabase.functions.invoke("save-onboarding", {
+          body: {
+            privy_user_id: privyId,
+            user_id: supabaseUserId,
+            action: "save_profile",
+            display_name: data.name.trim() || undefined,
+            sensory_sensitivities: Object.fromEntries(
+              selectedSensitivities.map((k) => [k, true])
+            ),
+            interests: selectedInterests,
+          },
+        });
 
         if (profileError) throw profileError;
 
-        // ── 2. Display name → users table (B-46) ──────────────────────────
+        // ── 2. Display name → users table (still needs direct update) ─────
         if (data.name.trim()) {
           const { error: nameError } = await supabase
             .from("users")
             .update({ display_name: data.name.trim() })
             .eq("id", supabaseUserId);
-          if (nameError) throw nameError;
+          // Non-fatal — profile was saved, display_name is cosmetic
+          if (nameError) console.warn("[Profile] display_name update error:", nameError.message);
         }
       }
     } catch (e) {
