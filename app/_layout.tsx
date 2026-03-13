@@ -179,16 +179,14 @@ function AuthGate({ children }: { children: React.ReactNode }) {
    * to fully clear the Privy session — this prevents AuthGate from auto-routing
    * back to (app) on the next render cycle.
    *
+   * RACE CONDITION FIX: gate on `storeLoaded` AND require that the user was previously
+   * authenticated in this session (`hadUserRef`). Without this guard, on every app
+   * restart Zustand initializes with user=null before SecureStore hydrates, Privy
+   * restores its session, and the mismatch fires — logging the user out on every reload.
+   *
    * Why here and not in settings.tsx: importing @privy-io/expo at module level in
    * settings triggers a crypto shim conflict. _layout.tsx is the safe Privy boundary.
    */
-  React.useEffect(() => {
-    if (privyReady && privyUser && !storeUser) {
-      console.log("[AuthGate] Zustand cleared but Privy session active — calling Privy logout()");
-      logout().catch((e) => console.warn("[AuthGate] Privy logout error:", e));
-    }
-  }, [storeUser, privyUser, privyReady]);
-
   /**
    * Flag que indica que ya esperamos el ciclo completo de Privy.
    *
@@ -213,6 +211,22 @@ function AuthGate({ children }: { children: React.ReactNode }) {
     const t = setTimeout(() => setNavReady(true), 100);
     return () => clearTimeout(t);
   }, [privyReady, storeLoaded]);
+
+  /**
+   * B-SignOut: detect explicit sign-out — Zustand cleared but Privy session active.
+   * Gate on storeLoaded + hadUserRef to avoid false positive on cold start
+   * (Zustand is null before SecureStore hydrates, Privy restores session immediately).
+   */
+  const hadUserRef = React.useRef(false);
+  React.useEffect(() => {
+    if (storeUser) hadUserRef.current = true;
+  }, [storeUser]);
+  React.useEffect(() => {
+    if (storeLoaded && privyReady && privyUser && !storeUser && hadUserRef.current) {
+      console.log("[AuthGate] Sign-out detected — calling Privy logout()");
+      logout().catch((e) => console.warn("[AuthGate] Privy logout error:", e));
+    }
+  }, [storeUser, privyUser, privyReady, storeLoaded]);
 
   /**
    * Efecto de navegación.
