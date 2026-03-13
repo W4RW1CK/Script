@@ -21,6 +21,7 @@
  */
 import React, { useState, useEffect, useRef } from "react";
 import { View, Alert, Animated, useColorScheme } from "react-native";
+import * as Haptics from "expo-haptics";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { SafeScreen, Typography, Button } from "@/components/ui";
 import { supabase } from "@/lib/supabase";
@@ -168,6 +169,10 @@ export default function CheckinResultScreen() {
         return;
       }
 
+      // A-H04: haptic success confirmation — mirrors rescue protocol completion behavior.
+      // The tactile feedback signals "done, you're safe" without any visual noise.
+      await Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+
       // Guardado exitoso → ir al inicio (lock stays true — screen navigates away)
       goHome();
 
@@ -183,8 +188,13 @@ export default function CheckinResultScreen() {
         { cancelable: false }
       );
     } finally {
-      // Reset both ref and state — ref allows retry after error, state re-enables button UI
-      isSavingRef.current = false;
+      // D-01: only reset the lock in the finally block if we didn't succeed.
+      // On success, goHome() navigates away (unmountOnBlur: true unmounts the tab stack),
+      // so resetting state on an unmounted component is harmless — but resetting
+      // isSavingRef.current = false could theoretically allow a second INSERT if
+      // goHome() hasn't completed navigation yet. The ref stays true on success path.
+      // On error paths, the ref is already reset above before the Alert, so this
+      // finally block is a safety net for exception paths only.
       setIsSaving(false);
     }
   };

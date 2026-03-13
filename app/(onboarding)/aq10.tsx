@@ -22,6 +22,23 @@ import { supabase } from "@/lib/supabase";
 import { useAuthStore } from "@/stores/auth"; // B-49: guardar score en profiles
 
 /** Definición de cada pregunta AQ-10 con dirección de scoring */
+/**
+ * M-NEW-02: WHY AQ-10 USES A DIFFERENT SELECTION MODEL THAN TestScreen
+ *
+ * AQ-10 (this file) uses a binary `agree: boolean` model:
+ *   - The user picks "Agree" or "Disagree" (Likert-style, reduced to 2 options)
+ *   - `scoreOnAgree` tells us whether selecting "Agree" increments the score
+ *   - Selection state is tracked as `agreed: boolean | null`
+ *
+ * TestScreen (components/onboarding/TestScreen.tsx) uses an array INDEX model:
+ *   - The user picks from 4–5 Likert options (0–4 numeric scale)
+ *   - Selection is compared by OPTION INDEX (not value) to prevent a double-select
+ *     bug where two options share the same `.value` (e.g., AQ-Full has two value=1 options)
+ *   - Score is computed from the `.value` field after correct option is found by index
+ *
+ * These are NOT the same model. Do NOT apply index-based logic to AQ-10 scoring,
+ * and do NOT apply `agree: boolean` logic to TestScreen variants.
+ */
 interface AQ10Question {
   text: string;
   /** true = puntúa cuando responde "de acuerdo", false = puntúa "en desacuerdo" */

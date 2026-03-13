@@ -501,53 +501,13 @@ export default function RescueProtocolScreen() {
           </Pressable>
 
           {/*
-            T-U5: "Notify trusted contact" button with mandatory confirmation dialog.
-            The confirmation step prevents accidental sends (false positives).
-            Actual Supabase send + contact loading is TODO (Sprint 2.1 trusted contacts).
-            The Alert pattern is already wired — just needs the backend when ready.
+            S-04: "Notify trusted contact" button is HIDDEN until Sprint 2.1.
+            The button was a no-op — showed a confirmation dialog but sent nothing.
+            Shipping a non-functional crisis safety button is a clinical risk:
+            the user believes help is coming when it isn't.
+            Re-enable when trusted_contacts loading + push/SMS notification is wired.
+            The Alert pattern and styles remain in place for Sprint 2.1 implementation.
           */}
-          <View style={{ height: 16 }} />
-          <Pressable
-            onPress={() => {
-              // T-U5: Always confirm before notifying — never auto-send (UX Guideline #35).
-              Alert.alert(
-                "¿Notificar a un contacto?",
-                "Esto enviará un mensaje a tu contacto de confianza avisando que necesitas apoyo. ¿Continuar?",
-                [
-                  {
-                    text: "Cancelar",
-                    style: "cancel",
-                    // No action — user stays in protocol
-                  },
-                  {
-                    text: "Sí, notificar",
-                    style: "default",
-                    onPress: () => {
-                      // TODO (Sprint 2.1): load trusted_contacts from Supabase and
-                      // send push notification / SMS to the user's trusted contact.
-                      // For now: show confirmation that the action was registered.
-                      Alert.alert(
-                        "Registrado",
-                        "Tu contacto será notificado. Recuerda que también puedes llamar directamente.",
-                        [{ text: "Ok" }]
-                      );
-                    },
-                  },
-                ]
-              );
-            }}
-            style={({ pressed }) => [
-              styles.notifyBtn,
-              { borderColor: secondaryBorder },
-              pressed && styles.secondaryBtnPressed,
-            ]}
-            accessibilityRole="button"
-            accessibilityLabel="Notificar a un contacto de confianza"
-          >
-            <Text style={[styles.secondaryBtnLabel, { color: secondaryText }]}>
-              Notificar a un contacto
-            </Text>
-          </Pressable>
         </View>
       </View>
     </SafeScreen>

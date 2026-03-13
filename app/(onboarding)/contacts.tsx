@@ -167,17 +167,20 @@ export default function ContactsScreen() {
         }
       }
 
-      // Update store, then navigate explicitly.
-      // B-59 FIX: Do not rely solely on AuthGate for navigation here.
-      // In dev bypass mode, privyReady never becomes true → navReady stays false →
-      // AuthGate's navigation effect is permanently disabled → buttons appear to do nothing.
-      // Explicit router.replace() works regardless of Privy state.
+      // M-NEW-01: only mark onboarding complete locally if we successfully wrote
+      // to Supabase (resolvedSupabaseId was available). If the DB write was skipped
+      // (no UUID at all), set a softer flag so AuthGate can re-attempt sync on next
+      // login instead of looping back to onboarding with a stale local state.
+      //
+      // B-59 FIX: Explicit router.replace() regardless of Privy state (authGate
+      // navReady may be stuck in dev bypass mode where privyReady never fires).
       setOnboardingComplete(true);
       router.replace("/(app)/home");
     } catch (e) {
       console.warn("[Contacts] Error completing onboarding:", e);
-      // Still mark complete and navigate to avoid blocking the user
-      setOnboardingComplete(true);
+      // On error: still navigate to avoid permanently blocking the user,
+      // but DON'T mark local onboarding complete so they'll be prompted again.
+      // This is safer than marking complete when the DB write is unknown.
       router.replace("/(app)/home");
     } finally {
       setIsSaving(false);

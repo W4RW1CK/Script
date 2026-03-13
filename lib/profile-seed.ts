@@ -9,6 +9,13 @@
  * Se guardan en el Zustand store y se re-calculan desde los scores guardados.
  * Opcionalmente se pueden cachear en SecureStore.
  *
+ * H-NEW-03 — TODO Sprint 3.X: Wire up `generateProfileSeed()` to onboarding completion.
+ * Call from `app/(onboarding)/contacts.tsx::completeOnboarding()` after scores are saved:
+ *   const seed = generateProfileSeed(authStore.scores);
+ *   authStore.setProfileSeed(seed); // add to stores/auth.ts
+ * This seeds script priorities (scriptsPriority) and sensory defaults into home.tsx
+ * so the first-session content is personalized, not generic.
+ *
  * La lógica está basada en las tablas de impacto del PRD §3.1:
  * - AQ alto → scripts de socialización primero
  * - CAT-Q alto en enmascaramiento → mensajes de autenticidad
