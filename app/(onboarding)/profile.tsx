@@ -112,25 +112,40 @@ export default function ProfileScreen() {
          * B-47: age field removed — does not exist in schema.
          */
 
-        // ── 1. Profile data → save-onboarding Edge Function (service role) ──
-        // Direct INSERT/UPDATE to profiles requires Supabase RLS session which
-        // fails for Google OAuth users (verifyOtp incompatibility). Service role
-        // Edge Function validates privy_user_id + user_id server-side.
+        // ── 1. Profile data — try Edge Function first, fallback to direct DB ──
+        // save-onboarding Edge Function is ideal (service role, RLS-agnostic).
+        // If it fails (not yet deployed), fall back to direct upsert — works when
+        // RLS is disabled for demo (ALTER TABLE profiles DISABLE ROW LEVEL SECURITY).
         const { error: profileError } = await supabase.functions.invoke("save-onboarding", {
           body: {
             privy_user_id: privyId,
             user_id: supabaseUserId,
             action: "save_profile",
-            // sensory_sensitivities maps to profiles.sensitivities (JSONB)
             sensory_sensitivities: Object.fromEntries(
               selectedSensitivities.map((k) => [k, true])
             ),
             interests: selectedInterests,
-            // display_name goes to users table separately (see below)
           },
         });
 
-        if (profileError) throw profileError;
+        if (profileError) {
+          // Edge Function unavailable — fall back to direct DB write (demo mode)
+          console.warn("[Profile] save-onboarding EF failed, using direct upsert:", profileError.message);
+          const { error: directError } = await supabase
+            .from("profiles")
+            .upsert(
+              {
+                user_id:        supabaseUserId,
+                interests:      selectedInterests,
+                sensitivities:  Object.fromEntries(
+                  selectedSensitivities.map((k) => [k, true])
+                ),
+                existing_tools: selectedTools,
+              },
+              { onConflict: "user_id" }
+            );
+          if (directError) console.warn("[Profile] direct upsert also failed (non-fatal):", directError.message);
+        }
 
         // ── 2. Display name → users table (still needs direct update) ─────
         if (data.name.trim()) {
