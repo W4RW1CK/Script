@@ -106,71 +106,67 @@ function AuthGate({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     if (!privyReady) return;           // Esperar a que Privy termine de cargar
     if (!authenticated) return;        // Sin sesión, nada que sincronizar
-    if (storeUser) return;             // Zustand ya tiene el usuario, no re-sincronizar
     if (!privyUser) return;            // Necesitamos el objeto user para extraer email/id
 
-    // Privy tiene sesión pero Zustand está vacío → restaurar
+    // B-RLS-FIX: Always verify the Supabase session is valid, even if storeUser exists.
+    // Previously: `if (storeUser) return` — this skipped sync on every restart.
+    // Problem: the Supabase session in SecureStore can expire or have the wrong UUID
+    // (from a previous UUID mismatch bug), with no recovery path.
+    // Fix: always check session validity. Only skip re-sync if session is valid
+    // AND the session UUID matches storeUser.supabaseUserId.
     const privyId = privyUser.id;
     const userEmail = getPrivyEmail(privyUser); // S-03: centralized helper
 
-    // Setear usuario básico en Zustand de inmediato
-    setUser({ privyId, email: userEmail, supabaseUserId: null });
+    supabase.auth.getSession().then(({ data: sessionData }) => {
+      const s = sessionData?.session;
+      const expectedId = storeUser?.supabaseUserId;
+      const sessionValid =
+        s != null &&
+        expectedId != null &&
+        s.user?.id === expectedId &&
+        s.expires_at != null &&
+        s.expires_at * 1000 > Date.now() + 10_000; // 10s buffer
 
-    // Luego obtener datos completos de Supabase (incluyendo onboarding_complete)
-    supabase.functions
-      .invoke("sync-privy-user", {
-        body: { privy_user_id: privyId, email: userEmail },
-      })
-      .then(({ data, error }) => {
-        if (!error && data?.user_id) {
-          setSupabaseUserId(data.user_id);
-          if (data.onboarding_complete) {
-            setOnboardingComplete(true);
+      if (sessionValid) {
+        // Session is valid and UUID matches — nothing to do
+        console.log("[AuthGate] Supabase session valid for", expectedId, "— skipping sync");
+        return;
+      }
+
+      // Session missing, expired, or UUID mismatch → full re-sync
+      console.log("[AuthGate] Session invalid or UUID mismatch — re-syncing");
+
+      // Set user in Zustand immediately (preserves supabaseUserId if we had it)
+      if (!storeUser) {
+        setUser({ privyId, email: userEmail, supabaseUserId: null });
+      }
+
+      supabase.functions
+        .invoke("sync-privy-user", {
+          body: { privy_user_id: privyId, email: userEmail },
+        })
+        .then(({ data, error }) => {
+          if (!error && data?.user_id) {
+            setSupabaseUserId(data.user_id);
+            if (data.onboarding_complete) {
+              setOnboardingComplete(true);
+            }
+            // Always call verifyOtp here — we only reach this branch when the
+            // session was missing, expired, or had the wrong UUID. A fresh token
+            // from sync-privy-user always needs to be verified to establish RLS.
+            if (data.otp_token_hash) {
+              setSupabaseToken(data.otp_token_hash).catch((e) =>
+                console.warn("[AuthGate] setSupabaseToken failed:", e)
+              );
+            }
+          } else {
+            console.warn("[AuthGate] sync-privy-user error:", error?.message ?? "no data");
           }
-          // B-51 v3: Only call verifyOtp if no valid Supabase session exists.
-          //
-          // Magic link tokens (otp_token_hash) are SINGLE-USE — calling verifyOtp
-          // a second time with the same or a stale token produces:
-          //   AuthApiError: Email link is invalid or has expired
-          //
-          // On every app restart: Zustand is empty (in-memory store resets) so
-          // sync-privy-user runs again and returns a fresh token. But if the
-          // Supabase session from the PREVIOUS restart is still valid in SecureStore
-          // (persistSession: true), we can reuse it — no need to call verifyOtp again.
-          //
-          // Fix: check SecureStore session first. Only call verifyOtp when:
-          //   a) No persisted session exists, OR
-          //   b) Persisted session is for a different user, OR
-          //   c) Persisted session has expired (no autoRefreshToken)
-          if (data.otp_token_hash) {
-            supabase.auth.getSession()
-              .then(({ data: sessionData }) => {
-                const s = sessionData?.session;
-                const isValid =
-                  s != null &&
-                  s.user?.id === data.user_id &&
-                  s.expires_at != null &&
-                  s.expires_at * 1000 > Date.now() + 10_000; // 10s safety buffer
-                if (isValid) {
-                  console.log("[AuthGate] Existing Supabase session still valid — skipping verifyOtp");
-                } else {
-                  setSupabaseToken(data.otp_token_hash).catch((e) =>
-                    console.warn("[AuthGate] setSupabaseToken failed:", e)
-                  );
-                }
-              })
-              .catch(() => {
-                // getSession failed — fallback: always try to set token
-                setSupabaseToken(data.otp_token_hash).catch((e) =>
-                  console.warn("[AuthGate] setSupabaseToken failed:", e)
-                );
-              });
-          }
-        }
-      })
-      .catch((e) => {
-        console.warn("[AuthGate] Error sincronizando sesión al arranque:", e);
-      });
+        })
+        .catch((e) => {
+          console.warn("[AuthGate] Error sincronizando sesión al arranque:", e);
+        });
+    });
   }, [privyReady, authenticated, privyUser, storeUser]);
 
   /**
